@@ -6,4 +6,4 @@ dependencies:
   - numpy
   - matplotlib
   - scipy 
-  - pyross 
+  - pandas 
