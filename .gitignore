@@ -1,0 +1,79 @@
+*.pyc
+*.so
+*.ipynb_checkpoints
+*~
+*.swp
+*.mat
+*.swo
+*.html
+*.c
+*egg-info*
+dist
+
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+
+*.dvi
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+build/
+
+## Build tool auxiliary files:
+*.fdb_latexmk
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+
+*.alg
+*.loa
+
+# amsthm
+*.thm
+
+# beamer
+*.nav
+*.snm
+*.vrb
+
+
+# hyperref
+*.brf
+
+
+# makeidx
+*.idx
+*.ilg
+*.ind
+*.ist
+
+# minitoc
+*.maf
+*.mtc
+*.mtc0
+
+*.pyg
+
+
+# sagetex
+*.sagetex.sage
+*.sagetex.py
+*.sagetex.scmd
+
+
+*.tdo
+*.vtk
+*.vtu
+*.pvsm
+*.npz
+*.pvd
+build/ 
+.DS_Store
