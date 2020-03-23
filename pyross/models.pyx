@@ -1,8 +1,6 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
-from scipy.io import savemat
-import odespy
 from libc.math cimport sqrt
 from cython.parallel import prange
 cdef double PI = 3.14159265359
@@ -75,23 +73,29 @@ cdef class SIR:
         return
 
          
-    def simulate(self, Tf, CM, filename='this.mat'):
+    def simulate(self, Tf, CM, integrator='odeint', filename='this.mat'):
+        from scipy.integrate import odeint
+        from scipy.io import savemat
+
         self.CM = CM
         time_points=np.linspace(0, Tf, Tf+1);  ## intervals at which output is returned by integrator. 
         dt = time_points[1] - time_points[0]
+        
         def rhs0(rp, t):
             self.rhs(rp)
             #print (np.max(self.drpdt))
             return self.drpdt
             
-        solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #solver = odespy.RKF45(rhs0)
-        #solver = odespy.RK4(rhs0)
-        solver.set_initial_condition(self.rp0)
+        u = odeint(rhs0, self.rp0, time_points, mxstep=5000000)
         
-        u, t = solver.solve(time_points)
-        ss = 1# int(Npts/10000)
+        #elif integrator=='odespy-vode':
+        #    import odespy
+        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+        #    #solver = odespy.RKF45(rhs0)
+        #    #solver = odespy.RK4(rhs0)
+        #    solver.set_initial_condition(self.rp0)
+        #    u, time_points = solver.solve(time_points)
 
-        savemat(filename, {'X':u[::ss], 't':t[::ss], 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gamma':self.gamma })
+        savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gamma':self.gamma })
         return
         
