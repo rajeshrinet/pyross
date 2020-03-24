@@ -11,7 +11,7 @@
 
 The library was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. 
 
-The library is named after Sir. Ronald Ross, doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bit of a mosquito" for which he won the Nobel Prize in 1902. He laid the foundations of the mathematical modelling of infectious diseases. 
+The library is named after [Sir. Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bit of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases. 
 
 
 ## News
