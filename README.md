@@ -2,7 +2,7 @@
 
 [About](#about) | [News](#news) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications)| [Support](#support) | [License](#license)
 
-![Imagel](examples/banner.png)
+[//]: ![Imagel](examples/banner.png)
 
 
 ## About
@@ -31,10 +31,20 @@ PyRoss requires the following software
 - Python 2.6+ or Python 3.4+
 - [Cython 0.25.x+](http://docs.cython.org/en/latest/index.html) |  [Matplotlib 2.0.x+](https://matplotlib.org) | [NumPy 1.x+](http://www.numpy.org) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional) | [Pandas](https://pandas.pydata.org/) | [SciPy 1.1.x+](https://www.scipy.org/) 
 
+## Data sources
+
+The age and social contact data that is needed to construct structured compartment models can be found at the following sources:
+
+* **Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website. 
+* **Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
+
+
 ## Examples
 
 
 ## Publications
+
+* *Age-structured impact of social distancing on the COVID-19 epidemic in India*, Rajesh Singh and R. Adhikari, 2020 (working paper).
 
 
 ## Support
