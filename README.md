@@ -40,7 +40,7 @@ The age and social contact data that is needed to construct structured compartme
 **Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
 
 
-**COVID-19 cases:** [https://www.worldometers.info/](https://www.worldometers.info/)
+**COVID-19 cases:** [Worldometers](https://www.worldometers.info/coronavirus)
 
 
 ## Examples
