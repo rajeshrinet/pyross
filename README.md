@@ -44,6 +44,32 @@ The age and social contact data that is needed to construct structured compartme
 
 
 ## Examples
+```Python
+#Ex1: M=1
+import numpy as np
+import pyross
+
+M = 1                  # age groups
+Ni = 1000*np.ones(M)   # population in each group
+N = np.sum(Ni)
+
+Ia0, Is0, R0 = 0, 1, 0
+S0 = N - Ia0 - R0 - Is0
+
+alpha, beta, gamma = 0, 0.2, 1./10
+
+Tf = 160;   C = np.zeros((2*Tf, M*M))
+
+for i in range(2*Tf):
+    C[i, :] = np.identity(M).reshape(M*M)
+
+fsa=1
+model = pyross.models.SIR(S0, Ia0, Is0, alpha, beta, gamma, fsa, M, Ni, Tf)
+
+#run simulation and save data
+Nf=160; filename='this.mat'
+model.simulate(C, Nf, filename)
+```
 
 
 ## Publications
