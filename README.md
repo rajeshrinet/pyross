@@ -56,18 +56,16 @@ N = np.sum(Ni)
 Ia0, Is0, R0 = 0, 1, 0
 S0 = N - Ia0 - R0 - Is0
 
-alpha, beta, gamma = 0, 0.2, 1./10
+alpha, beta, gamma, fsa = 0, 0.2, 1./10, 1
 
 Tf = 160;   C = np.zeros((2*Tf, M*M))
+Nf=160; filename='this.mat'
 
 for i in range(2*Tf):
     C[i, :] = np.identity(M).reshape(M*M)
 
-fsa=1
-model = pyross.models.SIR(S0, Ia0, Is0, alpha, beta, gamma, fsa, M, Ni, Tf)
-
 #run simulation and save data
-Nf=160; filename='this.mat'
+model = pyross.models.SIR(S0, Ia0, Is0, alpha, beta, gamma, fsa, M, Ni, Tf)
 model.simulate(C, Nf, filename)
 ```
 

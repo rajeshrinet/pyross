@@ -13,6 +13,7 @@ ctypedef np.float_t DTYPE_t
 
 
 
+
 cdef class SIR:
     """
     Susceptible, Infected, Recovered (SIR)
@@ -61,7 +62,6 @@ cdef class SIR:
             double [:,:] CM = self.CC
             double [:] X    = self.drpdt        
 
-
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
@@ -72,21 +72,18 @@ cdef class SIR:
             X[i+2*M] = (1-alpha)*aa - gamma*Is[i]
         return
 
-
          
     def simulate(self, CM, Nf, integrator='odeint', filename='this.mat'):
         from scipy.integrate import odeint
         from scipy.io import savemat
         self.CM = CM
-
-        time_points=np.linspace(0, self.Tf, Nf);  ## intervals at which output is returned by integrator. 
         
         def rhs0(rp, t):
             self.rhs(rp, t)
             return self.drpdt
             
+        time_points=np.linspace(0, self.Tf, Nf);  ## intervals at which output is returned by integrator. 
         u = odeint(rhs0, self.rp0, time_points, mxstep=5000000)
-        
         #elif integrator=='odespy-vode':
         #    import odespy
         #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
@@ -94,7 +91,6 @@ cdef class SIR:
         #    #solver = odespy.RK4(rhs0)
         #    solver.set_initial_condition(self.rp0)
         #    u, time_points = solver.solve(time_points)
-
         savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gamma':self.gamma })
         return
         
