@@ -1,14 +1,13 @@
-Contact matrix data is obtained from 
+## Data sources
 
-Projecting social contact matrices in 152 countries using contact surveys and demographic data (Prem-Jit-Cook)
+The age and social contact data that is needed to construct structured compartment models can be found at the following sources:
 
-https://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC5609774&blobtype=pdf
+**Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website. 
 
-Supplementary information file contains the contact matrices mu_ij for home, work, school and others and their sum, which is the total contact matrix. 
+**Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
 
-Populations are aggregated into 5 year bins. The maximum age is 80. Therefore, there are 16 bins. 
+The list of COVID-19 cases is obtained from
+**COVID-19 cases:** [Worldometers](https://www.worldometers.info/coronavirus) website.
 
-Data is Bayesian imputation combining POLYMOD, DHS, and ROW data. Empirical data exists for India, which is part of the DHS survey. Therefore, Bayesian imputation agrees very well with empirical data in this case. 
 
-Contact matrices may need to be adjusted to ensure reciprocity. 
 
