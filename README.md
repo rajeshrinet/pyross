@@ -7,7 +7,7 @@
 
 ## About
 
-[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. Currently the library supports structured compartment models formulated as systems of differential equations. The library takes as input the distribution of population in age-groups and contact structure among these groups.  
+[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. Currently the library supports structured compartment models formulated as systems of differential equations. 
 
 The library was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. 
 
@@ -39,7 +39,7 @@ The age and social contact data that is needed to construct structured compartme
 
 **Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
 
-The list of COVID-19 cases is obtained from: [Worldometers](https://www.worldometers.info/coronavirus) website.
+The list of COVID-19 cases is obtained from the [Worldometers website](https://www.worldometers.info/coronavirus).
 
 
 ## Examples
@@ -71,7 +71,7 @@ model.simulate(C, Nf, filename)
 
 ## Publications
 
-* *Age-structured impact of social distancing on the COVID-19 epidemic in India*, Rajesh Singh and R. Adhikari, 2020 (working paper).
+* [*Age-structured impact of social distancing on the COVID-19 epidemic in India*, Rajesh Singh and R. Adhikari](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf), [arXiv:2003.12055](https://arxiv.org/abs/2003.12055).
 
 
 ## Support
