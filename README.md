@@ -19,7 +19,7 @@ The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronal
 
 * [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf), Rajesh Singh and R. Adhikari, [arXiv:2003.12055](https://arxiv.org/abs/2003.12055).
 
-Our latest forecast:
+Our latest forecast using case data until 25-03-2020:
 ![Imagel](draft/Fig4.jpg)
 
 
