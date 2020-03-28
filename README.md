@@ -71,7 +71,7 @@ model.simulate(C, Nf, filename)
 
 ## Publications
 
-* [Age-structured impact of social distancing on the COVID-19 epidemic in India, Rajesh Singh and R. Adhikari](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf), [arXiv:2003.12055](https://arxiv.org/abs/2003.12055).
+* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf), Rajesh Singh and R. Adhikari, [arXiv:2003.12055](https://arxiv.org/abs/2003.12055).
 
 
 ## Support
