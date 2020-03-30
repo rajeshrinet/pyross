@@ -78,6 +78,7 @@ for i in range(2*Tf):
 model = pyross.models.SIR(S0, Ia0, Is0, alpha, beta, gamma, fsa, M, Ni, Tf)
 model.simulate(C, Nf, filename)
 ```
+See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked out examples.
 
 
 ## Support
