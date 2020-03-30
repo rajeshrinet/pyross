@@ -5,7 +5,7 @@
 ![Imagel](examples/banner.png)
 
 ## Contact
-The authors of the paper can be contact at: Rajesh Singh (rs2004@cam.ac.uk) and R. Adhikari (ra413@cam.ac.uk)
+The authors of the paper can be contacted at: Rajesh Singh (rs2004@cam.ac.uk) and R. Adhikari (ra413@cam.ac.uk)
 
 ## About
 
