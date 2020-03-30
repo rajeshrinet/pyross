@@ -4,9 +4,6 @@
 
 ![Imagel](examples/banner.png)
 
-## Contact
-The authors  can be contacted at: rs200@cam.ac.uk (Rajesh Singh) and ra413@cam.ac.uk (R. Adhikari). Please [open an issue](https://github.com/rajeshrinet/pyross/issues) in preference to emailing us with queries, as these can then be shared with others with similar queries. Thanks!
-
 ## About
 
 [PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. Currently the library supports structured compartment models formulated as systems of differential equations. 
@@ -15,6 +12,9 @@ The library was developed to model the outbreak of the novel coronavirus COVID-1
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases. 
 
+
+## Contact
+The authors  can be contacted at: rs200@cam.ac.uk (Rajesh Singh) and ra413@cam.ac.uk (R. Adhikari). Please [open an issue](https://github.com/rajeshrinet/pyross/issues) in preference to emailing us with queries, as these can then be shared with others with similar queries. Thanks!
 
 
 ## Publications
