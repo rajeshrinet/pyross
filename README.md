@@ -78,8 +78,9 @@ for i in range(2*Tf):
 model = pyross.models.SIR(S0, Ia0, Is0, alpha, beta, gamma, fsa, M, Ni, Tf)
 model.simulate(C, Nf, filename)
 ```
-See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked out examples.
+* See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked out examples.
 
+* [State-wise prediction of COVID-19 in India using PyRoss](https://medium.com/@mohit.chaukikar_57513/an-attempt-to-study-the-spread-of-covid-19-at-state-level-in-india-6ccb910c8b55)
 
 ## Support
 
