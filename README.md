@@ -80,7 +80,7 @@ model.simulate(C, Nf, filename)
 ```
 * See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked out examples.
 
-* [State-wise prediction of COVID-19 in India using PyRoss](https://medium.com/@mohit.chaukikar_57513/an-attempt-to-study-the-spread-of-covid-19-at-state-level-in-india-6ccb910c8b55)
+* [State-wise prediction of COVID-19 in India using PyRoss by Ashish Kumar and Mohit Chaukikar](https://medium.com/@mohit.chaukikar_57513/an-attempt-to-study-the-spread-of-covid-19-at-state-level-in-india-6ccb910c8b55)
 
 ## Support
 
