@@ -1,6 +1,6 @@
 ## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
 
-[About](#about) | [Contact](#contact) | [Publications ](#publications) | [News](#news) | [Installation](#installation) | [Examples](#examples) | [Support](#support) | [License](#license)
+[About](#about) | [Contact](#contact) | [Publications ](#publications) | [News](#news) | [Installation](#installation) | [Examples](#examples) | [License](#license)
 
 ![Imagel](examples/banner.png)
 
@@ -87,14 +87,11 @@ model = pyross.models.SIR(alpha, beta, gamma, fsa, M, Ni)
 model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt, filename)
 ```
 
-* See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked out examples.
+* See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked-out examples.
 
 * [State-wise prediction of COVID-19 in India using PyRoss by Ashish Kumar and Mohit Chaukikar](https://medium.com/@mohit.chaukikar_57513/an-attempt-to-study-the-spread-of-covid-19-at-state-level-in-india-6ccb910c8b55)
 
-## Support
 
-* For help with and questions about PyRoss, please post to the [pyross-users](https://groups.google.com/forum/#!forum/pyross) group.
-* For bug reports and feature requests, please use the [issue tracker](https://github.com/rajeshrinet/pyross/issues) on GitHub.
 
 ## License
 We believe that openness and sharing improves the practice of science and increases the reach of its benefits. This code is released under the [MIT license](http://opensource.org/licenses/MIT). Our choice is guided by the excellent article on [Licensing for the scientist-programmer](http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002598). 
