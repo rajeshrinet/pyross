@@ -29,7 +29,6 @@ cdef class SIR:
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives 
         self.beta  = parameters.get('beta')                     # infection rate 
         self.gamma = parameters.get('gamma')                    # recovery rate
-        self.zeta  = parameters.get('zeta')                     # inverse of the average incubation period
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter 
 
         self.N     = np.sum(Ni)
@@ -45,7 +44,7 @@ cdef class SIR:
         cdef: 
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gamma=self.gamma, aa, bb
-            double fsa=self.fsa
+            double fsa=self.fsa, alphab = 1-self.alpha
             double [:] S    = rp[0:M]        
             double [:] Ia   = rp[M:2*M]       
             double [:] Is   = rp[2*M:3*M]       
@@ -60,8 +59,8 @@ cdef class SIR:
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa
-            X[i+M]   = alpha*aa     - gamma*Ia[i]
-            X[i+2*M] = (1-alpha)*aa - gamma*Is[i]
+            X[i+M]   = alpha *aa - gamma*Ia[i]
+            X[i+2*M] = alphab*aa - gamma*Is[i]
         return
 
          
