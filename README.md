@@ -58,7 +58,7 @@ The list of COVID-19 cases is obtained from the [Worldometer website](https://ww
 
 ## Examples
 ```Python
-#Ex1: M=1
+#Ex1: M=1, SIR
 import numpy as np
 import pyross
 M = 1                  # the SIR model has no age structure
