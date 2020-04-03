@@ -43,8 +43,8 @@ cdef class SIR:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
             double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
-            double [:] S    = rp[0:M]        
-            double [:] Ia   = rp[M:2*M]       
+            double [:] S    = rp[0  :M]        
+            double [:] Ia   = rp[M  :2*M]       
             double [:] Is   = rp[2*M:3*M]       
             double [:] Ni   = self.Ni       
             double [:] ld   = self.lld       
@@ -123,8 +123,8 @@ cdef class SEIR:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
             double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
-            double [:] S    = rp[0:M]        
-            double [:] E    = rp[M:2*M]       
+            double [:] S    = rp[0  :  M]        
+            double [:] E    = rp[  M:2*M]       
             double [:] Ia   = rp[2*M:3*M]       
             double [:] Is   = rp[3*M:4*M]       
             double [:] Ni   = self.Ni       
@@ -208,10 +208,11 @@ cdef class SEAIR:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
             double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
-            double [:] S    = rp[0:M]        
-            double [:] E    = rp[M:2*M]       
-            double [:] Ia   = rp[2*M:3*M]       
-            double [:] Is   = rp[3*M:4*M]       
+            double [:] S    = rp[0  :  M]        
+            double [:] E    = rp[  M:2*M]       
+            double [:] A    = rp[2*M:3*M]       
+            double [:] Ia   = rp[3*M:4*M]       
+            double [:] Is   = rp[4*M:5*M]       
             double [:] Ni   = self.Ni       
             double [:] ld   = self.lld       
             double [:,:] CM = self.CM
@@ -303,11 +304,11 @@ cdef class SEAIRQ:
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
             double tS=self.tS, tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
             double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
-            double [:] S    = rp[0:M]        
-            double [:] E    = rp[M:2*M]       
-            double [:] E    = rp[M:2*M]       
-            double [:] Ia   = rp[2*M:3*M]       
-            double [:] Is   = rp[3*M:4*M]       
+            double [:] S    = rp[0*M:M]        
+            double [:] E    = rp[1*M:2*M]       
+            double [:] A    = rp[2*M:3*M]       
+            double [:] Ia   = rp[3*M:4*M]       
+            double [:] Is   = rp[4*M:5*M]       
             double [:] Ni   = self.Ni       
             double [:] ld   = self.lld       
             double [:,:] CM = self.CM
@@ -344,7 +345,7 @@ cdef class SEAIRQ:
         #    #solver = odespy.RK4(rhs0)
         #    solver.set_initial_condition(self.rp0)
         #    u, time_points = solver.solve(time_points)
-        savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS})
+        savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs})
         return
         
 
