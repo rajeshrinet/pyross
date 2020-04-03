@@ -84,7 +84,8 @@ def contactMatrix(t):
 Tf = 160;  Nt=160; filename = 'this.mat'
 
 # instantiate model
-model = pyross.models.SIR(alpha, beta, gamma, fsa, M, Ni)
+parameters = {'alpha':alpha, 'beta':beta, 'gamma':gamma,'fsa':fsa}
+model = pyross.models.SIR(parameters, M, Ni)
 
 # simulate model
 model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt, filename)
