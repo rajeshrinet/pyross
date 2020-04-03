@@ -181,7 +181,7 @@ cdef class SEAIR:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gE, fsa
+        readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC
     
     def __init__(self, parameters, M, Ni):
@@ -200,7 +200,7 @@ cdef class SEAIR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
     
        
     cdef rhs(self, rp, tt):
@@ -224,12 +224,13 @@ cdef class SEAIR:
             aa = bb*S[i]
             X[i]     = -aa
             X[i+M]   = aa       - gE*  E[i]
-            X[i+2*M] = ce1*E[i] - gIa*Ia[i]
-            X[i+3*M] = ce2*E[i] - gIs*Is[i]
+            X[i+2*M] = gE* E[i] - (gAA+gAs)*E[i]
+            X[i+3*M] = gAA*E[i] - gIa*Ia[i]
+            X[i+r*M] = gAS*E[i] - gIs*Is[i]
         return
 
          
-    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='this.mat'):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='this.mat'):
         from scipy.integrate import odeint
         from scipy.io import savemat
         
@@ -239,7 +240,7 @@ cdef class SEAIR:
             return self.drpdt
             
         time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator. 
-        u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0)), time_points, mxstep=5000000)
+        u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
         #elif integrator=='odespy-vode':
         #    import odespy
         #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
