@@ -25,12 +25,12 @@ cdef class SIR:
         readonly double alpha, beta, gamma, fsa
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC
     
-    def __init__(self, alpha, beta, gamma, fsa, M, Ni):
+    def __init__(self, parameters, M, Ni):
 
-        self.alpha = alpha 
-        self.beta  = beta
-        self.gamma = gamma 
-        self.fsa   = fsa
+        self.alpha = parameters.get('alpha') 
+        self.beta  = parameters.get('beta')
+        self.gamma = parameters.get('gamma')
+        self.fsa   = parameters.get('fsa')
 
         self.N  = np.sum(Ni)
         self.M  = M
