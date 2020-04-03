@@ -97,14 +97,14 @@ cdef class SEIR:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gamma, zeta, fsa
+        readonly double alpha, beta, gamma, gamaE, fsa
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC
     
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives 
         self.beta  = parameters.get('beta')                     # infection rate 
         self.gamma = parameters.get('gamma')                    # recovery rate
-        self.zeta  = parameters.get('zeta')                     # inverse of the average incubation period
+        self.gamaE = parameters.get('gamaE')                     # inverse of the average incubation period
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter 
 
         self.N     = np.sum(Ni)
@@ -120,7 +120,7 @@ cdef class SEIR:
         cdef: 
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gamma=self.gamma, aa, bb
-            double fsa=self.fsa, zeta=self.zeta, ce1=self.zeta*self.alpha, ce2=self.zeta*(1-self.alpha)
+            double fsa=self.fsa, gamaE=self.gamaE, ce1=self.gamaE*self.alpha, ce2=self.gamaE*(1-self.alpha)
             double [:] S    = rp[0:M]        
             double [:] E    = rp[M:2*M]       
             double [:] Ia   = rp[2*M:3*M]       
@@ -136,7 +136,7 @@ cdef class SEIR:
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa
-            X[i+M]   = aa       - zeta*E[i]
+            X[i+M]   = aa       - gamaE*E[i]
             X[i+2*M] = ce1*E[i] - gamma*Ia[i]
             X[i+3*M] = ce2*E[i] - gamma*Is[i]
         return
