@@ -177,7 +177,7 @@ cdef class SEAIR:
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
-    A : asymptotic and infectious
+    A : Asymptomatic and infectious
     """
     cdef:
         readonly int N, M,
@@ -266,7 +266,7 @@ cdef class SEAIRQ:
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : asymptotic and infectious
+    A : Asymptomatic and infectious
     """
     cdef:
         readonly int N, M,
