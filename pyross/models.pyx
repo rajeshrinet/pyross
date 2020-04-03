@@ -138,9 +138,9 @@ cdef class SEIR:
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa
-            X[i+M]   = aa       - gE*E[i]
+            X[i+M]   = aa       - gE*  E[i]
             X[i+2*M] = ce1*E[i] - gIa*Ia[i]
-            X[i+3*M] = ce2*E[i] - gIa*Is[i]
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]
         return
 
          
@@ -223,9 +223,9 @@ cdef class SEAIR:
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa
-            X[i+M]   = aa       - gE*E[i]
+            X[i+M]   = aa       - gE*  E[i]
             X[i+2*M] = ce1*E[i] - gIa*Ia[i]
-            X[i+3*M] = ce2*E[i] - gIa*Is[i]
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]
         return
 
          
