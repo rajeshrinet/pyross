@@ -10,10 +10,7 @@ ctypedef np.float_t DTYPE_t
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
-
-
-
-
+@cython.nonecheck(False)
 cdef class SIR:
     """
     Susceptible, Infected, Recovered (SIR)
@@ -88,6 +85,10 @@ cdef class SIR:
 
 
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEIR:
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
@@ -132,7 +133,7 @@ cdef class SEIR:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb+ = beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa
             X[i+M]   = aa       - zeta*E[i]
@@ -141,7 +142,7 @@ cdef class SEIR:
         return
 
          
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='this.mat'):
+    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='this.mat'):
         from scipy.integrate import odeint
         from scipy.io import savemat
         
