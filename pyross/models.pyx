@@ -121,7 +121,7 @@ cdef class SEIR:
     cdef rhs(self, rp, tt):
         cdef: 
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
+            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, gIs=self.gIs, aa, bb
             double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
             double [:] S    = rp[0  :  M]        
             double [:] E    = rp[  M:2*M]       
@@ -206,10 +206,12 @@ cdef class SEAIR:
     cdef rhs(self, rp, tt):
         cdef: 
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
-            double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
-            double [:] S    = rp[0  :  M]        
-            double [:] E    = rp[  M:2*M]       
+            double beta=self.beta, aa, bb
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
+            double gAA=self.gAA*self.alpha, gAS=self.gAS*(1-self.alpha)
+
+            double [:] S    = rp[0*M:M]        
+            double [:] E    = rp[1*M:2*M]       
             double [:] A    = rp[2*M:3*M]       
             double [:] Ia   = rp[3*M:4*M]       
             double [:] Is   = rp[4*M:5*M]       
@@ -223,11 +225,11 @@ cdef class SEAIR:
             for j in prange(M):
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa
-            X[i+M]   = aa       - gE*  E[i]
-            X[i+2*M] = gE* E[i] - (gAA+gAs)*E[i]
-            X[i+3*M] = gAA*E[i] - gIa*Ia[i]
-            X[i+4*M] = gAS*E[i] - gIs*Is[i]
+            X[i]     = -aa      
+            X[i+M]   =  aa      - gE       *E[i]
+            X[i+2*M] = gE* E[i] - (gAA+gAS)*A[i]
+            X[i+3*M] = gAA*A[i] - gIa     *Ia[i]
+            X[i+4*M] = gAS*A[i] - gIs     *Is[i]
         return
 
          
@@ -301,9 +303,11 @@ cdef class SEAIRQ:
     cdef rhs(self, rp, tt):
         cdef: 
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
+            double beta=self.beta, aa, bb
             double tS=self.tS, tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
-            double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
+            double gAA=self.gAA*self.alpha, gAS=self.gAS*(1-self.alpha)
+
             double [:] S    = rp[0*M:M]        
             double [:] E    = rp[1*M:2*M]       
             double [:] A    = rp[2*M:3*M]       
@@ -319,11 +323,11 @@ cdef class SEAIRQ:
             for j in prange(M):
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa      - tS*S[i]
-            X[i+M]   = aa       - (gE+tE)*E[i]
-            X[i+2*M] = gE* E[i] - (gAA+gAs+tA)*E[i]
-            X[i+3*M] = gAA*E[i] - (gIa+tIa   )*Ia[i]
-            X[i+4*M] = gAS*E[i] - (gIs+tIs   )*Is[i]
+            X[i]     = -aa      - tS          *S[i]
+            X[i+M]   =  aa      - (gE+tE)     *E[i]
+            X[i+2*M] = gE* E[i] - (gAA+gAS+tA)*A[i]
+            X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]
+            X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]
         return
 
          
