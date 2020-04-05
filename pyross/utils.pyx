@@ -18,9 +18,9 @@ class GPR:
         self.nP   =  nP           # # number of priors
         self.xS   =  xS           # test input
         self.xT   =  xT           # training input
-        self.yT   =  yT           # test output
+        self.yT   =  yT           # training output
 
-        self.yS   =  0            # training output
+        self.yS   =  0            # test output
         self.yP   =  0            # prior output
         self.K    =  0            # kernel
         self.Ks   =  0            # kernel
