@@ -24,7 +24,7 @@ Please [open an issue](https://github.com/rajeshrinet/pyross/issues) in preferen
 
 * [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf), Rajesh Singh and R. Adhikari, [arXiv:2003.12055](https://arxiv.org/abs/2003.12055).
 
-Our latest forecast using case data until 25-03-2020:
+Our latest forecast using case data until 25-03-2020 comparing age-structured SIR (lower bound) and SEIR models (exceeds SIR bound) :
 ![SIR and SEIR](draft/sir-seir.gif)
 
 
