@@ -16,17 +16,17 @@ class GPR:
         self.nT   =  nT           # # of training data points
         self.iP   =  iP           # # inverse of sigma
         self.nP   =  nP           # # number of priors
-        self.xS   =  xS           # training input
-        self.xT   =  xT           # training output
+        self.xS   =  xS           # test input
+        self.xT   =  xT           # training input
         self.yT   =  yT           # test output
 
-        self.yS   =  0           
-        self.yP   =  0           # prior output
-        self.K    =  0          # kernel
-        self.Ks   =  0          # kernel
-        self.Kss  =  0          # kernel
-        self.mu   =  0          # mean
-        self.sd   =  0          # stanndard deviation
+        self.yS   =  0            # training output
+        self.yP   =  0            # prior output
+        self.K    =  0            # kernel
+        self.Ks   =  0            # kernel
+        self.Kss  =  0            # kernel
+        self.mu   =  0            # mean
+        self.sd   =  0            # stanndard deviation
 
         
     def calcDistM(self, r, s): 
