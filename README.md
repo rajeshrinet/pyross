@@ -24,7 +24,7 @@ Please [open an issue](https://github.com/rajeshrinet/pyross/issues) in preferen
 
 * [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf), Rajesh Singh and R. Adhikari, [arXiv:2003.12055](https://arxiv.org/abs/2003.12055).
 
-Forecast: number of infectives using case data till 25-03-2020 for SIR and SEIR models. The SIR model provides a lower bound. 
+Number of infectives using case data till 25-03-2020 for SIR and SEIR models. The latter provides a lower bound. 
 ![SIR and SEIR](draft/sir-seir.gif)
 
 
