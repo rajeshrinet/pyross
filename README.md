@@ -17,7 +17,7 @@ The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronal
 
 The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP) ](https://www.maths.cam.ac.uk/features/call-action-covid-19) taskforce. We can be contacted at: rs2004@cam.ac.uk (Rajesh Singh) and ra413@cam.ac.uk (R. Adhikari). 
 
-Please [open an issue](https://github.com/rajeshrinet/pyross/issues) in preference to emailing us with queries, as these can then be shared with others with similar queries. Thanks!
+Please [open an issue](https://github.com/rajeshrinet/pyross/issues) in preference to emailing us with queries, as these can then be shared with others with similar queries. Thank you!
 
 
 ## Publications
