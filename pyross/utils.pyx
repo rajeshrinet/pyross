@@ -11,22 +11,22 @@ import matplotlib.pyplot as plt
 
 
 class GPR:
-    def __init__(self, nS, nT, iP, nP, Lx, xS, xT, yS, yT, yP, K, Ks, Kss, mu, sd):
+    def __init__(self, nS, nT, iP, nP, xS, xT, yT):
         self.nS   =  nS           # # of test data points
         self.nT   =  nT           # # of training data points
         self.iP   =  iP           # # inverse of sigma
         self.nP   =  nP           # # number of priors
-        self.Lx   =  Lx           # size of domain
         self.xS   =  xS           # training input
         self.xT   =  xT           # training output
-        self.yS   =  yS           # test input
         self.yT   =  yT           # test output
-        self.yP   =  yP           # prior output
-        self.K    =  K            # kernel
-        self.Ks   =  Ks           # kernel
-        self.Kss  =  Kss          # kernel
-        self.mu   =  mu           # mean
-        self.sd   =  sd           # stanndard deviation
+
+        self.yS   =  0           
+        self.yP   =  0           # prior output
+        self.K    =  0          # kernel
+        self.Ks   =  0          # kernel
+        self.Kss  =  0          # kernel
+        self.mu   =  0          # mean
+        self.sd   =  0          # stanndard deviation
 
         
     def calcDistM(self, r, s): 
@@ -59,8 +59,8 @@ class GPR:
         self.sd = np.sqrt(np.abs(np.diag(vv)))
         
         # Posterior
-        L  = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
-        self.yS = self.mu.reshape(-1,1)   + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
+        L       = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
+        self.yS = self.mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
         return 
     
 
