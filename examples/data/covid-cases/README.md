@@ -1,4 +1,4 @@
 
-The file for India has three columns: days since the first case, date, the number of infected individuals. 
+The file for India has four columns: days since the first case, recovered cases, date, the cumulative number of infected individuals to date. 
 
 The files for China and Italy has two columns: date and number of infected individuals. 
