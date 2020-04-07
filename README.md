@@ -80,15 +80,17 @@ S0  = N-(Ia0+Is0+R0)    # so that the initial susceptibles are obtained from S +
 def contactMatrix(t):   
     return np.identity(M) 
 
-# duration of simulation and data file
-Tf = 160;  Nt=160; filename = 'this.mat'
 
 # instantiate model
 parameters = {'alpha':alpha, 'beta':beta, 'gamma':gamma,'fsa':fsa}
-model = pyross.models.SIR(parameters, M, Ni)
+
+model = pyross.deterministic.SIR(parameters, M, Ni)
+
+# duration of simulation and data file
+Tf = 160;  Nt=160; 
 
 # simulate model
-model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt, filename)
+data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 ```
 
 * See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked-out examples.
