@@ -409,8 +409,8 @@ cdef class SIkR:
        
     cdef rhs(self, rp, tt):
         cdef: 
-            int N=self.N, M=self.M, i, j, kk=self.kk
-            double alpha=self.alpha, beta=self.beta, gIa=self.kk*self.gIa, aa, bb
+            int N=self.N, M=self.M, i, j, jj, kk=self.kk
+            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
             double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
             double [:] S    = rp[0  :M]        
             double [:] I    = rp[M  :(kk+1)*M]       
@@ -421,14 +421,15 @@ cdef class SIkR:
 
         for i in prange(M, nogil=True):
             bb=0
-            for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+            for jj in range(kk):
+                for j in prange(M):
+                    bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa
             X[i+M]   = aa - gI*I[i]
 
             for j in range(kk-1):
-                X[i+(j+2)*M]   = gI*I[i+j*M] - gIa*I[i+(j+1)*M]
+                X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
          
@@ -451,9 +452,9 @@ cdef class SIkR:
         #    u, time_points = solver.solve(time_points)
         
         if filename=='None':
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
         else:
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
             from scipy.io import savemat
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
         return data
