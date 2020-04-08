@@ -374,3 +374,86 @@ cdef class SEAIRQ:
         
 
 
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SIkR:
+    """
+    Susceptible, Infected, Recovered (SIkR)
+    method of k-stages of I
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525. 
+    """
+    cdef:
+        readonly int N, M, kk
+        readonly double alpha, beta, gI, fsa
+        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC
+    
+    def __init__(self, parameters, M, Ni):
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives 
+        self.beta  = parameters.get('beta')                     # infection rate 
+        self.gI    = parameters.get('gI')                      # recovery rate of Ia
+        self.kk    = parameters.get('k')                      # recovery rate of Ia
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter 
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.drpdt = np.zeros( (self.kk+2)*self.M, dtype=DTYPE)           # right hand side
+    
+       
+    cdef rhs(self, rp, tt):
+        cdef: 
+            int N=self.N, M=self.M, i, j, kk=self.kk
+            double alpha=self.alpha, beta=self.beta, gIa=self.kk*self.gIa, aa, bb
+            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
+            double [:] S    = rp[0  :M]        
+            double [:] I    = rp[M  :(kk+1)*M]       
+            double [:] Ni   = self.Ni       
+            double [:] ld   = self.lld       
+            double [:,:] CM = self.CM
+            double [:] X    = self.drpdt        
+
+        for i in prange(M, nogil=True):
+            bb=0
+            for j in prange(M):
+                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+            aa = bb*S[i]
+            X[i]     = -aa
+            X[i+M]   = aa - gI*I[i]
+
+            for j in range(kk-1):
+                X[i+(j+2)*M]   = gI*I[i+j*M] - gIa*I[i+(j+1)*M]
+        return
+
+         
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None'):
+        from scipy.integrate import odeint
+        
+        def rhs0(rp, t):
+            self.rhs(rp, t)
+            self.CM = contactMatrix(t)
+            return self.drpdt
+            
+        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator. 
+        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0)), time_points, mxstep=5000000)
+        #elif integrator=='odespy-vode':
+        #    import odespy
+        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+        #    #solver = odespy.RKF45(rhs0)
+        #    #solver = odespy.RK4(rhs0)
+        #    solver.set_initial_condition(self.rp0)
+        #    u, time_points = solver.solve(time_points)
+        
+        if filename=='None':
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        else:
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            from scipy.io import savemat
+            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
+        return data
