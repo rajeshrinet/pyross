@@ -442,7 +442,7 @@ cdef class SIkR:
             return self.drpdt
             
         time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator. 
-        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0)), time_points, mxstep=5000000)
+        u = odeint(rhs0, np.concatenate((S0, I0)), time_points, mxstep=5000000)
         #elif integrator=='odespy-vode':
         #    import odespy
         #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
