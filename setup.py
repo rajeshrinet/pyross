@@ -55,7 +55,9 @@ setup(
         include_dirs=[numpy.get_include()],
         extra_compile_args=ompArgs,
         extra_link_args=ompArgs 
-        )]),
+        )],
+        compiler_directives={"language_level": sys.version_info[0]},
+        ),
     libraries=[],
     packages=['pyross'],
     package_data={'pyross': ['*.pxd']}
