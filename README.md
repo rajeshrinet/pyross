@@ -17,7 +17,7 @@ The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronal
 
 ## Contact
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP) ](https://www.maths.cam.ac.uk/features/call-action-covid-19) taskforce. 
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP) ](https://www.maths.cam.ac.uk/features/call-action-covid-19) taskforce at the University of Cambridge. 
 
 We can be contacted at: ra413@cam.ac.uk (R. Adhikari), jk762@cam.ac.uk (Julian Kappler) and rs2004@cam.ac.uk (Rajesh Singh).
 
