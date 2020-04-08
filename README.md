@@ -6,11 +6,11 @@
 
 ## About
 
-[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated deterministically (as systems of differential equations) or stochastically (as chemical master equations). 
+[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated deterministically (as systems of differential equations) or stochastically (as chemical master equations). The library can move smoothly from stochastic to deterministic formulations as the compartmental fluctuations become small. 
 
 Currently implemented models are  **SIR**, **SEIR**, **SEAIR**, and **SEAIRQ**. 
 
-The library was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. 
+PyRoss was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases. 
 
