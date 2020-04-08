@@ -404,7 +404,7 @@ cdef class SIkR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.drpdt = np.zeros( (self.kk+2)*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( (self.kk+1)*self.M, dtype=DTYPE)           # right hand side
     
        
     cdef rhs(self, rp, tt):
@@ -433,7 +433,7 @@ cdef class SIkR:
         return
 
          
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None'):
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None'):
         from scipy.integrate import odeint
         
         def rhs0(rp, t):
