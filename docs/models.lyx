@@ -1,0 +1,514 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass revtex4-1
+\begin_preamble
+\usepackage{amsmath}
+ 
+\usepackage[normalem]{ulem}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,citecolor=MidnightBlue,anchorcolor=MidnightBlue]{hyperref}\usepackage[dvipsnames]{xcolor}
+\let\counterwithout\relax
+\let\counterwithin\relax
+\usepackage{chngcntr}
+\usepackage{xcolor}
+ 
+\end_preamble
+\options prl, superscriptaddress, longbibliography, twocolumn, notitlepage
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\output_sync_macro "\usepackage[active]{srcltx}"
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine natbib
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Structured compartment models of infection in Python 
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+Epidemiological models
+\emph default
+: We consider a population aggregated by age into 
+\begin_inset Formula $M$
+\end_inset
+
+ groups labelled by 
+\begin_inset Formula $i=1,2,\ldots M$
+\end_inset
+
+.
+ The population within age group 
+\begin_inset Formula $i$
+\end_inset
+
+ is partitioned into susceptibles 
+\begin_inset Formula $S_{i}$
+\end_inset
+
+, asymptomatic infectives 
+\begin_inset Formula $I_{i}^{a}$
+\end_inset
+
+, symptomatic infectives 
+\begin_inset Formula $I_{i}^{s}$
+\end_inset
+
+ and removed individuals 
+\begin_inset Formula $R_{i}$
+\end_inset
+
+.
+ The sum of these is the size of the population in age group 
+\begin_inset Formula $i$
+\end_inset
+
+, 
+\begin_inset Formula $N_{i}=S_{i}+I_{i}^{a}+I_{i}^{s}+R_{i}$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "anderson1992infectious,keeling2011modeling,towers2012social,ferguson2006strategies"
+literal "true"
+
+\end_inset
+
+.
+ We ignore vital dynamics and the change in age structure on the time scale
+ of the epidemic.
+ Therefore each 
+\begin_inset Formula $N_{i}$
+\end_inset
+
+ and, consequently, the total population size
+\begin_inset Formula 
+\[
+N=\sum_{i=1}^{M}N_{i}
+\]
+
+\end_inset
+
+remain constant in time.
+ We assume that the rate of infection of a susceptible individual in age
+ group 
+\begin_inset Formula $i$
+\end_inset
+
+ is 
+\emph on
+
+\begin_inset Formula 
+\begin{equation}
+\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}\right),\quad i,j=1,\ldots M
+\end{equation}
+
+\end_inset
+
+
+\emph default
+where 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is the probability of infection on contact (assumed intrinsic to the pathogen)
+ and 
+\begin_inset Formula $C_{ij}^{a}$
+\end_inset
+
+ and 
+\begin_inset Formula $C_{ij}^{s}$
+\end_inset
+
+ are, respectively, the number of contacts between asymptomatic and symptomatic
+ infectives in age-group 
+\begin_inset Formula $j$
+\end_inset
+
+ with susceptibles in age-group 
+\begin_inset Formula $i$
+\end_inset
+
+ (reflecting the structure of social contacts).
+ We take the age-independent recovery rate 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ to be identical for both asymptomatic and symptomatic individuals whose
+ fractions are, respectively, 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\bar{\alpha}=1-\alpha$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section
+SIR
+\end_layout
+
+\begin_layout Standard
+With these assumptions the progress of the epidemic is governed by the age-struc
+tured SIR model 
+\begin_inset Formula 
+\begin{align}
+\dot{S_{i}} & =-\lambda_{i}(t)S_{i},\nonumber \\
+\dot{I}_{i}^{a} & =\alpha\lambda_{i}(t)S_{i}-\gamma_{I^{a}}I_{i}^{a},\label{eq:ageSIR}\\
+\dot{I}_{i}^{s} & =\bar{\alpha}\lambda_{i}(t)S_{i}-\gamma_{I^{s}}I_{i}^{s},\nonumber \\
+\dot{R}_{i} & =\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\nonumber 
+\end{align}
+
+\end_inset
+
+The age structure of the population is specified the proportions 
+\begin_inset Formula $N_{i}/N$
+\end_inset
+
+ and the contact structure by the matrices 
+\begin_inset Formula $C_{ij}^{a}$
+\end_inset
+
+ and 
+\begin_inset Formula $C_{ij}^{s}$
+\end_inset
+
+.
+ We assume that symptomatic infectives reduce their contacts compared to
+ asymptomatic infectives and set 
+\begin_inset Formula $C_{ij}^{s}=fC_{ij}^{a}\equiv fC_{ij}$
+\end_inset
+
+, where 
+\begin_inset Formula $0\leq f\leq1$
+\end_inset
+
+ is the proportion by which this self-isolation takes place.
+ Here
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\gamma_{I^{a}}$
+\end_inset
+
+ is the recovery rate for asymptomatic infectives
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\gamma_{I^{s}}$
+\end_inset
+
+ is the recovery rate for symptomatic infectives
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\beta$
+\end_inset
+
+ is the probability of infection on contact
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is the fraction of asymptomatic infectives
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $f$
+\end_inset
+
+ is the fraction for reduction in contacts of the symptomatic infectives
+\end_layout
+
+\begin_layout Section
+SEIR
+\end_layout
+
+\begin_layout Standard
+We can add an exposed class, that has caught the infection but is not infectious
+, to the SIR model to obtain an SEIR model.
+ The rate of infection remains unchanged as before, but the equations now
+ change to 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+\dot{S_{i}} & =-\lambda_{i}(t)S_{i},\nonumber \\
+\dot{E}_{i} & =\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}\\
+\dot{I}_{i}^{a} & =\alpha\gamma_{E}E_{i}-\gamma_{I^{a}}I_{i}^{a},\label{eq:ageSEIR}\\
+\dot{I}_{i}^{s} & =\bar{\alpha}\gamma_{E}E_{i}-\gamma_{I^{a}}I_{i}^{s},\nonumber \\
+\dot{R}_{i} & =\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\nonumber 
+\end{align}
+
+\end_inset
+
+Assuming an exponentially distributed incubation time distribution, 
+\begin_inset Formula $1/\gamma_{E}$
+\end_inset
+
+ can be interpreted as the average incubation period.
+ 
+\end_layout
+
+\begin_layout Section
+SEAIR
+\end_layout
+
+\begin_layout Standard
+This model is an extension of the SEIR model, introducing the additional
+ class A, which is both asymptomatic and infectious.
+ In other words, this models shows what ensues if 
+\emph on
+everyone
+\emph default
+ who gets infected, undergoes a latency period where they are both asymptomatic
+ and infectious.
+ This class is potentially quite important, as there is some evidence that
+ people are infectious before they start showing symptoms 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "tindale2020transmission"
+literal "true"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\begin{aligned}\dot{S}_{i} & =-\lambda_{i}(t)S_{i}\\
+\dot{E}_{i} & =\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}\\
+\dot{A}_{i} & =\gamma_{E}E_{i}-(\alpha\gamma_{A\to I^{s}}+\bar{\alpha}\gamma_{A\to I^{a}})A_{i}\\
+\dot{I}_{i}^{a} & =\alpha\gamma_{A\to I^{a}}A_{i}-\gamma_{I^{a}}I_{i}^{a}\\
+\dot{I}_{i}^{s} & =\bar{\alpha}\gamma_{A\to I^{s}}A_{i}-\gamma_{I^{s}}I_{i}^{s}\\
+\dot{R}_{i} & =\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}
+\end{aligned}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Formula $A$
+\end_inset
+
+ and 
+\begin_inset Formula $I^{a}$
+\end_inset
+
+ classes should behave virtually the same (so their contact matrices should
+ be equal).
+ The two are kept distinct to keep track of the fact that some people remain
+ asymptomatic even in the 
+\begin_inset Formula $I$
+\end_inset
+
+ stage.
+\end_layout
+
+\begin_layout Standard
+Since it's difficult to find data on the ratio of 
+\begin_inset Formula $I^{s}$
+\end_inset
+
+ to 
+\begin_inset Formula $I^{a}$
+\end_inset
+
+, it is possible to disregard the distinction and simply use 
+\begin_inset Formula $I$
+\end_inset
+
+ instead.
+\end_layout
+
+\begin_layout Section
+SEAIRQ
+\end_layout
+
+\begin_layout Standard
+We introduce the 
+\begin_inset Formula $Q$
+\end_inset
+
+-class, which represents people who have been tested and put into quarantine
+ (and can therefore not infect anyone else).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\begin{aligned}\dot{S}_{i} & =-\lambda_{i}(t)S_{i}-\tau_{S}S_{i}\\
+\dot{E}_{i} & =\lambda_{i}(t)S_{i}-(\gamma_{E}+\tau_{E})E_{i}\\
+\dot{A}_{i} & =\gamma_{E}E_{i}-(\alpha\gamma_{A\to I^{s}}+\bar{\alpha}\gamma_{A\to I^{a}}+\tau_{A})A_{i}\\
+\dot{I}_{i}^{a} & =\alpha\gamma_{A\to I^{a}}A_{i}-(\gamma_{I^{a}}+\tau_{I^{a}})I_{i}^{a}\\
+\dot{I}_{i}^{s} & =\bar{\alpha}\gamma_{A\to I^{s}}A_{i}-(\gamma_{I^{s}}+\tau_{I^{s}})I_{i}^{s}\\
+\dot{R}_{i} & =\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}\\
+\dot{Q}_{i} & =\tau_{S}S_{i}+\tau_{E}E+\tau_{A}A+\tau_{I^{s}}I_{i}^{s}+\tau_{I^{a}}I_{i}^{a}
+\end{aligned}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here 
+\begin_inset Formula $\tau_{E,A,I^{s},I^{a}}$
+\end_inset
+
+ is the testing rate in the population, these are in general different for
+ different classes.
+ I've presumed that people in the incubation stage 
+\begin_inset Formula $E$
+\end_inset
+
+ can also be tested, which may or may not be the case.
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Formula $\tau_{S}$
+\end_inset
+
+ terms model the effects of false-positives, resulting in susceptibles being
+ put into quarantine.
+\end_layout
+
+\begin_layout Standard
+Note that this model does not keep track of what happens to people once
+ they're put into 
+\begin_inset Formula $Q$
+\end_inset
+
+ (which is especially important to do if 
+\begin_inset Formula $\tau_{S}>0$
+\end_inset
+
+).
+ Since 
+\begin_inset Formula $Q$
+\end_inset
+
+ is a closed system, this can all be done after the initial SEAIR simulation
+ has been completed.
+\end_layout
+
+\begin_layout Section
+SIkR
+\end_layout
+
+\begin_layout Standard
+We now use method of stages to write an age-structured 
+\begin_inset Formula $k-$
+\end_inset
+
+staged SIkR model 
+\begin_inset Formula 
+\begin{align}
+\dot{S_{i}} & =-\lambda_{i}(t)S_{i},\nonumber \\
+\dot{I}_{i}^{1} & =\lambda_{i}(t)S_{i}-k\gamma_{I}I_{i}^{1},\label{eq:ageSIR-1}\\
+\dot{I}_{i}^{2} & =k\gamma_{I}I_{i}^{1}-k\gamma_{I}I_{i}^{2},\\
+\vdots\\
+\dot{I}_{i}^{k} & =k\gamma_{I}I_{i}^{n-1}-k\gamma_{I}I_{i}^{k},\\
+\dot{R}_{i} & =k\gamma_{I}I_{i}^{k}.\nonumber 
+\end{align}
+
+\end_inset
+
+
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "covid19"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
