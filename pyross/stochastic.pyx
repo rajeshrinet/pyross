@@ -13,20 +13,24 @@ cdef extern from "math.h":
 from libc.stdlib cimport rand, RAND_MAX
 
 
+
 cpdef poisson(double l = 1.):
     """
     Samples from Poisson distribution
+    (This should be modified so that it can deal also with very
+     large poisson parameters; in the meantime, the tau-leaping code
+     samples the poisson distribution using numpy.random.poisson)
     """
     cdef:
-        float random = rand()/(float(RAND_MAX)+1) * exp(l)
-        long n = 0
-        float cur_sum = 0.
-        float cur_term = 1.
-    while (cur_sum < random):
-        cur_sum += cur_term
+        double random
+        long n = 1
+        double p = rand()/float(RAND_MAX)
+        double L = exp(-l)
+    while (p > L):
         n += 1
-        cur_term *= l/float(n)
+        p *= rand()/float(RAND_MAX)
     return n-1
+
 
 
 cdef class SIR:
@@ -139,16 +143,16 @@ cdef class SIR:
 
     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
                 method='gillespie',
-                int nc=20, double epsilon = 0.001,
-                int tau_update_frequency = 10,
-                int maximal_number_of_events = 150
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
                 ):
         if method == 'gillespie':
             return self.simulate_gillespie(S0, Ia0, Is0, contactMatrix, Tf, Nf)
         else:
             return self.simulate_tau_leaping(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                                  nc, epsilon,tau_update_frequency,
-                                  maximal_number_of_events)
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency)
 
 
     cpdef simulate_gillespie(self, S0, Ia0, Is0, contactMatrix, Tf, Nf):
@@ -224,9 +228,8 @@ cdef class SIR:
 
 
     cpdef simulate_tau_leaping(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                          int nc = 20, double epsilon = 0.001,
-                          int tau_update_frequency = 10,
-                          int maximal_number_of_events = 150):
+                          int nc = 30, double epsilon = 0.03,
+                          int tau_update_frequency = 1):
         cdef:
             int M=self.M
             int i, j, k, I, K_events
@@ -239,6 +242,7 @@ cdef class SIR:
             int SSA_steps_left = 0
             int steps_until_tau_update = 0
             np.ndarray dRM = np.zeros( [3*self.M,3*self.M,3*self.M] , dtype=DTYPE)
+            double verbose = 1.
 
         t = 0
         for i in range(M):
@@ -277,7 +281,6 @@ cdef class SIR:
             # Calculate total rate
             W = self.calculate_total_reaction_rate()
 
-
             if SSA_steps_left < 0.5:
                 # check if we are below threshold
                 for i in range(3*M):
@@ -291,97 +294,61 @@ cdef class SIR:
 
                 if steps_until_tau_update < 0.5:
                     # Determine current timestep
-                    # This is based on Eqs. (4-6) of
-                    # https://doi.org/10.1063/1.1613254   (Ref. 1)
+                    # This is based on Eqs. (32), (33) of
+                    # https://doi.org/10.1063/1.2159468   (Ref. 1)
                     #
                     # note that a single index in the above cited paper corresponds
                     # to a tuple here. In the paper, possible reactions are enumerated
                     # with a single index, we enumerate the reactions as elements of the
                     # matrix RM.
                     #
-                    # calculate matrix of derivatives
-                    # dRM[i,j,l] = derivative of rate for reaction (i,j) w.r.t. to N_l
-                    # To estimate derivatives, we use a finite difference with
-                    # step size 1.
-                    for i in range(M):
-                        for j in range(3):
-                            for k in range(3):
-                                for l in range(3*M):
-                                    dRM[i + j*M, i + k*M, l] = -RM[i + j*M, i + k*M]
-                    for l in range(3*M):
-                        rp[l] += 1
-                        self.rate_matrix(rp, t)
-                        for i in range(M):
-                            for j in range(3):
-                                for k in range(3):
-                                    dRM[i + j*M, i + k*M, l] += RM[i + j*M, i + k*M]
-                                    #RM[i + j*M, i + k*M, l] /= 1
-                        rp[l] -= 1
-                        self.rate_matrix(rp, t)
-
-                    # evaluate Eqs. (4-6) of Ref. 1
+                    # evaluate Eqs. (32), (33) of Ref. 1
                     cur_tau = INFINITY
-                    factor = epsilon * W
-                    for i in range(M):           # iterate      \
-                        for j in range(3):       # over all      | This is j in Ref. 1
-                            for k in range(3):   # reactions    /
-                                #
-                                cur_mu = 0.
-                                cur_sig_sq = 0.
-                                for i_ in range(M):             # \
-                                    for j_ in range(3):         # | This is j' in Ref. 1
-                                        for k_ in range(3):     # /
-                                            # calculate current f_{j,j'}
-                                            # Note that for our system, for every (j,j') the sum
-                                            # in Ref. 1, Eq. (4), only has either one or two
-                                            # nonzero elements:
-                                            if j_ == k_:
-                                                # for a diagonal element, the current population
-                                                # decreases by one
-                                                cur_f = -dRM[i + j*M, i + k*M, i_ + j_*M]
-                                            else:
-                                                # for an off-diagonal element, a species is
-                                                # converted, so that the species numbers of the
-                                                # involved species indecrease and decrease by one
-                                                cur_f = dRM[i + j*M, i + k*M, i_ + j_*M]
-                                                cur_f -= dRM[i + j*M, i + k*M, i_ + k_*M]
-                                            #
-                                            cur_mu += cur_f * RM[i_ + j_*M, i_ + k_*M]
-                                            cur_sig_sq += cur_f**2 * RM[i_ + j_*M, i_ + k_*M]
-                                #
-                                # For the current value of j, calculate the expressions
-                                # in the curly brackets in Eq. (6) of Ref. 1,
-                                # and check if the values for the current reaction j are
-                                # smaller than those found for all previous reactions
-                                cur_mu = abs(cur_mu)
-                                if cur_mu != 0:
-                                    cur_mu = factor/cur_mu
-                                else:
-                                    cur_mu = INFINITY
-                                if cur_sig_sq != 0:
-                                    cur_sig_sq = factor**2/cur_sig_sq
-                                else:
-                                    cur_sig_sq = INFINITY
-                                #
-                                if cur_mu < cur_sig_sq:
-                                    if cur_mu < cur_tau:
-                                        cur_tau = cur_mu
-                                else:
-                                    if cur_sig_sq < cur_tau:
-                                        cur_tau = cur_sig_sq
+                    # iterate over species
+                    for i in range(M):     #  } The tuple (i,j) here corresponds
+                        for j in range(3): #  } to what is called "i" in Eqs. (32), (33)
+                            cur_mu = 0.
+                            cur_sig_sq = 0.
+                            # current species has index I = i + j*M,
+                            # and can either decay (diagonal element) or
+                            # transform into J = i + k*M with k = 0,1,2 but k != j
+                            for k in range(3):
+                                if j == k: # decay
+                                    cur_mu -= RM[i + j*M, i + k*M]
+                                    cur_sig_sq += RM[i + j*M, i + k*M]
+                                else: # transformation
+                                    cur_mu += RM[i + j*M, i + k*M]
+                                    cur_mu -= RM[i + k*M, i + j*M]
+                                    cur_sig_sq += RM[i + j*M, i + k*M]
+                                    cur_sig_sq += RM[i + k*M, i + j*M]
+                            cur_mu = abs(cur_mu)
+                            #
+                            factor = epsilon*rp[i+j*M]/2.
+                            if factor < 1:
+                                factor = 1.
+                            #
+                            if cur_mu != 0:
+                                cur_mu = factor/cur_mu
+                            else:
+                                cur_mu = INFINITY
+                            if cur_sig_sq != 0:
+                                cur_sig_sq = factor**2/cur_sig_sq
+                            else:
+                                cur_sig_sq = INFINITY
+                            #
+                            if cur_mu < cur_sig_sq:
+                                if cur_mu < cur_tau:
+                                    cur_tau = cur_mu
+                            else:
+                                if cur_sig_sq < cur_tau:
+                                    cur_tau = cur_sig_sq
                     steps_until_tau_update = tau_update_frequency
                     #
+                    # if the current timestep is less than 10/W,
+                    # switch to direct SSA algorithm
                     if cur_tau < 10/W:
-                        # if the current timestep is less than 10/W,
-                        # switch to direct SSA algorithm
-                        SSA_steps_left = 100
+                        SSA_steps_left = 50
                         continue
-                    # the following if-clause is to bound the total number
-                    # of reactions that occur during each step
-                    # (This is ad-hoc, because sometimes the
-                    #  estimated tau is too large - figure out why!)
-                    elif cur_tau > maximal_number_of_events/W:
-                        cur_tau = maximal_number_of_events/W
 
                 steps_until_tau_update -= 1
                 t += cur_tau
@@ -392,7 +359,8 @@ cdef class SIR:
                         for k in range(3):
                             if RM[i+j*M,i+k*M] > 0:
                                 # draw poisson variable
-                                K_events = poisson( RM[i+j*M,i+k*M] * cur_tau )
+                                #K_events = poisson( RM[i+j*M,i+k*M] * cur_tau )
+                                K_events = np.random.poisson(RM[i+j*M,i+k*M] * cur_tau )
                                 if j == k:
                                     rp[i + M*j] -= K_events
                                 else:
