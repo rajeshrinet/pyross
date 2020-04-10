@@ -52,7 +52,12 @@ cdef class SIR:
 
     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, long Tf,
                                 dict thresholds,
-                                double dt_stoch = 20,double dt_det = 300):
+                                double dt_stoch = 20,double dt_det = 300,
+                                method='gillespie',
+                                int nc = 20, double epsilon = 0.001,
+                                int tau_update_frequency = 10,
+                                int maximal_number_of_events = 150
+                                ):
         cdef:
             int M=self.M
             tuple thresholds_from_below = thresholds.get('from_below')
@@ -86,7 +91,11 @@ cdef class SIR:
             if below:
                 cur_result = model_stoch.simulate(*cur_populations,
                                                      contactMatrix,
-                                                     cur_Tf, cur_Nt)
+                                                     cur_Tf, cur_Nt,
+                                                     method=method,epsilon=epsilon,
+                                                     tau_update_frequency=tau_update_frequency,
+                                                     maximal_number_of_events=maximal_number_of_events
+                                                     )
                 cur_traj = cur_result['X']
             else:
                 cur_result = model_det.simulate(*cur_populations,
