@@ -23,12 +23,16 @@ def checkOpenmpSupport():
     os.chdir(tmpdir)
 
     filename = r'test.c'
-    with open(filename, 'w') as file:
-        file.write(ompTest)
-    with open(os.devnull, 'w') as fnull:
-        result = subprocess.call(['cc', '-fopenmp', filename],
-                                 stdout=fnull, stderr=fnull)
-
+    try:
+        with open(filename, 'w') as file:
+            file.write(ompTest)
+        with open(os.devnull, 'w') as fnull:
+            result = subprocess.call(['cc', '-fopenmp', filename],
+                                     stdout=fnull, stderr=fnull)
+    except:
+        print("Failed to test for OpenMP support. Assuming unavailability");
+        result = -1;
+    
     os.chdir(curdir)
     shutil.rmtree(tmpdir) 
     if result == 0:
