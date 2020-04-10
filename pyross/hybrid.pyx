@@ -54,9 +54,8 @@ cdef class SIR:
                                 dict thresholds,
                                 double dt_stoch = 20,double dt_det = 300,
                                 method='gillespie',
-                                int nc = 20, double epsilon = 0.001,
-                                int tau_update_frequency = 10,
-                                int maximal_number_of_events = 150
+                                int nc = 30, double epsilon = 0.03,
+                                int tau_update_frequency = 1,
                                 ):
         cdef:
             int M=self.M
@@ -94,7 +93,6 @@ cdef class SIR:
                                                      cur_Tf, cur_Nt,
                                                      method=method,epsilon=epsilon,
                                                      tau_update_frequency=tau_update_frequency,
-                                                     maximal_number_of_events=maximal_number_of_events
                                                      )
                 cur_traj = cur_result['X']
             else:
