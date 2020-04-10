@@ -436,7 +436,7 @@ cdef class SIkR:
         cdef:
             int N=self.N, M=self.M, i, j, jj, kk=self.kk
             double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
-            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
+            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gI
             double [:] S    = rp[0  :M]
             double [:] I    = rp[M  :(kk+1)*M]
             double [:] Ni   = self.Ni
