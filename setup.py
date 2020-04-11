@@ -6,6 +6,7 @@ from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 
+
 def checkOpenmpSupport():
     """ Adapted from https://stackoverflow.com/questions/16549893/programatically-testing-for-openmp-support-from-a-python-setup-script
     """ 
@@ -32,7 +33,6 @@ def checkOpenmpSupport():
     except:
         print("Failed to test for OpenMP support. Assuming unavailability");
         result = -1;
-    
     os.chdir(curdir)
     shutil.rmtree(tmpdir) 
     if result == 0:
@@ -40,21 +40,24 @@ def checkOpenmpSupport():
     else:
         return False
 
+
 if checkOpenmpSupport() == True:
     ompArgs = ['-fopenmp']
 else:
     ompArgs = None 
 
 
+
+
 setup(
-    name='pyross',
+    name='PyRoss',
     version='1.0.0',
     url='https://gitlab.com/rajeshrinet/pyross',
-    author='The pyross team',
+    author='The PyRoss team',
     license='MIT',
     description='python library for numerical simulation of infectious disease',
     long_description='pyross is a library for numerical simulation of infectious disease',
-    platforms='tested on LINUX',
+    platforms='works on all platforms (eg LINUX, macOS, and Microsoft Windows)',
     ext_modules=cythonize([ Extension("pyross/*", ["pyross/*.pyx"],
         include_dirs=[numpy.get_include()],
         extra_compile_args=ompArgs,

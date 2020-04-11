@@ -64,7 +64,7 @@ cdef class SIR:
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate = None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -157,7 +157,7 @@ cdef class SEIR:
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate = None):
+    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -257,7 +257,7 @@ cdef class SEAIR:
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate = None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -366,7 +366,7 @@ cdef class SEAIRQ:
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate = None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -395,7 +395,6 @@ cdef class SEAIRQ:
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs})
         return data
-
 
 
 
@@ -457,7 +456,7 @@ cdef class SIkR:
         return
 
 
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate = None):
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -486,6 +485,8 @@ cdef class SIkR:
             from scipy.io import savemat
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
         return data
+
+
 
 
 @cython.wraparound(False)
@@ -554,7 +555,7 @@ cdef class SEkIkR:
         return
 
 
-    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate = None):
+    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
