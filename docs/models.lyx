@@ -487,10 +487,44 @@ We now use method of stages to write an age-structured
 \end_inset
 
 staged SIkR model 
+\begin_inset Formula $\dot{I}_{k}(t)=\gamma_{I}N_{I}(I_{k-1}-I_{k})$
+\end_inset
+
+
 \begin_inset Formula 
 \begin{align}
 \dot{S_{i}} & =-\lambda_{i}(t)S_{i},\nonumber \\
 \dot{I}_{i}^{1} & =\lambda_{i}(t)S_{i}-k\gamma_{I}I_{i}^{1},\label{eq:ageSIR-1}\\
+\dot{I}_{i}^{2} & =k\gamma_{I}I_{i}^{1}-k\gamma_{I}I_{i}^{2},\\
+\vdots\\
+\dot{I}_{i}^{k} & =k\gamma_{I}I_{i}^{n-1}-k\gamma_{I}I_{i}^{k},\\
+\dot{R}_{i} & =k\gamma_{I}I_{i}^{k}.\nonumber 
+\end{align}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+SEkIkR
+\end_layout
+
+\begin_layout Standard
+The above method of stages for SIR can be extended to SEIR model to obtain
+ an age-structured 
+\begin_inset Formula $k-$
+\end_inset
+
+staged SEkIkR model to obtain
+\begin_inset Formula 
+\begin{align}
+\dot{S_{i}} & =-\lambda_{i}(t)S_{i},\nonumber \\
+\dot{E}_{i}^{1} & =\lambda_{i}(t)S_{i}-k\gamma_{E}E_{i}^{1}\\
+\dot{E}_{i}^{2} & =k\gamma_{E}E_{i}^{1}-k\gamma_{E}E_{i}^{2}\\
+\vdots\\
+\dot{E}_{i}^{k} & =k\gamma_{E}E_{i}^{k-1}-k\gamma_{E}E_{i}^{k}\\
+\dot{I}_{i}^{1} & =\lambda_{i}(t)S_{i}-k\gamma_{I}I_{i}^{1},\label{eq:ageSIR-1-1}\\
 \dot{I}_{i}^{2} & =k\gamma_{I}I_{i}^{1}-k\gamma_{I}I_{i}^{2},\\
 \vdots\\
 \dot{I}_{i}^{k} & =k\gamma_{I}I_{i}^{n-1}-k\gamma_{I}I_{i}^{k},\\
