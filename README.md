@@ -32,7 +32,7 @@ When all else fails, we can be contacted at: ra413@cam.ac.uk (R. Adhikari), jk76
 This paper is amongst the  **top five most read COVID-19 papers** on [Research Gate 
 ](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the[ Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-arXiv:2003.12055) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible. 
 
-The figures below show the how lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the 
+The figures below show how the lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the 
 number of infectives using case data for India till 25-03-2020. 
 
 ![SIR and SEIR](draft/sir-seir.gif)
