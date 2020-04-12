@@ -77,6 +77,9 @@ PyRoss requires the following software
 
 
 ## Examples
+
+PyRoss has a formulation-agnostic and  intuitive interface. Once a model is formulated, stochastic, deterministic and hybrid simulations can performed through the same interface. The example below shows how to set up a deterministic SIR simulation. See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for more Jupyter notebook examples.
+
 ```Python
 #Ex1: M=1, SIR
 import numpy as np
@@ -112,9 +115,6 @@ Tf = 160;  Nt=160;
 # simulate model
 data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 ```
-
-* See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for a list of worked-out examples.
-
 
 
 ## License
