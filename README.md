@@ -1,6 +1,6 @@
 ## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
 
-[About](#about) | [Contact](#contact) | [Publications ](#publications) | [News](#news) | [Installation](#installation) | [Examples](#examples) | [License](#license)
+[About](#about) | [Contact](#contact) | [Publications ](#publications) | [News](#news) | [Installation](#installation) | [Examples](#examples) | [License](#license) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
 ![Imagel](examples/banner.png)
 
