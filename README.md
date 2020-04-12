@@ -34,6 +34,7 @@ This paper is amongst the  **top five most read COVID-19 papers** on [Research G
 
 The figures below show the how lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the 
 number of infectives using case data for India till 25-03-2020. 
+
 ![SIR and SEIR](draft/sir-seir.gif)
 
 
