@@ -14,12 +14,12 @@ PyRoss was developed to model the outbreak of the novel coronavirus COVID-19 and
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases. 
 
-Please read the [PyRoss wiki](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-PyRoss) before you use PyRoss for your research. 
+Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. 
 
 
 ## Contact
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP) ](https://www.maths.cam.ac.uk/features/call-action-covid-19) taskforce at the University of Cambridge. 
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://www.maths.cam.ac.uk/features/call-action-covid-19) taskforce at the University of Cambridge. 
 
 Please first [read the wiki](https://github.com/rajeshrinet/pyross/wiki) and  then only [open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
@@ -27,10 +27,10 @@ When all else fails, we can be contacted at: ra413@cam.ac.uk (R. Adhikari), jk76
 
 ## Publications
 
-* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055)) Rajesh Singh and R. Adhikari (2020). 
+* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa)). Rajesh Singh and R. Adhikari (2020). 
 
 This paper is amongst the  **top five most read COVID-19 papers** on [Research Gate 
-](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the[ Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-arXiv:2003.12055) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible. 
+](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the [Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-COVID-19-India-paper) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible. 
 
 The figures below show how the lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the 
 number of infectives using case data for India till 25-03-2020. 
