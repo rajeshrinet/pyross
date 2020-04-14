@@ -544,12 +544,25 @@ cdef class SEkIkR:
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
-            X[i+M+0] = aa - gE*E[i] + FM[i]
 
-            for j in range(ke - 1) :
-                X[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+            # If there is any E stage...
+            if 0 != ke :
+                # People removed from S are put in E[0]
+                X[i+M+0] = aa - gE*E[i] + FM[i]
 
-            X[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
+                # Propagate cases along the E stages
+                for j in range(ke - 1) :
+                    X[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+
+                # Transfer cases from E[-1] to I[0]
+                X[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
+
+            # However, if there aren't any E stages
+            else :
+                # People removed from S are put in I[0]
+                X[i + (ke+1)* M + 0] = aa + FM[i] - gI * I[i]
+
+            # In both cases, propagate cases along the I stages.
             for j in range(kk-1):
                 X[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
