@@ -297,6 +297,42 @@ The age structure of the population is specified the proportions
 \end_layout
 
 \begin_layout Subsection
+SIRS
+\end_layout
+
+\begin_layout Standard
+With these assumptions the progress of the epidemic is governed by the age-struc
+tured SIR model 
+\begin_inset Formula 
+\begin{align*}
+\begin{aligned}\dot{S}_{i} & =-\lambda_{i}(t)S_{i}+\sigma_{i}+\epsilon(\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s})\\
+\dot{I}_{i}^{a} & =\alpha\lambda_{i}(t)S_{i}-\gamma_{I^{a}}I_{i}^{a}\\
+\dot{I}_{i}^{s} & =\bar{\alpha}\lambda_{i}(t)S_{i}-\gamma_{I^{a}}I_{i}^{s}\\
+\dot{N}_{i} & =\sigma_{i}+l_{i}
+\end{aligned}
+\end{align*}
+
+\end_inset
+
+Here 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+ is fraction of recovered who is susceptible.
+ 
+\begin_inset Formula $\sigma_{i}$
+\end_inset
+
+ denotes of the arrival of new susceptibles, while 
+\begin_inset Formula $l_{i}$
+\end_inset
+
+ are new asymptomatic infectives.
+ This means that the number of people is dynamical.
+ 
+\end_layout
+
+\begin_layout Subsection
 SEIR
 \end_layout
 
