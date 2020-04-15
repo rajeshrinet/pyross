@@ -4,7 +4,7 @@
 \begin_header
 \save_transient_properties true
 \origin unavailable
-\textclass revtex4-1
+\textclass revtex4
 \begin_preamble
 \usepackage{amsmath}
  
@@ -57,7 +57,7 @@
 \use_package stmaryrd 0
 \use_package undertilde 0
 \cite_engine natbib
-\cite_engine_type default
+\cite_engine_type authoryear
 \biblio_style plain
 \use_bibtopic false
 \use_indices false
@@ -94,12 +94,12 @@
 Structured compartment models of infection in Python 
 \end_layout
 
-\begin_layout Standard
-
-\emph on
+\begin_layout Section
 Epidemiological models
-\emph default
-: We consider a population aggregated by age into 
+\end_layout
+
+\begin_layout Standard
+We consider a population aggregated by age into 
 \begin_inset Formula $M$
 \end_inset
 
@@ -218,7 +218,7 @@ where
  
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 SIR
 \end_layout
 
@@ -296,7 +296,7 @@ The age structure of the population is specified the proportions
  is the fraction for reduction in contacts of the symptomatic infectives
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 SEIR
 \end_layout
 
@@ -327,7 +327,7 @@ Assuming an exponentially distributed incubation time distribution,
  
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 SEAIR
 \end_layout
 
@@ -341,15 +341,7 @@ everyone
  who gets infected, undergoes a latency period where they are both asymptomatic
  and infectious.
  This class is potentially quite important, as there is some evidence that
- people are infectious before they start showing symptoms 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "tindale2020transmission"
-literal "true"
-
-\end_inset
-
-.
+ people are infectious before they start showing symptoms
 \end_layout
 
 \begin_layout Standard
@@ -404,7 +396,7 @@ Since it's difficult to find data on the ratio of
  instead.
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 SEAIRQ
 \end_layout
 
@@ -477,7 +469,7 @@ Note that this model does not keep track of what happens to people once
  has been completed.
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 SIkR
 \end_layout
 
@@ -506,7 +498,7 @@ staged SIkR model
 
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 SEkIkR
 \end_layout
 
@@ -534,6 +526,9 @@ staged SEkIkR model to obtain
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
 btprint "btPrintCited"
