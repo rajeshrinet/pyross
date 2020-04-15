@@ -103,13 +103,13 @@ cdef class SIR:
 @cython.nonecheck(False)
 cdef class SIRS:
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Recovered, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa, sa, iaa
+        readonly double alpha, beta, gIa, gIs, fsa, sa, iaa, ep
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, FM, CC
 
     def __init__(self, parameters, M, Ni):
@@ -119,8 +119,9 @@ cdef class SIRS:
         self.gIs   = parameters.get('gIa')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
-        self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles 
-        self.iaa  = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
+        self.sa    = parameters.get('sa')                       # daily arrival of new susceptibles 
+        self.iaa   = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
 
         self.N     = np.sum(Ni)
@@ -138,7 +139,7 @@ cdef class SIRS:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
             double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
-            double sa=self.sa, iaa=self.iaa
+            double sa=self.sa, iaa=self.iaa, ep=self.ep
             double [:] S    = rp[0  :M]
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
@@ -153,7 +154,7 @@ cdef class SIRS:
             for j in prange(M):
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i] + sa
+            X[i]     = -aa - FM[i] + sa + ep*gIa*Ia[i] + ep*gIs*Is[i]
             X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i] + iaa
             X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]
             X[i+3*M] = sa + iaa
