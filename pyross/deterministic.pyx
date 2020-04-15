@@ -97,8 +97,11 @@ cdef class SIR:
 
 
 
+<<<<<<< HEAD
+=======
 DTYPE   = np.float
 #ctypedef np.float_t DTYPE_t
+>>>>>>> 8806e7f0c1d42cd9da85cf0a1b8c21d16a57b195
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -111,7 +114,7 @@ cdef class SIRS:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa
+        readonly double alpha, beta, gIa, gIs, fsa, sa, iaa
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, FM, CC
 
     def __init__(self, parameters, M, Ni):
@@ -121,8 +124,13 @@ cdef class SIRS:
         self.gIs   = parameters.get('gIa')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
+<<<<<<< HEAD
+        self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles 
+        self.iaa  = parameters.get('iaa')                      # daily arrival of new asymptomatics
+=======
         self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles
         self.iaa  = parameters.get('sa')                      # daily arrival of new asymptomatics
+>>>>>>> 8806e7f0c1d42cd9da85cf0a1b8c21d16a57b195
 
 
         self.N     = np.sum(Ni)
@@ -175,7 +183,7 @@ cdef class SIRS:
             return self.drpdt
 
         time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, N0)), time_points, mxstep=5000000)
+        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, self.Ni)), time_points, mxstep=5000000)
         #elif integrator=='odespy-vode':
         #    import odespy
         #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
