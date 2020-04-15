@@ -98,7 +98,7 @@ cdef class SIR:
 
 
 DTYPE   = np.float
-ctypedef np.float_t DTYPE_t
+#ctypedef np.float_t DTYPE_t
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -121,7 +121,7 @@ cdef class SIRS:
         self.gIs   = parameters.get('gIa')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
-        self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles 
+        self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles
         self.iaa  = parameters.get('sa')                      # daily arrival of new asymptomatics
 
 
@@ -162,7 +162,7 @@ cdef class SIRS:
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, Ia0, Is0, N0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
