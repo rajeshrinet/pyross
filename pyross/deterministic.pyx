@@ -97,11 +97,6 @@ cdef class SIR:
 
 
 
-<<<<<<< HEAD
-=======
-DTYPE   = np.float
-#ctypedef np.float_t DTYPE_t
->>>>>>> 8806e7f0c1d42cd9da85cf0a1b8c21d16a57b195
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -124,13 +119,8 @@ cdef class SIRS:
         self.gIs   = parameters.get('gIa')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
-<<<<<<< HEAD
         self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles 
         self.iaa  = parameters.get('iaa')                      # daily arrival of new asymptomatics
-=======
-        self.sa   = parameters.get('sa')                      # daily arrival of new susceptibles
-        self.iaa  = parameters.get('sa')                      # daily arrival of new asymptomatics
->>>>>>> 8806e7f0c1d42cd9da85cf0a1b8c21d16a57b195
 
 
         self.N     = np.sum(Ni)
@@ -170,7 +160,37 @@ cdef class SIRS:
         return
 
 
-    def simulate(self, S0, Ia0, Is0, N0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+        from scipy.integrate import odeint
+
+        def rhs0(rp, t):
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+            self.rhs(rp, t)
+            self.CM = contactMatrix(t)
+            return self.drpdt
+
+        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, self.Ni)), time_points, mxstep=5000000)
+        #elif integrator=='odespy-vode':
+        #    import odespy
+        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+        #    #solver = odespy.RKF45(rhs0)
+        #    #solver = odespy.RK4(rhs0)
+        #    solver.set_initial_condition(self.rp0)
+        #    u, time_points = solver.solve(time_points)
+
+        if filename=='None':
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        else:
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            from scipy.io import savemat
+            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
+        return data
+
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
