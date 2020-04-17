@@ -175,15 +175,17 @@ cdef class SIRS:
             self.CM = contactMatrix(t)
             return self.drpdt
 
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, self.Ni)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, self.Ni)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, Ia0, Is0, self.Ni)))
+            u, time_points = solver.solve(time_points)
 
         if filename=='None':
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
@@ -193,35 +195,7 @@ cdef class SIRS:
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
         return data
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
-        from scipy.integrate import odeint
 
-        def rhs0(rp, t):
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
-            self.rhs(rp, t)
-            self.CM = contactMatrix(t)
-            return self.drpdt
-
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, self.Ni)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
-
-        if filename=='None':
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
-        else:
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
-            from scipy.io import savemat
-            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
-        return data
 
 
 @cython.wraparound(False)
@@ -296,15 +270,17 @@ cdef class SEIR:
             self.CM = contactMatrix(t)
             return self.drpdt
 
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, E0, Ia0, Is0)))
+            u, time_points = solver.solve(time_points)
 
         if filename=='None':
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
@@ -396,15 +372,17 @@ cdef class SEAIR:
             self.CM = contactMatrix(t)
             return self.drpdt
 
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0)))
+            u, time_points = solver.solve(time_points)
 
         if filename=='None':
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS}
@@ -505,15 +483,17 @@ cdef class SEAIRQ:
             self.CM = contactMatrix(t)
             return self.drpdt
 
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0)))
+            u, time_points = solver.solve(time_points)
 
         if filename=='None':
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
@@ -595,15 +575,17 @@ cdef class SIkR:
             self.CM = contactMatrix(t)
             return self.drpdt
 
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, I0)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, I0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, I0)))
+            u, time_points = solver.solve(time_points)
 
         if filename=='None':
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
@@ -707,15 +689,17 @@ cdef class SEkIkR:
             self.CM = contactMatrix(t)
             return self.drpdt
 
-        time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
-        u = odeint(rhs0, np.concatenate((S0, E0, I0)), time_points, mxstep=5000000)
-        #elif integrator=='odespy-vode':
-        #    import odespy
-        #    solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-        #    #solver = odespy.RKF45(rhs0)
-        #    #solver = odespy.RK4(rhs0)
-        #    solver.set_initial_condition(self.rp0)
-        #    u, time_points = solver.solve(time_points)
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, E0, I0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, E0, I0)))
+            u, time_points = solver.solve(time_points)
 
         if filename=='None':
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
