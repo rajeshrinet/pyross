@@ -58,6 +58,11 @@ Clone (or download) the repository and use a terminal to install using
 >> cd pyross
 >> python setup.py install
 ```
+#### Pip
+
+```
+pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
+```
 
 PyRoss requires the following software 
 
