@@ -111,8 +111,8 @@ cdef class SIRS:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa, sa, iaa, ep
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, FM, CC
+        readonly double alpha, beta, gIa, gIs, fsa, ep
+        readonly np.ndarray rp0, Ni, drpdt, lld, CM, FM, CC, sa, iaa
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -122,9 +122,8 @@ cdef class SIRS:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
         self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
-        self.sa    = parameters.get('sa')                       # daily arrival of new susceptibles 
-        self.iaa   = parameters.get('iaa')                      # daily arrival of new asymptomatics
-
+        sa    = parameters.get('sa')                       # daily arrival of new susceptibles 
+        iaa   = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -134,14 +133,30 @@ cdef class SIRS:
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        
+        self.sa     = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(sa)==1:
+            self.sa = sa*np.ones(M) 
+        elif np.size(sa)==M:
+            self.sa= sa
+        else:
+            print('sa can be a number or an array of size M')
+
+        self.iaa    = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(iaa)==1:
+            self.iaa = iaa*np.ones(M) 
+        elif np.size(iaa)==M:
+            self.iaa = iaa
+        else:
+            print('iaa can be a number or an array of size M')
+
 
 
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
-            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
-            double sa=self.sa, iaa=self.iaa, ep=self.ep
+            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs, ep=self.ep
             double [:] S    = rp[0  :M]
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
@@ -149,6 +164,8 @@ cdef class SIRS:
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
+            double [:] sa   = self.sa
+            double [:] iaa  = self.iaa
             double [:] X    = self.drpdt
 
         for i in prange(M, nogil=True):
@@ -156,10 +173,10 @@ cdef class SIRS:
             for j in prange(M):
                  bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i] + sa + ep*gIa*Ia[i] + ep*gIs*Is[i]
-            X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i] + iaa
+            X[i]     = -aa - FM[i] + sa[i] + ep*gIa*Ia[i] + ep*gIs*Is[i]
+            X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i] + iaa[i]
             X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]
-            X[i+3*M] = sa + iaa
+            X[i+3*M] = sa[i] + iaa[i]
         return
 
 
