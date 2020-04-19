@@ -375,6 +375,7 @@ cdef class SEI5R:
             double alpha=self.alpha, beta=self.beta, aa, bb
             double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh, gIm=self.gIm
+            double ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
             double [:] S    = rp[0  :M]
             double [:] E    = rp[M  :2*M]
             double [:] Ia   = rp[2*M:3*M]
@@ -397,18 +398,14 @@ cdef class SEI5R:
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i] 
-            X[i+M]   = aa       - gE*  E[i] 
-            X[i+2*M] = alpha *aa - gIa*Ia[i]   + iaa[i]
-            X[i+3*M] = alphab*aa - gIs*Is[i]  
-            X[i+4*M] = sa[i] + iaa[i]
-            X[i+5*M] = sa[i] + iaa[i]
-            X[i+5*M] = sa[i] + iaa[i]
-            X[i+7*M] = sa[i] + iaa[i]
+            X[i+M]   = aa  - gE*E[i] 
+            X[i+2*M] = ce1*E[i] - gIa*Ia[i] 
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]  
+            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]
+            X[i+4*M] = gIh*cc[i]*Is[i] - gIc*Ic[i]
+            X[i+5*M] = gIc*mm[i]*Ic[i]
+            X[i+6*M] = sa[i] - Im[i]
         return
-
-
-
-
 
 
 
