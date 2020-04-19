@@ -162,7 +162,7 @@ cdef class SIRS:
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
             double [:] Ni   = rp[3*M:4*M]
-            double [:] ld   = self.ll7
+            double [:] ld   = self.ll
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] sa   = self.sa
