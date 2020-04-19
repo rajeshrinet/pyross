@@ -160,7 +160,6 @@ cdef class SIRS:
             double [:] Is   = rp[2*M:3*M]
             double [:] Ni   = rp[3*M:4*M]
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
             double [:] X    = self.drpdt
@@ -171,8 +170,8 @@ cdef class SIRS:
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i] + sa[i] + ep*gIa*Ia[i] + ep*gIs*Is[i]
-            X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i] + iaa[i]
-            X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]
+            X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]
+            X[i+2*M] = alphab*aa - gIs*Is[i] 
             X[i+3*M] = sa[i] + iaa[i]
         return
 
@@ -181,10 +180,6 @@ cdef class SIRS:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
             self.CM = contactMatrix(t)
             return self.drpdt
@@ -350,7 +345,6 @@ cdef class SEI5R:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
         
         self.sa     = np.zeros( self.M, dtype = DTYPE)           
@@ -407,6 +401,35 @@ cdef class SEI5R:
             X[i+6*M] = gIc*mm[i]*Ic[i]
             X[i+7*M] = sa[i] - Im[i]
         return
+    
+
+    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+        from scipy.integrate import odeint
+
+        def rhs0(rp, t):
+            self.rhs(rp, t)
+            self.CM = contactMatrix(t)
+            return self.drpdt
+
+        if integrator=='odeint':
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0)))
+            u, time_points = solver.solve(time_points)
+
+        if filename=='None':
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        else:
+            from scipy.io import savemat
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE})
+        return data
 
 
 
