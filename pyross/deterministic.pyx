@@ -169,7 +169,7 @@ cdef class SIRS:
             for j in prange(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i] + sa[i] + ep*gIa*Ia[i] + ep*gIs*Is[i]
+            X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])
             X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]
             X[i+2*M] = alphab*aa - gIs*Is[i] 
             X[i+3*M] = sa[i] + iaa[i]
