@@ -55,7 +55,7 @@ cdef class SIR:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
             X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i]
@@ -168,7 +168,7 @@ cdef class SIRS:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i] + sa[i] + ep*gIa*Ia[i] + ep*gIs*Is[i]
             X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i] + iaa[i]
@@ -262,7 +262,7 @@ cdef class SEIR:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
             X[i+M]   = aa       - gE*  E[i] + FM[i]
@@ -394,7 +394,7 @@ cdef class SEI5R:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i] 
             X[i+M]   = aa       - gE*  E[i] 
@@ -469,7 +469,7 @@ cdef class SEAIR:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
             X[i+M]   =  aa      - gE       *E[i] + FM[i]
@@ -579,7 +579,7 @@ cdef class SEAIRQ:
         for i in prange(M, nogil=True):
             bb=0
             for j in prange(M):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa      - tS          *S[i] - FM[i]
             X[i+M]   =  aa      - (gE+tE)     *E[i] + FM[i]
