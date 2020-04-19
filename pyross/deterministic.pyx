@@ -320,7 +320,7 @@ cdef class SEI5R:
     * Ic: ICU
     * Im: Mortality
 
-    S ---> E ---> Ia, Is 
+    S  ---> E   ---> Ia, Is 
     Ia ---> R
     Is ---> Ih, R
     Ih ---> Ic, R
