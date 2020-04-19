@@ -20,7 +20,7 @@ cdef class SIR:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, FM, CC
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, FM, CC
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -35,6 +35,7 @@ cdef class SIR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
 
@@ -48,7 +49,7 @@ cdef class SIR:
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
+            double [:] ld   = self.ld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
@@ -112,13 +113,13 @@ cdef class SIRS:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, fsa, ep
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, FM, CC, sa, iaa
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, FM, CC, sa, iaa
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIa')                      # recovery rate of Is
+        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
         self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
@@ -131,6 +132,7 @@ cdef class SIRS:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
         
@@ -151,7 +153,6 @@ cdef class SIRS:
             print('iaa can be a number or an array of size M')
 
 
-
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
@@ -161,7 +162,7 @@ cdef class SIRS:
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
             double [:] Ni   = rp[3*M:4*M]
-            double [:] ld   = self.lld
+            double [:] ld   = self.ll7
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] sa   = self.sa
@@ -228,7 +229,7 @@ cdef class SEIR:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, gE, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, CC, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -244,6 +245,7 @@ cdef class SEIR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
@@ -258,7 +260,7 @@ cdef class SEIR:
             double [:] Ia   = rp[2*M:3*M]
             double [:] Is   = rp[3*M:4*M]
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
+            double [:] ld   = self.ld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
@@ -314,6 +316,115 @@ cdef class SEIR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEI5R:
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    S ---> E ---> Ia, Is 
+    Ia ---> R
+    Is ---> Ih, R
+    Ih ---> Ic, R
+    Ic ---> Im, R
+    """
+    cdef:
+        readonly int N, M,
+        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, gIm, fsa, fh
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, FM, CC, sa, iaa
+
+    def __init__(self, parameters, M, Ni):
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.beta  = parameters.get('beta')                     # infection rate
+        self.gE    = parameters.get('gE')                      # recovery rate of Ia
+        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+
+        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
+        sa    = parameters.get('sa')                       # daily arrival of new susceptibles 
+        iaa   = parameters.get('iaa')                      # daily arrival of new asymptomatics
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        
+        self.sa     = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(sa)==1:
+            self.sa = sa*np.ones(M) 
+        elif np.size(sa)==M:
+            self.sa= sa
+        else:
+            print('sa can be a number or an array of size M')
+
+        self.iaa    = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(iaa)==1:
+            self.iaa = iaa*np.ones(M) 
+        elif np.size(iaa)==M:
+            self.iaa = iaa
+        else:
+            print('iaa can be a number or an array of size M')
+
+
+    cdef rhs(self, rp, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double alpha=self.alpha, beta=self.beta, aa, bb
+            double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE
+            double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh, gIm=self.gIm
+            double [:] S    = rp[0  :M]
+            double [:] E    = rp[M  :2*M]
+            double [:] Ia   = rp[2*M:3*M]
+            double [:] Is   = rp[3*M:4*M]
+            double [:] Ih   = rp[4*M:5*M]
+            double [:] Ic   = rp[5*M:6*M]
+            double [:] Im   = rp[6*M:7*M]
+            double [:] Ni   = rp[6*M:7*M]
+            double [:] ld   = self.ld
+            double [:,:] CM = self.CM
+            double [:] sa   = self.sa
+            double [:] iaa  = self.iaa
+            double [:] hh  = self.hh
+            double [:] cc  = self.cc
+            double [:] mm  = self.mm
+            double [:] X    = self.drpdt
+
+        for i in prange(M, nogil=True):
+            bb=0
+            for j in prange(M):
+                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+            aa = bb*S[i]
+            X[i]     = -aa + sa[i] 
+            X[i+M]   = aa       - gE*  E[i] 
+            X[i+2*M] = alpha *aa - gIa*Ia[i]   + iaa[i]
+            X[i+3*M] = alphab*aa - gIs*Is[i]  
+            X[i+4*M] = sa[i] + iaa[i]
+            X[i+5*M] = sa[i] + iaa[i]
+            X[i+5*M] = sa[i] + iaa[i]
+            X[i+7*M] = sa[i] + iaa[i]
+        return
+
+
+
+
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIR:
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
@@ -324,7 +435,7 @@ cdef class SEAIR:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, CC, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -342,6 +453,7 @@ cdef class SEAIR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
@@ -359,7 +471,7 @@ cdef class SEAIR:
             double [:] Ia   = rp[3*M:4*M]
             double [:] Is   = rp[4*M:5*M]
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
+            double [:] ld   = self.ld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
@@ -427,7 +539,7 @@ cdef class SEAIRQ:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
         readonly double tS, tE, tA, tIa, tIs
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, CC, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -452,6 +564,7 @@ cdef class SEAIRQ:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
@@ -470,7 +583,7 @@ cdef class SEAIRQ:
             double [:] Ia   = rp[3*M:4*M]
             double [:] Is   = rp[4*M:5*M]
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
+            double [:] ld   = self.ld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
@@ -535,7 +648,7 @@ cdef class SIkR:
     cdef:
         readonly int N, M, kk
         readonly double alpha, beta, gI, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, CC, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -550,6 +663,7 @@ cdef class SIkR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( (self.kk+1)*self.M, dtype=DTYPE)           # right hand side
 
@@ -561,7 +675,7 @@ cdef class SIkR:
             double [:] S    = rp[0  :M]
             double [:] I    = rp[M  :(kk+1)*M]
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
+            double [:] ld   = self.ld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
@@ -628,7 +742,7 @@ cdef class SEkIkR:
     cdef:
         readonly int N, M, kk, ke
         readonly double alpha, beta, gI, fsa, gE
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, ld, CM, CC, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -645,6 +759,7 @@ cdef class SEkIkR:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.ld    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( (self.kk + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
 
@@ -658,7 +773,7 @@ cdef class SEkIkR:
             double [:] E    = rp[M  :(ke+1)*M]
             double [:] I    = rp[(ke+1)*M  :(ke+kk+1)*M]
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
+            double [:] ld   = self.ld
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
