@@ -324,20 +324,25 @@ cdef class SEI5R:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, gIm, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC, sa, iaa
+        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                      # recovery rate of Ia
+        self.gE    = parameters.get('gE')                       # recovery rate of E class
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
+        self.gIc   = parameters.get('gIc')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters.get('fh')                      # the self-isolation parameter of symptomatics
 
-        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
-        sa    = parameters.get('sa')                       # daily arrival of new susceptibles 
-        iaa   = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        sa    = parameters.get('sa')                            # daily arrival of new susceptibles 
+        hh   = parameters.get('hh')                            # hospital
+        cc   = parameters.get('cc')                            # ICU
+        mm   = parameters.get('mm')                            # mortality
+        iaa   = parameters.get('iaa')                           # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -355,6 +360,30 @@ cdef class SEI5R:
         else:
             print('sa can be a number or an array of size M')
 
+        self.hh     = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(hh)==1:
+            self.hh = hh*np.ones(M) 
+        elif np.size(hh)==M:
+            self.hh= hh
+        else:
+            print('hh can be a number or an array of size M')
+
+        self.cc     = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(cc)==1:
+            self.cc = cc*np.ones(M) 
+        elif np.size(cc)==M:
+            self.cc= cc 
+        else:
+            print('cc can be a number or an array of size M')
+
+        self.mm     = np.zeros( self.M, dtype = DTYPE)           
+        if np.size(mm)==1:
+            self.mm = mm*np.ones(M) 
+        elif np.size(mm)==M:
+            self.mm= mm 
+        else:
+            print('mm can be a number or an array of size M')
+
         self.iaa    = np.zeros( self.M, dtype = DTYPE)           
         if np.size(iaa)==1:
             self.iaa = iaa*np.ones(M) 
@@ -369,7 +398,7 @@ cdef class SEI5R:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, aa, bb
             double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE
-            double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh, gIm=self.gIm
+            double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
             double [:] S    = rp[0  :M]
             double [:] E    = rp[M  :2*M]
@@ -382,9 +411,9 @@ cdef class SEI5R:
             double [:,:] CM = self.CM
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
-            double [:] hh  = self.hh
-            double [:] cc  = self.cc
-            double [:] mm  = self.mm
+            double [:] hh   = self.hh
+            double [:] cc   = self.cc
+            double [:] mm   = self.mm
             double [:] X    = self.drpdt
 
         for i in prange(M, nogil=True):
