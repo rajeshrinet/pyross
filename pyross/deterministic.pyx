@@ -1,8 +1,6 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
-from libc.math cimport sqrt
-cdef double PI = 3.14159265359
 
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
@@ -335,13 +333,13 @@ cdef class SEI5R:
         self.gIh   = parameters.get('gIh')                      # recovery rate of Is
         self.gIc   = parameters.get('gIc')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
-        sa    = parameters.get('sa')                            # daily arrival of new susceptibles 
-        hh   = parameters.get('hh')                            # hospital
-        cc   = parameters.get('cc')                            # ICU
-        mm   = parameters.get('mm')                            # mortality
-        iaa   = parameters.get('iaa')                           # daily arrival of new asymptomatics
+        sa         = parameters.get('sa')                       # daily arrival of new susceptibles 
+        hh         = parameters.get('hh')                       # hospital
+        cc         = parameters.get('cc')                       # ICU
+        mm         = parameters.get('mm')                       # mortality
+        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -351,7 +349,7 @@ cdef class SEI5R:
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
         
-        self.sa     = np.zeros( self.M, dtype = DTYPE)           
+        self.sa    = np.zeros( self.M, dtype = DTYPE)           
         if np.size(sa)==1:
             self.sa = sa*np.ones(M) 
         elif np.size(sa)==M:
@@ -359,7 +357,7 @@ cdef class SEI5R:
         else:
             print('sa can be a number or an array of size M')
 
-        self.hh     = np.zeros( self.M, dtype = DTYPE)           
+        self.hh    = np.zeros( self.M, dtype = DTYPE)           
         if np.size(hh)==1:
             self.hh = hh*np.ones(M) 
         elif np.size(hh)==M:
@@ -367,7 +365,7 @@ cdef class SEI5R:
         else:
             print('hh can be a number or an array of size M')
 
-        self.cc     = np.zeros( self.M, dtype = DTYPE)           
+        self.cc    = np.zeros( self.M, dtype = DTYPE)           
         if np.size(cc)==1:
             self.cc = cc*np.ones(M) 
         elif np.size(cc)==M:
@@ -375,7 +373,7 @@ cdef class SEI5R:
         else:
             print('cc can be a number or an array of size M')
 
-        self.mm     = np.zeros( self.M, dtype = DTYPE)           
+        self.mm    = np.zeros( self.M, dtype = DTYPE)           
         if np.size(mm)==1:
             self.mm = mm*np.ones(M) 
         elif np.size(mm)==M:
@@ -472,15 +470,15 @@ cdef class SIkR:
     method of k-stages of I
     """
     cdef:
-        readonly int N, M, kk
+        readonly int N, M, ki
         readonly double alpha, beta, gI, fsa
         readonly np.ndarray rp0, Ni, drpdt,  CM, CC, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gI    = parameters.get('gI')                      # recovery rate of Ia
-        self.kk    = parameters.get('k')                      # recovery rate of Ia
+        self.gI    = parameters.get('gI')                       # recovery rate of Ia
+        self.ki    = parameters.get('k')                        # recovery rate of Ia
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
@@ -490,15 +488,15 @@ cdef class SIkR:
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( (self.kk+1)*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
 
 
     cdef rhs(self, rp, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, kk=self.kk
-            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
+            int N=self.N, M=self.M, i, j, jj, ki=self.ki
+            double alpha=self.alpha, beta=self.beta, gI=self.ki*self.gI, aa, bb
             double [:] S    = rp[0  :M]
-            double [:] I    = rp[M  :(kk+1)*M]
+            double [:] I    = rp[M  :(ki+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
@@ -506,14 +504,14 @@ cdef class SIkR:
 
         for i in range(M):
             bb=0
-            for jj in range(kk):
+            for jj in range(ki):
                 for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
             X[i+M]   = aa - gI*I[i] + FM[i]
 
-            for j in range(kk-1):
+            for j in range(ki-1):
                 X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
@@ -543,9 +541,9 @@ cdef class SIkR:
             u, time_points = solver.solve(time_points)
 
         if filename=='None':
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         else:
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             from scipy.io import savemat
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
         return data
@@ -564,7 +562,7 @@ cdef class SEkIkR:
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
     cdef:
-        readonly int N, M, kk, ke
+        readonly int N, M, ki, ke
         readonly double alpha, beta, gI, fsa, gE
         readonly np.ndarray rp0, Ni, drpdt, CM, CC, FM
 
@@ -573,7 +571,7 @@ cdef class SEkIkR:
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')
         self.gI    = parameters.get('gI')                      # recovery rate of Ia
-        self.kk    = parameters.get('kI')                      # recovery rate of Ia
+        self.ki    = parameters.get('kI')                      # recovery rate of Ia
         self.ke    = parameters.get('kE')
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
@@ -584,17 +582,17 @@ cdef class SEkIkR:
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( (self.kk + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, rp, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, kk=self.kk, ke = self.ke
-            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
+            int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
+            double alpha=self.alpha, beta=self.beta, gI=self.ki*self.gI, aa, bb
             double fsa=self.fsa, alphab=1-self.alpha, gE = self.ke * self.gE
             double [:] S    = rp[0  :M]
             double [:] E    = rp[M  :(ke+1)*M]
-            double [:] I    = rp[(ke+1)*M  :(ke+kk+1)*M]
+            double [:] I    = rp[(ke+1)*M  :(ke+ki+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
@@ -602,7 +600,7 @@ cdef class SEkIkR:
 
         for i in range(M):
             bb=0
-            for jj in range(kk):
+            for jj in range(ki):
                 for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
@@ -626,7 +624,7 @@ cdef class SEkIkR:
                 X[i + (ke+1)* M + 0] = aa + FM[i] - gI * I[i]
 
             # In both cases, propagate cases along the I stages.
-            for j in range(kk-1):
+            for j in range(ki-1):
                 X[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
@@ -656,9 +654,9 @@ cdef class SEkIkR:
             u, time_points = solver.solve(time_points)
 
         if filename=='None':
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         else:
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             from scipy.io import savemat
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
         return data
