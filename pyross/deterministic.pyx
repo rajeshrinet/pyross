@@ -2,7 +2,6 @@ import  numpy as np
 cimport numpy as np
 cimport cython
 from libc.math cimport sqrt
-from cython.parallel import prange
 cdef double PI = 3.14159265359
 
 DTYPE   = np.float
@@ -52,9 +51,9 @@ cdef class SIR:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
-            for j in prange(M):
+            for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
@@ -164,9 +163,9 @@ cdef class SIRS:
             double [:] iaa  = self.iaa
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
-            for j in prange(M):
+            for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])
@@ -254,9 +253,9 @@ cdef class SEIR:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
-            for j in prange(M):
+            for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
@@ -416,9 +415,9 @@ cdef class SEI5R:
             double [:] mm   = self.mm
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
-            for j in prange(M):
+            for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i] 
@@ -516,9 +515,9 @@ cdef class SEAIR:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
-            for j in prange(M):
+            for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
@@ -626,9 +625,9 @@ cdef class SEAIRQ:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
-            for j in prange(M):
+            for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa      - tS          *S[i] - FM[i]
@@ -716,10 +715,10 @@ cdef class SIkR:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
             for jj in range(kk):
-                for j in prange(M):
+                for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
@@ -812,10 +811,10 @@ cdef class SEkIkR:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
-        for i in prange(M, nogil=True):
+        for i in range(M):
             bb=0
             for jj in range(kk):
-                for j in prange(M):
+                for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]
