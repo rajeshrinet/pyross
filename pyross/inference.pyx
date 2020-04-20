@@ -34,17 +34,25 @@ cdef class SIR:
         self.time_evol_op = np.empty((steps, 3, M, 3, M), dtype=DTYPE)
         self.B = np.zeros((steps, M, 3, 3), dtype=DTYPE)
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='Nelson-Mead', fatol=None):
+
         def to_minimize(params):
-            if np.min(params) < 0:
-                return INFINITY
-            else:
-                parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
-                self.set_params(parameters)
-                model = detSIR(parameters, self.M, self.fi)
-                minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-                return minus_logp
-        res = minimize(to_minimize, guess, method='Nelder-Mead')
+            parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
+            self.set_params(parameters)
+            model = detSIR(parameters, self.M, self.fi)
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            return minus_logp
+
+        if method == 'Nelson-Mead':
+            options={'fatol': fatol, 'adaptive': True}
+            res = minimize(to_minimize, guess, method='Nelder-Mead', options=options)
+        elif method == 'L-BFGS-B':
+            bounds = [(0, INFINITY), (0, INFINITY), (0, INFINITY), (0, INFINITY)]
+            options={'eps': 1e-5}
+            res = minimize(to_minimize, guess, bounds=bounds, method='L-BFGS-B', options=options)
+        else:
+            print('optimisation method not implemented')
+            return
         return res.x, res.nit
 
     def obtain_minus_log_p(self, parameters, double [:, :, :] x, double Tf, int Nf, contactMatrix):
