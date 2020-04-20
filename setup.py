@@ -1,5 +1,5 @@
 import numpy
-import os, sys, os.path, tempfile, subprocess, shutil
+import os, sys 
 from distutils.core import setup
 from Cython.Build import cythonize
 from distutils.extension import Extension
@@ -15,7 +15,7 @@ setup(
     license='MIT',
     description='python library for numerical simulation of infectious disease',
     long_description='pyross is a library for numerical simulation of infectious disease',
-    platforms='works on all platforms (eg LINUX, macOS, and Microsoft Windows)',
+    platforms='works on all platforms (such as LINUX, macOS, and Microsoft Windows)',
     ext_modules=cythonize([ Extension("pyross/*", ["pyross/*.pyx"],
         include_dirs=[numpy.get_include()],
         )],
