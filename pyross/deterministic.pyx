@@ -120,8 +120,8 @@ cdef class SIRS:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
         self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
-        sa    = parameters.get('sa')                       # daily arrival of new susceptibles 
-        iaa   = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        sa         = parameters.get('sa')                       # daily arrival of new susceptibles 
+        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -132,7 +132,7 @@ cdef class SIRS:
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
         
-        self.sa     = np.zeros( self.M, dtype = DTYPE)           
+        self.sa    = np.zeros( self.M, dtype = DTYPE)           
         if np.size(sa)==1:
             self.sa = sa*np.ones(M) 
         elif np.size(sa)==M:
@@ -140,7 +140,7 @@ cdef class SIRS:
         else:
             print('sa can be a number or an array of size M')
 
-        self.iaa    = np.zeros( self.M, dtype = DTYPE)           
+        self.iaa   = np.zeros( self.M, dtype = DTYPE)           
         if np.size(iaa)==1:
             self.iaa = iaa*np.ones(M) 
         elif np.size(iaa)==M:
@@ -349,7 +349,7 @@ cdef class SEI5R:
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
         
         self.sa     = np.zeros( self.M, dtype = DTYPE)           
         if np.size(sa)==1:
@@ -406,7 +406,7 @@ cdef class SEI5R:
             double [:] Ih   = rp[4*M:5*M]
             double [:] Ic   = rp[5*M:6*M]
             double [:] Im   = rp[6*M:7*M]
-            double [:] Ni   = rp[6*M:7*M]
+            double [:] Ni   = rp[7*M:8*M]
             double [:,:] CM = self.CM
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
@@ -448,7 +448,7 @@ cdef class SEI5R:
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
-            solver.set_initial_condition(np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0)))
+            solver.set_initial_condition(np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)))
             u, time_points = solver.solve(time_points)
 
         if filename=='None':
@@ -457,6 +457,210 @@ cdef class SEI5R:
             from scipy.io import savemat
             data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE})
+        return data
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SIkR:
+    """
+    Susceptible, Infected, Recovered (SIkR)
+    method of k-stages of I
+    """
+    cdef:
+        readonly int N, M, kk
+        readonly double alpha, beta, gI, fsa
+        readonly np.ndarray rp0, Ni, drpdt,  CM, CC, FM
+
+    def __init__(self, parameters, M, Ni):
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.beta  = parameters.get('beta')                     # infection rate
+        self.gI    = parameters.get('gI')                      # recovery rate of Ia
+        self.kk    = parameters.get('k')                      # recovery rate of Ia
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.drpdt = np.zeros( (self.kk+1)*self.M, dtype=DTYPE)           # right hand side
+
+
+    cdef rhs(self, rp, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j, jj, kk=self.kk
+            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
+            double [:] S    = rp[0  :M]
+            double [:] I    = rp[M  :(kk+1)*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:]   FM = self.FM
+            double [:] X    = self.drpdt
+
+        for i in range(M):
+            bb=0
+            for jj in range(kk):
+                for j in range(M):
+                    bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
+            aa = bb*S[i]
+            X[i]     = -aa - FM[i]
+            X[i+M]   = aa - gI*I[i] + FM[i]
+
+            for j in range(kk-1):
+                X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+        return
+
+
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
+        from scipy.integrate import odeint
+
+        def rhs0(rp, t):
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+            self.rhs(rp, t)
+            self.CM = contactMatrix(t)
+            return self.drpdt
+
+        if integrator=='odeint':
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, I0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, I0)))
+            u, time_points = solver.solve(time_points)
+
+        if filename=='None':
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+        else:
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+            from scipy.io import savemat
+            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
+        return data
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEkIkR:
+    """
+    Susceptible, Infected, Recovered (SIkR)
+    method of k-stages of I
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    """
+    cdef:
+        readonly int N, M, kk, ke
+        readonly double alpha, beta, gI, fsa, gE
+        readonly np.ndarray rp0, Ni, drpdt, CM, CC, FM
+
+    def __init__(self, parameters, M, Ni):
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.beta  = parameters.get('beta')                     # infection rate
+        self.gE    = parameters.get('gE')
+        self.gI    = parameters.get('gI')                      # recovery rate of Ia
+        self.kk    = parameters.get('kI')                      # recovery rate of Ia
+        self.ke    = parameters.get('kE')
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.drpdt = np.zeros( (self.kk + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
+
+
+    cdef rhs(self, rp, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j, jj, kk=self.kk, ke = self.ke
+            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
+            double fsa=self.fsa, alphab=1-self.alpha, gE = self.ke * self.gE
+            double [:] S    = rp[0  :M]
+            double [:] E    = rp[M  :(ke+1)*M]
+            double [:] I    = rp[(ke+1)*M  :(ke+kk+1)*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:]   FM = self.FM
+            double [:] X    = self.drpdt
+
+        for i in range(M):
+            bb=0
+            for jj in range(kk):
+                for j in range(M):
+                    bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
+            aa = bb*S[i]
+            X[i]     = -aa - FM[i]
+
+            # If there is any E stage...
+            if 0 != ke :
+                # People removed from S are put in E[0]
+                X[i+M+0] = aa - gE*E[i] + FM[i]
+
+                # Propagate cases along the E stages
+                for j in range(ke - 1) :
+                    X[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+
+                # Transfer cases from E[-1] to I[0]
+                X[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
+
+            # However, if there aren't any E stages
+            else :
+                # People removed from S are put in I[0]
+                X[i + (ke+1)* M + 0] = aa + FM[i] - gI * I[i]
+
+            # In both cases, propagate cases along the I stages.
+            for j in range(kk-1):
+                X[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+        return
+
+
+    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
+        from scipy.integrate import odeint
+
+        def rhs0(rp, t):
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+            self.rhs(rp, t)
+            self.CM = contactMatrix(t)
+            return self.drpdt
+
+        if integrator=='odeint':
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            u = odeint(rhs0, np.concatenate((S0, E0, I0)), time_points, mxstep=5000000)
+        else:
+            import odespy
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            #solver = odespy.RKF45(rhs0)
+            #solver = odespy.RK4(rhs0)
+            solver.set_initial_condition(np.concatenate((S0, E0, I0)))
+            u, time_points = solver.solve(time_points)
+
+        if filename=='None':
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+        else:
+            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
+            from scipy.io import savemat
+            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
         return data
 
 
@@ -673,203 +877,3 @@ cdef class SEAIRQ:
 
 
 
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SIkR:
-    """
-    Susceptible, Infected, Recovered (SIkR)
-    method of k-stages of I
-    """
-    cdef:
-        readonly int N, M, kk
-        readonly double alpha, beta, gI, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, CC, FM
-
-    def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gI    = parameters.get('gI')                      # recovery rate of Ia
-        self.kk    = parameters.get('k')                      # recovery rate of Ia
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
-
-        self.N     = np.sum(Ni)
-        self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
-
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( (self.kk+1)*self.M, dtype=DTYPE)           # right hand side
-
-
-    cdef rhs(self, rp, tt):
-        cdef:
-            int N=self.N, M=self.M, i, j, jj, kk=self.kk
-            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
-            double [:] S    = rp[0  :M]
-            double [:] I    = rp[M  :(kk+1)*M]
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:]   FM = self.FM
-            double [:] X    = self.drpdt
-
-        for i in range(M):
-            bb=0
-            for jj in range(kk):
-                for j in range(M):
-                    bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
-            aa = bb*S[i]
-            X[i]     = -aa - FM[i]
-            X[i+M]   = aa - gI*I[i] + FM[i]
-
-            for j in range(kk-1):
-                X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
-        return
-
-
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
-        from scipy.integrate import odeint
-
-        def rhs0(rp, t):
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
-            self.rhs(rp, t)
-            self.CM = contactMatrix(t)
-            return self.drpdt
-
-        if integrator=='odeint':
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            u = odeint(rhs0, np.concatenate((S0, I0)), time_points, mxstep=5000000)
-        else:
-            import odespy
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-            #solver = odespy.RKF45(rhs0)
-            #solver = odespy.RK4(rhs0)
-            solver.set_initial_condition(np.concatenate((S0, I0)))
-            u, time_points = solver.solve(time_points)
-
-        if filename=='None':
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
-        else:
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
-            from scipy.io import savemat
-            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
-        return data
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEkIkR:
-    """
-    Susceptible, Infected, Recovered (SIkR)
-    method of k-stages of I
-    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    """
-    cdef:
-        readonly int N, M, kk, ke
-        readonly double alpha, beta, gI, fsa, gE
-        readonly np.ndarray rp0, Ni, drpdt, CM, CC, FM
-
-    def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')
-        self.gI    = parameters.get('gI')                      # recovery rate of Ia
-        self.kk    = parameters.get('kI')                      # recovery rate of Ia
-        self.ke    = parameters.get('kE')
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
-
-        self.N     = np.sum(Ni)
-        self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
-
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( (self.kk + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
-
-
-    cdef rhs(self, rp, tt):
-        cdef:
-            int N=self.N, M=self.M, i, j, jj, kk=self.kk, ke = self.ke
-            double alpha=self.alpha, beta=self.beta, gI=self.kk*self.gI, aa, bb
-            double fsa=self.fsa, alphab=1-self.alpha, gE = self.ke * self.gE
-            double [:] S    = rp[0  :M]
-            double [:] E    = rp[M  :(ke+1)*M]
-            double [:] I    = rp[(ke+1)*M  :(ke+kk+1)*M]
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:]   FM = self.FM
-            double [:] X    = self.drpdt
-
-        for i in range(M):
-            bb=0
-            for jj in range(kk):
-                for j in range(M):
-                    bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
-            aa = bb*S[i]
-            X[i]     = -aa - FM[i]
-
-            # If there is any E stage...
-            if 0 != ke :
-                # People removed from S are put in E[0]
-                X[i+M+0] = aa - gE*E[i] + FM[i]
-
-                # Propagate cases along the E stages
-                for j in range(ke - 1) :
-                    X[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
-
-                # Transfer cases from E[-1] to I[0]
-                X[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
-
-            # However, if there aren't any E stages
-            else :
-                # People removed from S are put in I[0]
-                X[i + (ke+1)* M + 0] = aa + FM[i] - gI * I[i]
-
-            # In both cases, propagate cases along the I stages.
-            for j in range(kk-1):
-                X[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
-        return
-
-
-    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
-        from scipy.integrate import odeint
-
-        def rhs0(rp, t):
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
-            self.rhs(rp, t)
-            self.CM = contactMatrix(t)
-            return self.drpdt
-
-        if integrator=='odeint':
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            u = odeint(rhs0, np.concatenate((S0, E0, I0)), time_points, mxstep=5000000)
-        else:
-            import odespy
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
-            #solver = odespy.RKF45(rhs0)
-            #solver = odespy.RK4(rhs0)
-            solver.set_initial_condition(np.concatenate((S0, E0, I0)))
-            u, time_points = solver.solve(time_points)
-
-        if filename=='None':
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
-        else:
-            data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.kk }
-            from scipy.io import savemat
-            savemat(filename, {'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs })
-        return data
