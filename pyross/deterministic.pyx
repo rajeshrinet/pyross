@@ -71,8 +71,8 @@ cdef class SIR:
             self.rhs(rp, t)
             self.CM = contactMatrix(t)
             return self.drpdt
-        if integrator=='odeint':
 
+        if integrator=='odeint':
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, Ia0, Is0)), time_points, mxstep=100000)
         else:
