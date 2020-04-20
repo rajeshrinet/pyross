@@ -62,7 +62,7 @@ cdef class SIR:
 
     def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
         from scipy.integrate import odeint
-        
+
         def rhs0(rp, t):
             if None != seedRate :
                 self.FM = seedRate(t)
@@ -112,8 +112,8 @@ cdef class SIRS:
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
 
-        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible 
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles 
+        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
+        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
@@ -124,18 +124,18 @@ cdef class SIRS:
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
-        
-        self.sa    = np.zeros( self.M, dtype = DTYPE)           
+
+        self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
-            self.sa = sa*np.ones(M) 
+            self.sa = sa*np.ones(M)
         elif np.size(sa)==M:
             self.sa= sa
         else:
             print('sa can be a number or an array of size M')
 
-        self.iaa   = np.zeros( self.M, dtype = DTYPE)           
+        self.iaa   = np.zeros( self.M, dtype = DTYPE)
         if np.size(iaa)==1:
-            self.iaa = iaa*np.ones(M) 
+            self.iaa = iaa*np.ones(M)
         elif np.size(iaa)==M:
             self.iaa = iaa
         else:
@@ -163,7 +163,7 @@ cdef class SIRS:
             aa = bb*S[i]
             X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])
             X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]
-            X[i+2*M] = alphab*aa - gIs*Is[i] 
+            X[i+2*M] = alphab*aa - gIs*Is[i]
             X[i+3*M] = sa[i] + iaa[i]
         return
 
@@ -297,8 +297,8 @@ cdef class SEI5R:
     * Ic: ICU
     * Im: Mortality
 
-    S  ---> E 
-    E  ---> Ia, Is 
+    S  ---> E
+    E  ---> Ia, Is
     Ia ---> R
     Is ---> Ih, R
     Ih ---> Ic, R
@@ -320,7 +320,7 @@ cdef class SEI5R:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles 
+        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         hh         = parameters.get('hh')                       # hospital
         cc         = parameters.get('cc')                       # ICU
         mm         = parameters.get('mm')                       # mortality
@@ -333,42 +333,42 @@ cdef class SEI5R:
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
-        
-        self.sa    = np.zeros( self.M, dtype = DTYPE)           
+
+        self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
-            self.sa = sa*np.ones(M) 
+            self.sa = sa*np.ones(M)
         elif np.size(sa)==M:
             self.sa= sa
         else:
             print('sa can be a number or an array of size M')
 
-        self.hh    = np.zeros( self.M, dtype = DTYPE)           
+        self.hh    = np.zeros( self.M, dtype = DTYPE)
         if np.size(hh)==1:
-            self.hh = hh*np.ones(M) 
+            self.hh = hh*np.ones(M)
         elif np.size(hh)==M:
             self.hh= hh
         else:
             print('hh can be a number or an array of size M')
 
-        self.cc    = np.zeros( self.M, dtype = DTYPE)           
+        self.cc    = np.zeros( self.M, dtype = DTYPE)
         if np.size(cc)==1:
-            self.cc = cc*np.ones(M) 
+            self.cc = cc*np.ones(M)
         elif np.size(cc)==M:
-            self.cc= cc 
+            self.cc= cc
         else:
             print('cc can be a number or an array of size M')
 
-        self.mm    = np.zeros( self.M, dtype = DTYPE)           
+        self.mm    = np.zeros( self.M, dtype = DTYPE)
         if np.size(mm)==1:
-            self.mm = mm*np.ones(M) 
+            self.mm = mm*np.ones(M)
         elif np.size(mm)==M:
-            self.mm= mm 
+            self.mm= mm
         else:
             print('mm can be a number or an array of size M')
 
-        self.iaa    = np.zeros( self.M, dtype = DTYPE)           
+        self.iaa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(iaa)==1:
-            self.iaa = iaa*np.ones(M) 
+            self.iaa = iaa*np.ones(M)
         elif np.size(iaa)==M:
             self.iaa = iaa
         else:
@@ -403,16 +403,16 @@ cdef class SEI5R:
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa + sa[i] 
-            X[i+M]   = aa  - gE*E[i] 
-            X[i+2*M] = ce1*E[i] - gIa*Ia[i] 
-            X[i+3*M] = ce2*E[i] - gIs*Is[i]  
+            X[i]     = -aa + sa[i]
+            X[i+M]   = aa  - gE*E[i]
+            X[i+2*M] = ce1*E[i] - gIa*Ia[i]
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]
             X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]
             X[i+5*M] = gIh*cc[i]*Is[i] - gIc*Ic[i]
             X[i+6*M] = gIc*mm[i]*Ic[i]
             X[i+7*M] = sa[i] - Im[i]
         return
-    
+
 
     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
         from scipy.integrate import odeint
@@ -831,7 +831,3 @@ cdef class SEAIRQ:
 
         data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return data
-
-
-
-
