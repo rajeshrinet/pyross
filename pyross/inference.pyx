@@ -34,7 +34,7 @@ cdef class SIR:
         self.time_evol_op = np.empty((steps, 3, M, 3, M), dtype=DTYPE)
         self.B = np.zeros((steps, M, 3, 3), dtype=DTYPE)
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='Nelson-Mead', fatol=0.01):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='Nelder-Mead', fatol=0.01):
 
         def to_minimize(params):
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
@@ -43,7 +43,7 @@ cdef class SIR:
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
             return minus_logp
 
-        if method == 'Nelson-Mead':
+        if method == 'Nelder-Mead':
             options={'fatol': fatol, 'adaptive': True}
             res = minimize(to_minimize, guess, method='Nelder-Mead', options=options)
         elif method == 'L-BFGS-B':
