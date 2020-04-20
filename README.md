@@ -23,7 +23,7 @@ The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](
 
 Please first [read the wiki](https://github.com/rajeshrinet/pyross/wiki) and  then only [open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
-When all else fails, we can be contacted at: ra413@cam.ac.uk (R. Adhikari), jk762@cam.ac.uk (Julian Kappler) and rs2004@cam.ac.uk (Rajesh Singh).
+The authors, in alphabetic order, are: [R. Adhikari](https://github.com/ronojoy), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez) and [Rajesh Singh](https://github.com/rajeshrinet).
 
 ## Publications
 
