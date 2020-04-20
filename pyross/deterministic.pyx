@@ -656,8 +656,8 @@ cdef class SEAIR:
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gAA   = parameters.get('gE')                       # rate to go from A to Ia
-        self.gAS   = parameters.get('gE')                       # rate to go from A to Is
+        self.gAA   = parameters.get('gAA')                       # rate to go from A to Ia
+        self.gAS   = parameters.get('gAS')                       # rate to go from A to Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
