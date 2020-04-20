@@ -63,7 +63,7 @@ cdef class SIR:
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
         
         def rhs0(rp, t):
@@ -76,11 +76,11 @@ cdef class SIR:
             return self.drpdt
         if integrator=='odeint':
 
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, Ia0, Is0)), time_points, mxstep=100000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -176,7 +176,7 @@ cdef class SIRS:
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -185,11 +185,11 @@ cdef class SIRS:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, Ia0, Is0, self.Ni)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -266,7 +266,7 @@ cdef class SEIR:
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -279,11 +279,11 @@ cdef class SEIR:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -432,7 +432,7 @@ cdef class SEI5R:
         return
     
 
-    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -441,11 +441,11 @@ cdef class SEI5R:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -529,7 +529,7 @@ cdef class SEAIR:
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -542,11 +542,11 @@ cdef class SEAIR:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -639,7 +639,7 @@ cdef class SEAIRQ:
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -652,11 +652,11 @@ cdef class SEAIRQ:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -730,7 +730,7 @@ cdef class SIkR:
         return
 
 
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -743,11 +743,11 @@ cdef class SIkR:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, I0)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
@@ -843,7 +843,7 @@ cdef class SEkIkR:
         return
 
 
-    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, integrator='odeint', filename='None', seedRate=None):
+    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', filename='None', seedRate=None):
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
@@ -856,11 +856,11 @@ cdef class SEkIkR:
             return self.drpdt
 
         if integrator=='odeint':
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             u = odeint(rhs0, np.concatenate((S0, E0, I0)), time_points, mxstep=5000000)
         else:
             import odespy
-            time_points=np.linspace(0, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
