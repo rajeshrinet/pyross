@@ -34,7 +34,7 @@ cdef class SIR:
         self.time_evol_op = np.empty((steps, 3, M, 3, M), dtype=DTYPE)
         self.B = np.zeros((steps, M, 3, 3), dtype=DTYPE)
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='Nelson-Mead', fatol=None):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='Nelson-Mead', fatol=0.01):
 
         def to_minimize(params):
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
