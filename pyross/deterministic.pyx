@@ -408,7 +408,7 @@ cdef class SEI5R:
             X[i+2*M] = ce1*E[i] - gIa*Ia[i]
             X[i+3*M] = ce2*E[i] - gIs*Is[i]
             X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]
-            X[i+5*M] = gIh*cc[i]*Is[i] - gIc*Ic[i]
+            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]
             X[i+6*M] = gIc*mm[i]*Ic[i]
             X[i+7*M] = sa[i] - Im[i]
         return
