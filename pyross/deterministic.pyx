@@ -324,7 +324,6 @@ cdef class SEI5R:
         hh         = parameters.get('hh')                       # hospital
         cc         = parameters.get('cc')                       # ICU
         mm         = parameters.get('mm')                       # mortality
-        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -366,14 +365,6 @@ cdef class SEI5R:
         else:
             print('mm can be a number or an array of size M')
 
-        self.iaa    = np.zeros( self.M, dtype = DTYPE)
-        if np.size(iaa)==1:
-            self.iaa = iaa*np.ones(M)
-        elif np.size(iaa)==M:
-            self.iaa = iaa
-        else:
-            print('iaa can be a number or an array of size M')
-
 
     cdef rhs(self, rp, tt):
         cdef:
@@ -392,7 +383,6 @@ cdef class SEI5R:
             double [:] Ni   = rp[7*M:8*M]
             double [:,:] CM = self.CM
             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
-            double [:] iaa  = self.iaa
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
