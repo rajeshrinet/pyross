@@ -6,7 +6,7 @@
 
 ## About
 
-[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated deterministically (as systems of differential equations) or stochastically (as chemical master equations). The library can move smoothly from stochastic to deterministic formulations as the compartmental fluctuations become small. 
+[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated deterministically (as systems of differential equations) or stochastically (as chemical master equations). The library can move smoothly from stochastic to deterministic formulations as the compartmental fluctuations become small. The library can also perform Bayesian inference of the parameters by fitting the data to a given model and provide forecasts given uncertainity in the estimation of parameters. 
 
 Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEAIR**, **SEAIRQ**, **SIkR**, and **SEkIkR**.
 
