@@ -316,7 +316,7 @@ cdef class SEI5R:
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Is
+        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
@@ -391,7 +391,7 @@ cdef class SEI5R:
             double [:] Im   = rp[6*M:7*M]
             double [:] Ni   = rp[7*M:8*M]
             double [:,:] CM = self.CM
-            double [:] sa   = self.sa
+            double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
             double [:] iaa  = self.iaa
             double [:] hh   = self.hh
             double [:] cc   = self.cc
@@ -403,14 +403,14 @@ cdef class SEI5R:
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa + sa[i]
-            X[i+M]   = aa  - gE*E[i]
-            X[i+2*M] = ce1*E[i] - gIa*Ia[i]
-            X[i+3*M] = ce2*E[i] - gIs*Is[i]
-            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]
-            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]
-            X[i+6*M] = gIc*mm[i]*Ic[i]
-            X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]
+            X[i]     = -aa + sa[i]                       
+            X[i+M]   = aa  - gE*E[i]                     
+            X[i+2*M] = ce1*E[i] - gIa*Ia[i]              
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]              
+            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       
+            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       
+            X[i+6*M] = gIc*mm[i]*Ic[i]                   
+            X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           
         return
 
 
