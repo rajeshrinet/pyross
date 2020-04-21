@@ -64,12 +64,12 @@ cdef class SIR:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
+            self.CM = contactMatrix(t)
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            self.CM = contactMatrix(t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -172,8 +172,8 @@ cdef class SIRS:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
-            self.rhs(rp, t)
             self.CM = contactMatrix(t)
+            self.rhs(rp, t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -257,12 +257,12 @@ cdef class SEIR:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
+            self.CM = contactMatrix(t)
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            self.CM = contactMatrix(t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -418,8 +418,8 @@ cdef class SEI5R:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
-            self.rhs(rp, t)
             self.CM = contactMatrix(t)
+            self.rhs(rp, t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -500,12 +500,12 @@ cdef class SIkR:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
+            self.CM = contactMatrix(t)
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            self.CM = contactMatrix(t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -608,12 +608,12 @@ cdef class SEkIkR:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
+            self.CM = contactMatrix(t)
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            self.CM = contactMatrix(t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -704,12 +704,12 @@ cdef class SEAIR:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
+            self.CM = contactMatrix(t)
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            self.CM = contactMatrix(t)
             return self.drpdt
 
         if integrator=='odeint':
@@ -809,12 +809,12 @@ cdef class SEAIRQ:
         from scipy.integrate import odeint
 
         def rhs0(rp, t):
+            self.CM = contactMatrix(t)
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            self.CM = contactMatrix(t)
             return self.drpdt
 
         if integrator=='odeint':
