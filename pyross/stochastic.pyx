@@ -866,3 +866,145 @@ cdef class SEI5R(stochastic_integration):
                       'iaa':self.iaa,
                       }
         return out_dict
+
+
+
+
+
+
+
+
+cdef class SEAIRQ(stochastic_integration):
+    """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Ia: asymptomatic
+    Is: symptomatic
+    A : Asymptomatic and infectious
+    """
+    cdef:
+        readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
+        readonly double tS, tE, tA, tIa, tIs
+        readonly np.ndarray rp0, Ni, drpdt, CC
+
+    def __init__(self, parameters, M, Ni):
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.beta  = parameters.get('beta')                     # infection rate
+        self.gE    = parameters.get('gE')                       # progression rate from E
+        self.gAA   = parameters.get('gAA')                      # rate to go from A to Ia
+        self.gAS   = parameters.get('gAS')                      # rate to go from A to Is
+        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+
+        self.tS    = parameters.get('tS')                       # testing rate in S
+        self.tE    = parameters.get('tE')                       # testing rate in E
+        self.tA    = parameters.get('tA')                       # testing rate in A
+        self.tIa   = parameters.get('tIa')                       # testing rate in Ia
+        self.tIs   = parameters.get('tIs')                       # testing rate in Is
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.k_tot = 6 # total number of explicit states per age group
+        # here:
+        # 1. S    Susceptible
+        # 2. E    Exposed
+        # 3. A    Asymptomatic and infective
+        # 4. Ia   Infective, asymptomatic
+        # 5. Is   Infective, symptomatic
+        # 6. Q    Quarantined
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+
+
+    cdef rate_matrix(self, rp, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double beta=self.beta, aa, bb
+            double tS=self.tS, tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
+            double gAA=self.gAA*self.alpha, gAS=self.gAS*(1-self.alpha)
+
+            long [:] S    = rp[0*M:M]
+            long [:] E    = rp[1*M:2*M]
+            long [:] A    = rp[2*M:3*M]
+            long [:] Ia   = rp[3*M:4*M]
+            long [:] Is   = rp[4*M:5*M]
+            long [:] Q    = rp[5*M:6*M]
+
+            double [:] Ni   = self.Ni
+            #
+            double [:]   FM = self.FM
+            double [:,:] CM = self.CM
+            double [:,:] RM = self.RM
+
+        for i in range(M):
+            bb=0
+            for j in range(M):
+                bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
+            aa = bb*S[i]
+            # rates away from S
+            RM[i+M  , i]     = aa  # rate S -> E
+            RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
+            # rates away from E
+            RM[i+2*M, i+M]   = gE  * E[i] # rate E -> A
+            RM[i+5*M, i+M]   = tE  * E[i] # rate E -> Q
+            # rates away from A
+            RM[i+3*M, i+2*M] = gAA * A[i] # rate A -> Ia
+            RM[i+4*M, i+2*M] = gAS * A[i] # rate A -> Is
+            RM[i+5*M, i+2*M] = tA  * A[i] # rate A -> Q
+            # rates away from Ia
+            RM[i+3*M, i+3*M] = gIa * Ia[i] # rate Ia -> R
+            RM[i+5*M, i+3*M] = tIa * Ia[i] # rate Ia -> Q
+            # rates away from Is
+            RM[i+4*M, i+4*M] = gIs * Is[i] # rate Is -> R
+            RM[i+5*M, i+4*M] = tIs * Is[i] # rate Is -> Q
+            #
+        return
+
+
+
+    cpdef simulate(self, S0, E0, A0, Ia0, Is0, Q0,
+                  contactMatrix, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                seedRate=None
+                ):
+        cdef:
+            M = self.M
+            long [:] rp = self.rp
+
+        # write initial condition to rp
+        for i in range(M):
+            rp[i]     = S0[i]
+            rp[i+M]   = E0[i]
+            rp[i+2*M] = A0[i]
+            rp[i+3*M] = Ia0[i]
+            rp[i+4*M] = Is0[i]
+            rp[i+5*M] = Q0[i]
+
+        if method == 'gillespie':
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                      seedRate=seedRate)
+
+        out_dict={'X':out_arr, 't':t_arr,
+                'N':self.N, 'M':self.M,
+                'alpha':self.alpha,'beta':self.beta,
+                'gIa':self.gIa,'gIs':self.gIs,
+                'gE':self.gE,'gAA':self.gAA,
+                'gAS':self.gAS,
+                'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        return out_dict
