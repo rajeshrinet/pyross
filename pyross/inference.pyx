@@ -6,7 +6,7 @@ from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
 cimport cython
 
-from pyross.deterministic import SIR as detSIR
+import pyross.deterministic
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -17,22 +17,29 @@ ctypedef np.float_t DTYPE_t
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR:
+cdef class SIR_type:
     cdef:
-        readonly Py_ssize_t N, M, steps, dim, vec_size
+        readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly double alpha, beta, gIa, gIs, fsa
         readonly np.ndarray fi, CM, dsigmadt, J, B, J_mat, B_vec,
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
 
 
-    def __init__(self, parameters, M, fi, N, steps):
+    def __init__(self, parameters, nClass, M, fi, N, steps):
         self.N = N
         self.M = M
         self.fi = fi
         self.steps = steps
         self.set_params(parameters)
 
-        self.initialise_arrays(3)
+        self.dim = nClass*M
+        self.vec_size = int(self.dim*(self.dim+1)/2)
+        self.CM = np.empty((M, M), dtype=DTYPE)
+        self.dsigmadt = np.zeros((self.vec_size), dtype=DTYPE)
+        self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+        self.J_mat = np.empty((self.vec_size, self.vec_size), dtype=DTYPE)
+        self.B_vec = np.empty((self.vec_size), dtype=DTYPE)
 
         # preparing the indices
         self.rows, self.cols = np.triu_indices(self.dim)
@@ -41,16 +48,6 @@ cdef class SIR:
         self.flat_indices1 = np.ravel_multi_index((r, c), (self.dim, self.dim))
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
-    def initialise_arrays(self, Py_ssize_t num_of_classes):
-        cdef Py_ssize_t M = self.M
-        self.dim = num_of_classes*M
-        self.vec_size = int(self.dim*(self.dim+1)/2)
-        self.CM = np.empty((M, M), dtype=DTYPE)
-        self.dsigmadt = np.zeros((self.vec_size), dtype=DTYPE)
-        self.J = np.zeros((3, M, 3, M), dtype=DTYPE)
-        self.B = np.zeros((3, M, 3, M), dtype=DTYPE)
-        self.J_mat = np.empty((self.vec_size, self.vec_size), dtype=DTYPE)
-        self.B_vec = np.empty((self.vec_size), dtype=DTYPE)
 
 
     def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', fatol=0.01, eps=1e-5):
@@ -58,7 +55,7 @@ cdef class SIR:
         def to_minimize(params):
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
             self.set_params(parameters)
-            model = detSIR(parameters, self.M, self.fi)
+            model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
             return minus_logp
 
@@ -77,9 +74,12 @@ cdef class SIR:
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix):
         cdef double minus_log_p
         self.set_params(parameters)
-        model = detSIR(parameters, self.M, self.fi)
+        model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         return minus_logp
+
+    def make_det_model(self, parameters):
+        pass # to be implemented in subclass
 
     def set_params(self, parameters):
         self.alpha = parameters['alpha']
@@ -151,6 +151,39 @@ cdef class SIR:
         return cov_mat
 
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        pass # to be implemented in subclasses
+
+    cdef flatten_lyaponuv(self):
+        cdef:
+            double [:, :] I
+            double [:, :] J_reshaped
+        J_reshaped = np.reshape(self.J, (self.dim, self.dim))
+        I = np.eye(self.dim)
+        self.J_mat = (np.kron(I,J_reshaped) + np.kron(J_reshaped,I))
+        self.J_mat[:, self.flat_indices1] += self.J_mat[:, self.flat_indices2]
+        self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:] S0, Ia0, Is0
+            double [:, :] sol
+        x_reshaped = np.reshape(x0, (3, self.M))
+        S0 = x0[0:self.M]
+        Ia0 = x0[self.M:2*self.M]
+        Is0 = x0[2*self.M:3*self.M]
+        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, self.steps, Ti=t1)
+        sol = data['X']
+        return sol
+
+cdef class SIR(SIR_type):
+
+    def __init__(self, parameters, M, fi, N, steps):
+        super().__init__(parameters, 3, M, fi, N, steps)
+
+    def make_det_model(self, parameters):
+        return pyross.deterministic.SIR(parameters, self.M, self.fi)
+
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
             double [:] x, s, Ia, Is
             double [:, :] CM=self.CM
@@ -175,15 +208,6 @@ cdef class SIR:
             for j in range(self.vec_size):
                 dsigdt[i] += J_mat[i, j]*sig[j]
 
-    cdef flatten_lyaponuv(self):
-        cdef:
-            double [:, :] I
-            double [:, :] J_reshaped
-        J_reshaped = np.reshape(self.J, (self.dim, self.dim))
-        I = np.eye(self.dim)
-        self.J_mat = (np.kron(I,J_reshaped) + np.kron(J_reshaped,I))
-        self.J_mat[:, self.flat_indices1] += self.J_mat[:, self.flat_indices2]
-        self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
@@ -218,14 +242,11 @@ cdef class SIR:
             B[2, m, 2, m] = balpha*l[m]*s[m] + gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
-        cdef:
-            double [:] S0, Ia0, Is0
-            double [:, :] sol
-        x_reshaped = np.reshape(x0, (3, self.M))
-        S0 = x0[0:self.M]
-        Ia0 = x0[self.M:2*self.M]
-        Is0 = x0[2*self.M:3*self.M]
-        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, self.steps, Ti=t1)
-        sol = data['X']
-        return sol
+cdef class SEIR(SIR_type):
+    def __init__(self, parameters, M, fi, N, steps):
+        super().__init__(parameters, 4, M, fi, N, steps)
+
+    def make_det_model(self, parameters):
+        return pyross.deterministic.SEIR(parameters, self.M, self.fi)
+
+    # more to come 
