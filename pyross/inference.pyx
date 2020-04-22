@@ -1,8 +1,8 @@
 from scipy import linalg
-from scipy.integrate import simps, trapz
+from scipy.integrate import odeint
 from scipy.optimize import minimize
-
 import  numpy as np
+from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
 cimport cython
 
@@ -19,9 +19,10 @@ ctypedef np.float_t DTYPE_t
 @cython.nonecheck(False)
 cdef class SIR:
     cdef:
-        readonly Py_ssize_t N, M, steps
+        readonly Py_ssize_t N, M, steps, dim, vec_size
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray fi, time_evol_op, B
+        readonly np.ndarray fi, CM, dsigmadt, J, B, J_mat, B_vec,
+        readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
 
 
     def __init__(self, parameters, M, fi, N, steps):
@@ -31,10 +32,28 @@ cdef class SIR:
         self.steps = steps
         self.set_params(parameters)
 
-        self.time_evol_op = np.empty((steps, 3, M, 3, M), dtype=DTYPE)
-        self.B = np.zeros((steps, M, 3, 3), dtype=DTYPE)
+        self.initialise_arrays(3)
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='Nelder-Mead', fatol=0.01):
+        # preparing the indices
+        self.rows, self.cols = np.triu_indices(self.dim)
+        self.flat_indices = np.ravel_multi_index((self.rows, self.cols), (self.dim, self.dim))
+        r, c = np.triu_indices(self.dim, k=1)
+        self.flat_indices1 = np.ravel_multi_index((r, c), (self.dim, self.dim))
+        self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
+
+    def initialise_arrays(self, Py_ssize_t num_of_classes):
+        cdef Py_ssize_t M = self.M
+        self.dim = num_of_classes*M
+        self.vec_size = int(self.dim*(self.dim+1)/2)
+        self.CM = np.empty((M, M), dtype=DTYPE)
+        self.dsigmadt = np.zeros((self.vec_size), dtype=DTYPE)
+        self.J = np.zeros((3, M, 3, M), dtype=DTYPE)
+        self.B = np.zeros((3, M, 3, M), dtype=DTYPE)
+        self.J_mat = np.empty((self.vec_size, self.vec_size), dtype=DTYPE)
+        self.B_vec = np.empty((self.vec_size), dtype=DTYPE)
+
+
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', fatol=0.01, eps=1e-5):
 
         def to_minimize(params):
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
@@ -47,15 +66,15 @@ cdef class SIR:
             options={'fatol': fatol, 'adaptive': True}
             res = minimize(to_minimize, guess, method='Nelder-Mead', options=options)
         elif method == 'L-BFGS-B':
-            bounds = [(0, INFINITY), (0, INFINITY), (0, INFINITY), (0, INFINITY)]
-            options={'eps': 1e-5}
+            bounds = [(eps, INFINITY), (eps, INFINITY), (eps, INFINITY), (eps, INFINITY)]
+            options={'eps': eps}
             res = minimize(to_minimize, guess, bounds=bounds, method='L-BFGS-B', options=options)
         else:
             print('optimisation method not implemented')
             return
         return res.x, res.nit
 
-    def obtain_minus_log_p(self, parameters, double [:, :, :] x, double Tf, int Nf, contactMatrix):
+    def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix):
         cdef double minus_log_p
         self.set_params(parameters)
         model = detSIR(parameters, self.M, self.fi)
@@ -69,12 +88,12 @@ cdef class SIR:
         self.gIs = parameters['gIs']
         self.fsa = parameters['fsa']
 
-    cdef double obtain_log_p_for_traj(self, double [:, :, :] x, double Tf, int Nf, model, contactMatrix):
+    cdef double obtain_log_p_for_traj(self, double [:, :] x, double Tf, int Nf, model, contactMatrix):
         cdef:
             double log_p = 0
             double [:] time_points = np.linspace(0, Tf, Nf)
-            double [:, :] xi, xf, dev, mean
-            double [:, :, :, :] cov
+            double [:] xi, xf, dev, mean
+            double [:, :] cov
             Py_ssize_t i
         for i in range(Nf-1):
             xi = x[i]
@@ -86,102 +105,127 @@ cdef class SIR:
             log_p += self.log_cond_p(dev, cov)
         return -log_p
 
-    cdef double log_cond_p(self, double [:, :] x, double [:, :, :, :] cov):
+    cdef double log_cond_p(self, double [:] x, double [:, :] cov):
         cdef:
-            Py_ssize_t dim = 3*self.M
-            double [:, :] cov_mat, invcov
-            double [:] x_vec
+            double [:, :] invcov
             double log_cond_p
-        cov_mat = np.reshape(cov, (dim, dim))
-        invcov = linalg.inv(cov_mat)
-        x_vec = np.reshape(x, dim)
-        log_cond_p = - np.dot(x_vec, np.dot(invcov, x_vec))*(self.N/2) - (dim/2)*log(2*PI)
-        log_cond_p -= (log(linalg.det(cov_mat)) - log(self.N))/2
+            double det
+        invcov = linalg.inv(cov)
+        det = linalg.det(cov)
+        log_cond_p = - np.dot(x, np.dot(invcov, x))*(self.N/2) - (self.dim/2)*log(2*PI)
+        log_cond_p -= (log(det) - log(self.N))/2
         return log_cond_p
 
-    cpdef estimate_cond_mean_cov(self, double [:, :] x0, double t1, double t2, model, contactMatrix):
+    def estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
         cdef:
-            double [:, :, :, :, :] integrand
-            double [:, :, :, :] cov
-            double [:, :, :] x
-            double [:, :] T1, T2, invT1
-            double [:, :, :, :] T_between_ij, temp
-            int dim = 3*self.M
-            Py_ssize_t j, steps=self.steps
+            double [:, :] cov
+            double [:, :] x
+            double [:, :] cheb_coef
+            double [:] time_points = np.linspace(t1, t2, self.steps)
+            np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
         x = self.integrate(x0, t1, t2, model, contactMatrix)
-        self.obtain_time_evol_op(x0, t1, t2, model, contactMatrix)
-        self.get_noise_correlation(x, t1, t2, contactMatrix)
-        integrand = np.empty((steps, 3, self.M, 3, self.M), dtype=DTYPE)
-        T2 = np.reshape(self.time_evol_op[steps-1], (dim, dim))
-        for j in range(steps):
-            T1 = np.reshape(self.time_evol_op[j], (dim, dim))
-            invT1 = np.linalg.inv(T1)
-            T_between_ij = np.reshape(np.matmul(invT1, T2), (3, self.M, 3, self.M))
-            temp = np.einsum('aibj,jbc,dkcj->aidk', T_between_ij, self.B[j], T_between_ij)
-            integrand[j] = temp
-        cov = simps(integrand, axis=0, dx=(t2-t1)/steps)
-        return x[steps-1], cov
+        cheb_coef, _ = chebfit(time_points, x, 16, full=True) # even number seems to behave better
+        def rhs(sig, t):
+            self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+            self.lyapunov_fun(t, sig, cheb_coef)
+            return self.dsigmadt
+        def jac(sig, t):
+            self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+            self.lyapunov_fun(t, sig, cheb_coef)
+            return self.J_mat
+        cov = odeint(rhs, sigma0, np.array([t1, t2]), Dfun=jac)
+        return x[self.steps-1], self.convert_vec_to_mat(cov[1])
 
+    cpdef convert_vec_to_mat(self, double [:] cov):
+        cdef:
+            double [:, :] cov_mat
+            Py_ssize_t i, j, count=0, dim=self.dim
+        cov_mat = np.empty((dim, dim), dtype=DTYPE)
+        for i in range(dim):
+            cov_mat[i, i] =cov[count]
+            count += 1
+            for j in range(i+1, dim):
+                cov_mat[i, j] = cov[count]
+                cov_mat[j, i] = cov[count]
+                count += 1
+        return cov_mat
 
-    cpdef integrate(self, double [:, :] x0, double t1, double t2, model, contactMatrix):
-        cdef double [:] S0, Ia0, Is0
-        cdef double [:, :, :] sol
-        S0 = x0[0]
-        Ia0 = x0[1]
-        Is0 = x0[2]
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        cdef:
+            double [:] x, s, Ia, Is
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        x = chebval(t, cheb_coef)
+        s = x[0:M]
+        Ia = x[M:2*M]
+        Is = x[2*M:3*M]
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+fsa*Is[n])
+        self.jacobian(s, l)
+        self.noise_correlation(s, Ia, Is, l)
+        self.flatten_lyaponuv()
+        cdef:
+            double [:] dsigdt=self.dsigmadt, B_vec=self.B_vec
+            double [:, :] J_mat=self.J_mat
+        for i in range(self.vec_size):
+            dsigdt[i] = B_vec[i]
+            for j in range(self.vec_size):
+                dsigdt[i] += J_mat[i, j]*sig[j]
+
+    cdef flatten_lyaponuv(self):
+        cdef:
+            double [:, :] I
+            double [:, :] J_reshaped
+        J_reshaped = np.reshape(self.J, (self.dim, self.dim))
+        I = np.eye(self.dim)
+        self.J_mat = (np.kron(I,J_reshaped) + np.kron(J_reshaped,I))
+        self.J_mat[:, self.flat_indices1] += self.J_mat[:, self.flat_indices2]
+        self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
+
+    cdef jacobian(self, double [:] s, double [:] l):
+        cdef:
+            Py_ssize_t m, n, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa, beta=self.beta
+            double [:, :, :, :] J = self.J
+            double [:, :] CM=self.CM
+        for m in range(M):
+            J[0, m, 0, m] = -l[m]
+            J[1, m, 0, m] = alpha*l[m]
+            J[2, m, 0, m] = balpha*l[m]
+            for n in range(M):
+                J[0, m, 1, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 2, n] = -s[m]*beta*CM[m, n]*fsa
+                J[1, m, 1, n] = alpha*s[m]*beta*CM[m, n]
+                J[1, m, 2, n] = alpha*s[m]*beta*CM[m, n]*fsa
+                J[2, m, 1, n] = balpha*s[m]*beta*CM[m, n]
+                J[2, m, 2, n] = balpha*s[m]*beta*CM[m, n]*fsa
+            J[1, m, 1, m] -= gIa
+            J[2, m, 2, m] -= gIs
+
+    cdef noise_correlation(self, double [:] s, double [:] Ia, double [:] Is, double [:] l):
+        cdef:
+            Py_ssize_t m, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs
+            double [:, :, :, :] B = self.B
+        for m in range(M): # only fill in the upper triangular form
+            B[0, m, 0, m] = l[m]*s[m]
+            B[0, m, 1, m] =  - alpha*l[m]*s[m]
+            B[1, m, 1, m] = alpha*l[m]*s[m] + gIa*Ia[m]
+            B[0, m, 2, m] = - balpha*l[m]*s[m]
+            B[2, m, 2, m] = balpha*l[m]*s[m] + gIs*Is[m]
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:] S0, Ia0, Is0
+            double [:, :] sol
+        x_reshaped = np.reshape(x0, (3, self.M))
+        S0 = x0[0:self.M]
+        Ia0 = x0[self.M:2*self.M]
+        Is0 = x0[2*self.M:3*self.M]
         data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, self.steps, Ti=t1)
-        sol = np.reshape(data['X'], (self.steps, 3, self.M))
+        sol = data['X']
         return sol
-
-    cdef obtain_time_evol_op(self, double [:, :] x0, double t1, double t2, model, contactMatrix):
-        cdef:
-            Py_ssize_t a, m, i, j, k, M=self.M, steps=self.steps
-            double epsilon = 1e-3
-            double sqrtN = sqrt(self.N)
-            double [:, :, :, :, :] time_evol_op = self.time_evol_op
-            double [:, :, :] pos, neg
-        pos = np.empty((steps, 3, self.M))
-        neg = np.empty((steps, 3, self.M))
-        for a in range(3): # three classes
-            for m in range(M): # age groups
-                x0[a, m] += epsilon/sqrtN
-                pos = self.integrate(x0, t1, t2, model, contactMatrix)
-                x0[a, m] -= 2*epsilon/sqrtN
-                neg = self.integrate(x0, t1, t2, model, contactMatrix)
-                for i in range(steps):
-                    for j in range(3):
-                        for k in range(M):
-                            time_evol_op[i, j, k, a, m] = (pos[i, j, k] - neg[i, j, k])/(2*epsilon/sqrtN)
-                x0[a, m] += epsilon/sqrtN
-        return
-
-    cdef get_noise_correlation(self, double [:, :, :] x, double t1, double t2, contactMatrix):
-        cdef:
-            Py_ssize_t i, m, n, M=self.M, steps=self.steps
-            double [:, :, :, :] B
-            double [:] time_points = np.linspace(t1, t2, steps)
-            double [:] fi = self.fi
-            double [:, :] CM
-            double t, l, s, Ia, Is, alpha=self.alpha, beta=self.beta, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
-
-        B = self.B
-        for i in range(steps):
-            t = time_points[i]
-            CM = contactMatrix(t)
-            for m in range(M):
-                l = 0
-                for n in range(M):
-                    Ia = x[i, 1, n]
-                    Is = x[i, 2, n]
-                    l += beta*CM[m, n]*(Ia + fsa*Is)/fi[n]
-                s = x[i, 0, m]
-                Ia = x[i, 1, m]
-                Is = x[i, 2, m]
-                B[i, m, 0, 0] = l*s
-                B[i, m, 0, 1] = - alpha*l*s
-                B[i, m, 1, 0] = - alpha*l*s
-                B[i, m, 1, 1] = alpha*l*s + gIa*Ia
-                B[i, m, 0, 2] = - (1-alpha)*l*s
-                B[i, m, 2, 0] = - (1-alpha)*l*s
-                B[i, m, 2, 2] = (1-alpha)*l*s + gIs*Is
-        return
