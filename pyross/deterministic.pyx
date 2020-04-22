@@ -831,7 +831,7 @@ cdef class SEAIRQ:
 @cython.nonecheck(False)
 cdef class SEAI5R:
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -848,7 +848,7 @@ cdef class SEAI5R:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
+        readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
@@ -935,7 +935,7 @@ cdef class SEAI5R:
         for i in range(M):
             bb=0
             for j in range(M):
-                 bb += beta*CM[i,j]*(A[i]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+                 bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i]                       
             X[i+M]   = aa  - gE*E[i]                     
@@ -959,7 +959,7 @@ cdef class SEAI5R:
         if integrator=='odeint':
             from scipy.integrate import odeint
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            u = odeint(rhs0, np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)), time_points, mxstep=5000000)
+            u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)), time_points, mxstep=5000000)
         else:
             import odespy
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
