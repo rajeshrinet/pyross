@@ -53,10 +53,10 @@ cdef class SIR:
             bb=0
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
-            aa = bb*S[i]
-            X[i]     = -aa - FM[i]
-            X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i]
-            X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]
+            aa = bb*S[i]                                          
+            X[i]     = -aa - FM[i]                                # rate S  -> I
+            X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i]      # rate Ia -> R
+            X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]      # rate Is -> R
         return
 
 
@@ -161,10 +161,10 @@ cdef class SIRS:
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])
-            X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]
-            X[i+2*M] = alphab*aa - gIs*Is[i]
-            X[i+3*M] = sa[i] + iaa[i]
+            X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> I, and also return
+            X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
+            X[i+2*M] = alphab*aa - gIs*Is[i]                          # rate Is -> R
+            X[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni
         return
 
 
@@ -245,11 +245,11 @@ cdef class SEIR:
             bb=0
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
-            aa = bb*S[i]
-            X[i]     = -aa - FM[i]
-            X[i+M]   = aa       - gE*  E[i] + FM[i]
-            X[i+2*M] = ce1*E[i] - gIa*Ia[i]
-            X[i+3*M] = ce2*E[i] - gIs*Is[i]
+            aa = bb*S[i]                                          
+            X[i]     = -aa - FM[i]                                # rate S  -> E
+            X[i+M]   = aa       - gE*  E[i] + FM[i]               # rate E  -> I
+            X[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]                       # rate Is -> R
         return
 
 
@@ -394,13 +394,13 @@ cdef class SEI5R:
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i]                       
-            X[i+M]   = aa  - gE*E[i]                     
-            X[i+2*M] = ce1*E[i] - gIa*Ia[i]              
-            X[i+3*M] = ce2*E[i] - gIs*Is[i]              
-            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       
-            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       
-            X[i+6*M] = gIc*mm[i]*Ic[i]                   
-            X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           
+            X[i+M]   = aa  - gE*E[i]                     # rate S  -> E
+            X[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate E  -> I
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Ia -> R
+            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Is -> R, Ih
+            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate In -> R, Ic 
+            X[i+6*M] = gIc*mm[i]*Ic[i]                   # rate Ic -> R, Im
+            X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni
         return
 
 
@@ -682,11 +682,11 @@ cdef class SEAIR:
             for j in range(M):
                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i]
-            X[i+M]   =  aa      - gE       *E[i] + FM[i]
-            X[i+2*M] = gE* E[i] - (gAA+gAS)*A[i]
-            X[i+3*M] = gAA*A[i] - gIa     *Ia[i]
-            X[i+4*M] = gAS*A[i] - gIs     *Is[i]
+            X[i]     = -aa - FM[i]                          # rate S  -> E
+            X[i+M]   =  aa      - gE       *E[i] + FM[i]    # rate E  -> A
+            X[i+2*M] = gE* E[i] - (gAA+gAS)*A[i]            # rate A  -> Ia, Is
+            X[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R
+            X[i+4*M] = gAS*A[i] - gIs     *Is[i]            # rate Is -> R
         return
 
 
@@ -761,7 +761,7 @@ cdef class SEAIRQ:
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, rp, tt):
@@ -777,6 +777,7 @@ cdef class SEAIRQ:
             double [:] A    = rp[2*M:3*M]
             double [:] Ia   = rp[3*M:4*M]
             double [:] Is   = rp[4*M:5*M]
+            double [:] Q    = rp[5*M:6*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
@@ -786,16 +787,17 @@ cdef class SEAIRQ:
             bb=0
             for j in range(M):
                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
-            aa = bb*S[i]
-            X[i]     = -aa      - tS          *S[i] - FM[i]
-            X[i+M]   =  aa      - (gE+tE)     *E[i] + FM[i]
-            X[i+2*M] = gE* E[i] - (gAA+gAS+tA)*A[i]
-            X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]
-            X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]
-        return
+            aa = bb*S[i]                          
+            X[i]     = -aa      - tS          *S[i] - FM[i]        # rate S  -> E, Q
+            X[i+M]   =  aa      - (gE+tE)     *E[i] + FM[i]        # rate E  -> A, Q
+            X[i+2*M] = gE* E[i] - (gAA+gAS+tA)*A[i]                # rate A  -> Ia, Is, Q
+            X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
+            X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
+            X[i+5*M] = tS*S[i]+tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q
+        return                                                     
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
 
         def rhs0(rp, t):
             self.CM = contactMatrix(t)
@@ -809,14 +811,14 @@ cdef class SEAIRQ:
         if integrator=='odeint':
             from scipy.integrate import odeint
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0)), time_points, mxstep=5000000)
+            u = odeint(rhs0, np.concatenate((S0, E0, A0, Ia0, Is0, Q0)), time_points, mxstep=5000000)
         else:
             import odespy
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
             #solver = odespy.RKF45(rhs0)
             #solver = odespy.RK4(rhs0)
-            solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0)))
+            solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0, Q0)))
             u, time_points = solver.solve(time_points)
 
         data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
@@ -937,15 +939,15 @@ cdef class SEAI5R:
             for j in range(M):
                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa + sa[i]                       
-            X[i+M]   = aa  - gE*E[i]                     
-            X[i+2*M] = gE*E[i]  - gA*A[i]                     
-            X[i+3*M] = ca1*A[i] - gIa*Ia[i]              
-            X[i+4*M] = ca2*A[i] - gIs*Is[i]              
-            X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       
-            X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       
-            X[i+7*M] = gIc*mm[i]*Ic[i]                   
-            X[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           
+            X[i]     = -aa + sa[i]                       # rate S  -> E
+            X[i+M]   = aa  - gE*E[i]                     # rate E  -> A
+            X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I                  
+            X[i+3*M] = ca1*A[i] - gIa*Ia[i]              # rate Ia -> R
+            X[i+4*M] = ca2*A[i] - gIs*Is[i]              # rate Is -> R, Ih
+            X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic 
+            X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
+            X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im 
+            X[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni
         return
 
 
