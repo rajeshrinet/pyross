@@ -432,20 +432,22 @@ cdef class SIkR(stochastic_integration):
     """
     cdef:
         readonly int kk
-        readonly double alpha, beta, gIa, gIs, fsa, gI
-        readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec
+        readonly double alpha, beta, gIa, gIs, fsa
+        readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gI    = parameters.get('gI')                      # recovery rate of I
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
-        if self.gI > 0:
-            self.kk    = parameters.get('k')                 # number of stages for I
-            self.gIvec = self.gI * np.ones( self.kk ,dtype=DTYPE)
+        gI    = parameters.get('gI')                      # recovery rate of I
+        self.gI    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(gI)==1:
+            self.gI = gI*np.ones(M)
+        elif np.size(gI)==M:
+            self.gI= gI
         else:
-            self.gIvec = parameters.get('gIvec')
+            print('gI can be a number or an array of size M')
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -469,7 +471,7 @@ cdef class SIkR(stochastic_integration):
             double beta=self.beta, aa, bb
             long [:] S    = rp[0  :M]
             long [:] I    = rp[M  :(kk+1)*M]
-            double [:] gIvec = self.gIvec
+            double [:] gI = self.gI
             double [:] Ni   = self.Ni
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
@@ -485,8 +487,8 @@ cdef class SIkR(stochastic_integration):
             #
             RM[i+M,i] =  aa + FM[i] # rate S -> I1
             for j in range(kk-1):
-                RM[i+(j+2)*M, i + (j+1)*M]   =  kk * gIvec[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
-            RM[i+kk*M, i+kk*M] = kk * gIvec[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
+                RM[i+(j+2)*M, i + (j+1)*M]   =  kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
+            RM[i+kk*M, i+kk*M] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
         return
 
 
@@ -891,7 +893,7 @@ cdef class SEAI5R(stochastic_integration):
     Ic ---> Im, R
     """
     cdef:
-        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
+        readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray rp0, Ni, drpdt, CC, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
@@ -968,14 +970,6 @@ cdef class SEAI5R(stochastic_integration):
         else:
             print('mm can be a number or an array of size M')
 
-        self.iaa    = np.zeros( self.M, dtype = DTYPE)
-        if np.size(iaa)==1:
-            self.iaa = iaa*np.ones(M)
-        elif np.size(iaa)==M:
-            self.iaa = iaa
-        else:
-            print('iaa can be a number or an array of size M')
-
 
     cdef rate_matrix(self, rp, tt):
         cdef:
@@ -998,7 +992,6 @@ cdef class SEAI5R(stochastic_integration):
             double [:] Ni    = self.Ni
             #
             double [:] sa   = self.sa
-            double [:] iaa  = self.iaa
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
