@@ -894,7 +894,7 @@ cdef class SEAI5R(stochastic_integration):
     """
     cdef:
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CC, sa, iaa, hh, cc, mm
+        readonly np.ndarray rp0, Ni, drpdt, CC, sa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -912,7 +912,7 @@ cdef class SEAI5R(stochastic_integration):
         hh         = parameters.get('hh')                       # hospital
         cc         = parameters.get('cc')                       # ICU
         mm         = parameters.get('mm')                       # mortality
-        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        #iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -936,7 +936,6 @@ cdef class SEAI5R(stochastic_integration):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
-
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
@@ -1090,7 +1089,7 @@ cdef class SEAI5R(stochastic_integration):
                       'gE':self.gE,'gA':self.gA,
                       'sa':self.sa,'hh':self.hh,
                       'mm':self.mm,'cc':self.cc,
-                      'iaa':self.iaa,
+                      #'iaa':self.iaa,
                       }
         return out_dict
 
