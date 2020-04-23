@@ -50,20 +50,22 @@ cdef class SIR_type:
 
 
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', fatol=0.01, eps=1e-5):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', verbose=False, fatol=0.01, eps=1e-5):
 
         def to_minimize(params):
-            parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3],'fsa':self.fsa}
+            parameters = self.make_params_dict(params)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            if verbose:
+                print('For ', params, ', (-log P): ', minus_logp)
             return minus_logp
 
         if method == 'Nelder-Mead':
             options={'fatol': fatol, 'adaptive': True}
             res = minimize(to_minimize, guess, method='Nelder-Mead', options=options)
         elif method == 'L-BFGS-B':
-            bounds = [(eps, INFINITY), (eps, INFINITY), (eps, INFINITY), (eps, INFINITY)]
+            bounds = [(eps, 1.0), (eps, INFINITY), (eps, INFINITY), (eps, INFINITY), (eps, INFINITY)]
             options={'eps': eps}
             res = minimize(to_minimize, guess, bounds=bounds, method='L-BFGS-B', options=options)
         else:
@@ -80,6 +82,10 @@ cdef class SIR_type:
 
     def make_det_model(self, parameters):
         pass # to be implemented in subclass
+
+    def make_params_dict(self, params):
+        pass # to be implemented in subclass
+
 
     def set_params(self, parameters):
         self.alpha = parameters['alpha']
@@ -136,6 +142,17 @@ cdef class SIR_type:
         cov = odeint(rhs, sigma0, np.array([t1, t2]), Dfun=jac)
         return x[self.steps-1], self.convert_vec_to_mat(cov[1])
 
+    cdef compute_dsigdt(self, double [:] sig):
+        cdef:
+            Py_ssize_t i, j
+            double [:] dsigdt=self.dsigmadt, B_vec=self.B_vec
+            double [:, :] J_mat=self.J_mat
+        for i in range(self.vec_size):
+            dsigdt[i] = B_vec[i]
+            for j in range(self.vec_size):
+                dsigdt[i] += J_mat[i, j]*sig[j]
+
+
     cpdef convert_vec_to_mat(self, double [:] cov):
         cdef:
             double [:, :] cov_mat
@@ -164,16 +181,7 @@ cdef class SIR_type:
         self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
-        cdef:
-            double [:] S0, Ia0, Is0
-            double [:, :] sol
-        x_reshaped = np.reshape(x0, (3, self.M))
-        S0 = x0[0:self.M]
-        Ia0 = x0[self.M:2*self.M]
-        Is0 = x0[2*self.M:3*self.M]
-        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, self.steps, Ti=t1)
-        sol = data['X']
-        return sol
+        pass # to be implemented
 
 cdef class SIR(SIR_type):
 
@@ -182,6 +190,10 @@ cdef class SIR(SIR_type):
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SIR(parameters, self.M, self.fi)
+
+    def make_params_dict(self, params):
+        parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'fsa':self.fsa}
+        return parameters
 
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
@@ -200,13 +212,7 @@ cdef class SIR(SIR_type):
         self.jacobian(s, l)
         self.noise_correlation(s, Ia, Is, l)
         self.flatten_lyaponuv()
-        cdef:
-            double [:] dsigdt=self.dsigmadt, B_vec=self.B_vec
-            double [:, :] J_mat=self.J_mat
-        for i in range(self.vec_size):
-            dsigdt[i] = B_vec[i]
-            for j in range(self.vec_size):
-                dsigdt[i] += J_mat[i, j]*sig[j]
+        self.compute_dsigdt(sig)
 
 
     cdef jacobian(self, double [:] s, double [:] l):
@@ -217,7 +223,7 @@ cdef class SIR(SIR_type):
             double [:, :] CM=self.CM
         for m in range(M):
             J[0, m, 0, m] = -l[m]
-            J[1, m, 0, m] = alpha*l[m]
+            J[2, m, 0, m] = alpha*l[m]
             J[2, m, 0, m] = balpha*l[m]
             for n in range(M):
                 J[0, m, 1, n] = -s[m]*beta*CM[m, n]
@@ -242,11 +248,101 @@ cdef class SIR(SIR_type):
             B[2, m, 2, m] = balpha*l[m]*s[m] + gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
+    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:] S0, Ia0, Is0
+            double [:, :] sol
+        S0 = x0[0:self.M]
+        Ia0 = x0[self.M:2*self.M]
+        Is0 = x0[2*self.M:3*self.M]
+        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, self.steps, Ti=t1)
+        sol = data['X']
+        return sol
+
 cdef class SEIR(SIR_type):
+    cdef:
+        double gE
+
     def __init__(self, parameters, M, fi, N, steps):
         super().__init__(parameters, 4, M, fi, N, steps)
+
+    def set_params(self, parameters):
+        super().set_params(parameters)
+        self.gE = parameters['gE']
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SEIR(parameters, self.M, self.fi)
 
-    # more to come 
+    def make_params_dict(self, params):
+        parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'gE': params[4], 'fsa':self.fsa}
+        return parameters
+
+
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        cdef:
+            double [:] x, s, e, Ia, Is
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        x = chebval(t, cheb_coef)
+        s = x[0:M]
+        e = x[M:2*M]
+        Ia = x[2*M:3*M]
+        Is = x[3*M:4*M]
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+fsa*Is[n])
+        self.jacobian(s, l)
+        self.noise_correlation(s, e, Ia, Is, l)
+        self.flatten_lyaponuv()
+        self.compute_dsigdt(sig)
+
+    cdef jacobian(self, double [:] s, double [:] l):
+        cdef:
+            Py_ssize_t m, n, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs,
+            double gE=self.gE, fsa=self.fsa, beta=self.beta
+            double [:, :, :, :] J = self.J
+            double [:, :] CM=self.CM
+        for m in range(M):
+            J[0, m, 0, m] = -l[m]
+            J[1, m, 0, m] = l[m]
+            J[1, m, 1, m] = - gE
+            J[2, m, 1, m] = alpha*gE
+            J[2, m, 2, m] = - gIa
+            J[3, m, 1, m] = balpha*gE
+            J[3, m, 3, m] = - gIs
+            for n in range(M):
+                J[0, m, 2, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 3, n] = -s[m]*beta*CM[m, n]*fsa
+                J[1, m, 2, n] = s[m]*beta*CM[m, n]
+                J[2, m, 3, n] = s[m]*beta*CM[m, n]*fsa
+
+    cdef noise_correlation(self, double [:] s, double [:] e, double [:] Ia, double [:] Is, double [:] l):
+        cdef:
+            Py_ssize_t m, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, gE=self.gE
+            double [:, :, :, :] B = self.B
+        for m in range(M): # only fill in the upper triangular form
+            B[0, m, 0, m] = l[m]*s[m]
+            B[0, m, 1, m] =  - l[m]*s[m]
+            B[1, m, 1, m] = l[m]*s[m] + gE*e[m]
+            B[1, m, 2, m] = -alpha*gE*e[m]
+            B[1, m, 3, m] = -balpha*gE*e[m]
+            B[2, m, 2, m] = alpha*gE*e[m]+gIa*Ia[m]
+            B[3, m, 3, m] = balpha*gE*e[m]+gIs*Is[m]
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:] s, e, Ia, Is
+            double [:, :] sol
+            Py_ssize_t M=self.M
+        s = x0[0:M]
+        e = x0[M:2*M]
+        Ia = x0[2*M:3*M]
+        Is = x0[3*M:4*M]
+        data = model.simulate(s, e, Ia, Is, contactMatrix, t2, self.steps, Ti=t1)
+        sol = data['X']
+        return sol
