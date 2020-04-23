@@ -54,7 +54,7 @@ cdef class SIR:
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]                                          
-            X[i]     = -aa - FM[i]                                # rate S  -> I
+            X[i]     = -aa - FM[i]                                # rate S  -> Ia, Is
             X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i]      # rate Ia -> R
             X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]      # rate Is -> R
         return
@@ -161,7 +161,7 @@ cdef class SIRS:
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> I, and also return
+            X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return
             X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
             X[i+2*M] = alphab*aa - gIs*Is[i]                          # rate Is -> R
             X[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni
@@ -247,7 +247,7 @@ cdef class SEIR:
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]                                          
             X[i]     = -aa - FM[i]                                # rate S  -> E
-            X[i+M]   = aa       - gE*  E[i] + FM[i]               # rate E  -> I
+            X[i+M]   = aa       - gE*  E[i] + FM[i]               # rate E  -> Ia, Is
             X[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R
             X[i+3*M] = ce2*E[i] - gIs*Is[i]                       # rate Is -> R
         return
@@ -393,13 +393,13 @@ cdef class SEI5R:
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa + sa[i]                       
-            X[i+M]   = aa  - gE*E[i]                     # rate S  -> E
-            X[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate E  -> I
-            X[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Ia -> R
-            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Is -> R, Ih
-            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate In -> R, Ic 
-            X[i+6*M] = gIc*mm[i]*Ic[i]                   # rate Ic -> R, Im
+            X[i]     = -aa + sa[i]                       # rate S  -> E
+            X[i+M]   = aa  - gE*E[i]                     # rate E  -> Ia, Is
+            X[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R    
+            X[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Is -> R, Ih
+            X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
+            X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im 
+            X[i+6*M] = gIc*mm[i]*Ic[i]                   # rate of Im 
             X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni
         return
 
