@@ -17,7 +17,7 @@ cdef class SIR:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -103,7 +103,7 @@ cdef class SIRS:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, fsa, ep
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC, sa, iaa
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -207,7 +207,7 @@ cdef class SEIR:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, gE, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -307,7 +307,7 @@ cdef class SEI5R:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC, sa, iaa, hh, cc, mm
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -442,7 +442,7 @@ cdef class SIkR:
     cdef:
         readonly int N, M, ki
         readonly double alpha, beta, gI, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -529,7 +529,7 @@ cdef class SEkIkR:
     cdef:
         readonly int N, M, ki, ke
         readonly double alpha, beta, gI, fsa, gE
-        readonly np.ndarray rp0, Ni, drpdt, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -638,7 +638,7 @@ cdef class SEAIR:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -735,7 +735,7 @@ cdef class SEAIRQ:
         readonly int N, M,
         readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
         readonly double tS, tE, tA, tIa, tIs
-        readonly np.ndarray rp0, Ni, drpdt, CM, CC, FM
+        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -747,10 +747,9 @@ cdef class SEAIRQ:
         self.gAS   = parameters.get('gAS')                       # rate to go from A to Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
-
-        self.tS    = parameters.get('tS ')                       # testing rate in S
-        self.tE    = parameters.get('tE ')                       # testing rate in E
-        self.tA    = parameters.get('tA ')                       # testing rate in A
+        self.tS    = parameters.get('tS')                       # testing rate in S
+        self.tE    = parameters.get('tE')                       # testing rate in E
+        self.tA    = parameters.get('tA')                       # testing rate in A
         self.tIa   = parameters.get('tIa')                       # testing rate in Ia
         self.tIs   = parameters.get('tIs')                       # testing rate in Is
 
@@ -851,7 +850,7 @@ cdef class SEAI5R:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, CC, sa, iaa, hh, cc, mm
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
