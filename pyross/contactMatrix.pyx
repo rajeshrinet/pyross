@@ -23,7 +23,59 @@ cdef class SIR:
     def __init__(self, country):
         self.country = country
 
-        if self.country == 'UK':
+        if self.country == 'India':
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='India')
+            self.CH = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='India',index_col=None)
+            self.CW = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='India',index_col=None)
+            self.CS = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='India',index_col=None)
+            self.CO = np.array(my_data)
+    
+        elif self.country == 'Italy':
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='Italy')
+            self.CH = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='Italy',index_col=None)
+            self.CW = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='Italy',index_col=None)
+            self.CS = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='Italy',index_col=None)
+            self.CO = np.array(my_data)
+    
+        elif self.country == 'China':
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='China')
+            self.CH = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='China',index_col=None)
+            self.CW = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='China',index_col=None)
+            self.CS = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='China',index_col=None)
+            self.CO = np.array(my_data)
+    
+        elif self.country == 'Germany':
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='Germany')
+            self.CH = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='Germany',index_col=None)
+            self.CW = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='Germany',index_col=None)
+            self.CS = np.array(my_data)
+
+            my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='Germany',index_col=None)
+            self.CO = np.array(my_data)
+    
+        elif self.country == 'UK':
             my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_2.xlsx', sheet_name='United Kingdom of Great Britain')
             CH0 = np.array(my_data)
 
