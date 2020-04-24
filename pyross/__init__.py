@@ -1,3 +1,4 @@
+import pyross.contactMatrix
 import pyross.deterministic
 import pyross.hybrid
 import pyross.inference
