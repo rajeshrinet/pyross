@@ -976,7 +976,7 @@ cdef class SEAI5R(stochastic_integration):
             double alpha=self.alpha, beta=self.beta, aa, bb
             double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE,  gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
-            double ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
+            double ce1=self.gA*self.alpha, ce2=self.gA*(1-self.alpha)
             #
             long [:] S    = rp[0  :  M]
             long [:] E    = rp[M  :2*M]
@@ -1014,7 +1014,7 @@ cdef class SEAI5R(stochastic_integration):
                           #               the integrators in the mother class)
             RM[i+M  , i]     =  aa  # rate S -> E
             # rates from E
-            RM[i+2*M, i+M]   = gA * E[i] # rate E -> A
+            RM[i+2*M, i+M]   = gE * E[i] # rate E -> A
             # rates from A
             RM[i+3*M, i+2*M]  = ce1 * A[i] # rate A -> Ia
             RM[i+4*M, i+2*M]  = ce2 * A[i] # rate A -> Is
