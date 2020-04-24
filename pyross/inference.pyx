@@ -1,6 +1,6 @@
 from scipy import linalg
 from scipy.integrate import odeint
-from scipy.optimize import minimize
+from scipy.optimize import minimize, approx_fprime
 import  numpy as np
 from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
@@ -72,6 +72,51 @@ cdef class SIR_type:
             print('optimisation method not implemented')
             return
         return res.x, res.nit
+
+    def hessian(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
+        cdef:
+            Py_ssize_t k=maps.shape[0], i, j
+            double xx0
+            np.ndarray g1, g2, hess = np.empty((k, k))
+
+        def minuslogP(y):
+            parameters = self.make_params_dict(y)
+            return self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+
+        g1 = approx_fprime(maps, minuslogP, eps)
+        for j in range(k):
+            xx0 = maps[j]
+            maps[j] += eps
+            g2 = approx_fprime(maps, minuslogP, eps)
+            hess[:,j] = (g2 - g1)/eps
+            maps[j] = xx0
+        return hess
+
+    def error_bars(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
+        hessian = self.hessian(maps,x,Tf,Nf,contactMatrix,eps)
+        return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
+
+    def log_G_evidence(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
+        # M variate process, M=3 for SIIR model
+        cdef double logP_MAPs
+        cdef Py_ssize_t k
+        parameters = self.make_params_dict(maps)
+        logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+        k = maps.shape[0]
+        A = self.hessian(maps,x,Tf,Nf,contactMatrix,eps)
+        return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
+
+    def log_NS_evidence(self, x, Tf, Nf, contactMatrix, UB=1., LB=0.001, P=4):
+        import nestle
+        # For now universal upper and lower parameter bounds UB, LB. Easy to generalize
+        # P is dimension of parameter space, P=4 for SIIR
+        def logP(y):
+            parameters = self.make_params_dict(y)
+            return -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+        def prior_transform(x):
+            return (UB - LB)*x + LB  #Flat prior between LB and UB
+        res = nestle.sample(logP, prior_transform, P)
+        return res.logz
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix):
         cdef double minus_log_p
