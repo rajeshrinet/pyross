@@ -1,12 +1,13 @@
 from scipy import linalg
 from scipy.integrate import odeint
-from scipy.optimize import minimize, approx_fprime
+from scipy.optimize import minimize, approx_fprime, basinhopping
 import  numpy as np
 from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
 cimport cython
 
 import pyross.deterministic
+from pyross.utils import BoundedSteps
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -50,27 +51,32 @@ cdef class SIR_type:
 
 
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', verbose=False, ftol=1e-6, eps=1e-5):
-
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', bounds=None, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
         def to_minimize(params):
             parameters = self.make_params_dict(params)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
             if verbose:
-                print('For ', params, ', (-log P): ', minus_logp)
+                print(params, minus_logp)
             return minus_logp
 
+        if bounds == None:
+            bounds = [[eps, g*5] for g in guess] #assume that we will not be orders of magnitude wrong
+            bounds[0][1] = min(bounds[0][1], 1-2*eps) # set upper bounds on alpha to be 1 
         if method == 'Nelder-Mead':
-            options={'ftol': ftol*5000, 'adaptive': True}
-            res = minimize(to_minimize, guess, method='Nelder-Mead', options=options)
+            options = {'ftol': ftol*5000, 'adaptive': True, 'disp': verbose}
+            minimizer_kwargs = {'method':'Nelder-Mead', 'options':options}
         elif method == 'L-BFGS-B':
-            bounds = [(eps, 1.0)] + [(eps, INFINITY)]*(len(guess)-1)
-            options={'eps': eps, 'ftol': ftol}
-            res = minimize(to_minimize, guess, bounds=bounds, method='L-BFGS-B', options=options)
+            options={'eps': eps, 'ftol': ftol, 'disp': verbose, 'maxiter': 40}
+            minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
         else:
             print('optimisation method not implemented')
             return
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
         return res.x, res.nit
 
     def hessian(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
