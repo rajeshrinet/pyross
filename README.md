@@ -6,9 +6,13 @@
 
 ## About
 
-[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated deterministically (as systems of differential equations) or stochastically (as chemical master equations). The library can move smoothly from stochastic to deterministic formulations as the compartmental fluctuations become small. The library can also perform Bayesian inference of the parameters by fitting the data to a given model and provide forecasts given uncertainity in the estimation of parameters. 
+[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated stochastically (as chemical master equations) or deterministically ((as systems of differential equations). A hybrid algorithm transits smoothly between these limits depending on the magnitude of the compartmental fluctions. 
 
-Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
+The library uses Gaussian process regression, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide Bayesian forecasts of the progress of the epidemic. 
+
+Non-pharmaceutical interventions are implemented as controls on the contact structures of the model. Optimal control of these structures, given cost functions, is being implemented. 
+
+The library is structured to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
 
 PyRoss was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. 
 
