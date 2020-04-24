@@ -637,7 +637,7 @@ cdef class SEAIR:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
+        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
         readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
@@ -646,8 +646,7 @@ cdef class SEAIR:
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gAA   = parameters.get('gAA')                       # rate to go from A to Ia
-        self.gAS   = parameters.get('gAS')                       # rate to go from A to Is
+        self.gA    = parameters.get('gA')                       # rate to go from A to Ia, Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
@@ -664,8 +663,8 @@ cdef class SEAIR:
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, aa, bb
-            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
-            double gAA=self.gAA*self.alpha, gAS=self.gAS*(1-self.alpha)
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
+            double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
 
             double [:] S    = rp[0*M:M]
             double [:] E    = rp[1*M:2*M]
@@ -683,8 +682,8 @@ cdef class SEAIR:
                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa - FM[i]                          # rate S  -> E
-            X[i+M]   =  aa      - gE       *E[i] + FM[i]    # rate E  -> A
-            X[i+2*M] = gE* E[i] - (gAA+gAS)*A[i]            # rate A  -> Ia, Is
+            X[i+M]   =  aa      - gE*E[i] + FM[i]           # rate E  -> A
+            X[i+2*M] = gE* E[i] - gA*A[i]                   # rate A  -> Ia, Is
             X[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R
             X[i+4*M] = gAS*A[i] - gIs     *Is[i]            # rate Is -> R
         return
@@ -714,7 +713,7 @@ cdef class SEAIR:
             solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0)))
             u, time_points = solver.solve(time_points)
 
-        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS}
+        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
 
 
@@ -733,7 +732,7 @@ cdef class SEAIRQ:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
+        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
         readonly double tS, tE, tA, tIa, tIs
         readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
@@ -743,8 +742,7 @@ cdef class SEAIRQ:
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gAA   = parameters.get('gAA')                       # rate to go from A to Ia
-        self.gAS   = parameters.get('gAS')                       # rate to go from A to Is
+        self.gA    = parameters.get('gA')                       # rate to go from A to Ia and Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
         self.tS    = parameters.get('tS')                       # testing rate in S
@@ -768,8 +766,8 @@ cdef class SEAIRQ:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, aa, bb
             double tS=self.tS, tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
-            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
-            double gAA=self.gAA*self.alpha, gAS=self.gAS*(1-self.alpha)
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
+            double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
 
             double [:] S    = rp[0*M:M]
             double [:] E    = rp[1*M:2*M]
@@ -789,7 +787,7 @@ cdef class SEAIRQ:
             aa = bb*S[i]                          
             X[i]     = -aa      - tS          *S[i] - FM[i]        # rate S  -> E, Q
             X[i+M]   =  aa      - (gE+tE)     *E[i] + FM[i]        # rate E  -> A, Q
-            X[i+2*M] = gE* E[i] - (gAA+gAS+tA)*A[i]                # rate A  -> Ia, Is, Q
+            X[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q
             X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
             X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
             X[i+5*M] = tS*S[i]+tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q
@@ -820,7 +818,7 @@ cdef class SEAIRQ:
             solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0, Q0)))
             u, time_points = solver.solve(time_points)
 
-        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gAA':self.gAA,'gAS':self.gAS,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return data
 
 
@@ -916,7 +914,7 @@ cdef class SEAI5R:
             double alpha=self.alpha, beta=self.beta, aa, bb
             double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE, gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
-            double ca1=self.gA*self.alpha, ca2=self.gA*(1-self.alpha)
+            double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
             double [:] S    = rp[0  :M]
             double [:] E    = rp[M  :2*M]
             double [:] A    = rp[2*M:3*M]
@@ -941,8 +939,8 @@ cdef class SEAI5R:
             X[i]     = -aa + sa[i]                       # rate S  -> E
             X[i+M]   = aa  - gE*E[i]                     # rate E  -> A
             X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I                  
-            X[i+3*M] = ca1*A[i] - gIa*Ia[i]              # rate Ia -> R
-            X[i+4*M] = ca2*A[i] - gIs*Is[i]              # rate Is -> R, Ih
+            X[i+3*M] = gAA*A[i] - gIa*Ia[i]              # rate Ia -> R
+            X[i+4*M] = gAS*A[i] - gIs*Is[i]              # rate Is -> R, Ih
             X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic 
             X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
             X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im 
