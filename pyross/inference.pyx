@@ -560,7 +560,6 @@ cdef class SEAI5R(SIR_type):
         return sol
 
 
-# UNDER CONSTRUCTION FROM HERE
 cdef class SEAIRQ(SIR_type):
     cdef:
         readonly double gE, gA, tE, tA, tIa, tIs
@@ -573,10 +572,14 @@ cdef class SEAIRQ(SIR_type):
         self.gE    = parameters.get('gE')                       # recovery rate of E class
         self.gA    = parameters.get('gA')                       # recovery rate of A class
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-
+        # testing rate, note that we do not account for false positive here (no tau_S)
+        self.tE    = parameters.get('tE')                       # testing rate in E
+        self.tA    = parameters.get('tA')                       # testing rate in A
+        self.tIa   = parameters.get('tIa')                       # testing rate in Ia
+        self.tIs   = parameters.get('tIs')                      # testing rate in Is
 
     def make_det_model(self, parameters):
-        return pyross.deterministic.SEAI5R(parameters, self.M, self.fi)
+        return pyross.deterministic.SEAIRQ(parameters, self.M, self.fi)
 
     def make_params_dict(self, params):
         parameters = {'alpha':params[0],
@@ -585,8 +588,102 @@ cdef class SEAIRQ(SIR_type):
                       'gIs':params[3],
                       'gE': params[4],
                       'gA': params[5],
-                      'gIh': self.gIh,
-                      'gIc': self.gIc,
-                      'fsa':self.fsa
+                      'fsa': self.fsa,
+                      'tS': 0,
+                      'tE': self.tE,
+                      'tA': self.tA,
+                      'tIa': self.tIa,
+                      'tIs': self.tIs
                       }
         return parameters
+
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        cdef:
+            double [:] x, s, e, a, Ia, Is, Q
+            double [:, :] CM=self.CM
+            double beta=self.beta, fsa=self.fsa
+            Py_ssize_t m, n, M=self.M
+        x = chebval(t, cheb_coef)
+        s = x[0:M]
+        e = x[M:2*M]
+        a = x[2*M:3*M]
+        Ia = x[3*M:4*M]
+        Is = x[4*M:5*M]
+        q = x[5*M:6*M]
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])
+        self.jacobian(s, l)
+        self.noise_correlation(s, e, a, Ia, Is, q, l)
+        self.flatten_lyaponuv()
+        self.compute_dsigdt(sig)
+
+    cdef jacobian(self, double [:] s, double [:] l):
+        cdef:
+            Py_ssize_t m, n, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, beta=self.beta
+            double gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
+            double tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs
+            double [:, :, :, :] J = self.J
+            double [:, :] CM=self.CM
+        for m in range(M):
+            J[0, m, 0, m] = -l[m]
+            J[1, m, 0, m] = l[m]
+            J[1, m, 1, m] = - gE - tE
+            J[2, m, 1, m] = gE
+            J[2, m, 2, m] = - gA - tE
+            J[3, m, 2, m] = alpha*gA
+            J[3, m, 3, m] = - gIa - tIa
+            J[4, m, 2, m] = balpha*gA
+            J[4, m, 4, m] = -gIs - tIs
+            J[5, m, 1, m] = tE
+            J[5, m, 2, m] = tA
+            J[5, m, 3, m] = tIa
+            J[5, m, 4, m] = tIs
+            for n in range(M):
+                J[0, m, 2, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 3, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 4, n] = -s[m]*beta*CM[m, n]*fsa
+                J[1, m, 2, n] = s[m]*beta*CM[m, n]
+                J[1, m, 3, n] = s[m]*beta*CM[m, n]
+                J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa
+
+    cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l):
+        cdef:
+            Py_ssize_t m, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, beta=self.beta
+            double gIa=self.gIa, gIs=self.gIs, gE=self.gE, gA=self.gA
+            double tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs
+            double [:, :, :, :] B = self.B
+        for m in range(M): # only fill in the upper triangular form
+            B[0, m, 0, m] = l[m]*s[m]
+            B[0, m, 1, m] =  - l[m]*s[m]
+            B[1, m, 1, m] = l[m]*s[m] + (gE+tE)*e[m]
+            B[1, m, 2, m] = -gE*e[m]
+            B[2, m, 2, m] = gE*e[m]+(gA+tA)*a[m]
+            B[2, m, 3, m] = -alpha*gA*a[m]
+            B[2, m, 4, m] = -balpha*gA*a[m]
+            B[3, m, 3, m] = alpha*gA*a[m]+(gIa+tIa)*Ia[m]
+            B[4, m, 4, m] = balpha*gA*a[m] + (gIs+tIs)*Is[m]
+            B[1, m, 5, m] = -tE*e[m]
+            B[2, m, 5, m] = -tA*a[m]
+            B[3, m, 5, m] = -tIa*Ia[m]
+            B[4, m, 5, m] = -tIs*Is[m]
+            B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:] s, e, a, Ia, Is, q
+            double [:, :] sol
+            Py_ssize_t M=self.M
+        s = x0[0:M]
+        e = x0[M:2*M]
+        a = x0[2*M:3*M]
+        Ia = x0[3*M:4*M]
+        Is = x0[4*M:5*M]
+        q = x0[5*M:]
+        data = model.simulate(s, e, a, Ia, Is, q, contactMatrix, t2, self.steps, Ti=t1)
+        sol = data['X']
+        return sol
