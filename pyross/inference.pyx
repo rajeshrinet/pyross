@@ -50,7 +50,7 @@ cdef class SIR_type:
 
 
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', verbose=False, fatol=0.01, eps=1e-5):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', verbose=False, ftol=1e-6, eps=1e-5):
 
         def to_minimize(params):
             parameters = self.make_params_dict(params)
@@ -62,11 +62,11 @@ cdef class SIR_type:
             return minus_logp
 
         if method == 'Nelder-Mead':
-            options={'fatol': fatol, 'adaptive': True}
+            options={'ftol': ftol*5000, 'adaptive': True}
             res = minimize(to_minimize, guess, method='Nelder-Mead', options=options)
         elif method == 'L-BFGS-B':
-            bounds = [(eps, 1.0), (eps, INFINITY), (eps, INFINITY), (eps, INFINITY), (eps, INFINITY)]
-            options={'eps': eps}
+            bounds = [(eps, 1.0)] + [(eps, INFINITY)]*(len(guess)-1)
+            options={'eps': eps, 'ftol': ftol}
             res = minimize(to_minimize, guess, bounds=bounds, method='L-BFGS-B', options=options)
         else:
             print('optimisation method not implemented')
@@ -223,7 +223,7 @@ cdef class SIR(SIR_type):
             double [:, :] CM=self.CM
         for m in range(M):
             J[0, m, 0, m] = -l[m]
-            J[2, m, 0, m] = alpha*l[m]
+            J[1, m, 0, m] = alpha*l[m]
             J[2, m, 0, m] = balpha*l[m]
             for n in range(M):
                 J[0, m, 1, n] = -s[m]*beta*CM[m, n]
@@ -261,7 +261,7 @@ cdef class SIR(SIR_type):
 
 cdef class SEIR(SIR_type):
     cdef:
-        double gE
+        readonly double gE
 
     def __init__(self, parameters, M, fi, N, steps):
         super().__init__(parameters, 4, M, fi, N, steps)
@@ -346,3 +346,202 @@ cdef class SEIR(SIR_type):
         data = model.simulate(s, e, Ia, Is, contactMatrix, t2, self.steps, Ti=t1)
         sol = data['X']
         return sol
+
+
+cdef class SEAI5R(SIR_type):
+    cdef:
+        readonly double gE, gA, gIh, gIc, fh
+        readonly np.ndarray hh, cc, mm
+
+    def __init__(self, parameters, M, fi, N, steps):
+        super().__init__(parameters, 8, M, fi, N, steps)
+
+    def set_params(self, parameters):
+        super().set_params(parameters)
+        self.gE    = parameters.get('gE')                       # recovery rate of E class
+        self.gA    = parameters.get('gA')                       # recovery rate of A class
+        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
+        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+
+        hh = parameters.get('hh')
+        cc = parameters.get('cc')
+        mm = parameters.get('mm')
+
+        self.hh    = np.zeros(self.M, dtype = DTYPE)
+        if np.size(hh)==1:
+            self.hh = hh*np.ones(self.M)
+        elif np.size(hh)==self.M:
+            self.hh= hh
+        else:
+            print('hh can be a number or an array of size M')
+
+        self.cc    = np.zeros(self.M, dtype = DTYPE)
+        if np.size(cc)==1:
+            self.cc = cc*np.ones(self.M)
+        elif np.size(cc)==self.M:
+            self.cc= cc
+        else:
+            print('cc can be a number or an array of size M')
+
+        self.mm    = np.zeros(self.M, dtype = DTYPE)
+        if np.size(mm)==1:
+            self.mm = mm*np.ones(self.M)
+        elif np.size(mm)==self.M:
+            self.mm= mm
+        else:
+            print('mm can be a number or an array of size M')
+
+    def make_det_model(self, parameters):
+        return pyross.deterministic.SEAI5R(parameters, self.M, self.fi)
+
+    def make_params_dict(self, params):
+        parameters = {'alpha':params[0],
+                      'beta':params[1],
+                      'gIa':params[2],
+                      'gIs':params[3],
+                      'gE': params[4],
+                      'gA': params[5],
+                      'gIh': self.gIh,
+                      'gIc': self.gIc,
+                      'fsa':self.fsa,
+                      'fh': self.fh,
+                      'sa': 0,
+                      'hh': self.hh,
+                      'cc': self.cc,
+                      'mm': self.mm}
+        return parameters
+
+
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        cdef:
+            double [:] x, s, e, a, Ia, Is, Ih, Ic, Im
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, fh=self.fh, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        x = chebval(t, cheb_coef)
+        s = x[0:M]
+        e = x[M:2*M]
+        a = x[2*M:3*M]
+        Ia = x[3*M:4*M]
+        Is = x[4*M:5*M]
+        Ih = x[5*M:6*M]
+        Ic = x[6*M:7*M]
+        Im = x[7*M:8*M]
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n]+fh*Ih[n])
+        self.jacobian(s, l)
+        self.noise_correlation(s, e, a, Ia, Is, Ih, Ic, l)
+        self.flatten_lyaponuv()
+        self.compute_dsigdt(sig)
+
+
+    cdef jacobian(self, double [:] s, double [:] l):
+        cdef:
+            Py_ssize_t m, n, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc
+            double gE=self.gE, gA=self.gA, fsa=self.fsa, fh=self.fh, beta=self.beta
+            double [:] hh=self.hh, cc=self.cc, mm=self.mm
+            double [:, :, :, :] J = self.J
+            double [:, :] CM=self.CM
+        for m in range(M):
+            J[0, m, 0, m] = -l[m]
+            J[1, m, 0, m] = l[m]
+            J[1, m, 1, m] = - gE
+            J[2, m, 1, m] = gE
+            J[2, m, 2, m] = - gA
+            J[3, m, 2, m] = alpha*gA
+            J[3, m, 3, m] = - gIa
+            J[4, m, 2, m] = balpha*gA
+            J[4, m, 4, m] = -gIs
+            J[5, m, 4, m] = hh[m]*gIs
+            J[5, m, 5, m] = -gIh
+            J[6, m, 5, m] = cc[m]*gIh
+            J[6, m, 6, m] = -gIc
+            J[7, m, 6, m] = mm[m]*gIc
+            for n in range(M):
+                J[0, m, 2, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 3, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 4, n] = -s[m]*beta*CM[m, n]*fsa
+                J[0, m, 5, n] = -s[m]*beta*CM[m, n]*fh
+                J[1, m, 2, n] = s[m]*beta*CM[m, n]
+                J[1, m, 3, n] = s[m]*beta*CM[m, n]
+                J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa
+                J[1, m, 5, n] = s[m]*beta*CM[m, n]*fh
+
+
+    cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] Ih, double [:] Ic, double [:] l):
+        cdef:
+            Py_ssize_t m, M=self.M
+            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc, gE=self.gE, gA=self.gA
+            double [:] mm=self.mm, cc=self.cc, hh=self.hh
+            double [:, :, :, :] B = self.B
+        for m in range(M): # only fill in the upper triangular form
+            B[0, m, 0, m] = l[m]*s[m]
+            B[0, m, 1, m] =  - l[m]*s[m]
+            B[1, m, 1, m] = l[m]*s[m] + gE*e[m]
+            B[1, m, 2, m] = -gE*e[m]
+            B[2, m, 2, m] = gE*e[m]+gA*a[m]
+            B[2, m, 3, m] = -alpha*gA*a[m]
+            B[2, m, 4, m] = -balpha*gA*a[m]
+            B[3, m, 3, m] = alpha*gA*a[m]+gIa*Ia[m]
+            B[4, m, 4, m] = balpha*gA*a[m] + gIs*Is[m]
+            B[4, m, 5, m] = -hh[m]*gIs*Is[m]
+            B[5, m, 5, m] = hh[m]*gIs*Is[m] + gIh*Ih[m]
+            B[5, m, 6, m] = -cc[m]*gIh*Ih[m]
+            B[6, m, 6, m] = cc[m]*gIh*Ih[m] + gIc*Ic[m]
+            B[6, m, 7, m] = -mm[m]*gIc*Ic[m]
+            B[7, m, 7, m] = mm[m]*gIc*Ic[m]
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:] s, e, a, Ia, Is, Ih, Ic, Im
+            double [:, :] sol
+            Py_ssize_t M=self.M
+        s = x0[0:M]
+        e = x0[M:2*M]
+        a = x0[2*M:3*M]
+        Ia = x0[3*M:4*M]
+        Is = x0[4*M:5*M]
+        Ih = x0[5*M:6*M]
+        Ic = x0[6*M:7*M]
+        Im = x0[7*M:8*M]
+        data = model.simulate(s, e, a, Ia, Is, Ih, Ic, Im, contactMatrix, t2, self.steps, Ti=t1)
+        sol = data['X'][:, :8*M]
+        return sol
+
+
+# UNDER CONSTRUCTION FROM HERE
+cdef class SEAIRQ(SIR_type):
+    cdef:
+        readonly double gE, gA, tE, tA, tIa, tIs
+
+    def __init__(self, parameters, M, fi, N, steps):
+        super().__init__(parameters, 6, M, fi, N, steps)
+
+    def set_params(self, parameters):
+        super().set_params(parameters)
+        self.gE    = parameters.get('gE')                       # recovery rate of E class
+        self.gA    = parameters.get('gA')                       # recovery rate of A class
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+
+
+    def make_det_model(self, parameters):
+        return pyross.deterministic.SEAI5R(parameters, self.M, self.fi)
+
+    def make_params_dict(self, params):
+        parameters = {'alpha':params[0],
+                      'beta':params[1],
+                      'gIa':params[2],
+                      'gIs':params[3],
+                      'gE': params[4],
+                      'gA': params[5],
+                      'gIh': self.gIh,
+                      'gIc': self.gIc,
+                      'fsa':self.fsa
+                      }
+        return parameters
