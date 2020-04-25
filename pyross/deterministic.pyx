@@ -14,10 +14,6 @@ cdef class SIR:
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -100,10 +96,6 @@ cdef class SIRS:
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa, ep
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -204,10 +196,6 @@ cdef class SEIR:
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -304,10 +292,6 @@ cdef class SEI5R:
     Ih ---> Ic, R
     Ic ---> Im, R
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -439,10 +423,6 @@ cdef class SIkR:
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
     """
-    cdef:
-        readonly int N, M, ki
-        readonly double alpha, beta, gI, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -526,10 +506,6 @@ cdef class SEkIkR:
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
-    cdef:
-        readonly int N, M, ki, ke
-        readonly double alpha, beta, gI, fsa, gE
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -635,10 +611,6 @@ cdef class SEAIR:
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -730,11 +702,6 @@ cdef class SEAIRQ:
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
-        readonly double tS, tE, tA, tIa, tIs
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -845,10 +812,6 @@ cdef class SEAI5R:
     Ih ---> Ic, R
     Ic ---> Im, R
     """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
