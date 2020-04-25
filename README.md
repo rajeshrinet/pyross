@@ -12,9 +12,9 @@ The library uses Gaussian process regression, on both the epidemiological manifo
 
 Non-pharmaceutical interventions are implemented as controls on the contact structures of the model. Optimal control of these structures, given cost functions, is being implemented.
 
-The library is structured to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
+The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
 
-PyRoss was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India.
+The genesis of PyRoss was to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. It can be used to study such impact for any demographic for which the age and contact structures are available. 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
