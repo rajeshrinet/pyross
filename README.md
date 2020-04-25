@@ -24,11 +24,9 @@ Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) befor
 
 ## Contact
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the University of Cambridge.
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the University of Cambridge. In alphabetical order, we are: [R. Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez) and [Rajesh Singh](https://github.com/rajeshrinet).
 
 Please first [read the wiki](https://github.com/rajeshrinet/pyross/wiki) and  then only [open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
-
-The authors, in alphabetic order, are: [R. Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez) and [Rajesh Singh](https://github.com/rajeshrinet).
 
 ## Publications
 
