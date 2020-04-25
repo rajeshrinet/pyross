@@ -877,7 +877,7 @@ cdef class SEAIRQ:
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, aa, bb
-            double tS=self.tS, tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
+            double tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
             double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
 
@@ -902,7 +902,7 @@ cdef class SEAIRQ:
             X[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q
             X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
             X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
-            X[i+5*M] = tS*S[i]+tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q
+            X[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q
         return                                                     
 
 
@@ -930,7 +930,7 @@ cdef class SEAIRQ:
             solver.set_initial_condition(np.concatenate((S0, E0, A0, Ia0, Is0, Q0)))
             u, time_points = solver.solve(time_points)
 
-        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return data
 
 
