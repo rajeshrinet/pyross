@@ -157,28 +157,6 @@ cdef class SEAIR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ:
-    """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A : Asymptomatic and infectious
-    """
-    cdef:
-        readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
-        readonly double tS, tE, tA, tIa, tIs
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
-
-    cdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
 cdef class SEAI5R:
     """
     Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
@@ -200,5 +178,27 @@ cdef class SEAI5R:
         readonly int N, M,
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
+
+    cdef rhs(self, rp, tt)
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEAIRQ:
+    """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Ia: asymptomatic
+    Is: symptomatic
+    A : Asymptomatic and infectious
+    """
+    cdef:
+        readonly int N, M,
+        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
+        readonly double tS, tE, tA, tIa, tIs
+        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     cdef rhs(self, rp, tt)
