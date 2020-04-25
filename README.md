@@ -6,15 +6,16 @@
 
 ## About
 
-[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports structured compartment models formulated stochastically (as chemical master equations) or deterministically ((as systems of differential equations). A hybrid algorithm transits smoothly between these limits depending on the magnitude of the compartmental fluctions.
+[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctions.
 
-The library uses Gaussian process regression, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide Bayesian forecasts of the progress of the epidemic.
+The library uses **Gaussian process regression**, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
 
-Non-pharmaceutical interventions are implemented as controls on the contact structures of the model. Optimal control of these structures, given cost functions, is being implemented.
+Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development. 
 
-The library is structured to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
+The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
 
-PyRoss was developed to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India.
+The genesis of PyRoss was to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. It can be used to study such impact for **any demographic** for which the age and 
+contact structures are available. 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
@@ -33,7 +34,7 @@ The authors, in alphabetic order, are: [R. Adhikari](https://github.com/ronojoy)
 
 * [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa)). Rajesh Singh and R. Adhikari (2020).
 
-This paper is amongst the  **top five most read COVID-19 papers** on [Research Gate
+This paper is amongst the  **top ten most read COVID-19 papers** on [Research Gate
 ](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the [Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-COVID-19-India-paper) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible.
 
 The figures below show how the lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the
