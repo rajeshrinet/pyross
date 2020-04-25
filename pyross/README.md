@@ -18,4 +18,5 @@ The main files are:
 * utils.pyx - has miscellaneous functionalities
 
 
-There are also .pxd files, which correspond to a .pyx file of same name. A .pxd file contains declaration of cdef classes, methods, etc. It is essential when calling PyRoss from another Cython file.
+There are also .pxd files, which correspond to a .pyx file of same name. A .pxd file contains declaration of cdef classes, methods, etc. It is essential when calling PyRoss from another Cython file. Read more: https://cython.readthedocs.io/en/latest/src/tutorial/pxd_files.html. 
+
