@@ -1108,21 +1108,20 @@ cdef class SEAIRQ(stochastic_integration):
     A : Asymptomatic and infectious
     """
     cdef:
-        readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
-        readonly double tS, tE, tA, tIa, tIs
+        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
+        readonly double tE, tA, tIa, tIs #, tS
         readonly np.ndarray rp0, Ni, drpdt, CC
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # progression rate from E
-        self.gAA   = parameters.get('gAA')                      # rate to go from A to Ia
-        self.gAS   = parameters.get('gAS')                      # rate to go from A to Is
+        self.gA   = parameters.get('gA')                      # rate to go from A to I
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
-        self.tS    = parameters.get('tS')                       # testing rate in S
+        #self.tS    = parameters.get('tS')                       # testing rate in S
         self.tE    = parameters.get('tE')                       # testing rate in E
         self.tA    = parameters.get('tA')                       # testing rate in A
         self.tIa   = parameters.get('tIa')                       # testing rate in Ia
@@ -1153,9 +1152,10 @@ cdef class SEAIRQ(stochastic_integration):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, aa, bb
-            double tS=self.tS, tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
+            #double tS=self.tS,
+            double tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
-            double gAA=self.gAA*self.alpha, gAS=self.gAS*(1-self.alpha)
+            double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
 
             long [:] S    = rp[0*M:M]
             long [:] E    = rp[1*M:2*M]
@@ -1177,7 +1177,7 @@ cdef class SEAIRQ(stochastic_integration):
             aa = bb*S[i]
             # rates away from S
             RM[i+M  , i]     = aa  # rate S -> E
-            RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
+            #RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
             # rates away from E
             RM[i+2*M, i+M]   = gE  * E[i] # rate E -> A
             RM[i+5*M, i+M]   = tE  * E[i] # rate E -> Q
@@ -1230,7 +1230,6 @@ cdef class SEAIRQ(stochastic_integration):
                 'N':self.N, 'M':self.M,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
-                'gE':self.gE,'gAA':self.gAA,
-                'gAS':self.gAS,
-                'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+                'gE':self.gE,'gA':self.gA,
+                'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return out_dict
