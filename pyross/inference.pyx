@@ -80,12 +80,13 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            if verbose:
-                print(params, minus_logp)
             return minus_logp
         assert bounds[0][1] < 1-eps # the upper bound of alpha must be less than 1-eps
+        def callback(params):
+            print('parameters:', params)
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'callback': callback,
+                            'bounds': bounds, 'options': options}
         take_step = BoundedSteps(bounds)
         res = basinhopping(to_minimize, guess, niter=niter,
                             minimizer_kwargs=minimizer_kwargs,
@@ -283,7 +284,7 @@ cdef class SIR_type:
     cdef double obtain_log_p_for_traj_red(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
                                             double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
-            Py_ssize_t reduced_dim=self.dim*(Nf-1)*np.sum(fltr)
+            Py_ssize_t reduced_dim=(Nf-1)*np.sum(fltr)
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
             np.ndarray[BOOL_t, ndim=1] full_fltr
