@@ -830,7 +830,7 @@ cdef class SEAI5R:
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, aa, bb
-            double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE, gA=self.gA
+            double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double gAA, gAS
             double [:] S    = rp[0  :M]
