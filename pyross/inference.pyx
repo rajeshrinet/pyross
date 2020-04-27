@@ -7,6 +7,7 @@ cimport numpy as np
 cimport cython
 
 import pyross.deterministic
+cimport pyross.deterministic
 from pyross.utils import BoundedSteps
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
@@ -15,10 +16,10 @@ cdef double PI = 3.14159265359
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 ctypedef np.uint8_t BOOL_t
-# @cython.wraparound(False)
-# @cython.boundscheck(False)
-# @cython.cdivision(True)
-# @cython.nonecheck(False)
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SIR_type:
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
@@ -72,7 +73,7 @@ cdef class SIR_type:
         ftol: double
             relative tolerance of logp
         eps: double
-            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian 
+            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         def to_minimize(params):
             parameters = self.make_params_dict(params)
@@ -158,9 +159,19 @@ cdef class SIR_type:
             total time of the trajectory
         Nf: int
             total number of data points along the trajectory
+        contactMatrix: callable
+            a function that takes time as an input and outputs the contactMatrix
         bounds: 2d numpy.array
             bounds for the parameters + initial conditions.
             Better bounds makes it easier to find the true global minimum.
+        verbose: bool, optional
+            set True to see intermediate outputs from the optimizer
+        niter: int, optional
+            number of basinhopping performed by the optimizer
+        ftol: float, optional
+            relative tolerance
+        eps: float, optional
+            step size used by L-BFGS-B in calculation of Hessian
         '''
         cdef:
             double eps_for_params=eps, eps_for_init_cond = 0.1/self.N
@@ -173,7 +184,7 @@ cdef class SIR_type:
             if np.min(params)<0:
                 return np.inf
             else:
-                parameters = self.make_params_dict(params)
+                parameters = self.make_params_dict(params[:param_dim])
                 self.set_params(parameters)
                 model = self.make_det_model(parameters)
                 x0 = params[param_dim:]/rescale_factor
@@ -190,6 +201,44 @@ cdef class SIR_type:
         params = res.x
         params[param_dim:] /= rescale_factor
         return params
+
+    def hessian_latent_params(self, maps, obs, fltr, Tf, Nf, contactMatrix, eps=1.e-3):
+        '''
+        compute the Hessian over the params
+        maps: numpy.array
+            maximum a posteriori
+        obs: numpy.array
+            the observed data without the initial datapoint
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            total time of the trajectory
+        Nf: int
+            total number of data points along the trajectory
+        contactMatrix: callable
+            a function that takes time as an input and outputs the contactMatrix
+        eps: float, optional
+            step size in the calculation of the Hessian
+        '''
+        cdef:
+            Py_ssize_t i, j, param_dim = maps.shape[0] - self.dim
+            double [:] x0
+            double temp
+            np.ndarray g1, g2, hess = np.empty((param_dim, param_dim))
+        x0 = maps[param_dim:]
+        params = maps[:param_dim]
+        def minuslogP(y):
+            parameters = self.make_params_dict(y)
+            return self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
+        g1 = approx_fprime(params, minuslogP, eps)
+        for j in range(param_dim):
+            temp = params[j]
+            params[j] += eps
+            g2 = approx_fprime(params, minuslogP, eps)
+            hess[:,j] = (g2 - g1)/eps
+            params[j] = temp
+        return hess
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix):
