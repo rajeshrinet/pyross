@@ -85,8 +85,8 @@ cdef class SEI5R:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
+        readonly double beta, gE, gIa, gIs, gIh, gIc, fsa, fh
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm, alpha  
 
     cdef rhs(self, rp, tt)
 
@@ -176,8 +176,8 @@ cdef class SEAI5R:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm
+        readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm, alpha
 
     cdef rhs(self, rp, tt)
 
