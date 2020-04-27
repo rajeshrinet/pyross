@@ -30,12 +30,21 @@ cdef class SIR:
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
+        
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            print('alpha can be a number or an array of size M')
 
 
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
+            double beta=self.beta, gIa=self.gIa, aa, bb
             double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
             double [:] S    = rp[0  :M]
             double [:] Ia   = rp[M  :2*M]
@@ -45,14 +54,16 @@ cdef class SIR:
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
 
+            double [:] alpha= self.alpha
+
         for i in range(M):
             bb=0
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]                                          
             X[i]     = -aa - FM[i]                                # rate S  -> Ia, Is
-            X[i+M]   = alpha *aa - gIa*Ia[i] + alpha * FM[i]      # rate Ia -> R
-            X[i+2*M] = alphab*aa - gIs*Is[i] + alphab* FM[i]      # rate Is -> R
+            X[i+M]   = alpha[i]*aa     - gIa*Ia[i] + alpha[i]    *FM[i]      # rate Ia -> R
+            X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i] + (1-alpha[i])*FM[i]      # rate Is -> R
         return
 
 
@@ -98,7 +109,6 @@ cdef class SIRS:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -116,6 +126,15 @@ cdef class SIRS:
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            print('alpha can be a number or an array of size M')
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
@@ -137,8 +156,8 @@ cdef class SIRS:
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
-            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs, ep=self.ep
+            double beta=self.beta, gIa=self.gIa, aa, bb
+            double fsa=self.fsa,gIs=self.gIs, ep=self.ep
             double [:] S    = rp[0  :M]
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
@@ -147,6 +166,7 @@ cdef class SIRS:
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
             double [:] X    = self.drpdt
+            double [:] alpha= self.alpha
 
         for i in range(M):
             bb=0
@@ -154,8 +174,8 @@ cdef class SIRS:
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
             X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return
-            X[i+M]   = alpha *aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
-            X[i+2*M] = alphab*aa - gIs*Is[i]                          # rate Is -> R
+            X[i+M]   = alpha[i]*aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
+            X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                          # rate Is -> R
             X[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni
         return
 
@@ -198,7 +218,6 @@ cdef class SEIR:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -214,12 +233,20 @@ cdef class SEIR:
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            print('alpha can be a number or an array of size M')
 
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, gIs=self.gIs, aa, bb
-            double fsa=self.fsa, gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
+            double beta=self.beta, gIa=self.gIa, gIs=self.gIs, aa, bb
+            double fsa=self.fsa, gE=self.gE, ce1, ce2
             double [:] S    = rp[0  :  M]
             double [:] E    = rp[  M:2*M]
             double [:] Ia   = rp[2*M:3*M]
@@ -228,9 +255,10 @@ cdef class SEIR:
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
             double [:] X    = self.drpdt
+            double [:] alpha= self.alpha
 
         for i in range(M):
-            bb=0
+            bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]                                          
@@ -303,12 +331,6 @@ cdef class SEI5R:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        hh         = parameters.get('hh')                       # hospital
-        cc         = parameters.get('cc')                       # ICU
-        mm         = parameters.get('mm')                       # mortality
-
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -317,7 +339,8 @@ cdef class SEI5R:
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
-        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
         elif np.size(alpha)==M:
@@ -325,7 +348,7 @@ cdef class SEI5R:
         else:
             print('alpha can be a number or an array of size M')
 
-
+        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
             self.sa = sa*np.ones(M)
@@ -334,6 +357,7 @@ cdef class SEI5R:
         else:
             print('sa can be a number or an array of size M')
 
+        hh         = parameters.get('hh')                       # hospital
         self.hh    = np.zeros( self.M, dtype = DTYPE)
         if np.size(hh)==1:
             self.hh = hh*np.ones(M)
@@ -342,6 +366,7 @@ cdef class SEI5R:
         else:
             print('hh can be a number or an array of size M')
 
+        cc         = parameters.get('cc')                       # ICU
         self.cc    = np.zeros( self.M, dtype = DTYPE)
         if np.size(cc)==1:
             self.cc = cc*np.ones(M)
@@ -350,6 +375,7 @@ cdef class SEI5R:
         else:
             print('cc can be a number or an array of size M')
 
+        mm         = parameters.get('mm')                       # mortality
         self.mm    = np.zeros( self.M, dtype = DTYPE)
         if np.size(mm)==1:
             self.mm = mm*np.ones(M)
@@ -363,7 +389,7 @@ cdef class SEI5R:
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, aa, bb
-            double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE
+            double fsa=self.fsa, fh=self.fh, gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double ce1, ce2
             double [:] S    = rp[0  :M]

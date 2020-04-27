@@ -14,8 +14,8 @@ cdef class SIR:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM
+        readonly double beta, gIa, gIs, fsa
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, alpha
 
     cdef rhs(self, rp, tt)
 
@@ -34,8 +34,8 @@ cdef class SIRS:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, fsa, ep
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa
+        readonly double beta, gIa, gIs, fsa, ep
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, alpha
 
     cdef rhs(self, rp, tt)
 
@@ -54,8 +54,8 @@ cdef class SEIR:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM
+        readonly double beta, gIa, gIs, gE, fsa
+        readonly np.ndarray rp0, Ni, drpdt, CM, FM, alpha
 
     cdef rhs(self, rp, tt)
 
