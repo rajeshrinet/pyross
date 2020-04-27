@@ -35,10 +35,8 @@ cdef class SIR:
         #
         self.cov = parameters.get('cov')
         #
-        self.means = np.array([self.beta,self.gIa,self.gIs],dtype=DTYPE)
-        self.cov = parameters.get('cov') #np.array([[self.cov_beta_beta,self.cov_beta_gIa],
-                        #[self.cov_beta_gIa,self.cov_gIa_gIa]],
-                        #dtype=DTYPE)
+        self.means = np.array([self.alpha,self.beta,self.gIa,self.gIs],dtype=DTYPE)
+        self.cov = parameters.get('cov')
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -71,9 +69,10 @@ cdef class SIR:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
                 sample_parameters[i] = np.random.multivariate_normal(means,cov)
-            parameters = {'alpha':self.alpha, 'fsa':self.fsa,
-                        'beta':sample_parameters[i,0],
-                        'gIa':sample_parameters[i,1],'gIs':sample_parameters[i,2]}
+            parameters = {'fsa':self.fsa,
+                        'alpha':sample_parameters[i,0],
+                        'beta':sample_parameters[i,1],
+                        'gIa':sample_parameters[i,2],'gIs':sample_parameters[i,3]}
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SIR(parameters, M, self.Ni)
@@ -127,15 +126,15 @@ cdef class SEIR:
 
     def __init__(self, parameters, M, Ni):
         # these are the parameters we consider stochastic
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE   = parameters.get('gE')                      # progression rate of E
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         #
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
-        self.means = np.array([self.beta,self.gE,self.gIa,self.gIs],dtype=DTYPE)
+        self.means = np.array([self.alpha,self.beta,self.gIa,self.gIs,self.gE],dtype=DTYPE)
         self.cov = parameters.get('cov') #np.array([[self.cov_beta_beta,self.cov_beta_gIa],
                   #      [self.cov_beta_gIa,self.cov_gIa_gIa]],
                   #      dtype=DTYPE)
@@ -173,11 +172,12 @@ cdef class SEIR:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
                 sample_parameters[i] = np.random.multivariate_normal(means,cov)
-            parameters = {'alpha':self.alpha, 'fsa':self.fsa,
-                        'beta':sample_parameters[i,0],
-                        'gE':sample_parameters[i,1],
+            parameters = { 'fsa':self.fsa,
+                        'alpha':sample_parameters[i,0],
+                        'beta':sample_parameters[i,1],
                         'gIa':sample_parameters[i,2],
-                        'gIs':sample_parameters[i,3]}
+                        'gIs':sample_parameters[i,3],
+                        'gE':sample_parameters[i,4]}
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEIR(parameters, M, self.Ni)
@@ -223,21 +223,21 @@ cdef class SEAIRQ():
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gAA, gAS, fsa
-        readonly double tS, tE, tA, tIa, tIs
+        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
+        readonly double tE, tA, tIa, tIs
         readonly int k_tot
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, means, cov
 
     def __init__(self, parameters, M, Ni):
         # these are the parameters we consider stochastic
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # progression rate from E
-        self.gAA   = parameters.get('gAA')                      # rate to go from A to Ia
-        self.gAS   = parameters.get('gAS')                      # rate to go from A to Is
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gE    = parameters.get('gE')                       # progression rate from E
+        self.gA   = parameters.get('gA')                        # rate to go from A to Ia
         #
-        self.tS    = parameters.get('tS')                       # testing rate in S
+        #self.tS    = parameters.get('tS')                       # testing rate in S
         self.tE    = parameters.get('tE')                       # testing rate in E
         self.tA    = parameters.get('tA')                       # testing rate in A
         self.tIa   = parameters.get('tIa')                      # testing rate in Ia
@@ -245,12 +245,11 @@ cdef class SEAIRQ():
 
         # the following two parameters we consider to be exact
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
 
         # vector of means & covariance matrix for Gaussian distribution
-        self.means = np.array([self.beta,
-                                self.gE,self.gAA,self.gAS,self.gIa,self.gIs,
-                                self.tS,self.tE,self.tA,self.tIa,self.tIs],dtype=DTYPE)
+        self.means = np.array([self.alpha,self.beta,
+                                self.gIa,self.gIs,
+                                self.gE,self.gA],dtype=DTYPE)
         self.cov = parameters.get('cov') # 11x11 matrix
 
         self.N     = np.sum(Ni)
@@ -287,18 +286,17 @@ cdef class SEAIRQ():
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
                 sample_parameters[i] = np.random.multivariate_normal(means,cov)
-            parameters = {'alpha':self.alpha, 'fsa':self.fsa,
-                        'beta':sample_parameters[i,0],
-                        'gE':sample_parameters[i,1],
-                        'gAA':sample_parameters[i,2],
-                        'gAS':sample_parameters[i,3],
-                        'gIa':sample_parameters[i,4],
-                        'gIs':sample_parameters[i,5],
-                        'tS':sample_parameters[i,6],
-                        'tE':sample_parameters[i,7],
-                        'tA':sample_parameters[i,8],
-                        'tIa':sample_parameters[i,9],
-                        'tIs':sample_parameters[i,10]}
+            parameters = { 'fsa':self.fsa,
+                        'alpha':sample_parameters[i,0],
+                        'beta':sample_parameters[i,1],
+                        'gIa':sample_parameters[i,2],
+                        'gIs':sample_parameters[i,3],
+                        'gE':sample_parameters[i,4],
+                        'gA':sample_parameters[i,5],
+                        'tE':self.tE,
+                        'tA':self.tA,
+                        'tIa':self.tIa,
+                        'tIs':self.tIs}
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
@@ -328,9 +326,8 @@ cdef class SEAIRQ():
                 'N':self.N, 'M':self.M,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
-                'gE':self.gE,'gAA':self.gAA,
-                'gAS':self.gAS,
-                'tS':self.tS,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs,
+                'gE':self.gE,'gA':self.gA,
+                'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs,
                 'cov':self.cov,
                 'sample_parameters':sample_parameters}
         return out_dict
@@ -365,18 +362,18 @@ cdef class SEAI5R():
 
     def __init__(self, parameters, M, Ni):
         # these are the parameters we consider stochastic
+        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # progression rate of E class
         self.gA    = parameters.get('gA')                       # progression rate of A class
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Ih
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ic
 
         # the following parameters we consider to be exact
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+        self.gIh   = parameters.get('gIh')                      # recovery rate of Ih
+        self.gIc   = parameters.get('gIc')                      # recovery rate of Ic
         #
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         hh         = parameters.get('hh')                       # hospital
@@ -417,9 +414,11 @@ cdef class SEAI5R():
             print('mm can be a number or an array of size M')
 
         # vector of means & covariance matrix for Gaussian distribution
-        self.means = np.array([self.beta,
-                                self.gE,self.gA,
-                                self.gIa,self.gIs,self.gIh,self.gIc],
+        self.means = np.array([self.alpha,
+                                self.beta,
+                                self.gIa,self.gIs,
+                                self.gE,self.gA],
+                                #self.gIh,self.gIc],
                                 dtype=DTYPE)
         self.cov = parameters.get('cov') # 7x7 matrix
 
@@ -457,14 +456,13 @@ cdef class SEAI5R():
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
                 sample_parameters[i] = np.random.multivariate_normal(means,cov)
-            parameters = {'alpha':self.alpha,
-                        'beta':sample_parameters[i,0],
-                        'gE':sample_parameters[i,1],
-                        'gA':sample_parameters[i,2],
-                        'gIa':sample_parameters[i,3],
-                        'gIs':sample_parameters[i,4],
-                        'gIh':sample_parameters[i,5],
-                        'gIc':sample_parameters[i,6],
+            parameters = {'alpha':sample_parameters[i,0],
+                        'beta':sample_parameters[i,1],
+                        'gIa':sample_parameters[i,2],
+                        'gIs':sample_parameters[i,3],
+                        'gE':sample_parameters[i,4],
+                        'gA':sample_parameters[i,5],
+                        'gIh':self.gIh,'gIc':self.gIc,
                         'fsa':self.fsa,'fh':self.fh,
                         'sa':self.sa,'hh':self.hh,
                         'mm':self.mm,'cc':self.cc
