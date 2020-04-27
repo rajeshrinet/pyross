@@ -1,7 +1,7 @@
-from scipy import linalg
+from scipy import sparse
 from scipy.integrate import odeint
 from scipy.optimize import minimize, approx_fprime, basinhopping
-import  numpy as np
+import numpy as np
 from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
 cimport cython
@@ -14,15 +14,16 @@ cdef double PI = 3.14159265359
 
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
+ctypedef np.uint8_t BOOL_t
+# @cython.wraparound(False)
+# @cython.boundscheck(False)
+# @cython.cdivision(True)
+# @cython.nonecheck(False)
 cdef class SIR_type:
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray fi, CM, dsigmadt, J, B, J_mat, B_vec,
+        readonly np.ndarray fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
 
 
@@ -41,6 +42,7 @@ cdef class SIR_type:
         self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.J_mat = np.empty((self.vec_size, self.vec_size), dtype=DTYPE)
         self.B_vec = np.empty((self.vec_size), dtype=DTYPE)
+        self.U = np.empty((self.dim, self.dim), dtype=DTYPE)
 
         # preparing the indices
         self.rows, self.cols = np.triu_indices(self.dim)
@@ -50,8 +52,28 @@ cdef class SIR_type:
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
 
-
-    def inference(self, guess, x, Tf, Nf, contactMatrix, method='L-BFGS-B', bounds=None, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+        '''
+        guess: numpy.array
+            initial guess for the parameter values
+        Tf: float
+            total time of the trajectory
+        Nf: float
+            number of data points along the trajectory
+        contactMatrix: callable
+            a function that takes t as an argument and returns the contact matrix
+        bounds: 2d numpy.array
+            bounds for the parameters.
+            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        nitr: int
+            number of iterations of basinhopping
+        verbose: bool
+            whether to print messages
+        ftol: double
+            relative tolerance of logp
+        eps: double
+            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian 
+        '''
         def to_minimize(params):
             parameters = self.make_params_dict(params)
             self.set_params(parameters)
@@ -60,19 +82,9 @@ cdef class SIR_type:
             if verbose:
                 print(params, minus_logp)
             return minus_logp
-
-        if bounds == None:
-            bounds = [[eps, g*5] for g in guess] #assume that we will not be orders of magnitude wrong
-            bounds[0][1] = min(bounds[0][1], 1-2*eps) # set upper bounds on alpha to be 1 
-        if method == 'Nelder-Mead':
-            options = {'ftol': ftol*5000, 'adaptive': True, 'disp': verbose}
-            minimizer_kwargs = {'method':'Nelder-Mead', 'options':options}
-        elif method == 'L-BFGS-B':
-            options={'eps': eps, 'ftol': ftol, 'disp': verbose, 'maxiter': 40}
-            minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-        else:
-            print('optimisation method not implemented')
-            return
+        assert bounds[0][1] < 1-eps # the upper bound of alpha must be less than 1-eps
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
         take_step = BoundedSteps(bounds)
         res = basinhopping(to_minimize, guess, niter=niter,
                             minimizer_kwargs=minimizer_kwargs,
@@ -112,7 +124,7 @@ cdef class SIR_type:
         A = self.hessian(maps,x,Tf,Nf,contactMatrix,eps)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
-    def log_NS_evidence(self, x, Tf, Nf, contactMatrix, UB=1., LB=0.001, P=4):
+    def log_NS_evidence(self, x, Tf, Nf, contactMatrix, UB=1., LB=0.001, P=4): # this is very slow
         import nestle
         # For now universal upper and lower parameter bounds UB, LB. Easy to generalize
         # P is dimension of parameter space, P=4 for SIIR
@@ -130,6 +142,63 @@ cdef class SIR_type:
         model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         return minus_logp
+
+    def latent_inference(self, np.ndarray guess, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
+                            verbose=False, Py_ssize_t niter=1, double ftol=1e-5, double eps=1e-4):
+        '''
+        guess: numpy.array
+            initial guess, arranged in the order of parameters and initial conditions
+        obs: numpy.array
+            the observed trajectories with reduced number of variables
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            total time of the trajectory
+        Nf: int
+            total number of data points along the trajectory
+        bounds: 2d numpy.array
+            bounds for the parameters + initial conditions.
+            Better bounds makes it easier to find the true global minimum.
+        '''
+        cdef:
+            double eps_for_params=eps, eps_for_init_cond = 0.1/self.N
+            double rescale_factor = eps_for_params/eps_for_init_cond
+            Py_ssize_t param_dim = guess.shape[0] - self.dim
+        guess[param_dim:] *= rescale_factor
+        bounds[param_dim:, :] *= rescale_factor
+
+        def to_minimize(params):
+            if np.min(params)<0:
+                return np.inf
+            else:
+                parameters = self.make_params_dict(params)
+                self.set_params(parameters)
+                model = self.make_det_model(parameters)
+                x0 = params[param_dim:]/rescale_factor
+                minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+                return minus_logp
+        def callback(params):
+            print('parameters:', params[:-self.dim])
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'callback': callback, 'bounds': bounds, 'options': options}
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
+        params = res.x
+        params[param_dim:] /= rescale_factor
+        return params
+
+    def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
+                            np.ndarray fltr, double Tf, int Nf, contactMatrix):
+        cdef double minus_log_p
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+        minus_logp = self.obtain_log_p_for_traj_red(x0, obs, fltr, Tf, Nf, model, contactMatrix)
+        return minus_logp
+
 
     def make_det_model(self, parameters):
         pass # to be implemented in subclass
@@ -162,15 +231,39 @@ cdef class SIR_type:
             log_p += self.log_cond_p(dev, cov)
         return -log_p
 
+    cdef double obtain_log_p_for_traj_red(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
+                                            double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            Py_ssize_t reduced_dim=self.dim*(Nf-1)*np.sum(fltr)
+            double [:, :] xm
+            double [:] xm_red, dev, obs_flattened
+            np.ndarray[BOOL_t, ndim=1] full_fltr
+        xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
+        full_fltr = np.tile(fltr, (Nf-1))
+        cov_red = full_cov[full_fltr][:, full_fltr]
+        obs_flattened = np.ravel(obs)
+        xm_red = np.ravel(np.compress(fltr, xm, axis=1))
+        dev=np.subtract(obs_flattened, xm_red)
+        cov_red_inv=sparse.linalg.inv(cov_red)
+        log_p= - (dev@cov_red_inv@dev)*(self.N/2)
+        sign,ldet=np.linalg.slogdet(cov_red.todense())   # safer than log(det(...))
+        if sign <1:
+            print('Cov has negative determinant')
+        log_p -= (ldet - log(self.N))/2 + (reduced_dim/2)*log(2*PI)
+        return -log_p
+
+
     cdef double log_cond_p(self, double [:] x, double [:, :] cov):
         cdef:
             double [:, :] invcov
             double log_cond_p
             double det
-        invcov = linalg.inv(cov)
-        det = linalg.det(cov)
+        invcov = np.linalg.inv(cov)
+        sign, ldet = np.linalg.slogdet(cov)
+        if sign < 1:
+            print('Cov has negative determinant')
         log_cond_p = - np.dot(x, np.dot(invcov, x))*(self.N/2) - (self.dim/2)*log(2*PI)
-        log_cond_p -= (log(det) - log(self.N))/2
+        log_cond_p -= (ldet - log(self.N))/2
         return log_cond_p
 
     def estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
@@ -180,7 +273,7 @@ cdef class SIR_type:
             double [:, :] cheb_coef
             double [:] time_points = np.linspace(t1, t2, self.steps)
             np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
-        x = self.integrate(x0, t1, t2, model, contactMatrix)
+        x = self.integrate(x0, t1, t2, self.steps, model, contactMatrix)
         cheb_coef, _ = chebfit(time_points, x, 16, full=True) # even number seems to behave better
         def rhs(sig, t):
             self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
@@ -192,6 +285,48 @@ cdef class SIR_type:
             return self.J_mat
         cov = odeint(rhs, sigma0, np.array([t1, t2]), Dfun=jac)
         return x[self.steps-1], self.convert_vec_to_mat(cov[1])
+
+    def obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            Py_ssize_t dim=self.dim, i
+            double [:, :] xm=np.empty((Nf, self.dim), dtype=DTYPE)
+            double [:] time_points=np.linspace(0, Tf, Nf)
+            double [:] xi, xf, dev, mean
+            double [:, :] cov
+            np.ndarray[DTYPE_t, ndim=2] invcov, temp
+            double ti, tf
+        xm[0]=x0
+        full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
+        for i in range(Nf-1):
+            ti = time_points[i]
+            tf = time_points[i+1]
+            xi = xm[i]
+            xf, cov = self.estimate_cond_mean_cov(xi, ti, tf, model, contactMatrix)
+            self.obtain_time_evol_op(xi, xf, ti, tf, model, contactMatrix)
+            invcov=np.linalg.inv(cov)
+            full_cov_inv[i][i]=invcov
+            if i>0:
+                temp = invcov@self.U
+                full_cov_inv[i-1][i-1] += np.transpose(self.U)@temp
+                full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
+                full_cov_inv[i][i-1]=-temp
+            xm[i+1]=xf
+        full_cov_inv=sparse.bmat(full_cov_inv, format='csc')
+        full_cov=sparse.linalg.inv(full_cov_inv)
+        return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
+
+
+    cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
+        cdef:
+            double [:, :] U=self.U
+            double epsilon=1./self.N
+            Py_ssize_t i, j
+        for i in range(self.dim):
+            x0[i] += epsilon
+            pos = self.integrate(x0, t1, t2, 2, model, contactMatrix)[1]
+            for j in range(self.dim):
+                U[j, i] = (pos[j]-xf[j])/(epsilon)
+            x0[i] -= epsilon
 
     cdef compute_dsigdt(self, double [:] sig):
         cdef:
@@ -231,7 +366,7 @@ cdef class SIR_type:
         self.J_mat[:, self.flat_indices1] += self.J_mat[:, self.flat_indices2]
         self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
         pass # to be implemented
 
 cdef class SIR(SIR_type):
@@ -299,14 +434,14 @@ cdef class SIR(SIR_type):
             B[2, m, 2, m] = balpha*l[m]*s[m] + gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
         cdef:
             double [:] S0, Ia0, Is0
             double [:, :] sol
         S0 = x0[0:self.M]
         Ia0 = x0[self.M:2*self.M]
         Is0 = x0[2*self.M:3*self.M]
-        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, self.steps, Ti=t1)
+        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, steps, Ti=t1)
         sol = data['X']
         return sol
 
@@ -385,7 +520,7 @@ cdef class SEIR(SIR_type):
             B[3, m, 3, m] = balpha*gE*e[m]+gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
         cdef:
             double [:] s, e, Ia, Is
             double [:, :] sol
@@ -394,7 +529,7 @@ cdef class SEIR(SIR_type):
         e = x0[M:2*M]
         Ia = x0[2*M:3*M]
         Is = x0[3*M:4*M]
-        data = model.simulate(s, e, Ia, Is, contactMatrix, t2, self.steps, Ti=t1)
+        data = model.simulate(s, e, Ia, Is, contactMatrix, t2, steps, Ti=t1)
         sol = data['X']
         return sol
 
@@ -548,7 +683,7 @@ cdef class SEAI5R(SIR_type):
             B[7, m, 7, m] = mm[m]*gIc*Ic[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
         cdef:
             double [:] s, e, a, Ia, Is, Ih, Ic, Im
             double [:, :] sol
@@ -561,7 +696,7 @@ cdef class SEAI5R(SIR_type):
         Ih = x0[5*M:6*M]
         Ic = x0[6*M:7*M]
         Im = x0[7*M:8*M]
-        data = model.simulate(s, e, a, Ia, Is, Ih, Ic, Im, contactMatrix, t2, self.steps, Ti=t1)
+        data = model.simulate(s, e, a, Ia, Is, Ih, Ic, Im, contactMatrix, t2, steps, Ti=t1)
         sol = data['X'][:, :8*M]
         return sol
 
@@ -679,7 +814,7 @@ cdef class SEAIRQ(SIR_type):
             B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
         cdef:
             double [:] s, e, a, Ia, Is, q
             double [:, :] sol
@@ -690,6 +825,6 @@ cdef class SEAIRQ(SIR_type):
         Ia = x0[3*M:4*M]
         Is = x0[4*M:5*M]
         q = x0[5*M:]
-        data = model.simulate(s, e, a, Ia, Is, q, contactMatrix, t2, self.steps, Ti=t1)
+        data = model.simulate(s, e, a, Ia, Is, q, contactMatrix, t2, steps, Ti=t1)
         sol = data['X']
         return sol
