@@ -16,7 +16,6 @@ cdef class SIR:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -45,7 +44,7 @@ cdef class SIR:
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, gIa=self.gIa, aa, bb
-            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
+            double fsa=self.fsa, gIs=self.gIs
             double [:] S    = rp[0  :M]
             double [:] Ia   = rp[M  :2*M]
             double [:] Is   = rp[2*M:3*M]
