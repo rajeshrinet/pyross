@@ -104,7 +104,7 @@ cdef class SIkR:
     """
     cdef:
         readonly int N, M, ki
-        readonly double alpha, beta, gI, fsa
+        readonly double beta, gI
         readonly np.ndarray rp0, Ni, drpdt,  CM, FM
 
     cdef rhs(self, rp, tt)
@@ -124,7 +124,7 @@ cdef class SEkIkR:
     """
     cdef:
         readonly int N, M, ki, ke
-        readonly double alpha, beta, gI, fsa, gE
+        readonly double beta, gI, gE
         readonly np.ndarray rp0, Ni, drpdt, CM, FM
 
     cdef rhs(self, rp, tt)

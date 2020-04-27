@@ -461,11 +461,9 @@ cdef class SIkR:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gI    = parameters.get('gI')                       # recovery rate of Ia
-        self.ki    = parameters.get('k')                        # recovery rate of Ia
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.gI    = parameters.get('gI')                       # recovery rate of I
+        self.ki    = parameters.get('k')                        # number of stages
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -480,7 +478,7 @@ cdef class SIkR:
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, ki=self.ki
-            double alpha=self.alpha, beta=self.beta, gI=self.ki*self.gI, aa, bb
+            double beta=self.beta, gI=self.ki*self.gI, aa, bb
             double [:] S    = rp[0  :M]
             double [:] I    = rp[M  :(ki+1)*M]
             double [:] Ni   = self.Ni
@@ -526,7 +524,7 @@ cdef class SIkR:
             solver.set_initial_condition(np.concatenate((S0, I0)))
             u, time_points = solver.solve(time_points)
 
-        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
 
 
@@ -544,13 +542,11 @@ cdef class SEkIkR:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')
-        self.gI    = parameters.get('gI')                      # recovery rate of Ia
-        self.ki    = parameters.get('kI')                      # recovery rate of Ia
+        self.gE    = parameters.get('gE')                       # recovery rate of E
+        self.gI    = parameters.get('gI')                       # recovery rate of I
+        self.ki    = parameters.get('kI')                       # number of stages
         self.ke    = parameters.get('kE')
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -565,8 +561,8 @@ cdef class SEkIkR:
     cdef rhs(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
-            double alpha=self.alpha, beta=self.beta, gI=self.ki*self.gI, aa, bb
-            double fsa=self.fsa, alphab=1-self.alpha, gE = self.ke * self.gE
+            double beta=self.beta, gI=self.ki*self.gI, aa, bb
+            double gE = self.ke * self.gE
             double [:] S    = rp[0  :M]
             double [:] E    = rp[M  :(ke+1)*M]
             double [:] I    = rp[(ke+1)*M  :(ke+ki+1)*M]
@@ -630,7 +626,7 @@ cdef class SEkIkR:
             solver.set_initial_condition(np.concatenate((S0, E0, I0)))
             u, time_points = solver.solve(time_points)
 
-        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+        data={'X':u, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
 
 
