@@ -294,7 +294,6 @@ cdef class SEI5R:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # recovery rate of E class
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
@@ -304,6 +303,7 @@ cdef class SEI5R:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         hh         = parameters.get('hh')                       # hospital
         cc         = parameters.get('cc')                       # ICU
@@ -316,6 +316,15 @@ cdef class SEI5R:
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
+
+        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.sa = sa*np.ones(M)
+        elif np.size(alpha)==M:
+            self.sa= alpha
+        else:
+            print('alpha can be a number or an array of size M')
+
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
@@ -714,7 +723,6 @@ cdef class SEAI5R:
     """
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # recovery rate of E class
         self.gA    = parameters.get('gA')                       # recovery rate of A class
@@ -725,6 +733,7 @@ cdef class SEAI5R:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         hh         = parameters.get('hh')                       # hospital
         cc         = parameters.get('cc')                       # ICU
@@ -737,6 +746,14 @@ cdef class SEAI5R:
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.drpdt = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
+
+        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.sa = sa*np.ones(M)
+        elif np.size(alpha)==M:
+            self.sa= alpha
+        else:
+            print('alpha can be a number or an array of size M')
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
