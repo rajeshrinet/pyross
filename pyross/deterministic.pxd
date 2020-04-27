@@ -145,8 +145,8 @@ cdef class SEAIR:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
+        readonly double beta, gIa, gIs, gE, gA, fsa
+        readonly np.ndarray rp0, Ni, drpdt,  CM, FM, alpha
 
     cdef rhs(self, rp, tt)
 
@@ -197,8 +197,8 @@ cdef class SEAIRQ:
     """
     cdef:
         readonly int N, M,
-        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
+        readonly double beta, gIa, gIs, gE, gA, fsa
         readonly double tS, tE, tA, tIa, tIs
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
+        readonly np.ndarray rp0, Ni, drpdt,  CM, FM, alpha
 
     cdef rhs(self, rp, tt)
