@@ -8,6 +8,7 @@ cimport cython
 
 import pyross.deterministic
 cimport pyross.deterministic
+import pyross.contactMatrix
 from pyross.utils import BoundedSteps
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
@@ -53,7 +54,7 @@ cdef class SIR_type:
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def inference(self, guess, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
         '''
         guess: numpy.array
             initial guess for the parameter values
@@ -62,11 +63,10 @@ cdef class SIR_type:
         Nf: float
             number of data points along the trajectory
         contactMatrix: callable
-            a function that takes t as an argument and returns the contact matrix
         bounds: 2d numpy.array
             bounds for the parameters.
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        nitr: int
+        niter: int
             number of iterations of basinhopping
         verbose: bool
             whether to print messages
@@ -76,20 +76,73 @@ cdef class SIR_type:
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         def to_minimize(params):
+            params[1] /= beta_rescale
             parameters = self.make_params_dict(params)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            params[1] *=beta_rescale
             return minus_logp
+        # make bounds if it does not exist and rescale
+        if bounds is None:
+            bounds = [(eps, g*5) for g in range(guess)]
+            bounds[0][1] = min(bounds[0][1], 1-2*eps)
         assert bounds[0][1] < 1-eps # the upper bound of alpha must be less than 1-eps
-        def callback(params):
-            print('parameters:', params)
+        bounds = np.array(bounds)
+        guess[1] *= beta_rescale
+        bounds[1] *= beta_rescale
+        print(bounds)
+
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
         if verbose:
             def callback(params):
                 print('parameters:', params)
-            minimizer_kwargs += {'callback': callback}
+            minimizer_kwargs['callback']= callback
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
+        estimates = res.x
+        estimates[1] /= beta_rescale
+        return estimates, res.nit
+
+    def infer_control(self, guess, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+        '''
+        guess: numpy.array
+            initial guess for the control parameter values
+        Tf: float
+            total time of the trajectory
+        Nf: float
+            number of data points along the trajectory
+        generator: pyross.contactMatrix
+        bounds: 2d numpy.array
+            bounds for the parameters.
+            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        niter: int
+            number of iterations of basinhopping
+        verbose: bool
+            whether to print messages
+        ftol: double
+            relative tolerance of logp
+        eps: double
+            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
+        '''
+        def to_minimize(params):
+            parameters = self.make_params_dict()
+            model =self.make_det_model(parameters)
+            times = [Tf+1]
+            interventions = [params]
+            contactMatrix = generator.interventions_temporal(times, interventions)
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            return minus_logp
+
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params)
+            minimizer_kwargs['callback'] = callback
         take_step = BoundedSteps(bounds)
         res = basinhopping(to_minimize, guess, niter=niter,
                             minimizer_kwargs=minimizer_kwargs,
@@ -252,11 +305,10 @@ cdef class SIR_type:
         minus_logp = self.obtain_log_p_for_traj_red(x0, obs, fltr, Tf, Nf, model, contactMatrix)
         return minus_logp
 
-
     def make_det_model(self, parameters):
         pass # to be implemented in subclass
 
-    def make_params_dict(self, params):
+    def make_params_dict(self, params=None):
         pass # to be implemented in subclass
 
 
@@ -300,8 +352,8 @@ cdef class SIR_type:
         cov_red_inv=sparse.linalg.inv(cov_red)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
         sign,ldet=np.linalg.slogdet(cov_red.todense())   # safer than log(det(...))
-        if sign <1:
-            print('Cov has negative determinant')
+        if sign <0:
+            raise ValueError('Cov has negative determinant')
         log_p -= (ldet - log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
@@ -313,8 +365,8 @@ cdef class SIR_type:
             double det
         invcov = np.linalg.inv(cov)
         sign, ldet = np.linalg.slogdet(cov)
-        if sign < 1:
-            print('Cov has negative determinant')
+        if sign < 0:
+            raise ValueError('Cov has negative determinant')
         log_cond_p = - np.dot(x, np.dot(invcov, x))*(self.N/2) - (self.dim/2)*log(2*PI)
         log_cond_p -= (ldet - log(self.N))/2
         return log_cond_p
@@ -430,8 +482,11 @@ cdef class SIR(SIR_type):
     def make_det_model(self, parameters):
         return pyross.deterministic.SIR(parameters, self.M, self.fi)
 
-    def make_params_dict(self, params):
-        parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'fsa':self.fsa}
+    def make_params_dict(self, params=None):
+        if params is None:
+            parameters = {'alpha':self.alpha, 'beta':self.beta, 'gIa':self.gIa, 'gIs':self.gIs, 'fsa':self.fsa}
+        else:
+            parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'fsa':self.fsa}
         return parameters
 
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
@@ -512,8 +567,14 @@ cdef class SEIR(SIR_type):
     def make_det_model(self, parameters):
         return pyross.deterministic.SEIR(parameters, self.M, self.fi)
 
-    def make_params_dict(self, params):
-        parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'gE': params[4], 'fsa':self.fsa}
+
+    def make_params_dict(self, params=None):
+        if params is None:
+            parameters = {'alpha':self.alpha, 'beta':self.beta, 'gIa':self.gIa,
+                            'gIs':self.gIs, 'gE':self.gE, 'fsa':self.fsa}
+        else:
+            parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2],
+                            'gIs':params[3], 'gE': params[4], 'fsa':self.fsa}
         return parameters
 
 
@@ -635,8 +696,25 @@ cdef class SEAI5R(SIR_type):
     def make_det_model(self, parameters):
         return pyross.deterministic.SEAI5R(parameters, self.M, self.fi)
 
-    def make_params_dict(self, params):
-        parameters = {'alpha':params[0],
+    def make_params_dict(self, params=None):
+        if params is None:
+            parameters = {'alpha':self.alpha,
+                          'beta':self.beta,
+                          'gIa':self.gIa,
+                          'gIs':self.gIs,
+                          'gE': self.gE,
+                          'gA': self.gA,
+                          'gIh': self.gIh,
+                          'gIc': self.gIc,
+                          'fsa':self.fsa,
+                          'fh': self.fh,
+                          'sa': 0,
+                          'hh': self.hh,
+                          'cc': self.cc,
+                          'mm': self.mm}
+
+        else:
+            parameters = {'alpha':params[0],
                       'beta':params[1],
                       'gIa':params[2],
                       'gIs':params[3],
@@ -775,20 +853,35 @@ cdef class SEAIRQ(SIR_type):
     def make_det_model(self, parameters):
         return pyross.deterministic.SEAIRQ(parameters, self.M, self.fi)
 
-    def make_params_dict(self, params):
-        parameters = {'alpha':params[0],
-                      'beta':params[1],
-                      'gIa':params[2],
-                      'gIs':params[3],
-                      'gE': params[4],
-                      'gA': params[5],
-                      'fsa': self.fsa,
-                      'tS': 0,
-                      'tE': self.tE,
-                      'tA': self.tA,
-                      'tIa': self.tIa,
-                      'tIs': self.tIs
-                      }
+    def make_params_dict(self, params=None):
+        if params is None:
+            parameters = {'alpha':self.alpha,
+                          'beta':self.beta,
+                          'gIa':self.gIa,
+                          'gIs':self.gIs,
+                          'gE':self.gE,
+                          'gA':self.gA,
+                          'fsa': self.fsa,
+                          'tS': 0,
+                          'tE': self.tE,
+                          'tA': self.tA,
+                          'tIa': self.tIa,
+                          'tIs': self.tIs
+                          }
+        else:
+            parameters = {'alpha':params[0],
+                          'beta':params[1],
+                          'gIa':params[2],
+                          'gIs':params[3],
+                          'gE': params[4],
+                          'gA': params[5],
+                          'fsa': self.fsa,
+                          'tS': 0,
+                          'tE': self.tE,
+                          'tA': self.tA,
+                          'tIa': self.tIa,
+                          'tIs': self.tIs
+                          }
         return parameters
 
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
