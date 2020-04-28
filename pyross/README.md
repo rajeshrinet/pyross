@@ -3,19 +3,19 @@ This folder contains the core files of the PyRoss library.
 Each file considers various [epidemiological models](https://github.com/rajeshrinet/pyross/tree/master/docs). The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**. A short description of each file is provided below:
 
 
-* **contactMatrix.pyx**: This file is to evaluate contact matrix of a given country. It also allows for a time-dependent lockdown strategy without any conotrol.  
+* **contactMatrix.pyx** is to evaluate the contact matrix of a given country. It also allows for a time-dependent lockdown strategy without any control.
 
-* **control.pyx**: This file provides an option to control the contact matrix as a function of the state. 
+* **control.pyx** provides an option to control the contact matrix as a function of the state.
 
-* **deterministic.pyx**: This file is to obtain deterministic trajectories of any of the above models given parameters. 
+* **deterministic.pyx** is to obtain deterministic trajectories of any of the above models given parameters. 
 
-* **stochastic.pyx**: This file is to obtain stochastic trajectories of of any of the above models given parameters. 
+* **stochastic.pyx** is to obtain stochastic trajectories of any of the above models given parameters.
 
-* **hybrid.pyx**: This file allows for an interface between deterministic and stochastic simulations of a given model given parameters. 
+* **hybrid.pyx**: is to allow for an interface to between deterministic and stochastic simulations of any of the above models given parameters.
 
-* **forecast.pyx**: This file allows for forecasting trajectories of any of the above model given the parameters and its uncertainty in terms of mean and variance. 
+* **forecast.pyx** allows for forecasting trajectories of any of the above model given the parameters and its uncertainty in terms of mean and variance. 
 
-* **inference.pyx**: This file is for the Bayesian inference of parameters and latent varibles given trajectories for any of the above models. 
+* **inference.pyx**  is for the Bayesian inference of parameters and latent variables given trajectories for any of the above models.
 
 * **utils.pyx**: This file has miscellaneous functionalities
 
