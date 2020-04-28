@@ -85,9 +85,11 @@ PyRoss requires the following software
 
 PyRoss has a formulation-agnostic and  intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can performed through the same interface. The example below shows how to set up a deterministic SIR simulation. See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for more Jupyter notebook examples.
 
-```Python#Ex1: M=1, SIR
+```Python
+# Ex1: M=1, SIR
 import numpy as np
 import pyross
+
 
 M     = 1                  # the SIR model has no age structure
 Ni    = 1000*np.ones(M)    # so there is only one age group
@@ -98,7 +100,6 @@ gIa   = 0.1                # recovery rate of asymptomatic infectives
 gIs   = 0.1                # recovery rate of symptomatic infectives 
 alpha = 0                  # fraction of asymptomatic infectives 
 fsa   = 1                  # the self-isolation parameter 
-
 
 Ia0 = np.array([0])        # the SIR model has only one kind of infective
 Is0 = np.array([1])        # we take these to be symptomatic
@@ -117,8 +118,8 @@ model = pyross.deterministic.SIR(parameters, M, Ni)
 
 
 # simulate model
-Ti, Tf, Nt = 0, 160,  160 # initial, final and number of data points
-data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
+Tf, Nt = 160,  160         # duraction and data points
+data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, N)
 ```
 
 
