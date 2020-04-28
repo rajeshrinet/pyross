@@ -95,7 +95,7 @@ cdef class SIR:
 
 
         t_eval = np.linspace(Ti,Tf,endpoint=True,num=Nf)
-        y_eval = np.zeros([len(t_eval),self.k_tot],dtype=float)
+        y_eval = np.zeros([len(t_eval),self.k_tot*self.M],dtype=float)
 
         cur_t_f = 0 # final time of current iteration
         cur_t_eval = t_eval # time interval for current iteration
@@ -182,6 +182,11 @@ cdef class SEAI5R:
     Ih ---> Ic, R
     Ic ---> Im, R
     """
+    cdef:
+        double beta, gE, gA, gIa, gIs, fsa, gIh, gIc, fh
+        int N, M, k_tot
+        np.ndarray Ni, CM, FM, drpdt, alpha, sa, hh, cc, mm
+        #list events, events_, contactMatrices
 
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters.get('beta')                     # infection rate
@@ -205,8 +210,10 @@ cdef class SEAI5R:
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
+        self.k_tot = 9
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.drpdt = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -281,12 +288,12 @@ cdef class SEAI5R:
             aa = bb*S[i]
             X[i]     = -aa + sa[i]                       # rate S  -> E
             X[i+M]   = aa  - gE*E[i]                     # rate E  -> A
-            X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I                  
+            X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I
             X[i+3*M] = gAA*A[i] - gIa*Ia[i]              # rate Ia -> R
             X[i+4*M] = gAS*A[i] - gIs*Is[i]              # rate Is -> R, Ih
-            X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic 
+            X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
             X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
-            X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im 
+            X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im
             X[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni
         return
 
@@ -308,7 +315,7 @@ cdef class SEAI5R:
 
 
         t_eval = np.linspace(Ti,Tf,endpoint=True,num=Nf)
-        y_eval = np.zeros([len(t_eval),self.k_tot],dtype=float)
+        y_eval = np.zeros([len(t_eval),self.k_tot*self.M],dtype=float)
 
         cur_t_f = 0 # final time of current iteration
         cur_t_eval = t_eval # time interval for current iteration
