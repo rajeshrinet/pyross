@@ -1,19 +1,21 @@
 This folder contains the core files of the PyRoss library.
 
-Each file considers various EPIDEMIOLOGICAL MODELS as described in https://github.com/rajeshrinet/pyross/tree/master/docs
+Each file considers various [epidemiological models](https://github.com/rajeshrinet/pyross/tree/master/docs). The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**. A short description of each file is provided below:
 
-The main files are:
-* contactMatrix.pyx - provides prescriitions to evaluate contact matrix and provide various lockdown strategies for a given country
 
-* deterministic.pyx - deterministic simulations of various models
+* contact matrix.pyx - evaluate contact matrix for a given country. It also allows for a time-dependent lockdown strategy.  
 
-* stochastic.pyx - stochastic simulations of various models
+* control.pyx - provides an option to control the contact matrix as a function of the state. 
 
-* hybrid.pyx - switched between deterministic and stochastic simulations of various models
+* deterministic.pyx - is for deterministic simulations of the above models
 
-* forecast.pyx - forecasts given the parameters
+* stochastic.pyx - is for stochastic simulations of the models
 
-* inference.pyx - Bayesian inference of parameters given trajectories for all the models of PyRoss
+* hybrid.pyx - allows for an interface between deterministic and stochastic simulations of the models
+
+* forecast.pyx - forecasts trajectories for a given model given the parameters and uncertainty in terms of mean and variance
+
+* inference.pyx - Bayesian inference of parameters given trajectories for all the above models
 
 * utils.pyx - has miscellaneous functionalities
 
