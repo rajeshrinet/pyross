@@ -133,28 +133,8 @@ cdef class SIR:
         readonly str country
         np.ndarray CH, CW, CS, CO
 
-    def __init__(self, country):
-        self.country = country
-
-        if self.country == 'Austria':
-            self.CH, self.CW, self.CS, self.CO = India()
-        
-        elif self.country == 'China':
-            self.CH, self.CW, self.CS, self.CO = China()
-    
-        elif self.country == 'Germany':
-            self.CH, self.CW, self.CS, self.CO = Germany()
-
-        if self.country == 'India':
-            self.CH, self.CW, self.CS, self.CO = India()
-    
-        elif self.country == 'Italy':
-            self.CH, self.CW, self.CS, self.CO = China()
-    
-        elif self.country == 'UK':
-            self.CH, self.CW, self.CS, self.CO = UK()
-        else:
-            raise RuntimeError("Country {0} not implemented".format(self.country))
+    def __init__(self, CH, CW, CS, CO):
+        self.CH, self.CW, self.CS, self.CO = CH, CW, CS, CO
 
     cpdef get_individual_contactMatrices(self):
         return self.CH, self.CW, self.CS, self.CO
