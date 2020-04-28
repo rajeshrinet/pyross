@@ -85,24 +85,26 @@ PyRoss requires the following software
 
 PyRoss has a formulation-agnostic and  intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can performed through the same interface. The example below shows how to set up a deterministic SIR simulation. See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for more Jupyter notebook examples.
 
-```Python
-#Ex1: M=1, SIR
+```Python#Ex1: M=1, SIR
 import numpy as np
 import pyross
-M = 1                  # the SIR model has no age structure
-Ni = 1000*np.ones(M)   # so there is only one age group
-N = np.sum(Ni)         # and the total population is the size of this age group
 
-beta  = 0.2            # infection rate
-gamma = 0.1            # recovery rate
-alpha = 0              # fraction of asymptomatic infectives
-fsa   = 1              # the self-isolation parameter
+M     = 1                  # the SIR model has no age structure
+Ni    = 1000*np.ones(M)    # so there is only one age group
+N     = np.sum(Ni)         # and the total population is the size of this age group
+
+beta  = 0.2                # infection rate 
+gIa   = 0.1                # recovery rate of asymptomatic infectives 
+gIs   = 0.1                # recovery rate of symptomatic infectives 
+alpha = 0                  # fraction of asymptomatic infectives 
+fsa   = 1                  # the self-isolation parameter 
 
 
-Ia0 = np.array([0])     # the SIR model has only one kind of infective
-Is0 = np.array([1])     # we take these to be symptomatic
-R0  = np.array([0])     # and assume there are no recovered individuals initially
-S0  = N-(Ia0+Is0+R0)    # so that the initial susceptibles are obtained from S + Ia + Is + R = N
+Ia0 = np.array([0])        # the SIR model has only one kind of infective
+Is0 = np.array([1])        # we take these to be symptomatic
+R0  = np.array([0])        # and assume there are no recovered individuals initially
+S0  = N-(Ia0+Is0+R0)       # so that the initial susceptibles are obtained from S + Ia + Is + R = N
+
 
 # there is no contact structure
 def contactMatrix(t):   
@@ -110,14 +112,12 @@ def contactMatrix(t):
 
 
 # instantiate model
-parameters = {'alpha':alpha, 'beta':beta, 'gamma':gamma,'fsa':fsa}
-
+parameters = {'alpha':alpha, 'beta':beta, 'gIa':gIa, 'gIs':gIs,'fsa':fsa}
 model = pyross.deterministic.SIR(parameters, M, Ni)
 
-# duration of simulation and data file
-Tf = 160;  Nt=160;
 
 # simulate model
+Ti, Tf, Nt = 0, 160,  160 # initial, final and number of data points
 data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 ```
 
