@@ -119,7 +119,7 @@ model = pyross.deterministic.SIR(parameters, M, Ni)
 
 # simulate model
 Tf, Nt = 160,  160         # duraction and data points
-data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, N)
+data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 ```
 
 
