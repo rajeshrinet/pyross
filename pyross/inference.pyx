@@ -91,7 +91,6 @@ cdef class SIR_type:
         bounds = np.array(bounds)
         guess[1] *= beta_rescale
         bounds[1] *= beta_rescale
-        print(bounds)
 
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
@@ -136,7 +135,6 @@ cdef class SIR_type:
             contactMatrix = generator.interventions_temporal(times, interventions)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
             return minus_logp
-
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
         if verbose:
@@ -149,16 +147,18 @@ cdef class SIR_type:
                             take_step=take_step, disp=verbose)
         return res.x, res.nit
 
-    def hessian(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
+    def hessian(self, maps, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
+        maps[1] *= beta_rescale
         cdef:
             Py_ssize_t k=maps.shape[0], i, j
             double xx0
             np.ndarray g1, g2, hess = np.empty((k, k))
-
         def minuslogP(y):
+            y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
-            return self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-
+            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+            y[1] *= beta_rescale
+            return minuslogp
         g1 = approx_fprime(maps, minuslogP, eps)
         for j in range(k):
             xx0 = maps[j]
@@ -166,6 +166,8 @@ cdef class SIR_type:
             g2 = approx_fprime(maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
             maps[j] = xx0
+        hess[1, :] *= beta_rescale
+        hess[:, 1] *= beta_rescale
         return hess
 
     def error_bars(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
@@ -203,7 +205,8 @@ cdef class SIR_type:
 
     def latent_inference(self, np.ndarray guess, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
-                            verbose=False, Py_ssize_t niter=1, double ftol=1e-5, double eps=1e-4):
+                            beta_rescale=1, verbose=False, Py_ssize_t niter=1,
+                            double ftol=1e-5, double eps=1e-4):
         '''
         guess: numpy.array
             initial guess, arranged in the order of parameters and initial conditions
@@ -231,35 +234,65 @@ cdef class SIR_type:
             step size used by L-BFGS-B in calculation of Hessian
         '''
         cdef:
-            double eps_for_params=eps, eps_for_init_cond = 0.1/self.N
+            double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
             double rescale_factor = eps_for_params/eps_for_init_cond
             Py_ssize_t param_dim = guess.shape[0] - self.dim
         guess[param_dim:] *= rescale_factor
+        guess[1] *= beta_rescale
         bounds[param_dim:, :] *= rescale_factor
+        bounds[1, :] *= beta_rescale
 
         def to_minimize(params):
-            if np.min(params)<0:
-                return np.inf
-            else:
-                parameters = self.make_params_dict(params[:param_dim])
-                self.set_params(parameters)
-                model = self.make_det_model(parameters)
-                x0 = params[param_dim:]/rescale_factor
-                minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-                return minus_logp
-        def callback(params):
-            print('parameters:', params[:-self.dim])
+            x0 =  params[param_dim:]/rescale_factor
+            params[1] /= beta_rescale
+            parameters = self.make_params_dict(params[:param_dim])
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            params[1] *= beta_rescale
+            return minus_logp
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'callback': callback, 'bounds': bounds, 'options': options}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params[:-self.dim])
+            minimizer_kwargs['callback'] = callback
         take_step = BoundedSteps(bounds)
         res = basinhopping(to_minimize, guess, niter=niter,
                             minimizer_kwargs=minimizer_kwargs,
                             take_step=take_step, disp=verbose)
         params = res.x
         params[param_dim:] /= rescale_factor
+        params[1] /= beta_rescale
         return params
 
-    def hessian_latent_params(self, maps, obs, fltr, Tf, Nf, contactMatrix, eps=1.e-3):
+    def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
+                            verbose=False, Py_ssize_t niter=1,
+                            double ftol=1e-5, double eps=1e-4):
+        def to_minimize(params):
+            parameters = self.make_params_dict()
+            model = self.make_det_model(parameters)
+            times = [Tf+1]
+            interventions = [params]
+            contactMatrix = generator.interventions_temporal(times, interventions)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            return minus_logp
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params)
+            minimizer_kwargs['callback'] = callback
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
+        return res.x
+
+
+    def hessian_latent_full(self, maps, obs, fltr, Tf, Nf, contactMatrix,
+                                    beta_rescale=1, eps=1.e-3):
         '''
         compute the Hessian over the params
         maps: numpy.array
@@ -279,22 +312,32 @@ cdef class SIR_type:
             step size in the calculation of the Hessian
         '''
         cdef:
-            Py_ssize_t i, j, param_dim = maps.shape[0] - self.dim
+            Py_ssize_t i, j, dim=maps.shape[0], params_dim=dim-self.dim
             double [:] x0
             double temp
-            np.ndarray g1, g2, hess = np.empty((param_dim, param_dim))
-        x0 = maps[param_dim:]
-        params = maps[:param_dim]
+            double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
+            double rescale_factor = eps_for_params/eps_for_init_cond
+            np.ndarray g1, g2, hess = np.empty((dim, dim))
+        maps[1] *= beta_rescale
+        maps[params_dim:] *= rescale_factor
         def minuslogP(y):
-            parameters = self.make_params_dict(y)
-            return self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
-        g1 = approx_fprime(params, minuslogP, eps)
-        for j in range(param_dim):
-            temp = params[j]
-            params[j] += eps
-            g2 = approx_fprime(params, minuslogP, eps)
+            y[1] /= beta_rescale
+            x0 = y[params_dim:]/rescale_factor
+            parameters = self.make_params_dict(y[:params_dim])
+            minuslogp = self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
+            y[1] *= beta_rescale
+            return minuslogp
+        g1 = approx_fprime(maps, minuslogP, eps)
+        for j in range(dim):
+            temp = maps[j]
+            maps[j] += eps
+            g2 = approx_fprime(maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
-            params[j] = temp
+            maps[j] = temp
+        hess[params_dim:, :] *= rescale_factor
+        hess[:, params_dim:] *= rescale_factor
+        hess[1, :] *= beta_rescale
+        hess[:, 1] *= beta_rescale
         return hess
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
@@ -349,12 +392,12 @@ cdef class SIR_type:
         obs_flattened = np.ravel(obs)
         xm_red = np.ravel(np.compress(fltr, xm, axis=1))
         dev=np.subtract(obs_flattened, xm_red)
-        cov_red_inv=sparse.linalg.inv(cov_red)
+        cov_red_inv=np.linalg.inv(cov_red)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
-        sign,ldet=np.linalg.slogdet(cov_red.todense())   # safer than log(det(...))
+        sign,ldet=np.linalg.slogdet(cov_red)
         if sign <0:
             raise ValueError('Cov has negative determinant')
-        log_p -= (ldet - log(self.N))/2 + (reduced_dim/2)*log(2*PI)
+        log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
 
@@ -368,7 +411,7 @@ cdef class SIR_type:
         if sign < 0:
             raise ValueError('Cov has negative determinant')
         log_cond_p = - np.dot(x, np.dot(invcov, x))*(self.N/2) - (self.dim/2)*log(2*PI)
-        log_cond_p -= (ldet - log(self.N))/2
+        log_cond_p -= (ldet - self.dim*log(self.N))/2
         return log_cond_p
 
     def estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
@@ -416,8 +459,8 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
                 full_cov_inv[i][i-1]=-temp
             xm[i+1]=xf
-        full_cov_inv=sparse.bmat(full_cov_inv, format='csc')
-        full_cov=sparse.linalg.inv(full_cov_inv)
+        full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
+        full_cov=np.linalg.inv(full_cov_inv)
         return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
 
 
