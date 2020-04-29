@@ -91,7 +91,6 @@ cdef class SIR_type:
         bounds = np.array(bounds)
         guess[1] *= beta_rescale
         bounds[1] *= beta_rescale
-        print(bounds)
 
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
