@@ -382,10 +382,10 @@ cdef class SIR_type:
     cdef double obtain_log_p_for_traj_red(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
                                             double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
-            Py_ssize_t reduced_dim=(Nf-1)*np.sum(fltr)
+            Py_ssize_t reduced_dim=(Nf-1)*int(np.sum(fltr))
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
-            np.ndarray[BOOL_t, ndim=1] full_fltr
+            np.ndarray[BOOL_t, ndim=1, cast=True] full_fltr
         xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = np.tile(fltr, (Nf-1))
         cov_red = full_cov[full_fltr][:, full_fltr]
