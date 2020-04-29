@@ -170,6 +170,7 @@ cdef class SIR_latent:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
                 sample_parameters[i] = np.random.multivariate_normal(means_params,cov_params)
+            while (sample_inits[i] < 0).any():
                 sample_inits[i] = np.random.multivariate_normal(means_init, cov_init)
             parameters = {'fsa':self.fsa,
                         'alpha':sample_parameters[i,0],
@@ -335,8 +336,9 @@ cdef class SEIR_latent:
     cdef:
         readonly int N, M,
         readonly double alpha, beta, fsa, gIa, gIs, gE
-        readonly int k_tot
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, means, cov
+        readonly int k_tot, k_random
+        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC,
+        readonly np.ndarray means_params, means_init, cov_params, cov_init
 
     def __init__(self, parameters, M, Ni):
         # these are the parameters we consider stochastic
@@ -349,24 +351,23 @@ cdef class SEIR_latent:
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
         #
-        self.means = np.zeros(5 + 4*M,dtype=DTYPE)
-        self.means[:5] = np.array([self.alpha,self.beta,self.gIa,self.gIs,self.gE],dtype=DTYPE)
-        self.means[5:5+1*M] = np.array(parameters.get('S0'))
-        self.means[5+1*M:5+2*M] = np.array(parameters.get('E0'))
-        self.means[5+2*M:5+3*M] = np.array(parameters.get('Ia0'))
-        self.means[5+3*M:5+4*M] = np.array(parameters.get('Is0'))
+        self.cov_params = parameters.get('cov_params')
+        self.cov_init = parameters.get('cov_init')
         #
-        self.cov = parameters.get('cov') #np.array([[self.cov_beta_beta,self.cov_beta_gIa],
-                  #      [self.cov_beta_gIa,self.cov_gIa_gIa]],
-                  #      dtype=DTYPE)
-
+        self.k_random = 5
+        self.k_tot = 4
+        self.means_params = np.array([self.alpha,self.beta,self.gIa,self.gIs,self.gE],dtype=DTYPE)
+        self.means_init = np.zeros(self.k_tot*M,dtype=DTYPE)
+        self.means_init[: M] = np.array(parameters.get('S0'),dtype=DTYPE)
+        self.means_init[1*M:2*M] = np.array(parameters.get('E0'),dtype=DTYPE)
+        self.means_init[2*M:3*M] = np.array(parameters.get('Ia0'),dtype=DTYPE)
+        self.means_init[3*M:4*M] = np.array(parameters.get('Is0'),dtype=DTYPE)
+        #
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
-
-        self.k_tot = 4
-        # guess = np.array([alpha_g, beta_g, gIa_g, gIs_g, gE_g, *S0_g, *E0_g, *Ia0_g, *Is0])
+        #
 
 
 
@@ -379,32 +380,35 @@ cdef class SEIR_latent:
 
         cdef:
             int M=self.M, k_tot = self.k_tot
-            double [:] means  = self.means
-            double [:,:] cov  = self.cov
+            double [:] means_params=self.means_params, means_init=self.means_init
+            double [:,:] cov_params=self.cov_params, cov_init=self.cov_init
             double start_time, end_time
             np.ndarray trajectories = np.zeros( [Ns,k_tot*M,Nf] , dtype=DTYPE)
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
-            np.ndarray sample_parameters
+            np.ndarray sample_parameters, sample_inits
 
-        sample_parameters = np.random.multivariate_normal(means, cov, Ns)
+        sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
+        sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
 
         start_time = timer()
         for i in range(Ns):
             if verbose:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
-                sample_parameters[i] = np.random.multivariate_normal(means,cov)
+                sample_parameters[i] = np.random.multivariate_normal(means_params,cov_params)
+            while (sample_inits[i] < 0).any():
+                sample_inits[i] = np.random.multivariate_normal(means_init, cov_init)
             parameters = { 'fsa':self.fsa,
                         'alpha':sample_parameters[i,0],
                         'beta':sample_parameters[i,1],
                         'gIa':sample_parameters[i,2],
                         'gIs':sample_parameters[i,3],
                         'gE':sample_parameters[i,4]}
-            S0  = sample_parameters[i,5    :5+1*M] * self.Ni
-            E0  = sample_parameters[i,5+1*M:5+2*M] * self.Ni
-            Ia0 = sample_parameters[i,5+2*M:5+3*M] * self.Ni
-            Is0 = sample_parameters[i,5+3*M:5+4*M] * self.Ni
+            S0  = ( sample_inits[i,   :1*M] * self.Ni ).astype('int')
+            E0  = ( sample_inits[i,1*M:2*M] * self.Ni ).astype('int')
+            Ia0 = ( sample_inits[i,2*M:3*M] * self.Ni ).astype('int')
+            Is0 = ( sample_inits[i,3*M:4*M] * self.Ni ).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEIR(parameters, M, self.Ni)
@@ -435,8 +439,10 @@ cdef class SEIR_latent:
                      'alpha':self.alpha, 'beta':self.beta,
                      'gE':self.gE,
                      'gIa':self.gIa, 'gIs':self.gIs,
-                     'cov':self.cov,
-                     'sample_parameters':sample_parameters
+                     'cov_params':self.cov_params,
+                     'cov_init':self.cov_init,
+                     'sample_parameters':sample_parameters,
+                     'sample_inits':sample_inits
                       } #
         return out_dict
 
@@ -578,6 +584,7 @@ cdef class SEAIRQ_latent():
         readonly double tE, tA, tIa, tIs
         readonly int k_tot
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, means, cov
+        readonly np.ndarray means_params, means_init, cov_params, cov_init
 
     def __init__(self, parameters, M, Ni):
         # these are the parameters we consider stochastic
@@ -598,19 +605,20 @@ cdef class SEAIRQ_latent():
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
 
         self.k_tot = 6 # total number of explicit states per age group
-
-        # vector of means & covariance matrix for Gaussian distribution
-        self.means = np.zeros(6 + self.k_tot*M,dtype=DTYPE)
-        self.means[:6] = np.array([self.alpha,self.beta,
-                                self.gIa,self.gIs,
-                                self.gE,self.gA],dtype=DTYPE)
-        self.means[6: 6 + M ] = np.array( parameters.get('S0') ,dtype=DTYPE)
-        self.means[6 + M: 6 +2*M] = np.array( parameters.get('E0') ,dtype=DTYPE)
-        self.means[6 +2*M: 6 +3*M] = np.array( parameters.get('A0') ,dtype=DTYPE)
-        self.means[6 +3*M: 6 +4*M] = np.array( parameters.get('Ia0') ,dtype=DTYPE)
-        self.means[6 +4*M: 6 +5*M] = np.array( parameters.get('Is0') ,dtype=DTYPE)
-        self.means[6 +5*M: 6 +6*M] = np.array( parameters.get('Q0') ,dtype=DTYPE)
-        self.cov = parameters.get('cov') # 11x11 matrix
+        #
+        self.cov_params = parameters.get('cov_params')
+        self.cov_init = parameters.get('cov_init')
+        #
+        self.k_random = 6
+        self.means_params = np.array([self.alpha,self.beta,
+                          self.gIa,self.gIs,self.gE,self.gA],dtype=DTYPE)
+        self.means_init = np.zeros(self.k_tot*M,dtype=DTYPE)
+        self.means_init[: M] = np.array(parameters.get('S0'),dtype=DTYPE)
+        self.means_init[1*M:2*M] = np.array(parameters.get('E0'),dtype=DTYPE)
+        self.means_init[2*M:3*M] = np.array(parameters.get('A0'),dtype=DTYPE)
+        self.means_init[3*M:4*M] = np.array(parameters.get('Ia0'),dtype=DTYPE)
+        self.means_init[4*M:5*M] = np.array(parameters.get('Is0'),dtype=DTYPE)
+        self.means_init[5*M:6*M] = np.array(parameters.get('Q0'),dtype=DTYPE)
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -629,22 +637,25 @@ cdef class SEAIRQ_latent():
 
         cdef:
             int M=self.M, k_tot = self.k_tot
-            double [:] means  = self.means
-            double [:,:] cov  = self.cov
+            double [:] means_params=self.means_params, means_init=self.means_init
+            double [:,:] cov_params=self.cov_params, cov_init=self.cov_init
             double start_time, end_time
             np.ndarray trajectories = np.zeros( [Ns,k_tot*M,Nf] , dtype=DTYPE)
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
-            np.ndarray sample_parameters
+            np.ndarray sample_parameters, sample_inits
 
-        sample_parameters = np.random.multivariate_normal(means, cov, Ns)
+        sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
+        sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
 
         start_time = timer()
         for i in range(Ns):
             if verbose:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
-                sample_parameters[i] = np.random.multivariate_normal(means,cov)
+                sample_parameters[i] = np.random.multivariate_normal(means_params,cov_params)
+            while (sample_inits[i] < 0).any():
+                sample_inits[i] = np.random.multivariate_normal(means_init, cov_init)
             parameters = { 'fsa':self.fsa,
                         'alpha':sample_parameters[i,0],
                         'beta':sample_parameters[i,1],
@@ -656,12 +667,12 @@ cdef class SEAIRQ_latent():
                         'tA':self.tA,
                         'tIa':self.tIa,
                         'tIs':self.tIs}
-            S0 =  sample_parameters[i,6: 6+M] * self.Ni
-            E0 =  sample_parameters[i,6 + M: 6+2*M]* self.Ni
-            A0 =  sample_parameters[i,6 + 2*M: 6+3*M]* self.Ni
-            Ia0 =  sample_parameters[i,6 + 3*M: 6+4*M]* self.Ni
-            Is0 =  sample_parameters[i,6 + 4*M: 6+5*M]* self.Ni
-            Q0 =  sample_parameters[i,6 + 5*M: 6+6*M]* self.Ni
+            S0 =  (sample_inits[i,: M] * self.Ni).astype('int')
+            E0 =  (sample_inits[i,M: 2*M]* self.Ni).astype('int')
+            A0 =  (sample_inits[i,2*M: 3*M]* self.Ni).astype('int')
+            Ia0 =  (sample_inits[i,3*M: 4*M]* self.Ni).astype('int')
+            Is0 =  (sample_inits[i,4*M: 5*M]* self.Ni).astype('int')
+            Q0 =  (sample_inits[i,5*M: 6*M]* self.Ni).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
@@ -693,8 +704,10 @@ cdef class SEAIRQ_latent():
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
                 'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs,
-                'cov':self.cov,
-                'sample_parameters':sample_parameters}
+                'cov_params':self.cov_params,
+                'cov_init':self.cov_init,
+                'sample_parameters':sample_parameters,
+                'sample_inits':sample_inits}
         return out_dict
 
 
@@ -895,7 +908,9 @@ cdef class SEAI5R_latent():
         readonly int N, M,
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly int k_tot
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, sa, hh, cc, mm, means, cov
+        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, sa, hh, cc, mm
+        readonly np.ndarray means_params, means_init, cov_params, cov_init
+
 
     def __init__(self, parameters, M, Ni):
         # these are the parameters we consider stochastic
@@ -951,24 +966,22 @@ cdef class SEAI5R_latent():
             print('mm can be a number or an array of size M')
 
         self.k_tot = 9 # total number of explicit states per age group
-
-        # vector of means & covariance matrix for Gaussian distribution
-        self.means = np.zeros(6 + self.k_tot*M,dtype=DTYPE)
-        self.means[:6] = np.array([self.alpha,
-                                self.beta,
-                                self.gIa,self.gIs,
-                                self.gE,self.gA],
-                                #self.gIh,self.gIc],
-                                dtype=DTYPE)
-        self.means[6 : 6+M] = np.array(parameters.get('S0'),dtype=DTYPE)
-        self.means[6 +M : 6+2*M] = np.array(parameters.get('E0'),dtype=DTYPE)
-        self.means[6 +2*M : 6+3*M] = np.array(parameters.get('A0'),dtype=DTYPE)
-        self.means[6 +3*M : 6+4*M] = np.array(parameters.get('Ia0'),dtype=DTYPE)
-        self.means[6 +4*M : 6+5*M] = np.array(parameters.get('Is0'),dtype=DTYPE)
-        self.means[6 +5*M : 6+6*M] = np.array(parameters.get('Ih0'),dtype=DTYPE)
-        self.means[6 +6*M : 6+7*M] = np.array(parameters.get('Ic0'),dtype=DTYPE)
-        self.means[6 +7*M : 6+8*M] = np.array(parameters.get('Im0'),dtype=DTYPE)
-        self.cov = parameters.get('cov') # 16x16 matrix
+        #
+        self.cov_params = parameters.get('cov_params')
+        self.cov_init = parameters.get('cov_init')
+        #
+        self.k_random = 6
+        self.means_params = np.array([self.alpha,self.beta,
+                          self.gIa,self.gIs,self.gE,self.gA],dtype=DTYPE)
+        self.means_init = np.zeros(self.k_tot*M,dtype=DTYPE)
+        self.means_init[: M] = np.array(parameters.get('S0'),dtype=DTYPE)
+        self.means_init[1*M:2*M] = np.array(parameters.get('E0'),dtype=DTYPE)
+        self.means_init[2*M:3*M] = np.array(parameters.get('A0'),dtype=DTYPE)
+        self.means_init[3*M:4*M] = np.array(parameters.get('Ia0'),dtype=DTYPE)
+        self.means_init[4*M:5*M] = np.array(parameters.get('Is0'),dtype=DTYPE)
+        self.means_init[5*M : 6*M] = np.array(parameters.get('Ih0'),dtype=DTYPE)
+        self.means_init[6*M : 7*M] = np.array(parameters.get('Ic0'),dtype=DTYPE)
+        self.means_init[7*M : 8*M] = np.array(parameters.get('Im0'),dtype=DTYPE)
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -987,22 +1000,25 @@ cdef class SEAI5R_latent():
 
         cdef:
             int M=self.M, k_tot = self.k_tot
-            double [:] means  = self.means
-            double [:,:] cov  = self.cov
+            double [:] means_params=self.means_params, means_init=self.means_init
+            double [:,:] cov_params=self.cov_params, cov_init=self.cov_init
             double start_time, end_time
             np.ndarray trajectories = np.zeros( [Ns,k_tot*M,Nf] , dtype=DTYPE)
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
-            np.ndarray sample_parameters
+            np.ndarray sample_parameters, sample_inits
 
-        sample_parameters = np.random.multivariate_normal(means, cov, Ns)
+        sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
+        sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
 
         start_time = timer()
         for i in range(Ns):
             if verbose:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
-                sample_parameters[i] = np.random.multivariate_normal(means,cov)
+                sample_parameters[i] = np.random.multivariate_normal(means_params,cov_params)
+            while (sample_inits[i] < 0).any():
+                sample_inits[i] = np.random.multivariate_normal(means_init, cov_init)
             parameters = {'alpha':sample_parameters[i,0],
                         'beta':sample_parameters[i,1],
                         'gIa':sample_parameters[i,2],
@@ -1015,14 +1031,14 @@ cdef class SEAI5R_latent():
                         'mm':self.mm,'cc':self.cc
                           }
             #
-            S0 = sample_parameters[i, 6 : 6+M] * self.Ni
-            E0 = sample_parameters[i, 6 +M: 6+2*M]* self.Ni
-            A0 = sample_parameters[i, 6 +2*M: 6+3*M]* self.Ni
-            Ia0 = sample_parameters[i, 6 +3*M: 6+4*M]* self.Ni
-            Is0 = sample_parameters[i, 6 +4*M: 6+5*M]* self.Ni
-            Ih0 = sample_parameters[i, 6 +5*M: 6+6*M]* self.Ni
-            Ic0 = sample_parameters[i, 6 +6*M: 6+7*M]* self.Ni
-            Im0 = sample_parameters[i, 6 +7*M: 6+8*M]* self.Ni
+            S0 = ( sample_inits[i, : M] * self.Ni).astype('int')
+            E0 = (sample_inits[i, M: 2*M]* self.Ni).astype('int')
+            A0 = (sample_inits[i, 2*M: 3*M]* self.Ni).astype('int')
+            Ia0 = (sample_inits[i, 3*M: 4*M]* self.Ni).astype('int')
+            Is0 = (sample_inits[i, 4*M: 5*M]* self.Ni).astype('int')
+            Ih0 = (sample_inits[i, 5*M: 6*M]* self.Ni).astype('int')
+            Ic0 = (sample_inits[i, 6*M: 7*M]* self.Ni).astype('int')
+            Im0 = (sample_inits[i, 7*M: 8*M]* self.Ni).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
@@ -1057,7 +1073,9 @@ cdef class SEAI5R_latent():
                       'gE':self.gE,'gA':self.gA,
                       'sa':self.sa,'hh':self.hh,
                       'mm':self.mm,'cc':self.cc,
-                      'cov':self.cov,
-                      'sample_parameters':sample_parameters
+                      'cov_params':self.cov_params,
+                      'cov_init':self.cov_init,
+                      'sample_parameters':sample_parameters,
+                      'sample_inits':sample_inits
                       }
         return out_dict
