@@ -136,7 +136,6 @@ cdef class SIR_type:
             contactMatrix = generator.interventions_temporal(times, interventions)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
             return minus_logp
-
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
         if verbose:
@@ -149,16 +148,18 @@ cdef class SIR_type:
                             take_step=take_step, disp=verbose)
         return res.x, res.nit
 
-    def hessian(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
+    def hessian(self, maps, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
+        maps[1] *= beta_rescale
         cdef:
             Py_ssize_t k=maps.shape[0], i, j
             double xx0
             np.ndarray g1, g2, hess = np.empty((k, k))
-
         def minuslogP(y):
+            y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
-            return self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-
+            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+            y[1] *= beta_rescale
+            return minuslogp
         g1 = approx_fprime(maps, minuslogP, eps)
         for j in range(k):
             xx0 = maps[j]
@@ -166,6 +167,8 @@ cdef class SIR_type:
             g2 = approx_fprime(maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
             maps[j] = xx0
+        hess[1, :] *= beta_rescale
+        hess[:, 1] *= beta_rescale
         return hess
 
     def error_bars(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
@@ -241,21 +244,20 @@ cdef class SIR_type:
         bounds[1, :] *= beta_rescale
 
         def to_minimize(params):
-            if np.min(params)<0:
-                return np.inf
-            else:
-                x0 =  params[param_dim:]/rescale_factor
-                params[1] /= beta_rescale
-                parameters = self.make_params_dict(params[:param_dim])
-                self.set_params(parameters)
-                model = self.make_det_model(parameters)
-                minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-                params[1] *= beta_rescale
-                return minus_logp
-        def callback(params):
-            print('parameters:', params[:-self.dim])
+            x0 =  params[param_dim:]/rescale_factor
+            params[1] /= beta_rescale
+            parameters = self.make_params_dict(params[:param_dim])
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            params[1] *= beta_rescale
+            return minus_logp
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'callback': callback, 'bounds': bounds, 'options': options}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params[:-self.dim])
+            minimizer_kwargs['callback'] = callback
         take_step = BoundedSteps(bounds)
         res = basinhopping(to_minimize, guess, niter=niter,
                             minimizer_kwargs=minimizer_kwargs,
@@ -264,6 +266,31 @@ cdef class SIR_type:
         params[param_dim:] /= rescale_factor
         params[1] /= beta_rescale
         return params
+
+    def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
+                            verbose=False, Py_ssize_t niter=1,
+                            double ftol=1e-5, double eps=1e-4):
+        def to_minimize(params):
+            parameters = self.make_params_dict()
+            model = self.make_det_model(parameters)
+            times = [Tf+1]
+            interventions = [params]
+            contactMatrix = generator.interventions_temporal(times, interventions)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            return minus_logp
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params[:-self.dim])
+            minimizer_kwargs['callback'] = callback
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
+        return res.x
+
 
     def hessian_latent_full(self, maps, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
