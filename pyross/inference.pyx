@@ -166,7 +166,7 @@ cdef class SIR_type:
             g2 = approx_fprime(maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
             maps[j] = xx0
-        maps[1] /= beta_rescale 
+        maps[1] /= beta_rescale
         hess[1, :] *= beta_rescale
         hess[:, 1] *= beta_rescale
         return hess
@@ -335,6 +335,8 @@ cdef class SIR_type:
             g2 = approx_fprime(maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
             maps[j] = temp
+        maps[1] /= beta_rescale
+        maps[params_dim:] /= rescale_factor
         hess[params_dim:, :] *= rescale_factor
         hess[:, params_dim:] *= rescale_factor
         hess[1, :] *= beta_rescale
