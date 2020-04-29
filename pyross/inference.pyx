@@ -930,6 +930,36 @@ cdef class SEAIRQ(SIR_type):
                             take_step=take_step, disp=verbose)
         return res.x, res.nit
 
+    def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
+                            verbose=False, Py_ssize_t niter=1,
+                            double ftol=1e-5, double eps=1e-4):
+        def to_minimize(params):
+            cm_control = params[:3]
+            tau_control = params[3:]
+            parameters = self.make_params_dict()
+            parameters['tE'] = tau_control[0]
+            parameters['tA'] = tau_control[1]
+            parameters['tIa'] = tau_control[2]
+            parameters['tIs'] = tau_control[3]
+            model = self.make_det_model(parameters)
+            times = [Tf+1]
+            interventions = [cm_control]
+            contactMatrix = generator.interventions_temporal(times, interventions)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            return minus_logp
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params)
+            minimizer_kwargs['callback'] = callback
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
+        return res.x
+
     def set_params(self, parameters):
         super().set_params(parameters)
         self.gE    = parameters.get('gE')                       # recovery rate of E class
