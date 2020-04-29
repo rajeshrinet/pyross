@@ -119,7 +119,7 @@ cdef class SIR_latent:
     cdef:
         readonly int N, M, k_random
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, means, cov
+        readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, means_params, means_init, cov_params, cov_init
 
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
@@ -128,17 +128,16 @@ cdef class SIR_latent:
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
-        self.cov = parameters.get('cov')
+        self.cov_params = parameters.get('cov_params')
+        self.cov_init = parameters.get('cov_init')
         #
         self.k_random = 4
-        self.means = np.zeros(self.k_random + 3*M,dtype=DTYPE)
-        self.means[:self.k_random] = np.array([self.alpha,self.beta,self.gIa,self.gIs],dtype=DTYPE)
-        self.means[self.k_random      :self.k_random +   M] = np.array(parameters.get('S0'),dtype=DTYPE)
-        self.means[self.k_random + 1*M:self.k_random + 2*M] = np.array(parameters.get('Ia0'),dtype=DTYPE)
-        self.means[self.k_random + 2*M:self.k_random + 3*M] = np.array(parameters.get('Is0'),dtype=DTYPE)
+        self.means_params = np.array([self.alpha,self.beta,self.gIa,self.gIs],dtype=DTYPE)
+        self.means_init = np.zeros(3*M,dtype=DTYPE)
+        self.means_init[: M] = np.array(parameters.get('S0'),dtype=DTYPE)
+        self.means_init[1*M:2*M] = np.array(parameters.get('Ia0'),dtype=DTYPE)
+        self.means_init[2*M:3*M] = np.array(parameters.get('Is0'),dtype=DTYPE)
         #
-        self.cov = parameters.get('cov')
-
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -154,29 +153,31 @@ cdef class SIR_latent:
 
         cdef:
             int M=self.M
-            double [:] means  = self.means
-            double [:,:] cov  = self.cov
+            double [:] means_params=self.means_params, means_init=self.means_init
+            double [:,:] cov_params=self.cov_params, cov_init=self.cov_init
             double start_time, end_time
             np.ndarray trajectories = np.zeros( [Ns,3*M,Nf] , dtype=DTYPE)
             np.ndarray mean_traj = np.zeros([ 3*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ 3*M, Nf] ,dtype=DTYPE)
-            np.ndarray sample_parameters
+            np.ndarray sample_parameters, sample_inits
 
-        sample_parameters = np.random.multivariate_normal(means, cov, Ns)
+        sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
+        sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
 
         start_time = timer()
         for i in range(Ns):
             if verbose:
                 print('Running simulation {0} of {1}'.format(i+1,Ns),end='\r')
             while (sample_parameters[i] < 0).any():
-                sample_parameters[i] = np.random.multivariate_normal(means,cov)
+                sample_parameters[i] = np.random.multivariate_normal(means_params,cov_params)
+                sample_inits[i] = np.random.multivariate_normal(means_init, cov_init)
             parameters = {'fsa':self.fsa,
                         'alpha':sample_parameters[i,0],
                         'beta':sample_parameters[i,1],
                         'gIa':sample_parameters[i,2],'gIs':sample_parameters[i,3]}
-            S0  = sample_parameters[i,self.k_random      :self.k_random +   M] * self.Ni
-            Ia0 = sample_parameters[i,self.k_random + M   :self.k_random +   2*M] * self.Ni
-            Is0 = sample_parameters[i,self.k_random + 2*M   :self.k_random +   3*M] * self.Ni
+            S0  = (sample_inits[i,    :M] * self.N).astype('int')
+            Ia0 = (sample_inits[i, M  :2*M] * self.N).astype('int')
+            Is0 = (sample_inits[i, 2*M:3*M] * self.N).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SIR(parameters, M, self.Ni)
@@ -206,8 +207,10 @@ cdef class SIR_latent:
                      'N':self.N, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs,
-                     'cov':self.cov,
-                     'sample_parameters':sample_parameters
+                     'cov_params':self.cov_params,
+                     'cov_init':self.cov_init,
+                     'sample_parameters':sample_parameters,
+                     'sample_inits':sample_inits
                       } #
         return out_dict
 
