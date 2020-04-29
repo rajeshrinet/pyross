@@ -282,7 +282,7 @@ cdef class SIR_type:
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
         if verbose:
             def callback(params):
-                print('parameters:', params[:-self.dim])
+                print('parameters:', params)
             minimizer_kwargs['callback'] = callback
         take_step = BoundedSteps(bounds)
         res = basinhopping(to_minimize, guess, niter=niter,
