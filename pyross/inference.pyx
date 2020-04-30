@@ -55,7 +55,9 @@ cdef class SIR_type:
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
 
-    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, 
+                  ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                  enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
         guess: numpy.array
             initial guess for the parameter values
@@ -77,17 +79,18 @@ cdef class SIR_type:
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
-        def to_minimize(params):
+        def to_minimize(params, grad=0):
             if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
                 return INFINITY
-            params[1] /= beta_rescale
-            parameters = self.make_params_dict(params)
+            local_params = params.copy()
+            local_params[1] /= beta_rescale
+            parameters = self.make_params_dict(local_params)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
-            params[1] *=beta_rescale
+            minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
             return minus_logp
+
         # make bounds if it does not exist and rescale
         if bounds is None:
             bounds = np.array([[eps, g*5] for g in guess])
@@ -97,19 +100,24 @@ cdef class SIR_type:
         guess[1] *= beta_rescale
         bounds[1] *= beta_rescale
 
-        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-        if verbose:
-            def callback(params):
-                print('parameters:', params)
-            minimizer_kwargs['callback']= callback
-        take_step = BoundedSteps(bounds)
-        res = basinhopping(to_minimize, guess, niter=niter,
-                            minimizer_kwargs=minimizer_kwargs,
-                            take_step=take_step, disp=verbose)
-        estimates = res.x
+#        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+#        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+#        if verbose:
+#            def callback(params):
+#                print('parameters:', params)
+#            minimizer_kwargs['callback']= callback
+#        take_step = BoundedSteps(bounds)
+#        res = basinhopping(to_minimize, guess, niter=niter,
+#                            minimizer_kwargs=minimizer_kwargs,
+#                            take_step=take_step, disp=verbose)
+        
+        res = minimisation(to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter, local_max_iter=local_max_iter,
+                           global_ftol_factor=global_ftol_factor, enable_global=enable_global, enable_local=enable_local,
+                           cma_processes=cma_processes, cma_population=cma_population, cma_stds=cma_stds,
+                           verbose=verbose)
+        estimates = res[0]
         estimates[1] /= beta_rescale
-        return estimates, res.nit
+        return estimates
 
     def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
         '''
