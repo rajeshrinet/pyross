@@ -147,6 +147,9 @@ cdef class SIR:
             return C
         return C_func
 
+    def constant_CM(self, t):
+        return self.CH + self.CW + self.CS + self.CO
+
     def interventions_temporal(self,times,interventions):
         cdef:
             np.ndarray t_arr = np.array(times)
@@ -197,6 +200,3 @@ cdef class SIR:
                       + prefac_arr[index,1]*CS \
                       + prefac_arr[index,2]*CO
         return C_func
-
-
-
