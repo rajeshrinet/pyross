@@ -76,6 +76,8 @@ cdef class SIR_type:
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         def to_minimize(params):
+            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+                return INFINITY
             params[1] /= beta_rescale
             parameters = self.make_params_dict(params)
             self.set_params(parameters)
@@ -128,6 +130,8 @@ cdef class SIR_type:
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         def to_minimize(params):
+            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+                return INFINITY
             parameters = self.make_params_dict()
             model =self.make_det_model(parameters)
             times = [Tf+1]
@@ -166,6 +170,7 @@ cdef class SIR_type:
             g2 = approx_fprime(maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
             maps[j] = xx0
+        maps[1] /= beta_rescale
         hess[1, :] *= beta_rescale
         hess[:, 1] *= beta_rescale
         return hess
@@ -243,6 +248,8 @@ cdef class SIR_type:
         bounds[1, :] *= beta_rescale
 
         def to_minimize(params):
+            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+                return INFINITY
             x0 =  params[param_dim:]/rescale_factor
             params[1] /= beta_rescale
             parameters = self.make_params_dict(params[:param_dim])
@@ -271,6 +278,8 @@ cdef class SIR_type:
                             verbose=False, Py_ssize_t niter=1,
                             double ftol=1e-5, double eps=1e-4):
         def to_minimize(params):
+            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+                return INFINITY
             parameters = self.make_params_dict()
             model = self.make_det_model(parameters)
             times = [Tf+1]
@@ -291,10 +300,10 @@ cdef class SIR_type:
         return res.x
 
 
-    def hessian_latent_full(self, maps, obs, fltr, Tf, Nf, contactMatrix,
+    def hessian_latent(self, maps, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
         '''
-        compute the Hessian over the params
+        compute the Hessian over the params and initial conditions
         maps: numpy.array
             maximum a posteriori
         obs: numpy.array
@@ -311,34 +320,60 @@ cdef class SIR_type:
         eps: float, optional
             step size in the calculation of the Hessian
         '''
-        cdef:
-            Py_ssize_t i, j, dim=maps.shape[0], params_dim=dim-self.dim
-            double [:] x0
-            double temp
-            double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
-            double rescale_factor = eps_for_params/eps_for_init_cond
-            np.ndarray g1, g2, hess = np.empty((dim, dim))
-        maps[1] *= beta_rescale
-        maps[params_dim:] *= rescale_factor
+        dim = maps.shape[0]
+        param_dim = dim - self.dim
+        map_params = maps[:param_dim]
+        map_x0 = maps[param_dim:]
+        hess_params = self.latent_hess_params(map_params, map_x0, obs, fltr, Tf, Nf, contactMatrix,
+                                                beta_rescale=beta_rescale, eps=eps)
+        hess_init = self.latent_hess_init(map_x0, map_params, obs, fltr, Tf, Nf, contactMatrix,
+                                                eps=0.5/self.N)
+        return hess_params, hess_init
+
+    def latent_hess_params(self, map_params, x0, obs, fltr, Tf, Nf, contactMatrix,
+                                    beta_rescale=1, eps=1e-3):
+        cdef Py_ssize_t j
+        dim = map_params.shape[0]
+        hess = np.empty((dim, dim))
+        map_params[1] *= beta_rescale
         def minuslogP(y):
             y[1] /= beta_rescale
-            x0 = y[params_dim:]/rescale_factor
-            parameters = self.make_params_dict(y[:params_dim])
+            parameters = self.make_params_dict(y)
             minuslogp = self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
             y[1] *= beta_rescale
             return minuslogp
-        g1 = approx_fprime(maps, minuslogP, eps)
+        g1 = approx_fprime(map_params, minuslogP, eps)
         for j in range(dim):
-            temp = maps[j]
-            maps[j] += eps
-            g2 = approx_fprime(maps, minuslogP, eps)
+            temp = map_params[j]
+            map_params[j] += eps
+            g2 = approx_fprime(map_params, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
-            maps[j] = temp
-        hess[params_dim:, :] *= rescale_factor
-        hess[:, params_dim:] *= rescale_factor
+            map_params[j] = temp
+        map_params[1] /= beta_rescale
         hess[1, :] *= beta_rescale
         hess[:, 1] *= beta_rescale
         return hess
+
+    def latent_hess_init(self, map_x0, params, obs, fltr, Tf, Nf, contactMatrix,
+                                    eps=1e-6):
+        cdef Py_ssize_t j
+        dim = map_x0.shape[0]
+        hess = np.empty((dim, dim))
+        parameters = self.make_params_dict(params)
+        model = self.make_det_model(parameters)
+        def minuslogP(y):
+            minuslogp = self.obtain_log_p_for_traj_red(y, obs, fltr, Tf, Nf, model, contactMatrix)
+            return minuslogp
+        g1 = approx_fprime(map_x0, minuslogP, eps)
+        for j in range(dim):
+            temp = map_x0[j]
+            map_x0[j] += eps
+            g2 = approx_fprime(map_x0, minuslogP, eps)
+            hess[:,j] = (g2 - g1)/eps
+            map_x0[j] = temp
+        return hess
+
+
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix):
@@ -382,10 +417,10 @@ cdef class SIR_type:
     cdef double obtain_log_p_for_traj_red(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
                                             double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
-            Py_ssize_t reduced_dim=(Nf-1)*np.sum(fltr)
+            Py_ssize_t reduced_dim=(Nf-1)*int(np.sum(fltr))
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
-            np.ndarray[BOOL_t, ndim=1] full_fltr
+            np.ndarray[BOOL_t, ndim=1, cast=True] full_fltr
         xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = np.tile(fltr, (Nf-1))
         cov_red = full_cov[full_fltr][:, full_fltr]
@@ -929,6 +964,36 @@ cdef class SEAIRQ(SIR_type):
                             minimizer_kwargs=minimizer_kwargs,
                             take_step=take_step, disp=verbose)
         return res.x, res.nit
+
+    def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
+                            verbose=False, Py_ssize_t niter=1,
+                            double ftol=1e-5, double eps=1e-4):
+        def to_minimize(params):
+            cm_control = params[:3]
+            tau_control = params[3:]
+            parameters = self.make_params_dict()
+            parameters['tE'] = tau_control[0]
+            parameters['tA'] = tau_control[1]
+            parameters['tIa'] = tau_control[2]
+            parameters['tIs'] = tau_control[3]
+            model = self.make_det_model(parameters)
+            times = [Tf+1]
+            interventions = [cm_control]
+            contactMatrix = generator.interventions_temporal(times, interventions)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            return minus_logp
+        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+        if verbose:
+            def callback(params):
+                print('parameters:', params)
+            minimizer_kwargs['callback'] = callback
+        take_step = BoundedSteps(bounds)
+        res = basinhopping(to_minimize, guess, niter=niter,
+                            minimizer_kwargs=minimizer_kwargs,
+                            take_step=take_step, disp=verbose)
+        return res.x
 
     def set_params(self, parameters):
         super().set_params(parameters)
