@@ -49,6 +49,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
     """         
     x_result = guess
     y_result = 0
+
     
     # Step 1: Global optimisation
     if enable_global:
@@ -79,6 +80,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
             # otherwise, the lambda function cannot be passed to the other processes. It also needs an external Pool
             # implementation (from `pathos.multiprocessing`) since the python internal one does not support lambda fcts.
             values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
+            # values = [objective_fct(x, 0, **args_dict) for x in positions]
             global_opt.tell(positions, values)
             if verbose:
                 global_opt.disp()
