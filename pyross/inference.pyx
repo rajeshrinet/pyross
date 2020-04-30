@@ -87,7 +87,7 @@ cdef class SIR_type:
             return minus_logp
         # make bounds if it does not exist and rescale
         if bounds is None:
-            bounds = [(eps, g*5) for g in guess]
+            bounds = np.array([[eps, g*5] for g in guess])
             bounds[0][1] = min(bounds[0][1], 1-2*eps)
         assert bounds[0][1] < 1-eps # the upper bound of alpha must be less than 1-eps
         bounds = np.array(bounds)
