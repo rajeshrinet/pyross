@@ -77,7 +77,6 @@ cdef class SIR_type:
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
-        print(a, scale)
         def to_minimize(params):
             if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
                 return INFINITY
@@ -86,9 +85,7 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            print(minus_logp)
             minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
-            print(minus_logp)
             params[1] *=beta_rescale
             return minus_logp
         # make bounds if it does not exist and rescale
