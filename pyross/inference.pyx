@@ -939,17 +939,14 @@ cdef class SEAIRQ(SIR_type):
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
         def to_minimize(params):
-            cm_control = params[:3]
-            tau_control = params[3:]
+            tau_control = params
             parameters = self.make_params_dict()
             parameters['tE'] = tau_control[0]
             parameters['tA'] = tau_control[1]
             parameters['tIa'] = tau_control[2]
             parameters['tIs'] = tau_control[3]
             model =self.make_det_model(parameters)
-            times = [Tf+1]
-            interventions = [cm_control]
-            contactMatrix = generator.interventions_temporal(times, interventions)
+            contactMatrix = generator.constant_contactMatrix()
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
             return minus_logp
 
@@ -970,17 +967,14 @@ cdef class SEAIRQ(SIR_type):
                             verbose=False, Py_ssize_t niter=1,
                             double ftol=1e-5, double eps=1e-4):
         def to_minimize(params):
-            cm_control = params[:3]
-            tau_control = params[3:]
+            tau_control = params
             parameters = self.make_params_dict()
             parameters['tE'] = tau_control[0]
             parameters['tA'] = tau_control[1]
             parameters['tIa'] = tau_control[2]
             parameters['tIs'] = tau_control[3]
             model = self.make_det_model(parameters)
-            times = [Tf+1]
-            interventions = [cm_control]
-            contactMatrix = generator.interventions_temporal(times, interventions)
+            contactMatrix = generator.constant_contactMatrix()
             minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
             return minus_logp
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
