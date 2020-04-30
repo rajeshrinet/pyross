@@ -200,3 +200,10 @@ def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_it
             print('Optimal value (local minimisation): ', y_result)
     
     return x_result, y_result
+
+
+def make_gamma_dist(means, stds):
+    vars = stds**2
+    scale = vars/means
+    a = means/scale
+    return a, scale
