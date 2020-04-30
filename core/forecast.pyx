@@ -405,10 +405,10 @@ cdef class SEIR_latent:
                         'gIa':sample_parameters[i,2],
                         'gIs':sample_parameters[i,3],
                         'gE':sample_parameters[i,4]}
-            S0  = ( sample_inits[i,   :1*M] * self.Ni ).astype('int')
-            E0  = ( sample_inits[i,1*M:2*M] * self.Ni ).astype('int')
-            Ia0 = ( sample_inits[i,2*M:3*M] * self.Ni ).astype('int')
-            Is0 = ( sample_inits[i,3*M:4*M] * self.Ni ).astype('int')
+            S0  = ( sample_inits[i,   :1*M] * self.N ).astype('int')
+            E0  = ( sample_inits[i,1*M:2*M] * self.N ).astype('int')
+            Ia0 = ( sample_inits[i,2*M:3*M] * self.N ).astype('int')
+            Is0 = ( sample_inits[i,3*M:4*M] * self.N ).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEIR(parameters, M, self.Ni)
