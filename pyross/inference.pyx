@@ -60,15 +60,18 @@ cdef class SIR_type:
                                contactMatrix=None, a=None, scale=None):
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
-
-        local_params = params.copy()
-        local_params[1] /= beta_rescale
-        parameters = self.make_params_dict(local_params)
-        self.set_params(parameters)
-        model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
-        return minus_logp
+        
+        try:
+            local_params = params.copy()
+            local_params[1] /= beta_rescale
+            parameters = self.make_params_dict(local_params)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
+            return minus_logp
+        except:
+            return INFINITY
         
     def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, 
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
@@ -76,6 +79,10 @@ cdef class SIR_type:
         '''
         guess: numpy.array
             initial guess for the parameter values
+        stds: numpy.array
+            Standard deviations for the Gamma prior
+        x:
+            Observed trajectory
         Tf: float
             total time of the trajectory
         Nf: float
@@ -85,13 +92,16 @@ cdef class SIR_type:
             bounds for the parameters.
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
         niter: int
-            number of iterations of basinhopping
+            deprecated (number of iterations of basinhopping)
         verbose: bool
             whether to print messages
         ftol: double
             relative tolerance of logp
         eps: double
-            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
+            deprecated (size of steps taken by L-BFGS-B algorithm for the calculation of Hessian)
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes, 
+                    cma_population, cma_stds:
+            Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
@@ -105,7 +115,7 @@ cdef class SIR_type:
         bounds[1] *= beta_rescale
 
         if cma_stds is None:
-            # Use prior standard deviations here (todo: is this a good value?)
+            # Use prior standard deviations here (todo: how to scale this value properly?)
             cma_stds = 1.0/3.0 * stds
             
         minimize_args={'bounds':bounds, 'eps':eps, 'beta_rescale':beta_rescale, 'x':x, 'Tf':Tf, 'Nf':Nf, 
@@ -219,15 +229,17 @@ cdef class SIR_type:
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
         x0 =  params[param_dim:]/rescale_factor
-
-        local_params = params.copy()
-        local_params[1] /= beta_rescale
-        parameters = self.make_params_dict(local_params[:param_dim])
-        self.set_params(parameters)
-        model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
-        return minus_logp
+        try:
+            local_params = params.copy()
+            local_params[1] /= beta_rescale
+            parameters = self.make_params_dict(local_params[:param_dim])
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
+            return minus_logp
+        except:
+            return INFINITY
 
     def latent_inference(self, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
@@ -238,6 +250,8 @@ cdef class SIR_type:
         '''
         guess: numpy.array
             initial guess, arranged in the order of parameters and initial conditions
+        stds: numpy.array
+            Standard deviations for the Gamma prior.
         obs: numpy.array
             the observed trajectories with reduced number of variables
         fltr: boolean sequence or array
@@ -255,11 +269,14 @@ cdef class SIR_type:
         verbose: bool, optional
             set True to see intermediate outputs from the optimizer
         niter: int, optional
-            number of basinhopping performed by the optimizer
+            deprecated (number of basinhopping performed by the optimizer)
         ftol: float, optional
             relative tolerance
         eps: float, optional
-            step size used by L-BFGS-B in calculation of Hessian
+            deprecated (step size used by L-BFGS-B in calculation of Hessian)
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes, 
+                    cma_population, cma_stds:
+            Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
         cdef:
             double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
