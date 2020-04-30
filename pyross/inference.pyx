@@ -182,31 +182,23 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def error_bars(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
-        hessian = self.hessian(maps,x,Tf,Nf,contactMatrix,eps)
+    def error_bars(self, maps, prior_mean, prior_stds,
+                        x, Tf, Nf, contactMatrix, eps=1.e-3):
+        hessian = self.hessian(maps, prior_mean, prior_stds,
+                                x,Tf,Nf,contactMatrix,eps)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
-    def log_G_evidence(self, maps, x, Tf, Nf, contactMatrix, eps=1.e-3):
+    def log_G_evidence(self, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
         # M variate process, M=3 for SIIR model
         cdef double logP_MAPs
         cdef Py_ssize_t k
+        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         parameters = self.make_params_dict(maps)
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+        logP_MAPs += np.sum(gamma.logpdf(maps, a, scale=scale))
         k = maps.shape[0]
-        A = self.hessian(maps,x,Tf,Nf,contactMatrix,eps)
+        A = self.hessian(maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
-
-    def log_NS_evidence(self, x, Tf, Nf, contactMatrix, UB=1., LB=0.001, P=4): # this is very slow
-        import nestle
-        # For now universal upper and lower parameter bounds UB, LB. Easy to generalize
-        # P is dimension of parameter space, P=4 for SIIR
-        def logP(y):
-            parameters = self.make_params_dict(y)
-            return -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-        def prior_transform(x):
-            return (UB - LB)*x + LB  #Flat prior between LB and UB
-        res = nestle.sample(logP, prior_transform, P)
-        return res.logz
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix):
         cdef double minus_log_p
@@ -215,11 +207,11 @@ cdef class SIR_type:
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         return minus_logp
 
-    def latent_inference(self, np.ndarray guess, np.ndarray obs, np.ndarray fltr,
+    def latent_inference(self, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
                             beta_rescale=1, verbose=False, Py_ssize_t niter=1,
-                            double ftol=1e-5, double eps=1e-4, global_max_iter=100, local_max_iter=100, 
-                            global_ftol_factor=10., enable_global=True, enable_local=True, cma_processes=0, 
+                            double ftol=1e-5, double eps=1e-4, global_max_iter=100, local_max_iter=100,
+                            global_ftol_factor=10., enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         '''
         guess: numpy.array
@@ -255,7 +247,7 @@ cdef class SIR_type:
         guess[1] *= beta_rescale
         bounds[param_dim:, :] *= rescale_factor
         bounds[1, :] *= beta_rescale
-
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
         def to_minimize(params, grad = 0):
             if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
                 return INFINITY
@@ -267,8 +259,9 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            minus_logp -= np.sum(gamma.logpdf(y, a, scale=scale))
             return minus_logp
-            
+
 #        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
 #        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
 #        if verbose:
@@ -281,8 +274,8 @@ cdef class SIR_type:
 #                            take_step=take_step, disp=verbose)
 
         res = minimisation(to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter, local_max_iter=local_max_iter,
-                           global_ftol_factor=global_ftol_factor, enable_global=enable_global, enable_local=enable_local, 
-                           cma_processes=cma_processes, cma_population=cma_population, cma_stds=cma_stds, 
+                           global_ftol_factor=global_ftol_factor, enable_global=enable_global, enable_local=enable_local,
+                           cma_processes=cma_processes, cma_population=cma_population, cma_stds=cma_stds,
                            verbose=verbose)
 
         params = res[0]
@@ -290,10 +283,11 @@ cdef class SIR_type:
         params[1] /= beta_rescale
         return params
 
-    def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
                             verbose=False, Py_ssize_t niter=1,
                             double ftol=1e-5, double eps=1e-4):
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
         def to_minimize(params):
             if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
                 return INFINITY
@@ -303,6 +297,7 @@ cdef class SIR_type:
             interventions = [params]
             contactMatrix = generator.interventions_temporal(times, interventions)
             minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
             return minus_logp
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
