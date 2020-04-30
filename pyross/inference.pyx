@@ -259,7 +259,7 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(y, a, scale=scale))
+            minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
             return minus_logp
 
 #        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
