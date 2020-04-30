@@ -60,7 +60,7 @@ cdef class SIR_type:
                                contactMatrix=None, a=None, scale=None):
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
-        
+
         try:
             local_params = params.copy()
             local_params[1] /= beta_rescale
@@ -72,8 +72,9 @@ cdef class SIR_type:
             return minus_logp
         except:
             return INFINITY
-        
-    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, 
+
+
+    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False,
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
@@ -99,7 +100,7 @@ cdef class SIR_type:
             relative tolerance of logp
         eps: double
             deprecated (size of steps taken by L-BFGS-B algorithm for the calculation of Hessian)
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes, 
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
@@ -117,12 +118,12 @@ cdef class SIR_type:
         if cma_stds is None:
             # Use prior standard deviations here (todo: how to scale this value properly?)
             cma_stds = 1.0/3.0 * stds
-            
-        minimize_args={'bounds':bounds, 'eps':eps, 'beta_rescale':beta_rescale, 'x':x, 'Tf':Tf, 'Nf':Nf, 
+
+        minimize_args={'bounds':bounds, 'eps':eps, 'beta_rescale':beta_rescale, 'x':x, 'Tf':Tf, 'Nf':Nf,
                          'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
-        res = minimization(self._inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter, 
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor, 
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes, 
+        res = minimization(self._inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
         estimates = res[0]
         estimates[1] /= beta_rescale
@@ -224,7 +225,7 @@ cdef class SIR_type:
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         return minus_logp
 
-    def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None, 
+    def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None,
                 beta_rescale=None, obs=None, fltr=None, Tf=None,   Nf=None, contactMatrix=None, a=None, scale=None):
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
@@ -274,7 +275,7 @@ cdef class SIR_type:
             relative tolerance
         eps: float, optional
             deprecated (step size used by L-BFGS-B in calculation of Hessian)
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes, 
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
@@ -291,12 +292,12 @@ cdef class SIR_type:
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = 1.0/3.0 * stds
-            
-        minimize_args = {'bounds':bounds, 'eps':eps, 'param_dim':param_dim, 'rescale_factor':rescale_factor, 'beta_rescale':beta_rescale, 
+
+        minimize_args = {'bounds':bounds, 'eps':eps, 'param_dim':param_dim, 'rescale_factor':rescale_factor, 'beta_rescale':beta_rescale,
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
-        res = minimization(self._latent_inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter, 
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor, 
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes, 
+        res = minimization(self._latent_inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
         params = res[0]
@@ -333,7 +334,7 @@ cdef class SIR_type:
         return res.x
 
 
-    def hessian_latent(self, maps, obs, fltr, Tf, Nf, contactMatrix,
+    def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
         '''
         compute the Hessian over the params and initial conditions
@@ -353,17 +354,25 @@ cdef class SIR_type:
         eps: float, optional
             step size in the calculation of the Hessian
         '''
+        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
         map_params = maps[:param_dim]
         map_x0 = maps[param_dim:]
-        hess_params = self.latent_hess_params(map_params, map_x0, obs, fltr, Tf, Nf, contactMatrix,
+        a_params = a[:param_dim]
+        a_x0 = a[param_dim:]
+        scale_params = scale[:param_dim]
+        scale_x0 = scale[param_dim:]
+        hess_params = self.latent_hess_params(map_params, map_x0, a_params, scale_params,
+                                                obs, fltr, Tf, Nf, contactMatrix,
                                                 beta_rescale=beta_rescale, eps=eps)
-        hess_init = self.latent_hess_init(map_x0, map_params, obs, fltr, Tf, Nf, contactMatrix,
+        hess_init = self.latent_hess_init(map_x0, map_params, a_x0, scale_x0,
+                                                obs, fltr, Tf, Nf, contactMatrix,
                                                 eps=0.5/self.N)
         return hess_params, hess_init
 
-    def latent_hess_params(self, map_params, x0, obs, fltr, Tf, Nf, contactMatrix,
+    def latent_hess_params(self, map_params, x0, a_params, scale_params,
+                                    obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1e-3):
         cdef Py_ssize_t j
         dim = map_params.shape[0]
@@ -373,6 +382,7 @@ cdef class SIR_type:
             y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
             minuslogp = self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
+            minuslogp -= np.sum(gamma.logpdf(y, a_params, scale=scale_params))
             y[1] *= beta_rescale
             return minuslogp
         g1 = approx_fprime(map_params, minuslogP, eps)
@@ -387,7 +397,8 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def latent_hess_init(self, map_x0, params, obs, fltr, Tf, Nf, contactMatrix,
+    def latent_hess_init(self, map_x0, params, a_x0, scale_x0,
+                            obs, fltr, Tf, Nf, contactMatrix,
                                     eps=1e-6):
         cdef Py_ssize_t j
         dim = map_x0.shape[0]
@@ -396,6 +407,7 @@ cdef class SIR_type:
         model = self.make_det_model(parameters)
         def minuslogP(y):
             minuslogp = self.obtain_log_p_for_traj_red(y, obs, fltr, Tf, Nf, model, contactMatrix)
+            minuslogp -= np.sum(gamma.logpdf(y, a_x0, scale=scale_x0))
             return minuslogp
         g1 = approx_fprime(map_x0, minuslogP, eps)
         for j in range(dim):
