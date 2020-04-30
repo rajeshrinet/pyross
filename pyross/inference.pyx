@@ -129,7 +129,25 @@ cdef class SIR_type:
         estimates[1] /= beta_rescale
         return estimates
 
-    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
+                                   a=None, scale=None):
+        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+            return INFINITY
+        try:
+            parameters = self.make_params_dict()
+            model =self.make_det_model(parameters)
+            times = [Tf+1]
+            interventions = [params]
+            contactMatrix = generator.interventions_temporal(times, interventions)
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+            return minus_logp
+        except:
+            return INFINITY
+        
+    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5, 
+                      global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True, 
+                      enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
         guess: numpy.array
             initial guess for the control parameter values
@@ -142,37 +160,26 @@ cdef class SIR_type:
             bounds for the parameters.
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
         niter: int
-            number of iterations of basinhopping
+            deprecated (number of iterations of basinhopping)
         verbose: bool
             whether to print messages
         ftol: double
             relative tolerance of logp
         eps: double
-            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
+            deprecated (size of steps taken by L-BFGS-B algorithm for the calculation of Hessian)
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
+                    cma_population, cma_stds:
+            Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
-        def to_minimize(params):
-            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-                return INFINITY
-            parameters = self.make_params_dict()
-            model =self.make_det_model(parameters)
-            times = [Tf+1]
-            interventions = [params]
-            contactMatrix = generator.interventions_temporal(times, interventions)
-            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
-            return minus_logp
-        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-        if verbose:
-            def callback(params):
-                print('parameters:', params)
-            minimizer_kwargs['callback'] = callback
-        take_step = BoundedSteps(bounds)
-        res = basinhopping(to_minimize, guess, niter=niter,
-                            minimizer_kwargs=minimizer_kwargs,
-                            take_step=take_step, disp=verbose)
-        return res.x, res.nit
+
+        minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 'a':a, 'scale':scale}
+        res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+
+        return res[0]
 
     def hessian(self, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
         maps[1] *= beta_rescale
@@ -226,7 +233,7 @@ cdef class SIR_type:
         return minus_logp
 
     def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None,
-                beta_rescale=None, obs=None, fltr=None, Tf=None,   Nf=None, contactMatrix=None, a=None, scale=None):
+                beta_rescale=None, obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, a=None, scale=None):
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
         x0 =  params[param_dim:]/rescale_factor
@@ -305,14 +312,12 @@ cdef class SIR_type:
         params[1] /= beta_rescale
         return params
 
-    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
-                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
-                            verbose=False, Py_ssize_t niter=1,
-                            double ftol=1e-5, double eps=1e-4):
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
-        def to_minimize(params):
-            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-                return INFINITY
+    def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None, 
+                                          obs=None, fltr=None, Tf=None, Nf=None, a=None, scale=None):
+        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+            return INFINITY
+            
+        try:
             parameters = self.make_params_dict()
             model = self.make_det_model(parameters)
             times = [Tf+1]
@@ -321,17 +326,46 @@ cdef class SIR_type:
             minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
             minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
             return minus_logp
-        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-        if verbose:
-            def callback(params):
-                print('parameters:', params)
-            minimizer_kwargs['callback'] = callback
-        take_step = BoundedSteps(bounds)
-        res = basinhopping(to_minimize, guess, niter=niter,
-                            minimizer_kwargs=minimizer_kwargs,
-                            take_step=take_step, disp=verbose)
-        return res.x
+        except:
+            return INFINITY
+    
+    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
+                            verbose=False, Py_ssize_t niter=1, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
+                            local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True, 
+                            cma_processes=0, cma_population=16, cma_stds=None):
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+#        def to_minimize(params):
+#            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
+#                return INFINITY
+#            parameters = self.make_params_dict()
+#            model = self.make_det_model(parameters)
+#            times = [Tf+1]
+#            interventions = [params]
+#            contactMatrix = generator.interventions_temporal(times, interventions)
+#            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+#            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+#            return minus_logp
+#        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
+#        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
+#        if verbose:
+#            def callback(params):
+#                print('parameters:', params)
+#            minimizer_kwargs['callback'] = callback
+#        take_step = BoundedSteps(bounds)
+#        res = basinhopping(to_minimize, guess, niter=niter,
+#                            minimizer_kwargs=minimizer_kwargs,
+#                            take_step=take_step, disp=verbose)
+#        return res.x
+
+        minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 
+                         'Nf':Nf, 'a':a, 'scale':scale}
+        res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+
+        return res[0]
 
 
     def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
