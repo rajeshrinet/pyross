@@ -16,14 +16,14 @@ setup(
     description='python library for numerical simulation of infectious disease',
     long_description='pyross is a library for numerical simulation of infectious disease',
     platforms='works on all platforms (such as LINUX, macOS, and Microsoft Windows)',
-    ext_modules=cythonize([ Extension("pyross/*", ["pyross/*.pyx"],
+    ext_modules=cythonize([ Extension("core/*", ["core/*.pyx"],
         include_dirs=[numpy.get_include()],
         )],
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    packages=['pyross'],
-    package_data={'pyross': ['*.pxd']}
+    packages=['core'],
+    package_data={'core': ['*.pxd']}
 )
 
 
