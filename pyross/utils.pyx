@@ -99,16 +99,16 @@ class BoundedSteps(object):
         return xnew
 
 
-def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10., 
-                 enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None, 
+def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10.,
+                 enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None,
                  verbose=True):
     """ Compute the global minimum of the objective function.
-    
-    This function computes the global minimum of `objective_fct` using a combination of a global minimisation step 
+
+    This function computes the global minimum of `objective_fct` using a combination of a global minimisation step
     (CMA-ES) and a local refinement step (Suplex) (both derivative free).
-    
-    objective_fct: callable 
-        The objective function. It must be of the form fct(params, grad=0) for the use in NLopt. The parameters 
+
+    objective_fct: callable
+        The objective function. It must be of the form fct(params, grad=0) for the use in NLopt. The parameters
         should not be modified and `grad` can be ignored (since only derivative free algorithms are used).
     guess: numpy.array
         The initial guess.
@@ -131,20 +131,20 @@ def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_it
     cma_population: int
         The number of samples used in each step of the CMA algorithm. Should ideally be factor of `cma_threads`.
     cma_stds: numpy.array
-        Initial standard deviation of the spread of the population for each parameter in the CMA algorithm. Ideally, 
+        Initial standard deviation of the spread of the population for each parameter in the CMA algorithm. Ideally,
         one should have the optimum within 3*sigma of the guessed initial value. If not specified, these values are
         chosen such that 3*sigma reaches one of the boundaries for each parameters.
     verbose: bool
         Enable output.
-    """         
+    """
     x_result = guess
     y_result = 0
-    
+
     # Step 1: Global optimisation
     if enable_global:
         if verbose:
             print('Starting global minimisation...')
-        
+
         if cma_processes == 0:
             cma_processes = multiprocessing.cpu_count()
         # p = Pool(cma_processes)
@@ -153,13 +153,13 @@ def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_it
         options['bounds'] = [bounds[:, 0], bounds[:, 1]]
         options['tolfunrel'] = ftol * global_ftol_factor
         options['popsize'] = cma_population
-        
+
 
         if cma_stds is None:
             # Standard scale: 3*sigma reaches from the guess to the closest boundary for each parameter.
             cma_stds = np.amin([bounds[:, 1] - guess, guess -  bounds[:, 0]], axis=0)
             cma_stds *= 1.0/3.0
-            
+
         options['CMA_stds'] = cma_stds
 
         global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
@@ -177,16 +177,16 @@ def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_it
 
         x_result = global_opt.best.x
         y_result = global_opt.best.f
-        
+
         if verbose:
             print('Optimal value (global minimisation): ', y_result)
             print('Starting local minimisation...')
-    
+
     # Step 2: Local refinement
     if enable_local:
         # Use derivative free local optimisation algorith with support for boundary conditions
         # to converge to the next minimum (which is hopefully the global one).
-        local_opt = nlopt.opt(nlopt.LN_SBPLX, guess.shape[0])
+        local_opt = nlopt.opt(nlopt.LN_NEWUOA_BOUND, guess.shape[0])
         local_opt.set_min_objective(objective_fct)
         local_opt.set_lower_bounds(bounds[:,0])
         local_opt.set_upper_bounds(bounds[:,1])
@@ -195,10 +195,10 @@ def minimisation(objective_fct, guess, bounds, global_max_iter=100, local_max_it
 
         x_result = local_opt.optimize(global_opt.best.x)
         y_result = local_opt.last_optimum_value()
-    
+
         if verbose:
             print('Optimal value (local minimisation): ', y_result)
-    
+
     return x_result, y_result
 
 
