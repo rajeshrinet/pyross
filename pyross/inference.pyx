@@ -1,6 +1,7 @@
 from scipy import sparse
 from scipy.integrate import odeint
 from scipy.optimize import minimize, approx_fprime, basinhopping
+from scipy.stats import gamma
 import numpy as np
 from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
@@ -54,7 +55,7 @@ cdef class SIR_type:
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
 
-    def inference(self, guess, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
         '''
         guess: numpy.array
             initial guess for the parameter values
@@ -75,6 +76,8 @@ cdef class SIR_type:
         eps: double
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        print(a, scale)
         def to_minimize(params):
             if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
                 return INFINITY
@@ -83,6 +86,9 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            print(minus_logp)
+            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+            print(minus_logp)
             params[1] *=beta_rescale
             return minus_logp
         # make bounds if it does not exist and rescale
@@ -388,7 +394,6 @@ cdef class SIR_type:
 
     def make_params_dict(self, params=None):
         pass # to be implemented in subclass
-
 
     def set_params(self, parameters):
         self.alpha = parameters['alpha']
