@@ -111,7 +111,7 @@ cdef class SIR_type:
         estimates[1] /= beta_rescale
         return estimates, res.nit
 
-    def infer_control(self, guess, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
         '''
         guess: numpy.array
             initial guess for the control parameter values
@@ -132,6 +132,7 @@ cdef class SIR_type:
         eps: double
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
         '''
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
         def to_minimize(params):
             if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
                 return INFINITY
@@ -141,6 +142,7 @@ cdef class SIR_type:
             interventions = [params]
             contactMatrix = generator.interventions_temporal(times, interventions)
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
             return minus_logp
         options={'eps': eps, 'ftol': ftol, 'disp': verbose}
         minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
@@ -154,16 +156,18 @@ cdef class SIR_type:
                             take_step=take_step, disp=verbose)
         return res.x, res.nit
 
-    def hessian(self, maps, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
+    def hessian(self, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
         maps[1] *= beta_rescale
         cdef:
             Py_ssize_t k=maps.shape[0], i, j
             double xx0
-            np.ndarray g1, g2, hess = np.empty((k, k))
+            np.ndarray g1, g2, a, scale, hess = np.empty((k, k))
+        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         def minuslogP(y):
             y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
             minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+            minuslogp -= np.sum(gamma.logpdf(y, a, scale=scale))
             y[1] *= beta_rescale
             return minuslogp
         g1 = approx_fprime(maps, minuslogP, eps)
