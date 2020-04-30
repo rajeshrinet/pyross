@@ -13,7 +13,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
     """ Compute the global minimum of the objective function.
     
     This function computes the global minimum of `objective_fct` using a combination of a global minimisation step 
-    (CMA-ES) and a local refinement step (Suplex) (both derivative free).
+    (CMA-ES) and a local refinement step (NEWUOA) (both derivative free).
     
     objective_fct: callable 
         The objective function. It must be of the form fct(params, grad=0) for the use in NLopt. The parameters 
@@ -75,7 +75,9 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
         iteration = 0
         while not global_opt.stop() and iteration < global_max_iter:
             positions = global_opt.ask()
-            # Endless parallelisation options here. Use pool for now.
+            # Use multiprocess pool for parallelisation. This only works if this function is not in a cython file,
+            # otherwise, the lambda function cannot be passed to the other processes. It also needs an external Pool
+            # implementation (from `pathos.multiprocessing`) since the python internal one does not support lambda fcts.
             values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
             global_opt.tell(positions, values)
             if verbose:
@@ -100,7 +102,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
         local_opt.set_ftol_rel(ftol)
         local_opt.set_maxeval(3*local_max_iter)
 
-        x_result = local_opt.optimize(global_opt.best.x)
+        x_result = local_opt.optimize(x_result)
         y_result = local_opt.last_optimum_value()
     
         if verbose:
