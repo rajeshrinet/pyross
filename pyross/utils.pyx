@@ -95,3 +95,9 @@ class BoundedSteps(object):
         random_step = np.random.uniform(low=min_step, high=max_step, size=x.shape)
         xnew = x + random_step
         return xnew
+
+def make_gamma_dist(means, stds):
+    vars = stds**2
+    scale = vars/means
+    a = means/scale
+    return a, scale
