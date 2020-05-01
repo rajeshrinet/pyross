@@ -667,12 +667,12 @@ cdef class SEAIRQ_latent():
                         'tA':self.tA,
                         'tIa':self.tIa,
                         'tIs':self.tIs}
-            S0 =  (sample_inits[i,: M] * self.Ni).astype('int')
-            E0 =  (sample_inits[i,M: 2*M]* self.Ni).astype('int')
-            A0 =  (sample_inits[i,2*M: 3*M]* self.Ni).astype('int')
-            Ia0 =  (sample_inits[i,3*M: 4*M]* self.Ni).astype('int')
-            Is0 =  (sample_inits[i,4*M: 5*M]* self.Ni).astype('int')
-            Q0 =  (sample_inits[i,5*M: 6*M]* self.Ni).astype('int')
+            S0 =  (sample_inits[i,: M] * self.N).astype('int')
+            E0 =  (sample_inits[i,M: 2*M]* self.N).astype('int')
+            A0 =  (sample_inits[i,2*M: 3*M]* self.N).astype('int')
+            Ia0 =  (sample_inits[i,3*M: 4*M]* self.N).astype('int')
+            Is0 =  (sample_inits[i,4*M: 5*M]* self.N).astype('int')
+            Q0 =  (sample_inits[i,5*M: 6*M]* self.N).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
@@ -907,7 +907,7 @@ cdef class SEAI5R_latent():
     cdef:
         readonly int N, M,
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly int k_tot
+        readonly int k_random, k_tot
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, sa, hh, cc, mm
         readonly np.ndarray means_params, means_init, cov_params, cov_init
 
@@ -965,7 +965,7 @@ cdef class SEAI5R_latent():
         else:
             print('mm can be a number or an array of size M')
 
-        self.k_tot = 9 # total number of explicit states per age group
+        self.k_tot = 8 # total number of explicit states per age group
         #
         self.cov_params = parameters.get('cov_params')
         self.cov_init = parameters.get('cov_init')
@@ -1031,14 +1031,14 @@ cdef class SEAI5R_latent():
                         'mm':self.mm,'cc':self.cc
                           }
             #
-            S0 = ( sample_inits[i, : M] * self.Ni).astype('int')
-            E0 = (sample_inits[i, M: 2*M]* self.Ni).astype('int')
-            A0 = (sample_inits[i, 2*M: 3*M]* self.Ni).astype('int')
-            Ia0 = (sample_inits[i, 3*M: 4*M]* self.Ni).astype('int')
-            Is0 = (sample_inits[i, 4*M: 5*M]* self.Ni).astype('int')
-            Ih0 = (sample_inits[i, 5*M: 6*M]* self.Ni).astype('int')
-            Ic0 = (sample_inits[i, 6*M: 7*M]* self.Ni).astype('int')
-            Im0 = (sample_inits[i, 7*M: 8*M]* self.Ni).astype('int')
+            S0 = ( sample_inits[i, : M] * self.N).astype('int')
+            E0 = (sample_inits[i, M: 2*M]* self.N).astype('int')
+            A0 = (sample_inits[i, 2*M: 3*M]* self.N).astype('int')
+            Ia0 = (sample_inits[i, 3*M: 4*M]* self.N).astype('int')
+            Is0 = (sample_inits[i, 4*M: 5*M]* self.N).astype('int')
+            Ih0 = (sample_inits[i, 5*M: 6*M]* self.N).astype('int')
+            Ic0 = (sample_inits[i, 6*M: 7*M]* self.N).astype('int')
+            Im0 = (sample_inits[i, 7*M: 8*M]* self.N).astype('int')
             #
             if method == 'deterministic':
                 model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
@@ -1054,7 +1054,7 @@ cdef class SEAI5R_latent():
                                tau_update_frequency = tau_update_frequency,
                               method='tau-leaping')
             #
-            trajectories[i] = cur_result['X'].T
+            trajectories[i] = (cur_result['X'][:, :k_tot*M]).T
         end_time = timer()
         if verbose:
             print('Finished. Time needed for evaluation:',time.strftime('%H:%M:%S',time.gmtime( end_time-start_time)) )
