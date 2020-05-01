@@ -9,3 +9,6 @@ dependencies:
   - scipy 
   - pandas 
   - xlrd 
+  - nlopt
+  - cma
+  - pathos
