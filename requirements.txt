@@ -1,0 +1,12 @@
+cython
+jupyter
+matplotlib
+numpy
+pandas
+pytest
+scipy
+xlrd
+pathos
+cma
+nlopt
+
