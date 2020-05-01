@@ -24,7 +24,8 @@ Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) befor
 
 ## Contact
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez) and [Rajesh Singh](https://github.com/rajeshrinet).
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach
+](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
 
 Please first [read the wiki](https://github.com/rajeshrinet/pyross/wiki) and  then only [open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
@@ -70,7 +71,7 @@ pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
 PyRoss requires the following software
 
 - Python 2.6+ or Python 3.4+
-- [Cython 0.25.x+](http://docs.cython.org/en/latest/index.html) |  [Matplotlib 2.0.x+](https://matplotlib.org) | [NumPy 1.x+](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy 1.1.x+](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional) | [cma](https://anaconda.org/theochem/cma) | [pathos](https://anaconda.org/conda-forge/pathos) |  
+- [Cython 0.25.x+](http://docs.cython.org/en/latest/index.html) |  [Matplotlib 2.0.x+](https://matplotlib.org) | [NumPy 1.x+](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy 1.1.x+](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional) | [cma](https://anaconda.org/theochem/cma) | [pathos](https://anaconda.org/conda-forge/pathos) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
 
 ## Data sources
 
