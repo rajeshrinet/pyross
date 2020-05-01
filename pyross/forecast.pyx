@@ -582,7 +582,7 @@ cdef class SEAIRQ_latent():
         readonly int N, M
         readonly double alpha, beta, gIa, gIs, gE, gA, fsa
         readonly double tE, tA, tIa, tIs
-        readonly int k_tot
+        readonly int k_tot, k_random
         readonly np.ndarray rp0, Ni, drpdt, lld, CM, CC, means, cov
         readonly np.ndarray means_params, means_init, cov_params, cov_init
 
