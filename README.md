@@ -1,4 +1,4 @@
-## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
+w## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
 
 [About](#about) | [Contact](#contact) | [Publications ](#publications) | [News](#news) | [Installation](#installation) | [Examples](#examples) | [License](#license) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
@@ -10,12 +10,12 @@
 
 The library uses **Gaussian process regression**, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
 
-Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development. 
+Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
 
 The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
 
-The genesis of PyRoss was to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. It can be used to study such impact for **any demographic** for which the age and 
-contact structures are available. 
+The genesis of PyRoss was to model the outbreak of the novel coronavirus COVID-19 and to assess the age-structured impact of social distancing measures in India. It can be used to study such impact for **any demographic** for which the age and
+contact structures are available.
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
@@ -70,7 +70,7 @@ pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
 PyRoss requires the following software
 
 - Python 2.6+ or Python 3.4+
-- [Cython 0.25.x+](http://docs.cython.org/en/latest/index.html) |  [Matplotlib 2.0.x+](https://matplotlib.org) | [NumPy 1.x+](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy 1.1.x+](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional)
+- [Cython 0.25.x+](http://docs.cython.org/en/latest/index.html) |  [Matplotlib 2.0.x+](https://matplotlib.org) | [NumPy 1.x+](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy 1.1.x+](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional) | [cma](https://anaconda.org/theochem/cma) | [pathos](https://anaconda.org/conda-forge/pathos) |  
 
 ## Data sources
 
@@ -95,11 +95,11 @@ M     = 1                  # the SIR model has no age structure
 Ni    = 1000*np.ones(M)    # so there is only one age group
 N     = np.sum(Ni)         # and the total population is the size of this age group
 
-beta  = 0.2                # infection rate 
-gIa   = 0.1                # recovery rate of asymptomatic infectives 
-gIs   = 0.1                # recovery rate of symptomatic infectives 
-alpha = 0                  # fraction of asymptomatic infectives 
-fsa   = 1                  # the self-isolation parameter 
+beta  = 0.2                # infection rate
+gIa   = 0.1                # recovery rate of asymptomatic infectives
+gIs   = 0.1                # recovery rate of symptomatic infectives
+alpha = 0                  # fraction of asymptomatic infectives
+fsa   = 1                  # the self-isolation parameter
 
 Ia0   = np.array([0])      # the SIR model has only one kind of infective
 Is0   = np.array([1])      # we take these to be symptomatic
