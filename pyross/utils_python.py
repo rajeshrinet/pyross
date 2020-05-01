@@ -79,8 +79,19 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
             # Use multiprocess pool for parallelisation. This only works if this function is not in a cython file,
             # otherwise, the lambda function cannot be passed to the other processes. It also needs an external Pool
             # implementation (from `pathos.multiprocessing`) since the python internal one does not support lambda fcts.
-            values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
-            # values = [objective_fct(x, 0, **args_dict) for x in positions]
+            if cma_processes != 1:
+                try:
+                    values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
+                except:
+                    # Some types of functions cannot be pickled (in particular functions that are defined in a function 
+                    # that is compiled with cython). This leads to an exception when trying to pass them to a different
+                    # process. If this happens, we switch the algorithm to single process mode.
+                    print('Error: Running parallel optimization failed. Will switch to single-processed mode.')
+                    cma_processes = 1
+                    values = [objective_fct(x, 0, **args_dict) for x in positions]
+            else:
+                # Run the unparallelised version
+                values = [objective_fct(x, 0, **args_dict) for x in positions]
             global_opt.tell(positions, values)
             if verbose:
                 global_opt.disp()
