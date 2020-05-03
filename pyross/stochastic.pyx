@@ -17,7 +17,7 @@ cdef class stochastic_integration:
     cdef:
         readonly int N, M,
         int k_tot
-        np.ndarray RM, rp, weights, FM, CM
+        np.ndarray RM, rp, weights, FM, CM, rp_previous
 
     cdef calculate_total_reaction_rate(self):
         cdef:
@@ -77,7 +77,9 @@ cdef class stochastic_integration:
 
 
 
-    cpdef simulate_gillespie(self, contactMatrix, Tf, Nf,seedRate=None):
+
+    cpdef simulate_gillespie(self, contactMatrix, Tf, Nf,
+                              seedRate=None):
         cdef:
             int M=self.M
             int i, j, k, I, k_tot = self.k_tot
@@ -90,9 +92,9 @@ cdef class stochastic_integration:
 
         t = 0
         if Nf <= 0:
-            t_arr = []
+            t_arr = [t]
             trajectory = []
-            trajectory.append([ self.rp[j*M:(j+1)*M] for j in range(k_tot-1) ] )
+            trajectory.append((self.rp).copy())
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
@@ -134,7 +136,7 @@ cdef class stochastic_integration:
 
             if Nf <= 0:
                 t_arr.append(t)
-                trajectory.append([ self.rp[j*M:(j+1)*M] for j in range(k_tot-1) ] )
+                trajectory.append((self.rp).copy())
             else:
                 while (next_writeout < t):
                     if next_writeout > Tf:
@@ -147,6 +149,270 @@ cdef class stochastic_integration:
         return t_arr, out_arr
 
 
+
+
+    cpdef check_for_event(self,double t,events,
+                            list list_of_available_events):
+        cdef:
+            long [:] rp = self.rp
+            long [:] rp_previous = self.rp_previous
+            double f, f_p, direction
+            int i, index_event
+
+        for i,index_event in enumerate(list_of_available_events):
+            f = events[index_event](t,rp)
+            f_p = events[index_event](t,rp_previous)
+            # if the current event has a direction, include it
+            try:
+                direction = events[index_event].direction
+                if direction > 0:
+                    # if direction > 0, then an event means this:
+                    if (f_p < 0) and (f >= 0):
+                        return index_event
+                elif direction < 0:
+                    # if direction < 0, then an event means this:
+                    if (f_p >= 0) and (f < 0):
+                        return index_event
+                else:
+                    # if direction == 0, then any crossing through zero
+                    # constitutes an event:
+                    if (f_p*f <= 0):
+                        return index_event
+            except:
+                # if no direction was given for the current event, then
+                # any crossing through zero constitutes an event
+                if (f_p*f <= 0):
+                    return index_event
+        return -1 # if no event was found, we return -1
+
+
+
+    cpdef simulate_gillespie_events(self, events, contactMatrices,
+                                Tf, Nf,
+                                events_repeat=False,events_subsequent=True,
+                              seedRate=None):
+        cdef:
+            int M=self.M
+            int i, j, k, I, k_tot = self.k_tot
+            int max_index =  k_tot*k_tot*M*M
+            double t, dt, W
+            double [:,:] RM = self.RM
+            long [:] rp = self.rp
+            long [:] rp_previous = self.rp_previous
+            double [:] weights = self.weights
+            #
+            list list_of_available_events, events_out
+            int N_events, current_protocol_index
+            #double [:,:] CM = self.CM
+
+        t = 0
+        if Nf <= 0:
+            t_arr = [t]
+            trajectory = []
+            trajectory.append( (self.rp).copy()  )
+        else:
+            t_arr = np.arange(0,int(Tf)+1,dtype=int)
+            trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
+            trajectory[0] = rp
+            next_writeout = 1
+
+
+        # create a list of all events that are available
+        # at the beginning  of the simulation
+        N_events = len(events)
+        if N_events == 1:
+            list_of_available_events = []
+        else:
+            if events_subsequent:
+                    list_of_available_events = [1]
+            else:
+                list_of_available_events = []
+                for i in range(N_events):
+                    list_of_available_events.append(i)
+        events_out = []
+        #print('list_of_available_events =',list_of_available_events)
+        current_protocol_index = 0 # start with first contact matrix in list
+        self.CM = contactMatrices[current_protocol_index]
+        #print("contactMatrices[current_protocol_index] =",contactMatrices[current_protocol_index])
+
+        while t < Tf:
+            # stop if nobody is infected
+            W = 0 # number of infected people
+            for i in range(M,k_tot*M):
+                W += rp[i]
+            if W < 0.5: # if this holds, nobody is infected
+                if Nf > 0:
+                    for i in range(next_writeout,int(Tf)+1):
+                        trajectory[i] = rp
+                break
+
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+
+            # calculate current rate matrix
+            self.rate_matrix(rp, t)
+
+            # calculate total rate
+            W = self.calculate_total_reaction_rate()
+
+            # if total reaction rate is zero
+            if W == 0.:
+                if Nf > 0:
+                    for i in range(next_writeout,int(Tf)+1):
+                        trajectory[i] = rp
+                break
+
+            # save current state, which will become the previous state once
+            # we perform the SSA step
+            for i in range(k_tot*M):
+                rp_previous[i] = rp[i]
+
+            # perform SSA step
+            t = self.SSA_step(t,W)
+
+            # check for event, and update parameters if an event happened
+            current_protocol_index = self.check_for_event(t=t,events=events,
+                            list_of_available_events=list_of_available_events)
+            if current_protocol_index > -0.5: # this means an event has happened
+                #
+                #print("current_protocol_index =",current_protocol_index)
+                #print("list_of_available_events =",list_of_available_events)
+                if events_repeat:
+                    list_of_available_events = []
+                    for j in range(0,N_events):
+                        if j != current_protocol_index:
+                            list_of_available_events.append(j)
+                else:
+                    if events_subsequent:
+                        if current_protocol_index + 1 < N_events:
+                            list_of_available_events = [ current_protocol_index+1 ]
+                        else:
+                            list_of_available_events = []
+                    else:
+                        if current_protocol_index in list_of_available_events:
+                            list_of_available_events.remove(current_protocol_index)
+                # add event to list, and update contact matrix
+                events_out.append([t, current_protocol_index ])
+                self.CM = contactMatrices[current_protocol_index]
+
+            if Nf <= 0:
+                t_arr.append(t)
+                trajectory.append((self.rp).copy())
+            else:
+                while (next_writeout < t):
+                    if next_writeout > Tf:
+                        break
+                    trajectory[next_writeout] = rp
+                    next_writeout += 1
+
+        out_arr = np.array(trajectory,dtype=long)
+        t_arr = np.array(t_arr)
+        return t_arr, out_arr, events_out
+
+
+
+
+
+
+
+
+
+
+
+
+    cdef tau_leaping_update_timestep(self,
+                                    double epsilon = 0.03):
+        cdef:
+            int M=self.M, k_tot = self.k_tot
+            int i, j, k
+            double [:,:] RM = self.RM
+            long [:] rp = self.rp
+            double cur_tau, cur_mu, cur_sig_sq
+        # Determine current timestep
+        # This is based on Eqs. (32), (33) of
+        # https://doi.org/10.1063/1.2159468   (Ref. 1)
+        #
+        # note that a single index in the above cited paper corresponds
+        # to a tuple here. In the paper, possible reactions are enumerated
+        # with a single index, we enumerate the reactions as elements of the
+        # matrix RM.
+        #
+        # evaluate Eqs. (32), (33) of Ref. 1
+        cur_tau = INFINITY
+        # iterate over species
+        for i in range(M):     #  } The tuple (i,j) here corresponds
+            for j in range(k_tot): #  } to what is called "i" in Eqs. (32), (33)
+                cur_mu = 0.
+                cur_sig_sq = 0.
+                # current species has index I = i + j*M,
+                # and can either decay (diagonal element) or
+                # transform into J = i + k*M with k = 0,1,2 but k != j
+                for k in range(k_tot):
+                    if j == k: # influx or decay
+                        if j == 0:
+                            cur_mu += RM[i + j*M, i + k*M]
+                        else:
+                            cur_mu -= RM[i + j*M, i + k*M]
+                        cur_sig_sq += RM[i + j*M, i + k*M]
+                    else: # transformation
+                        cur_mu += RM[i + j*M, i + k*M]
+                        cur_mu -= RM[i + k*M, i + j*M]
+                        cur_sig_sq += RM[i + j*M, i + k*M]
+                        cur_sig_sq += RM[i + k*M, i + j*M]
+                cur_mu = abs(cur_mu)
+                #
+                factor = epsilon*rp[i+j*M]/2.
+                if factor < 1:
+                    factor = 1.
+                #
+                if cur_mu != 0:
+                    cur_mu = factor/cur_mu
+                else:
+                    cur_mu = INFINITY
+                if cur_sig_sq != 0:
+                    cur_sig_sq = factor**2/cur_sig_sq
+                else:
+                    cur_sig_sq = INFINITY
+                #
+                if cur_mu < cur_sig_sq:
+                    if cur_mu < cur_tau:
+                        cur_tau = cur_mu
+                else:
+                    if cur_sig_sq < cur_tau:
+                        cur_tau = cur_sig_sq
+        return cur_tau
+
+
+
+    cdef tau_leaping_update_state(self,double cur_tau):
+        cdef:
+            int M=self.M, k_tot = self.k_tot
+            int i, j, k
+            double [:,:] RM = self.RM
+            long [:] rp = self.rp
+        # Draw reactions
+        for i in range(M):
+            for j in range(k_tot):
+                for k in range(k_tot):
+                    if RM[i+j*M,i+k*M] > 0:
+                        # draw poisson variable
+                        K_events = np.random.poisson(RM[i+j*M,i+k*M] * cur_tau )
+                        if j == k:
+                            if j == 0:
+                                rp[i + M*j] += K_events # influx of susceptibles
+                            else:
+                                rp[i + M*j] -= K_events
+                        else:
+                            rp[i + M*j] += K_events
+                            rp[i + M*k] -= K_events
+        for i in range(M*k_tot):
+            if rp[i] < 0:
+                raise RuntimeError("Tau leaping led to negative population. " + \
+                                  "Try increasing threshold by increasing the " + \
+                                  "argument 'nc'")
+        return
 
 
 
@@ -170,14 +436,16 @@ cdef class stochastic_integration:
         t = 0
 
         if Nf <= 0:
-            t_arr = []
+            t_arr = [t]
             trajectory = []
-            trajectory.append([ self.rp[j*M:(j+1)*M] for j in range(k_tot-1) ] )
+            trajectory.append( (self.rp).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
             trajectory[0] = rp
             next_writeout = 1
+
+
 
 
         while t < Tf:
@@ -212,7 +480,7 @@ cdef class stochastic_integration:
 
             if SSA_steps_left < 0.5:
                 # check if we are below threshold
-                for i in range(3*M):
+                for i in range(k_tot*M):
                     if rp[i] > 0:
                         if rp[i] < nc:
                             SSA_steps_left = 100
@@ -222,58 +490,9 @@ cdef class stochastic_integration:
                     continue
 
                 if steps_until_tau_update < 0.5:
-                    # Determine current timestep
-                    # This is based on Eqs. (32), (33) of
-                    # https://doi.org/10.1063/1.2159468   (Ref. 1)
                     #
-                    # note that a single index in the above cited paper corresponds
-                    # to a tuple here. In the paper, possible reactions are enumerated
-                    # with a single index, we enumerate the reactions as elements of the
-                    # matrix RM.
+                    cur_tau = self.tau_leaping_update_timestep(epsilon=epsilon)
                     #
-                    # evaluate Eqs. (32), (33) of Ref. 1
-                    cur_tau = INFINITY
-                    # iterate over species
-                    for i in range(M):     #  } The tuple (i,j) here corresponds
-                        for j in range(k_tot): #  } to what is called "i" in Eqs. (32), (33)
-                            cur_mu = 0.
-                            cur_sig_sq = 0.
-                            # current species has index I = i + j*M,
-                            # and can either decay (diagonal element) or
-                            # transform into J = i + k*M with k = 0,1,2 but k != j
-                            for k in range(k_tot):
-                                if j == k: # influx or decay
-                                    if j == 0:
-                                        cur_mu += RM[i + j*M, i + k*M]
-                                    else:
-                                        cur_mu -= RM[i + j*M, i + k*M]
-                                    cur_sig_sq += RM[i + j*M, i + k*M]
-                                else: # transformation
-                                    cur_mu += RM[i + j*M, i + k*M]
-                                    cur_mu -= RM[i + k*M, i + j*M]
-                                    cur_sig_sq += RM[i + j*M, i + k*M]
-                                    cur_sig_sq += RM[i + k*M, i + j*M]
-                            cur_mu = abs(cur_mu)
-                            #
-                            factor = epsilon*rp[i+j*M]/2.
-                            if factor < 1:
-                                factor = 1.
-                            #
-                            if cur_mu != 0:
-                                cur_mu = factor/cur_mu
-                            else:
-                                cur_mu = INFINITY
-                            if cur_sig_sq != 0:
-                                cur_sig_sq = factor**2/cur_sig_sq
-                            else:
-                                cur_sig_sq = INFINITY
-                            #
-                            if cur_mu < cur_sig_sq:
-                                if cur_mu < cur_tau:
-                                    cur_tau = cur_mu
-                            else:
-                                if cur_sig_sq < cur_tau:
-                                    cur_tau = cur_sig_sq
                     steps_until_tau_update = tau_update_frequency
                     #
                     # if the current timestep is less than 10/W,
@@ -282,33 +501,21 @@ cdef class stochastic_integration:
                         SSA_steps_left = 50
                         continue
 
-                steps_until_tau_update -= 1
                 t += cur_tau
 
                 # draw reactions for current timestep
-                for i in range(M):
-                    for j in range(k_tot):
-                        for k in range(k_tot):
-                            if RM[i+j*M,i+k*M] > 0:
-                                # draw poisson variable
-                                K_events = np.random.poisson(RM[i+j*M,i+k*M] * cur_tau )
-                                if j == k:
-                                    if j == 0:
-                                        rp[i + M*j] += K_events # influx of susceptibles
-                                    else:
-                                        rp[i + M*j] -= K_events
-                                else:
-                                    rp[i + M*j] += K_events
-                                    rp[i + M*k] -= K_events
+                self.tau_leaping_update_state(cur_tau)
 
             else:
                 # perform SSA step
                 t = self.SSA_step(t,W)
                 SSA_steps_left -= 1
 
+            steps_until_tau_update -= 1
+
             if Nf <= 0:
                 t_arr.append(t)
-                trajectory.append([ self.rp[j*M:(j+1)*M] for j in range(k_tot-1) ] )
+                trajectory.append( (self.rp).copy()  )
             else:
                 while (next_writeout < t):
                     if next_writeout > Tf:
@@ -319,6 +526,172 @@ cdef class stochastic_integration:
         out_arr = np.array(trajectory,dtype=long)
         t_arr = np.array(t_arr)
         return t_arr, out_arr
+
+
+
+
+
+    cpdef simulate_tau_leaping_events(self,
+                              events,contactMatrices,
+                            Tf, Nf,
+                          int nc = 30, double epsilon = 0.03,
+                          int tau_update_frequency = 1,
+                          events_repeat=False,events_subsequent=True,
+                          seedRate=None):
+        cdef:
+            int M=self.M
+            int i, j, k,  I, K_events, k_tot = self.k_tot
+            double t, dt, W
+            double [:,:] RM = self.RM
+            long [:] rp = self.rp
+            double [:] weights = self.weights
+            double factor, cur_f
+            double cur_tau
+            int SSA_steps_left = 0
+            int steps_until_tau_update = 0
+            double verbose = 1.
+            # needed for event-driven simulation:
+            long [:] rp_previous = self.rp_previous
+            list list_of_available_events, events_out
+            int N_events, current_protocol_index
+
+        t = 0
+        if Nf <= 0:
+            t_arr = [t]
+            trajectory = []
+            trajectory.append( (self.rp).copy()  )
+        else:
+            t_arr = np.arange(0,int(Tf)+1,dtype=int)
+            trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
+            trajectory[0] = rp
+            next_writeout = 1
+
+        # create a list of all events that are available
+        # at the beginning  of the simulation
+        N_events = len(events)
+        if N_events == 1:
+            list_of_available_events = []
+        else:
+            if events_subsequent:
+                    list_of_available_events = [1]
+            else:
+                list_of_available_events = []
+                for i in range(N_events):
+                    list_of_available_events.append(i)
+        events_out = []
+
+        current_protocol_index = 0 # start with first contact matrix in list
+        self.CM = contactMatrices[current_protocol_index]
+
+        while t < Tf:
+            # stop if nobody is infected
+            W = 0 # number of infected people
+            for i in range(M,k_tot*M):
+                W += rp[i]
+            if W < 0.5: # if this holds, nobody is infected
+                if Nf > 0:
+                    for i in range(next_writeout,int(Tf)+1):
+                        trajectory[i] = rp
+                break
+
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+
+            # calculate current rate matrix
+            self.rate_matrix(rp, t)
+
+            # Calculate total rate
+            W = self.calculate_total_reaction_rate()
+
+            # if total reaction rate is zero
+            if W == 0.:
+                if Nf > 0:
+                    for i in range(next_writeout,int(Tf)+1):
+                        trajectory[i] = rp
+                break
+
+            # save current state, which will become the previous state once
+            # we perform either an SSA or a tau-leaping step
+            for i in range(k_tot*M):
+                rp_previous[i] = rp[i]
+
+            # either perform tau-leaping or SSA step:
+            if SSA_steps_left < 0.5:
+                # check if we are below threshold for tau-leaping
+                for i in range(k_tot*M):
+                    if rp[i] > 0:
+                        if rp[i] < nc:
+                            SSA_steps_left = 100
+                # if we are below threshold, run while-loop again
+                # and switch to direct SSA algorithm
+                if SSA_steps_left > 0.5:
+                    continue
+
+                # update tau-leaping timestep if it is time for that
+                if steps_until_tau_update < 0.5:
+                    #
+                    cur_tau = self.tau_leaping_update_timestep(epsilon=epsilon)
+                    #
+                    steps_until_tau_update = tau_update_frequency
+                    #
+                    # if the current timestep is less than 10/W,
+                    # switch to direct SSA algorithm
+                    if cur_tau < 10/W:
+                        SSA_steps_left = 50
+                        continue
+
+                t += cur_tau
+
+                # draw reactions for current timestep
+                self.tau_leaping_update_state(cur_tau)
+
+            else:
+                # perform SSA step
+                t = self.SSA_step(t,W)
+                SSA_steps_left -= 1
+
+            steps_until_tau_update -= 1
+
+            # check for event, and update parameters if an event happened
+            current_protocol_index = self.check_for_event(t=t,events=events,
+                            list_of_available_events=list_of_available_events)
+            if current_protocol_index > -0.5: # this means an event has happened
+                #
+                if events_repeat:
+                    list_of_available_events = []
+                    for j in range(0,N_events):
+                        if j != current_protocol_index:
+                            list_of_available_events.append(j)
+                else:
+                    if events_subsequent:
+                        if current_protocol_index + 1 < N_events:
+                            list_of_available_events = [ current_protocol_index+1 ]
+                        else:
+                            list_of_available_events = []
+                    else:
+                        if current_protocol_index in list_of_available_events:
+                            list_of_available_events.remove(current_protocol_index)
+                # add event to list, and update contact matrix
+                events_out.append([t, current_protocol_index ])
+                self.CM = contactMatrices[current_protocol_index]
+
+            if Nf <= 0:
+                t_arr.append(t)
+                trajectory.append( (self.rp).copy()  )
+            else:
+                while (next_writeout < t):
+                    if next_writeout > Tf:
+                        break
+                    trajectory[next_writeout] = rp
+                    next_writeout += 1
+
+        out_arr = np.array(trajectory,dtype=long)
+        t_arr = np.array(t_arr)
+        return t_arr, out_arr, events_out
+
+
 
 
 
@@ -353,6 +726,8 @@ cdef class SIR(stochastic_integration):
         self.RM = np.zeros( [self.k_tot*self.M, self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # previous state
+        # (for event-driven simulations)
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
 
@@ -393,7 +768,7 @@ cdef class SIR(stochastic_integration):
                 seedRate=None
                 ):
         cdef:
-            M = self.M
+            int M = self.M, i
             long [:] rp = self.rp
 
         # write initial condition to rp
@@ -402,11 +777,13 @@ cdef class SIR(stochastic_integration):
             rp[i+M] = Ia0[i]
             rp[i+2*M] = Is0[i]
 
-        if method == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-            seedRate=seedRate)
+        if method.lower() == 'gillespie':
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix=contactMatrix,
+                                     Tf= Tf, Nf= Nf,
+                                    seedRate=seedRate)
         else:
-            t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
+            t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix=contactMatrix,
+                                  Tf=Tf, Nf=Nf,
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
@@ -418,6 +795,51 @@ cdef class SIR(stochastic_integration):
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
 
+
+
+    cpdef simulate_events(self, S0, Ia0, Is0, events,
+                contactMatrices, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] rp = self.rp
+            list events_out
+            np.ndarray out_arr, t_arr
+
+        # write initial condition to rp
+        for i in range(M):
+            rp[i] = S0[i]
+            rp[i+M] = Ia0[i]
+            rp[i+2*M] = Is0[i]
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                     'N':self.N, 'M':self.M,
+                     'alpha':self.alpha, 'beta':self.beta,
+                     'gIa':self.gIa, 'gIs':self.gIs}
+        return out_dict
 
 
 
@@ -461,6 +883,7 @@ cdef class SIkR(stochastic_integration):
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
 
@@ -502,8 +925,8 @@ cdef class SIkR(stochastic_integration):
                 seedRate=None
                 ):
         cdef:
-            M = self.M
-            kk = self.kk
+            int M = self.M, i, j
+            int kk = self.kk
             long [:] rp = self.rp
 
         # write initial condition to rp
@@ -512,7 +935,7 @@ cdef class SIkR(stochastic_integration):
             for j in range(kk):
               rp[i+(j+1)*M] = I0[j]
 
-        if method == 'gillespie':
+        if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
                                     seedRate=seedRate)
         else:
@@ -527,6 +950,53 @@ cdef class SIkR(stochastic_integration):
                       'alpha':self.alpha, 'beta':self.beta,
                       'gI':self.gI, 'k':self.kk }
         return out_dict
+
+
+    cpdef simulate_events(self, S0, I0, events,
+                contactMatrices, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i, j
+            int kk = self.kk
+            long [:] rp = self.rp
+            list events_out
+            np.ndarray out_arr, t_arr
+
+        # write initial condition to rp
+        for i in range(M):
+            rp[i] = S0[i]
+            for j in range(kk):
+              rp[i+(j+1)*M] = I0[j]
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                    'N':self.N, 'M':self.M,
+                    'alpha':self.alpha, 'beta':self.beta,
+                    'gI':self.gI, 'k':self.kk }
+        return out_dict
+
 
 
 
@@ -562,6 +1032,7 @@ cdef class SEIR(stochastic_integration):
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
 
@@ -603,7 +1074,7 @@ cdef class SEIR(stochastic_integration):
                 seedRate=None
                 ):
         cdef:
-            M = self.M
+            int M = self.M, i
             long [:] rp = self.rp
 
         # write initial condition to rp
@@ -613,7 +1084,7 @@ cdef class SEIR(stochastic_integration):
             rp[i+2*M] = Ia0[i]
             rp[i+3*M] = Is0[i]
 
-        if method == 'gillespie':
+        if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
                                     seedRate=seedRate)
         else:
@@ -628,6 +1099,54 @@ cdef class SEIR(stochastic_integration):
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gE':self.gE}
+        return out_dict
+
+
+
+    cpdef simulate_events(self, S0, E0, Ia0, Is0, events,
+                contactMatrices, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] rp = self.rp
+            list events_out
+            np.ndarray out_arr, t_arr
+
+        # write initial condition to rp
+        for i in range(M):
+            rp[i] = S0[i]
+            rp[i+M] = E0[i]
+            rp[i+2*M] = Ia0[i]
+            rp[i+3*M] = Is0[i]
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                    'N':self.N, 'M':self.M,
+                    'alpha':self.alpha, 'beta':self.beta,
+                    'gIa':self.gIa,'gIs':self.gIs,
+                    'gE':self.gE}
         return out_dict
 
 
@@ -692,6 +1211,7 @@ cdef class SEI5R(stochastic_integration):
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
 
@@ -819,7 +1339,7 @@ cdef class SEI5R(stochastic_integration):
                 seedRate=None
                 ):
         cdef:
-            M = self.M
+            int M = self.M, i
             long [:] rp = self.rp
 
         # write initial condition to rp
@@ -839,7 +1359,7 @@ cdef class SEI5R(stochastic_integration):
                     " {0} exceeds total initial population for that class\n".format(i) + \
                     " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
 
-        if method == 'gillespie':
+        if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
                                     seedRate=seedRate)
         else:
@@ -870,7 +1390,67 @@ cdef class SEI5R(stochastic_integration):
         return out_dict
 
 
+    cpdef simulate_events(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0,
+                events, contactMatrices, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] rp = self.rp
+            list events_out
+            np.ndarray out_arr, t_arr
 
+        # write initial condition to rp
+        for i in range(M):
+            rp[i] = S0[i]
+            rp[i+M] = E0[i]
+            rp[i+2*M] = Ia0[i]
+            rp[i+3*M] = Is0[i]
+            rp[i+4*M] = Ih0[i]
+            rp[i+5*M] = Ic0[i]
+            rp[i+6*M] = Im0[i]
+            rp[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i]
+            rp[i+7*M] -= Ih0[i] + Ic0[i] + Im0[i]
+            #print(rp[i+7*M])
+            if rp[i+7*M] < 0:
+                raise RuntimeError("Sum of provided initial populations for class" + \
+                    " {0} exceeds total initial population for that class\n".format(i) + \
+                    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                    'N':self.N, 'M':self.M,
+                    'alpha':self.alpha, 'beta':self.beta,
+                    'gIa':self.gIa,'gIs':self.gIs,
+                    'gIh':self.gIh,'gIc':self.gIc,
+                    'fsa':self.fsa,'fh':self.fh,
+                    'gE':self.gE,
+                    'sa':self.sa,'hh':self.hh,
+                    'mm':self.mm,'cc':self.cc,
+                    'iaa':self.iaa,
+                    }
+        return out_dict
 
 
 
@@ -916,8 +1496,8 @@ cdef class SEAI5R(stochastic_integration):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
+        #self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.array( Ni.copy(), dtype=long)
 
         self.k_tot = 9 # total number of explicit states per age group
         # here:
@@ -935,6 +1515,7 @@ cdef class SEAI5R(stochastic_integration):
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
@@ -988,7 +1569,7 @@ cdef class SEAI5R(stochastic_integration):
             long [:] Im   = rp[7*M:8*M]
             long [:] R    = rp[8*M:9*M]
             #
-            double [:] Ni    = self.Ni
+            long [:] Ni    = self.Ni
             #
             double [:] sa   = self.sa
             double [:] hh   = self.hh
@@ -1041,7 +1622,7 @@ cdef class SEAI5R(stochastic_integration):
                 seedRate=None
                 ):
         cdef:
-            M = self.M
+            int M = self.M, i
             long [:] rp = self.rp
 
         # write initial condition to rp
@@ -1061,8 +1642,7 @@ cdef class SEAI5R(stochastic_integration):
                 raise RuntimeError("Sum of provided initial populations for class" + \
                     " {0} exceeds total initial population for that class\n".format(i) + \
                     " {0} > {1}".format(rp[i+8*M],self.Ni[i]))
-
-        if method == 'gillespie':
+        if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
                                     seedRate=seedRate)
         else:
@@ -1079,7 +1659,6 @@ cdef class SEAI5R(stochastic_integration):
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
             out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
 
-
         out_dict = {'X':out_arr, 't':t_arr,
                       'N':self.N, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
@@ -1095,6 +1674,75 @@ cdef class SEAI5R(stochastic_integration):
 
 
 
+    cpdef simulate_events(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                events, contactMatrices, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] rp = self.rp
+            list events_out
+            np.ndarray out_arr, t_arr
+
+        # write initial condition to rp
+        for i in range(M):
+            rp[i] = S0[i]
+            rp[i+M] = E0[i]
+            rp[i+2*M] = A0[i]
+            rp[i+3*M] = Ia0[i]
+            rp[i+4*M] = Is0[i]
+            rp[i+5*M] = Ih0[i]
+            rp[i+6*M] = Ic0[i]
+            rp[i+7*M] = Im0[i]
+            rp[i+8*M] = self.Ni[i] - S0[i] - E0[i] - A0[i] - Ia0[i] - Is0[i]
+            rp[i+8*M] -= Ih0[i] + Ic0[i] + Im0[i]
+            #print(rp[i+7*M])
+            if rp[i+8*M] < 0:
+                raise RuntimeError("Sum of provided initial populations for class" + \
+                    " {0} exceeds total initial population for that class\n".format(i) + \
+                    " {0} > {1}".format(rp[i+8*M],self.Ni[i]))
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+        # Instead of the recovered population, which is stored in the last compartment,
+        # we want to output the total alive population (whose knowledge is mathematically
+        # equivalent to knowing the recovered population).
+        for i in range(M):
+            out_arr[:,i+8*M] += out_arr[:,i+6*M]
+            out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
+            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                    'N':self.N, 'M':self.M,
+                    'alpha':self.alpha, 'beta':self.beta,
+                    'gIa':self.gIa,'gIs':self.gIs,
+                    'gIh':self.gIh,'gIc':self.gIc,
+                    'fsa':self.fsa,'fh':self.fh,
+                    'gE':self.gE,'gA':self.gA,
+                    'sa':self.sa,'hh':self.hh,
+                    'mm':self.mm,'cc':self.cc,
+                    #'iaa':self.iaa,
+                    }
+        return out_dict
 
 
 
@@ -1145,6 +1793,7 @@ cdef class SEAIRQ(stochastic_integration):
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
 
@@ -1204,7 +1853,7 @@ cdef class SEAIRQ(stochastic_integration):
                 seedRate=None
                 ):
         cdef:
-            M = self.M
+            int M = self.M, i
             long [:] rp = self.rp
 
         # write initial condition to rp
@@ -1216,7 +1865,7 @@ cdef class SEAIRQ(stochastic_integration):
             rp[i+4*M] = Is0[i]
             rp[i+5*M] = Q0[i]
 
-        if method == 'gillespie':
+        if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
                                     seedRate=seedRate)
         else:
@@ -1232,4 +1881,55 @@ cdef class SEAIRQ(stochastic_integration):
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
                 'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        return out_dict
+
+
+
+    cpdef simulate_events(self, S0, E0, A0, Ia0, Is0, Q0,
+                events, contactMatrices, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] rp = self.rp
+            list events_out
+            np.ndarray out_arr, t_arr
+
+        # write initial condition to rp
+        for i in range(M):
+            rp[i]     = S0[i]
+            rp[i+M]   = E0[i]
+            rp[i+2*M] = A0[i]
+            rp[i+3*M] = Ia0[i]
+            rp[i+4*M] = Is0[i]
+            rp[i+5*M] = Q0[i]
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                  'N':self.N, 'M':self.M,
+                  'alpha':self.alpha,'beta':self.beta,
+                  'gIa':self.gIa,'gIs':self.gIs,
+                  'gE':self.gE,'gA':self.gA,
+                  'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return out_dict
