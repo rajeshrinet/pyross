@@ -2,21 +2,23 @@ import  numpy as np
 cimport numpy as np
 cimport cython
 
-@cython.wraparound(False)
+cdef class integrators:
+    cdef:
+        readonly int N, M, ki, ke
+        readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh, ep, gI
+        readonly double tS, tE, tA, tIa, tIs
+        readonly np.ndarray rp0, Ni, dx, CM, FM, sa, iaa, hh, cc, mm, alpha
+
+
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR:
+cdef class SIR(integrators):
     """
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, alpha
-
     cdef rhs(self, rp, tt)
 
 
@@ -26,17 +28,12 @@ cdef class SIR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIRS:
+cdef class SIRS(integrators):
     """
     Susceptible, Infected, Recovered, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gIa, gIs, fsa, ep
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, alpha
-
     cdef rhs(self, rp, tt)
 
 
@@ -46,17 +43,12 @@ cdef class SIRS:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEIR:
+cdef class SEIR(integrators):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gIa, gIs, gE, fsa
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, alpha
-
     cdef rhs(self, rp, tt)
 
 
@@ -66,7 +58,7 @@ cdef class SEIR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI5R:
+cdef class SEI5R(integrators):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
     The infected class has 5 groups:
@@ -83,11 +75,6 @@ cdef class SEI5R:
     Ih ---> Ic, R
     Ic ---> Im, R
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm, alpha  
-
     cdef rhs(self, rp, tt)
 
 
@@ -97,16 +84,11 @@ cdef class SEI5R:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIkR:
+cdef class SIkR(integrators):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
     """
-    cdef:
-        readonly int N, M, ki
-        readonly double beta, gI
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM
-
     cdef rhs(self, rp, tt)
 
 
@@ -116,17 +98,12 @@ cdef class SIkR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkR:
+cdef class SEkIkR(integrators):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
-    cdef:
-        readonly int N, M, ki, ke
-        readonly double beta, gI, gE
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM
-
     cdef rhs(self, rp, tt)
 
 
@@ -136,18 +113,13 @@ cdef class SEkIkR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIR:
+cdef class SEAIR(integrators):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gIa, gIs, gE, gA, fsa
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM, alpha
-
     cdef rhs(self, rp, tt)
 
 
@@ -157,7 +129,7 @@ cdef class SEAIR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI5R:
+cdef class SEAI5R(integrators):
     """
     Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
     The infected class has 5 groups:
@@ -174,11 +146,6 @@ cdef class SEAI5R:
     Ih ---> Ic, R
     Ic ---> Im, R
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CM, FM, sa, iaa, hh, cc, mm, alpha
-
     cdef rhs(self, rp, tt)
 
 
@@ -188,17 +155,11 @@ cdef class SEAI5R:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ:
+cdef class SEAIRQ(integrators):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef:
-        readonly int N, M,
-        readonly double beta, gIa, gIs, gE, gA, fsa
-        readonly double tS, tE, tA, tIa, tIs
-        readonly np.ndarray rp0, Ni, drpdt,  CM, FM, alpha
-
     cdef rhs(self, rp, tt)
