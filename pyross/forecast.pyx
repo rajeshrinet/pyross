@@ -44,13 +44,18 @@ cdef class SIR:
         self.Ni    = Ni
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                Ns,
+    def simulate(self, S0, Ia0, Is0, contactMatrix=None,
+                Tf=100, Nf=101,
+                Ns=1000,
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
-
+                method='deterministic',
+                events=[],contactMatrices=[],
+                seedRate=None,
+                events_repeat=False,
+                events_subsequent=True,
+                ):
         cdef:
             int M=self.M
             double [:] means  = self.means
@@ -60,6 +65,13 @@ cdef class SIR:
             np.ndarray mean_traj = np.zeros([ 3*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ 3*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means, cov, Ns)
 
@@ -74,19 +86,29 @@ cdef class SIR:
                         'beta':sample_parameters[i,1],
                         'gIa':sample_parameters[i,2],'gIs':sample_parameters[i,3]}
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SIR(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, Ia0, Is0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, Ia0, Is0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -149,7 +171,11 @@ cdef class SIR_latent:
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M
@@ -160,6 +186,13 @@ cdef class SIR_latent:
             np.ndarray mean_traj = np.zeros([ 3*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ 3*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters, sample_inits
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
         sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
@@ -180,19 +213,29 @@ cdef class SIR_latent:
             Ia0 = (sample_inits[i, M  :2*M] * self.N).astype('int')
             Is0 = (sample_inits[i, 2*M:3*M] * self.N).astype('int')
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SIR(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, Ia0, Is0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, Ia0, Is0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -262,7 +305,11 @@ cdef class SEIR:
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -273,6 +320,13 @@ cdef class SEIR:
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means, cov, Ns)
 
@@ -289,19 +343,30 @@ cdef class SEIR:
                         'gIs':sample_parameters[i,3],
                         'gE':sample_parameters[i,4]}
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SEIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, Ia0, Is0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SEIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, Ia0, Is0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SEIR(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, E0, Ia0, Is0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SEIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, Ia0, Is0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SEIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, Ia0, Is0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SEIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, Ia0, Is0,
+                                  contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -376,7 +441,11 @@ cdef class SEIR_latent:
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -387,6 +456,13 @@ cdef class SEIR_latent:
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters, sample_inits
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
         sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
@@ -410,19 +486,30 @@ cdef class SEIR_latent:
             Ia0 = ( sample_inits[i,2*M:3*M] * self.N ).astype('int')
             Is0 = ( sample_inits[i,3*M:4*M] * self.N ).astype('int')
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SEIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, Ia0, Is0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SEIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, Ia0, Is0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SEIR(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, E0, Ia0, Is0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SEIR(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, Ia0, Is0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SEIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, Ia0, Is0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SEIR(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, Ia0, Is0,
+                                  contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -501,7 +588,11 @@ cdef class SEAIRQ():
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -512,6 +603,13 @@ cdef class SEAIRQ():
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means, cov, Ns)
 
@@ -533,19 +631,30 @@ cdef class SEAIRQ():
                         'tIa':self.tIa,
                         'tIs':self.tIs}
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SEAIRQ(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
+                                  contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -633,7 +742,11 @@ cdef class SEAIRQ_latent():
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -644,6 +757,13 @@ cdef class SEAIRQ_latent():
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters, sample_inits
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
         sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
@@ -674,19 +794,30 @@ cdef class SEAIRQ_latent():
             Is0 =  (sample_inits[i,4*M: 5*M]* self.N).astype('int')
             Q0 =  (sample_inits[i,5*M: 6*M]* self.N).astype('int')
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SEAIRQ(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
+                                  contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -813,7 +944,11 @@ cdef class SEAI5R():
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -824,6 +959,13 @@ cdef class SEAI5R():
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means, cov, Ns)
 
@@ -845,19 +987,30 @@ cdef class SEAI5R():
                         'mm':self.mm,'cc':self.cc
                           }
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SEAI5R(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                                  contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = cur_result['X'].T
         end_time = timer()
@@ -996,7 +1149,11 @@ cdef class SEAI5R_latent():
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                 verbose=False,
-                method='deterministic'):
+                method='deterministic',
+                events=[],contactMatrices=[],
+                events_repeat=False,
+                events_subsequent=True,
+                seedRate=None):
 
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -1007,6 +1164,13 @@ cdef class SEAI5R_latent():
             np.ndarray mean_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray std_traj = np.zeros([ k_tot*M, Nf] ,dtype=DTYPE)
             np.ndarray sample_parameters, sample_inits
+            bint control = False
+
+        if (contactMatrix == None) and (len(events) == 0):
+            raise RuntimeError("Neither contactMatrix function nor list of events provided.")
+
+        if len(events) > 0:
+            control = True
 
         sample_parameters = np.random.multivariate_normal(means_params, cov_params, Ns)
         sample_inits = np.random.multivariate_normal(means_init, cov_init, Ns)
@@ -1040,19 +1204,30 @@ cdef class SEAI5R_latent():
             Ic0 = (sample_inits[i, 6*M: 7*M]* self.N).astype('int')
             Im0 = (sample_inits[i, 7*M: 8*M]* self.N).astype('int')
             #
-            if method == 'deterministic':
-                model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf)
-            elif method == 'gillespie':
-                model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf,
-                          method='gillespie')
+            if control:
+                model = pyross.control.SEAI5R(parameters, M, self.Ni)
+                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                              events, contactMatrices, Tf, Nf,
+                              events_repeat=events_repeat,
+                              events_subsequent=events_subsequent,
+                              seedRate=seedRate,
+                              nc=nc,epsilon=epsilon,
+                              tau_update_frequency=tau_update_frequency,
+                              method=method)
             else:
-                model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
-                cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf,
-                              nc=nc,epsilon =epsilon,
-                               tau_update_frequency = tau_update_frequency,
-                              method='tau-leaping')
+                if method == 'deterministic':
+                    model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                                    contactMatrix,
+                                    Tf, Nf,seedRate=seedRate)
+                else:
+                    model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
+                    cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
+                                  contactMatrix, Tf, Nf,
+                                  seedRate=seedRate,
+                                  nc=nc,epsilon=epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  method=method)
             #
             trajectories[i] = (cur_result['X'][:, :k_tot*M]).T
         end_time = timer()
