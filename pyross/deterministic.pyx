@@ -9,18 +9,21 @@ ctypedef np.float_t DTYPE_t
 
 
 cdef class integrators:
+    """
+    List of all integrator used by various deterministic models listed below
+    """
     
-    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator):
+    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps):
 
         if integrator=='odeint':
             from scipy.integrate import odeint
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            X = odeint(rhs0, x0, time_points, mxstep=100000) 
+            X = odeint(rhs0, x0, time_points, mxstep=maxNumSteps) 
 
         elif integrator=='odespy' or integrator=='odespy-vode':
             import odespy
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=10**6)
+            solver = odespy.Vode(rhs0, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=maxNumSteps)
             solver.set_initial_condition(x0)
             X, time_points = solver.solve(time_points) 
 
@@ -39,7 +42,7 @@ cdef class integrators:
             X, time_points = solver.solve(time_points) 
 
         else:
-            print("Error: Integration failed! \n Please set integrator='odeint' to use the scipy odeint (Deafult). \n Use integrator='odespy-vode' to use vode from odespy (github.com/rajeshrinet/odespy). \n Use integrator='odespy-rkf45' to use RKF45 from odespy (github.com/rajeshrinet/odespy). \n Use integrator='odespy-rk4' to use RK4 from odespy (github.com/rajeshrinet/odespy). \n Alternatively, write your own integrator to evolve the system in time \n")
+            raise Exception("Error: Integration failed! \n Please set integrator='odeint' to use the scipy odeint (Deafult). \n Use integrator='odespy-vode' to use vode from odespy (github.com/rajeshrinet/odespy). \n Use integrator='odespy-rkf45' to use RKF45 from odespy (github.com/rajeshrinet/odespy). \n Use integrator='odespy-rk4' to use RK4 from odespy (github.com/rajeshrinet/odespy). \n Alternatively, write your own integrator to evolve the system in time \n")
         return X, time_points
 
 
@@ -107,7 +110,7 @@ cdef class SIR(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -119,7 +122,7 @@ cdef class SIR(integrators):
             return self.dx 
         
         x0 = np.concatenate((S0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
@@ -210,7 +213,7 @@ cdef class SIRS(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -218,7 +221,7 @@ cdef class SIRS(integrators):
             return self.dx
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
@@ -289,7 +292,7 @@ cdef class SEIR(integrators):
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -301,7 +304,7 @@ cdef class SEIR(integrators):
             return self.dx
 
         x0 = np.concatenate((S0, E0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
@@ -435,7 +438,7 @@ cdef class SEI5R(integrators):
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -443,7 +446,7 @@ cdef class SEI5R(integrators):
             return self.dx
         
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
@@ -501,7 +504,7 @@ cdef class SIkR(integrators):
         return
 
 
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
         from scipy.integrate import odeint
 
         def rhs0(xt, t):
@@ -513,7 +516,7 @@ cdef class SIkR(integrators):
             self.rhs(xt, t)
             return self.dx
         x0=np.concatenate((S0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
@@ -593,7 +596,7 @@ cdef class SEkIkR(integrators):
         return
 
 
-    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
         from scipy.integrate import odeint
 
         def rhs0(xt, t):
@@ -606,7 +609,7 @@ cdef class SEkIkR(integrators):
             return self.dx
         
         x0=np.concatenate((S0, E0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
@@ -685,7 +688,7 @@ cdef class SEAIR(integrators):
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -696,7 +699,7 @@ cdef class SEAIR(integrators):
             self.rhs(xt, t)
             return self.dx
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
@@ -834,7 +837,7 @@ cdef class SEAI5R(integrators):
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -842,7 +845,7 @@ cdef class SEAI5R(integrators):
             return self.dx
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
@@ -930,7 +933,7 @@ cdef class SEAIRQ(integrators):
         return                                                     
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None):
+    def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -942,7 +945,7 @@ cdef class SEAIRQ(integrators):
             return self.dx
             
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) 
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return data
