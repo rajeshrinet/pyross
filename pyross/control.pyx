@@ -4,6 +4,7 @@ cimport cython
 
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
+import pyross.stochastic
 
 
 
@@ -25,6 +26,7 @@ cdef class control_integration:
             int cur_index_i = 0,  current_protocol_index
             double t_i, cur_t_f
             int M = self.M, i, j, N_events
+            #double [:,:] CM = self.CM
             list cur_list, events_out = [], list_of_available_events
             np.ndarray cur_y0 = y0.copy()
 
@@ -151,8 +153,11 @@ cdef class SIR(control_integration):
     cdef:
         double beta, gIa, gIs, fsa
         np.ndarray alpha
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
+
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -211,27 +216,37 @@ cdef class SIR(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
 
-        if method=='deterministic':
+        if method.lower()=='deterministic':
+            y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
+            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                      'N':self.N, 'M':self.M,'alpha':self.alpha,
+                        'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
+            model = pyross.stochastic.SIR(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
 
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                  'N':self.N, 'M':self.M,'alpha':self.alpha,
-                  'events_occured':events_out,
-                    'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
-        return data
 
 
 
@@ -249,8 +264,10 @@ cdef class SIRS(control_integration):
     cdef:
         double beta, gIa, gIs, fsa, ep
         np.ndarray alpha, sa, iaa
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -327,30 +344,38 @@ cdef class SIRS(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
-
-        if method=='deterministic':
+        if method.lower()=='deterministic':
+            y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
+            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                      'N':self.N, 'M':self.M,'alpha':self.alpha,
+                        'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
-
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                  'N':self.N, 'M':self.M,'alpha':self.alpha,
-                    'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
-        return data
-
-
-
-
+            raise RuntimeError("Stochastic control not yet implemented for SIRS model.")
+            '''
+            model = pyross.stochastic.SIRS(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
+            ''';
 
 
 
@@ -368,8 +393,10 @@ cdef class SEIR(control_integration):
     cdef:
         double beta, gIa, gIs, gE, fsa
         np.ndarray alpha
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -426,30 +453,35 @@ cdef class SEIR(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
-
-        if method=='deterministic':
+        if method.lower() =='deterministic':
+            y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
+            data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                'N':self.N, 'M':self.M,'alpha':self.alpha,
+                'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
-
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-            'N':self.N, 'M':self.M,'alpha':self.alpha,
-            'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
-        return data
-
-
-
-
+            model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
 
 
 
@@ -477,8 +509,10 @@ cdef class SEI5R(control_integration):
     cdef:
         double beta, gIa, gIs, gIh, gIc, fsa, fh
         np.ndarray alpha, sa, hh, cc, mm
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # recovery rate of E class
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
@@ -588,27 +622,36 @@ cdef class SEI5R(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
-
-        if method=='deterministic':
+        if method.lower() =='deterministic':
+            y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
+            data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                  'N':self.N, 'M':self.M,'alpha':self.alpha,
+                  'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
-
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-              'N':self.N, 'M':self.M,'alpha':self.alpha,
-              'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
-        return data
-
+            model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
+                                Ih0=Ih0, Ic0=Ic0, Im0=Im0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
 
 
 
@@ -626,8 +669,10 @@ cdef class SIkR(control_integration):
     cdef:
         double beta, gI
         int ki
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gI    = parameters.get('gI')                       # recovery rate of I
         self.ki    = parameters.get('k')                        # number of stages
@@ -673,29 +718,34 @@ cdef class SIkR(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate(( S0, I0 )) # initial condition
-
-        if method=='deterministic':
+        if method.lower()=='deterministic':
+            y0 = np.concatenate(( S0, I0 )) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
+            data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
+              'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
-
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-            'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
-        return data
-
-
-
-
+            model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0,I0=I0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
 
 
 
@@ -714,8 +764,10 @@ cdef class SEkIkR(control_integration):
     cdef:
         double beta, gE, gI, fsa
         int ki, ke
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # recovery rate of E
         self.gI    = parameters.get('gI')                       # recovery rate of I
@@ -782,21 +834,23 @@ cdef class SEkIkR(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
         y0 = np.concatenate((S0, E0, I0)) # initial condition
 
-        if method=='deterministic':
+        if method.lower() =='deterministic':
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
+            raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")
 
         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
             'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
@@ -819,9 +873,10 @@ cdef class SEAIR(control_integration):
     cdef:
         double beta, gE, gA, gIa, gIs, fsa, gIh, gIc
         np.ndarray alpha
+        dict params
 
     def __init__(self, parameters, M, Ni):
-
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -885,21 +940,23 @@ cdef class SEAIR(control_integration):
                          Tf, Nf, Ti=0,seedRate=None,
                          method='deterministic',
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
         y0 = np.concatenate((S0, E0, A0, Ia0, Is0)) # initial condition
 
-        if method=='deterministic':
+        if method.lower() =='deterministic':
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
+            raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")
 
         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
               'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
@@ -937,8 +994,10 @@ cdef class SEAI5R(control_integration):
     cdef:
         double beta, gE, gA, gIa, gIs, fsa, gIh, gIc, fh
         np.ndarray alpha, sa, hh, cc, mm
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # recovery rate of E class
         self.gA    = parameters.get('gA')                       # recovery rate of A class
@@ -958,7 +1017,7 @@ cdef class SEAI5R(control_integration):
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
+        self.Ni    = Ni.copy()
 
         self.k_tot = 9
 
@@ -1053,35 +1112,43 @@ cdef class SEAI5R(control_integration):
                          Tf, Nf, Ti=0,
                          method='deterministic',seedRate=None,
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
-
-        if method=='deterministic':
+        if method.lower() =='deterministic':
+            y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,seedRate=seedRate,
                                   events_subsequent=events_subsequent)
+            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                          'N':self.N, 'M':self.M,
+                          'alpha':self.alpha, 'beta':self.beta,
+                          'gIa':self.gIa,'gIs':self.gIs,
+                          'gIh':self.gIh,'gIc':self.gIc,
+                          'fsa':self.fsa,'fh':self.fh,
+                          'gE':self.gE,'gA':self.gA,
+                          'sa':self.sa,'hh':self.hh,
+                          'mm':self.mm,'cc':self.cc,
+                          }
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
-
-        data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                      'N':self.N, 'M':self.M,
-                      'alpha':self.alpha, 'beta':self.beta,
-                      'gIa':self.gIa,'gIs':self.gIs,
-                      'gIh':self.gIh,'gIc':self.gIc,
-                      'fsa':self.fsa,'fh':self.fh,
-                      'gE':self.gE,'gA':self.gA,
-                      'sa':self.sa,'hh':self.hh,
-                      'mm':self.mm,'cc':self.cc,
-                      }
-        return data
-
-
+            model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,
+                                Ih0=Ih0, Ic0=Ic0,Im0=Im0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
 
 
 
@@ -1101,8 +1168,11 @@ cdef class SEAIRQ(control_integration):
         double beta, gIa, gIs, gE, gA, fsa
         double tE, tA, tIa, tIs
         np.ndarray alpha
+        dict params
 
     def __init__(self, parameters, M, Ni):
+        self.params = parameters
+
         self.beta  = parameters.get('beta')                     # infection rate
         self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
         self.gIs   = parameters.get('gIs')                      # recovery rate of Is
@@ -1176,24 +1246,34 @@ cdef class SEAIRQ(control_integration):
                          Tf, Nf, Ti=0,
                          method='deterministic',seedRate=None,
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
         cdef:
             np.ndarray y_eval, t_eval, y0
             dict data
 
-        y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
-
-        if method=='deterministic':
+        if method.lower() == 'deterministic':
+            y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,seedRate=seedRate,
                                   events_subsequent=events_subsequent)
+            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                    'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
+                      'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
+                      'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+            return data
         else:
-            raise RuntimeError("Stochastic control not yet implemented")
-
-        data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
-                  'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
-                  'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
-        return data
+            model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)
+            return model.simulate_events(S0=S0,E0=E0, A0=A0,
+                                Ia0=Ia0, Is0=Is0,Q0=Q0,
+                                events=events,contactMatrices=contactMatrices,
+                                Tf=Tf, Nf=Nf,
+                                method=method,
+                                nc=nc,epsilon = epsilon,
+                                tau_update_frequency = tau_update_frequency,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                seedRate=seedRate)
