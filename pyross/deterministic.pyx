@@ -27,14 +27,14 @@ cdef class integrators:
             solver.set_initial_condition(x0)
             X, time_points = solver.solve(time_points) 
 
-        elif integrator=='odespy' or integrator=='odespy-vode':
+        elif integrator=='odespy-rkf45':
             import odespy
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.RKF45(rhs0)
             solver.set_initial_condition(x0)
             X, time_points = solver.solve(time_points) 
 
-        elif integrator=='odespy' or integrator=='odespy-vode':
+        elif integrator=='odespy-rk4':
             import odespy
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             solver = odespy.RK4(rhs0)
