@@ -58,6 +58,7 @@ cdef class SIR_type:
 
     def _inference_to_minimize(self, params, grad=0, bounds=None, eps=None, beta_rescale=None, x=None, Tf=None, Nf=None,
                                contactMatrix=None, a=None, scale=None):
+        """Objective function for minimization call in inference."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
 
@@ -131,6 +132,7 @@ cdef class SIR_type:
 
     def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
                                    a=None, scale=None):
+        """Objective function for minimization call in infer_control."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
         try:
@@ -234,6 +236,7 @@ cdef class SIR_type:
 
     def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None,
                 beta_rescale=None, obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, a=None, scale=None):
+        """Objective function for minimization call in laten_inference."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
         x0 =  params[param_dim:]/rescale_factor
@@ -314,6 +317,7 @@ cdef class SIR_type:
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
                                           obs=None, fltr=None, Tf=None, Nf=None, a=None, scale=None):
+        """Objective function for minimization call in latent_infer_control."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
 
@@ -335,28 +339,6 @@ cdef class SIR_type:
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None):
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
-#        def to_minimize(params):
-#            if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-#                return INFINITY
-#            parameters = self.make_params_dict()
-#            model = self.make_det_model(parameters)
-#            times = [Tf+1]
-#            interventions = [params]
-#            contactMatrix = generator.interventions_temporal(times, interventions)
-#            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-#            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
-#            return minus_logp
-#        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-#        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-#        if verbose:
-#            def callback(params):
-#                print('parameters:', params)
-#            minimizer_kwargs['callback'] = callback
-#        take_step = BoundedSteps(bounds)
-#        res = basinhopping(to_minimize, guess, niter=niter,
-#                            minimizer_kwargs=minimizer_kwargs,
-#                            take_step=take_step, disp=verbose)
-#        return res.x
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
                          'Nf':Nf, 'a':a, 'scale':scale}

@@ -1,11 +1,17 @@
 # This file contains a util function (minimization) that needs to be implemented in pure python (not cython).
 # Otherwise, the p.map call does not work with the lambda function.
 
+import multiprocessing
 import numpy as np
 import nlopt
 import cma
-import multiprocessing
-from pathos.multiprocessing import ProcessingPool as Pool
+
+try:
+    # Optional support for multiprocessing in the minimization function.
+    import pathos.multiprocessing as pathos_mp
+except ImportError:
+    pathos_mp = None
+
 
 def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10., 
                  enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None, 
@@ -57,8 +63,19 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
             print('Starting global minimisation...')
         
         if cma_processes == 0:
-            cma_processes = multiprocessing.cpu_count()
-        p = Pool(cma_processes)
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                cma_processes = multiprocessing.cpu_count()
+            else:
+                cma_processes = 1
+
+        if pathos_mp:
+            p = pathos_mp.ProcessingPool(cma_processes)
+        else:
+            if cma_processes != 1:
+                print('Warning: Optional dependecy for multiprocessing support `pathos` not installed.')
+                print('         Switching to single processed mode (cma_processes = 1).')
+                cma_processes = 1
 
         options = cma.CMAOptions()
         options['bounds'] = [bounds[:, 0], bounds[:, 1]]
@@ -86,7 +103,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
                     # Some types of functions cannot be pickled (in particular functions that are defined in a function 
                     # that is compiled with cython). This leads to an exception when trying to pass them to a different
                     # process. If this happens, we switch the algorithm to single process mode.
-                    print('Error: Running parallel optimization failed. Will switch to single-processed mode.')
+                    print('Warning: Running parallel optimization failed. Will switch to single-processed mode.')
                     cma_processes = 1
                     values = [objective_fct(x, 0, **args_dict) for x in positions]
             else:
