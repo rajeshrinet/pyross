@@ -10,6 +10,9 @@ cdef class integrators:
         readonly np.ndarray rp0, Ni, dx, CM, FM, sa, iaa, hh, cc, mm, alpha
 
 
+
+
+@cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)

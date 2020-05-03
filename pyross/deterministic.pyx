@@ -2,10 +2,12 @@ import  numpy as np
 cimport numpy as np
 cimport cython
 
-
-
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
+
+
+
+
 cdef class integrators:
     
     def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator):
@@ -42,7 +44,8 @@ cdef class integrators:
 
 
 
-#@cython.wraparound(False)
+
+@cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
@@ -66,7 +69,7 @@ cdef class SIR(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
         
         alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -89,7 +92,7 @@ cdef class SIR(integrators):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
 
             double [:] alpha= self.alpha
 
@@ -143,7 +146,7 @@ cdef class SIRS(integrators):
 
         self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        irateS        = parameters.get('irateS')                      # daily arrival of new asymptomatics
+        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -152,7 +155,7 @@ cdef class SIRS(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -171,13 +174,13 @@ cdef class SIRS(integrators):
         else:
             print('sa can be a number or an array of size M')
 
-        self.irateS   = np.zeros( self.M, dtype = DTYPE)
-        if np.size(irateS)==1:
-            self.irateS = irateS*np.ones(M)
-        elif np.size(irateS)==M:
-            self.irateS = irateS
+        self.iaa   = np.zeros( self.M, dtype = DTYPE)
+        if np.size(iaa)==1:
+            self.iaa = iaa*np.ones(M)
+        elif np.size(iaa)==M:
+            self.iaa = iaa
         else:
-            print('irateS can be a number or an array of size M')
+            print('iaa can be a number or an array of size M')
 
 
     cdef rhs(self, xt, tt):
@@ -191,8 +194,8 @@ cdef class SIRS(integrators):
             double [:] Ni   = xt[3*M:4*M]
             double [:,:] CM = self.CM
             double [:] sa   = self.sa
-            double [:] irateS  = self.irateS
-            double [:] dx    = self.dx
+            double [:] iaa  = self.iaa
+            double [:] dx   = self.dx
             double [:] alpha= self.alpha
 
         for i in range(M):
@@ -201,9 +204,9 @@ cdef class SIRS(integrators):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             dx[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return
-            dx[i+M]   = alpha[i]*rateS - gIa*Ia[i] + irateS[i]                 # rate Ia -> R
+            dx[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
             dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                          # rate Is -> R
-            dx[i+3*M] = sa[i] + irateS[i]                                 # rate of Ni
+            dx[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni
         return
 
 
@@ -248,7 +251,7 @@ cdef class SEIR(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -264,15 +267,15 @@ cdef class SEIR(integrators):
             int N=self.N, M=self.M, i, j
             double beta=self.beta, gIa=self.gIa, gIs=self.gIs, rateS, lmda
             double fsa=self.fsa, gE=self.gE, ce1, ce2
-            double [:] S    = xt[0  :  M]
-            double [:] E    = xt[  M:2*M]
-            double [:] Ia   = xt[2*M:3*M]
-            double [:] Is   = xt[3*M:4*M]
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:]   FM = self.FM
+            double [:] S     = xt[0  :  M]
+            double [:] E     = xt[  M:2*M]
+            double [:] Ia    = xt[2*M:3*M]
+            double [:] Is    = xt[3*M:4*M]
+            double [:] Ni    = self.Ni
+            double [:,:] CM  = self.CM
+            double [:]   FM  = self.FM
             double [:] dx    = self.dx
-            double [:] alpha= self.alpha
+            double [:] alpha = self.alpha
 
         for i in range(M):
             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
@@ -344,7 +347,7 @@ cdef class SEI5R(integrators):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dx = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -414,7 +417,7 @@ cdef class SEI5R(integrators):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
 
         for i in range(M):
             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
@@ -470,7 +473,7 @@ cdef class SIkR(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
+        self.dx    = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
 
 
     cdef rhs(self, xt, tt):
@@ -482,7 +485,7 @@ cdef class SIkR(integrators):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
 
         for i in range(M):
             lmda=0
@@ -543,7 +546,7 @@ cdef class SEkIkR(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, xt, tt):
@@ -557,7 +560,7 @@ cdef class SEkIkR(integrators):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
 
         for i in range(M):
             lmda=0
@@ -639,7 +642,7 @@ cdef class SEAIR(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -665,7 +668,7 @@ cdef class SEAIR(integrators):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
             
             double [:] alpha= self.alpha
 
@@ -746,7 +749,7 @@ cdef class SEAI5R(integrators):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dx = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -812,7 +815,7 @@ cdef class SEAI5R(integrators):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
 
         for i in range(M):
             lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
@@ -879,7 +882,7 @@ cdef class SEAIRQ(integrators):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+        self.dx    = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
         
         alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -909,7 +912,7 @@ cdef class SEAIRQ(integrators):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx    = self.dx
+            double [:] dx   = self.dx
             
             double [:] alpha= self.alpha
 
