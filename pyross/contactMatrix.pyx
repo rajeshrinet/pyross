@@ -1,7 +1,10 @@
 import  numpy as np
 cimport numpy as np
+import scipy.linalg as spl
 cimport cython
 import pandas as pd
+import warnings
+from types import ModuleType
 
 
 
@@ -200,3 +203,185 @@ cdef class SIR:
                       + prefac_arr[index,1]*CS \
                       + prefac_arr[index,2]*CO
         return C_func
+    
+
+
+"""
+KreissPy
+https://gitlab.com/AustenBolitho/kreisspy
+sublibrary dedicated to calculating the transient effects of non-normal 
+contact matricies
+"""  
+def _epsilon_eval(z, A, ord=2):
+    """
+    Finds the value of \epsilon for a given complex number and matrix.
+    Uses the first definition of the pseudospectrum in Trfethen & Embree
+    ord="svd" uses fourth definition (may be faster)
+    
+
+    inputs:
+    z: length 2 array representing a complex number
+    A: an MxM matrix
+    order: order of the matrix norm given from associated vector norm
+    default is regular L2 norm -> returns maximum singular value.
+    accepted inputs are any in spl.norm or "svd"  
+    """
+    z=np.array(z)
+    A=np.array(A)
+    zc = complex(z[0], z[1])
+    try :
+        ep = 1/spl.norm(spl.inv(zc*np.eye(*A.shape)-A),ord=ord)
+        # ep = spl.norm(zc*np.eye(*A.shape)-A,ord=ord)
+    except TypeError:
+        if ord=="svd":
+            ep = np.min(spl.svdvals(zc*np.eye(*A.shape)-A))
+        else: raise Exception("invalid method")
+    return ep
+
+
+def _inv_epsilon_eval(z, A, ord=2):
+    """
+    Finds the value of 1/\epsilon for a given complex number and matrix.
+    Uses the first definition of the pseudospectrum in Trfethen & Embree
+    ord="svd" uses fourth definition (may be faster)
+    
+
+    inputs:
+    z: length 2 array representing a complex number
+    A: an MxM matrix
+    order: order of the matrix norm given from associated vector norm
+    default is regular L2 norm -> returns maximum singular value.
+    accepted inputs are any in spl.norm or "svd"  
+    """
+    z=np.array(z)
+    A=np.array(A)
+    zc = complex(z[0], z[1])
+    try :
+        iep = spl.norm(spl.inv(zc*np.eye(*A.shape)-A),ord=ord)
+    except TypeError:
+        if ord=="svd":
+            iep = 1/np.min(spl.svdvals(zc*np.eye(*A.shape)-A))
+        else: raise Exception("invalid method")
+    return iep
+
+
+def _kreiss_eval(z, A, theta=0, ord=2):
+    """
+    Kreiss constant guess for a matrix and pseudo-eigenvalue.
+
+    inputs:
+    z: length 2 array representing a complex number
+    A: an MxM matrix
+    theta: normalizing factor found in Townley et al 2007, default 0
+    ord: default 2, order of matrix norm
+    """
+    z=np.array(z)
+    A=np.array(A)
+    kg = (z[0]-theta)*_inv_epsilon_eval(z, A, ord=ord)
+    return kg
+
+
+def _inv_kreiss_eval(z, A, theta=0, ord=2):
+    """
+    1/Kreiss constant guess for a matrix and pseudo-eigenvalue.
+    for minimizer
+
+    inputs:
+    z: length 2 array representing a complex number
+    A: an MxM matrix
+    theta: normalizing factor found in Townley et al 2007, default 0
+    ord: default 2, order of matrix norm
+    """
+    z=np.array(z)
+    A=np.array(A)
+    ikg = _epsilon_eval(z, A, ord=ord)/np.real(z[0]-theta) if z[0]-theta > 0 else np.inf
+    # print(z[0]-theta)
+    return ikg
+    
+
+def _transient_properties(guess, A, theta=0, ord=2):
+    """
+    returns the maximal eigenvalue (spectral abcissa),
+    initial groth rate (numerical abcissa),
+    the Kreiss constant (minimum bound of transient)
+    and time of transient growth
+
+    inputs:
+    A: an MxM matrix
+    guess: initial guess for the minimizer
+    theta: normalizing factor found in Townley et al 2007, default 0
+    ord: default 2, order of matrix norm
+
+    returns: [spectral abcissa, numerical abcissa, Kreiss constant ,
+              duration of transient, henrici's departure from normalcy']
+    """
+    from scipy.optimize import minimize
+    A = np.array(A)
+    if np.array_equal(A@A.T, A.T@A):
+        warnings.warn("The input matrix is normal")
+        # print("The input matrix is normal")
+    evals = spl.eigvals(A)
+    sa = evals[
+        np.where(np.real(evals) == np.amax(np.real(evals)))[0]
+    ]
+    na = np.real(np.max(spl.eigvals((A+A.T)/2)))
+    m = minimize(_inv_kreiss_eval, guess, args=(A, theta, ord),
+                 bounds=((0, None), (None, None)))
+    K = 1/m.fun
+    tau = np.log(1/m.fun)/m.x[0]
+    evals2 = np.dot(evals,np.conj(evals))
+    frobNorm = spl.norm(A,ord='fro')
+    henrici = np.sqrt(frobNorm**2-evals2)#/frobNorm
+    return np.array([sa, na, K, tau, henrici],dtype=np.complex64)
+
+
+def _first_estimate( A, tol=0.001):
+    """
+    Takes the eigenvalue with the largest real part
+    
+    returns a first guess of the
+    maximal pseudoeigenvalue in the complex plane
+    """
+    evals = spl.eigvals(A)
+    revals = np.real(evals)
+    idxs = np.where(revals == np.amax(revals))[0]
+    mevals = evals[idxs]
+    iguesses = []
+    for evl in mevals:
+        guess = []
+        a, b = np.real(evl), np.imag(evl)
+        if a > 0:
+            guess = [a+tol, b]
+        else:
+            guess = [tol, b]
+        iguesses.append(guess)
+    return iguesses
+
+
+def characterise_transient(A, tol=0.001, theta=0, ord=2):
+    """
+    returns the maximal eigenvalue (spectral abcissa),
+    initial groth rate (numerical abcissa),
+    the Kreiss constant (minimum bound of transient)
+    and time of transient growth
+
+    inputs:
+    A: an MxM matrix
+    tol: Used to find a first estimate of the pseudospectrum
+    theta: normalizing factor found in Townley et al 2007, default 0
+    ord: default 2, order of matrix norm
+
+    returns: [spectral abcissa, numerical abcissa, Kreiss constant ,
+              duration of transient, henrici's departure from normalcy']
+    
+    """
+    guesses = _first_estimate(A, tol)
+    transient_properties = [1, 0, 0]
+    for guess in guesses:
+        tp = _transient_properties(guess, A, theta, ord)
+        if tp[2] > transient_properties[2]:
+            transient_properties = tp
+        else:
+            pass
+    return transient_properties
+
