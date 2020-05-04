@@ -6,94 +6,96 @@ import pandas as pd
 import warnings
 from types import ModuleType
 
+import os
+curDir, thFilename = os.path.split(__file__)
 
 
 def Austria():
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='Austria')
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Austria')
     CH = np.array(my_data)
 
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='Austria',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_work_1.xlsx'), sheet_name='Austria',index_col=None)
     CW = np.array(my_data)
 
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='Austria',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='Austria',index_col=None)
     CS = np.array(my_data)
 
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='Austria',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'), sheet_name='Austria',index_col=None)
     CO = np.array(my_data)
     return CH, CW, CS, CO
 
 
 def China():
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='China')
-    CH = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='China',index_col=None)
-    CW = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='China',index_col=None)
-    CS = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='China',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='China')
+    CH = np.array(my_data)                         
+                                                   
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_work_1.xlsx'), sheet_name='China',index_col=None)
+    CW = np.array(my_data)                         
+                                                   
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='China',index_col=None)
+    CS = np.array(my_data)                         
+                                                   
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'), sheet_name='China',index_col=None)
     CO = np.array(my_data)
     return CH, CW, CS, CO
 
 
 def Germany():
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='Germany')
-    CH = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='Germany',index_col=None)
-    CW = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='Germany',index_col=None)
-    CS = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='Germany',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Germany')
+    CH = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_work_1.xlsx'), sheet_name='Germany',index_col=None)
+    CW = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='Germany',index_col=None)
+    CS = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'), sheet_name='Germany',index_col=None)
     CO = np.array(my_data)
     return CH, CW, CS, CO
 
 
 def India():
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='India')
-    CH = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='India',index_col=None)
-    CW = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='India',index_col=None)
-    CS = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='India',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='India')
+    CH = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_work_1.xlsx'), sheet_name='India',index_col=None)
+    CW = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='India',index_col=None)
+    CS = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'), sheet_name='India',index_col=None)
     CO = np.array(my_data)
     return CH, CW, CS, CO
 
 
 def Italy():
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_1.xlsx', sheet_name='Italy')
-    CH = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_1.xlsx', sheet_name='Italy',index_col=None)
-    CW = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_1.xlsx', sheet_name='Italy',index_col=None)
-    CS = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx', sheet_name='Italy',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Italy')
+    CH = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_work_1.xlsx'), sheet_name='Italy',index_col=None)
+    CW = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='Italy',index_col=None)
+    CS = np.array(my_data)                        
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'), sheet_name='Italy',index_col=None)
     CO = np.array(my_data)
     return CH, CW, CS, CO
 
 
 def UK():
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_home_2.xlsx', sheet_name='United Kingdom of Great Britain')
-    CH0 = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_work_2.xlsx', sheet_name='United Kingdom of Great Britain',index_col=None)
-    CW0 = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_school_2.xlsx', sheet_name='United Kingdom of Great Britain',index_col=None)
-    CS0 = np.array(my_data)
-
-    my_data = pd.read_excel('../data/contact_matrices_152_countries/MUestimates_other_locations_2.xlsx', sheet_name='United Kingdom of Great Britain',index_col=None)
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_home_2.xlsx'), sheet_name='United Kingdom of Great Britain')
+    CH0 = np.array(my_data)                       
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_work_2.xlsx'), sheet_name='United Kingdom of Great Britain',index_col=None)
+    CW0 = np.array(my_data)                       
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_school_2.xlsx'), sheet_name='United Kingdom of Great Britain',index_col=None)
+    CS0 = np.array(my_data)                       
+                                                  
+    my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_other_locations_2.xlsx'), sheet_name='United Kingdom of Great Britain',index_col=None)
     CO0 = np.array(my_data)
 
     #hard coding the first row from the file as panda wont read them
@@ -126,12 +128,7 @@ ctypedef np.float_t DTYPE_t
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR:
-    """
-    Susceptible, Infected, Recovered (SIR)
-    Ia: asymptomatic
-    Is: symptomatic
-    """
+cdef class ContactMatrix:
     cdef:
         readonly str country
         np.ndarray CH, CW, CS, CO
