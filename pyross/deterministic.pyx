@@ -8,7 +8,7 @@ ctypedef np.float_t DTYPE_t
 
 
 
-cdef class integrators:
+cdef class IntegratorsClass:
     """
     List of all integrator used by various deterministic models listed below
     """
@@ -34,7 +34,7 @@ cdef class integrators:
         maxNumSteps : int, optional
             maximum number of steps the integrator is allowed to take
             to obtain a solution. The default is 100000.
-        **kwargs: optional kwargs to be passed to the integrators
+        **kwargs: optional kwargs to be passed to the IntegratorsClass
 
         Raises
         ------
@@ -97,7 +97,7 @@ cdef class integrators:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR(integrators):
+cdef class SIR(IntegratorsClass):
     """
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
@@ -242,7 +242,7 @@ cdef class SIR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIRS(integrators):
+cdef class SIRS(IntegratorsClass):
     """
     Susceptible, Infected, Recovered, Susceptible (SIRS)
     Ia: asymptomatic
@@ -342,7 +342,7 @@ cdef class SIRS(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEIR(integrators):
+cdef class SEIR(IntegratorsClass):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
     Ia: asymptomatic
@@ -425,7 +425,7 @@ cdef class SEIR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI5R(integrators):
+cdef class SEI5R(IntegratorsClass):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
     The infected class has 5 groups:
@@ -567,7 +567,7 @@ cdef class SEI5R(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIkR(integrators):
+cdef class SIkR(IntegratorsClass):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
@@ -637,7 +637,7 @@ cdef class SIkR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkR(integrators):
+cdef class SEkIkR(IntegratorsClass):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
@@ -730,7 +730,7 @@ cdef class SEkIkR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIR(integrators):
+cdef class SEAIR(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
     Ia: asymptomatic
@@ -820,7 +820,7 @@ cdef class SEAIR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI5R(integrators):
+cdef class SEAI5R(IntegratorsClass):
     """
     Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
     The infected class has 5 groups:
@@ -966,7 +966,7 @@ cdef class SEAI5R(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ(integrators):
+cdef class SEAIRQ(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
