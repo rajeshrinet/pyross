@@ -1,12 +1,11 @@
 try:
     from setuptools import setup, Extension
 except ImportError:
-    from distutils.core import setup 
+    from distutils.core import setup, Extension
 
 import numpy
 import os, sys 
 from Cython.Build import cythonize
-from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 
