@@ -102,8 +102,32 @@ cdef class SIR(integrators):
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
     Is: symptomatic
+
+    ...
+
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+        
+
+
+    Methods
+    -------
+    colorspace(c='rgb')
+        Represent the photo in the given colorspace.
+    gamma(n=1.0)
+        Change the photo's gamma exposure.
+
     """
-    
     def __init__(self, parameters, M, Ni):
         try:
             self.beta  = parameters.get('beta')                     # infection rate
@@ -161,7 +185,7 @@ cdef class SIR(integrators):
 
 
     def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                 Ti=0, seedRate=None):
+                 Ti=0, seedRate=None, maxNumSteps=None, **kwargs):
         """
         Parameters
         ----------
@@ -186,6 +210,7 @@ cdef class SIR(integrators):
             Seeding of infectives. The default is None.
         maxNumSteps : int, optional (DEPRICATED)
             maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
 
         Returns
         -------
@@ -205,7 +230,7 @@ cdef class SIR(integrators):
             return self.dx 
         
         x0 = np.concatenate((S0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, **kwargs)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
@@ -223,6 +248,7 @@ cdef class SIRS(integrators):
     Ia: asymptomatic
     Is: symptomatic
     """
+    
 
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters.get('beta')                     # infection rate
@@ -296,7 +322,7 @@ cdef class SIRS(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, seedRate=None):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -304,7 +330,7 @@ cdef class SIRS(integrators):
             return self.dx
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
