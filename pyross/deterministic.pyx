@@ -12,10 +12,14 @@ cdef class integrators:
     """
     List of all integrator used by various deterministic models listed below
     """
-    
-    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps):
-
-        if integrator=='odeint':
+    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps=100000):
+        
+        if integrator=='solve_ivp':
+            from scipy.integrate import solve_ivp
+            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            X = solve_ivp(lambda t, xt: rhs0(xt,t), [Ti,Tf], x0, t_eval=time_points).y.T
+        
+        elif integrator=='odeint':
             from scipy.integrate import odeint
             time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
             X = odeint(rhs0, x0, time_points, mxstep=maxNumSteps) 
@@ -58,13 +62,17 @@ cdef class SIR(integrators):
     Ia: asymptomatic
     Is: symptomatic
     """
-
+    
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
-
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.fsa   = parameters.get('fsa')  
+            alpha = parameters.get('alpha')                    # the self-isolation parameter
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
+            
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -74,17 +82,18 @@ cdef class SIR(integrators):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
         
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.alpha = np.zeros( self.M, dtype = DTYPE)
+                            # fraction of asymptomatic infectives
+        # self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
         elif np.size(alpha)==M:
-            self.alpha= alpha
+            self.alpha = alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
 
 
     cdef rhs(self, xt, tt):
+        
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, gIa=self.gIa, rateS, lmda
@@ -110,8 +119,41 @@ cdef class SIR(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, 
+                 integrator='solve_ivp', seedRate=None, maxNumSteps=100000):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        contactMatrix : python function(t)
+            Network of contact between individuals.
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'solve_ivp'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional (DEPRICATED)
+            maximum number of steps the integrator can take. The default is 100000.
 
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+        
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             if None != seedRate :
