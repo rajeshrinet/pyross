@@ -7,7 +7,8 @@ import warnings
 from types import ModuleType
 
 import os
-curDir, thFilename = os.path.split(__file__)
+#curDir, theFilename = os.path.split(__file__)  ## this does not Work on Binder 
+curDir ='../'
 
 
 def Austria():
@@ -128,7 +129,7 @@ ctypedef np.float_t DTYPE_t
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class ContactMatrix:
+cdef class TemporalIntervention:
     cdef:
         readonly str country
         np.ndarray CH, CW, CS, CO
