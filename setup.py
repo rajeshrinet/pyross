@@ -1,16 +1,14 @@
-import numpy
-import os, sys 
 try:
     from setuptools import setup, Extension
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup 
+
+import numpy
+import os, sys 
 from Cython.Build import cythonize
 from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
-
-with open('requirements.txt', 'r') as fh:
-    dependencies = [l.strip() for l in fh]
 
 
 setup(
@@ -28,8 +26,6 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    #install_requires=dependencies,
-    #packages=find_packages(),
     packages=['pyross'],
     package_data={'': ['*pxd', '*xlsx']},
     include_package_data = True
