@@ -81,7 +81,7 @@ cdef class SIR(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
 
     cdef rhs(self, xt, tt):
@@ -167,7 +167,7 @@ cdef class SIRS(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
@@ -175,7 +175,7 @@ cdef class SIRS(integrators):
         elif np.size(sa)==M:
             self.sa= sa
         else:
-            print('sa can be a number or an array of size M')
+            raise Exception('sa can be a number or an array of size M')
 
         self.iaa   = np.zeros( self.M, dtype = DTYPE)
         if np.size(iaa)==1:
@@ -183,7 +183,7 @@ cdef class SIRS(integrators):
         elif np.size(iaa)==M:
             self.iaa = iaa
         else:
-            print('iaa can be a number or an array of size M')
+            raise Exception('iaa can be a number or an array of size M')
 
 
     cdef rhs(self, xt, tt):
@@ -263,7 +263,7 @@ cdef class SEIR(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
     cdef rhs(self, xt, tt):
         cdef:
@@ -359,7 +359,7 @@ cdef class SEI5R(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         self.sa    = np.zeros( self.M, dtype = DTYPE)
@@ -368,7 +368,7 @@ cdef class SEI5R(integrators):
         elif np.size(sa)==M:
             self.sa= sa
         else:
-            print('sa can be a number or an array of size M')
+            raise Exception('sa can be a number or an array of size M')
 
         hh         = parameters.get('hh')                       # hospital
         self.hh    = np.zeros( self.M, dtype = DTYPE)
@@ -377,7 +377,7 @@ cdef class SEI5R(integrators):
         elif np.size(hh)==M:
             self.hh= hh
         else:
-            print('hh can be a number or an array of size M')
+            raise Exception('hh can be a number or an array of size M')
 
         cc         = parameters.get('cc')                       # ICU
         self.cc    = np.zeros( self.M, dtype = DTYPE)
@@ -386,7 +386,7 @@ cdef class SEI5R(integrators):
         elif np.size(cc)==M:
             self.cc= cc
         else:
-            print('cc can be a number or an array of size M')
+            raise Exception('cc can be a number or an array of size M')
 
         mm         = parameters.get('mm')                       # mortality
         self.mm    = np.zeros( self.M, dtype = DTYPE)
@@ -395,7 +395,7 @@ cdef class SEI5R(integrators):
         elif np.size(mm)==M:
             self.mm= mm
         else:
-            print('mm can be a number or an array of size M')
+            raise Exception('mm can be a number or an array of size M')
 
 
     cdef rhs(self, xt, tt):
@@ -654,7 +654,7 @@ cdef class SEAIR(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
     cdef rhs(self, xt, tt):
         cdef:
@@ -760,7 +760,7 @@ cdef class SEAI5R(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
@@ -768,7 +768,7 @@ cdef class SEAI5R(integrators):
         elif np.size(sa)==M:
             self.sa= sa
         else:
-            print('sa can be a number or an array of size M')
+            raise Exception('sa can be a number or an array of size M')
 
         self.hh    = np.zeros( self.M, dtype = DTYPE)
         if np.size(hh)==1:
@@ -776,7 +776,7 @@ cdef class SEAI5R(integrators):
         elif np.size(hh)==M:
             self.hh= hh
         else:
-            print('hh can be a number or an array of size M')
+            raise Exception('hh can be a number or an array of size M')
 
         self.cc    = np.zeros( self.M, dtype = DTYPE)
         if np.size(cc)==1:
@@ -784,7 +784,7 @@ cdef class SEAI5R(integrators):
         elif np.size(cc)==M:
             self.cc= cc
         else:
-            print('cc can be a number or an array of size M')
+            raise Exception('cc can be a number or an array of size M')
 
         self.mm    = np.zeros( self.M, dtype = DTYPE)
         if np.size(mm)==1:
@@ -792,7 +792,7 @@ cdef class SEAI5R(integrators):
         elif np.size(mm)==M:
             self.mm= mm
         else:
-            print('mm can be a number or an array of size M')
+            raise Exception('mm can be a number or an array of size M')
 
 
     cdef rhs(self, xt, tt):
@@ -894,7 +894,7 @@ cdef class SEAIRQ(integrators):
         elif np.size(alpha)==M:
             self.alpha= alpha
         else:
-            print('alpha can be a number or an array of size M')
+            raise Exception('alpha can be a number or an array of size M')
 
 
 
