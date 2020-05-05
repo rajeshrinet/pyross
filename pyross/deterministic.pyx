@@ -117,9 +117,9 @@ cdef class SIR(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
         
@@ -258,9 +258,9 @@ cdef class SIRS(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
     ep  : float
@@ -421,13 +421,13 @@ cdef class SEIR(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
     gE : float
-        rate of recovery of exposeds individuals.
+        rate of removal from exposed individuals.
         
 
 
@@ -578,11 +578,11 @@ cdef class SEI5R(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gE : float
-        rate of recovery of exposeds individuals.
+        rate of removal from exposeds individuals.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     gIh : float
         rate of recovery for hospitalised individuals.
     gIc : float
@@ -594,8 +594,11 @@ cdef class SEI5R(IntegratorsClass):
     sa : float, np.array (M,)
         daily arrival of new susceptables.
     hh : float, np.array (M,)
+        fraction hospitalised from Is
     cc : float, np.array (M,)
+        fraction sent to intensive care from hospitalised.
     mm : float, np.array (M,)
+        mortality rate in intensive care
 
 
     Methods
@@ -786,7 +789,7 @@ cdef class SIkR(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gI : float
-        rate of recovery of infectives.
+        rate of removal from infectives.
     ki : int
         number of stages of infection.
         
@@ -911,9 +914,9 @@ cdef class SEkIkR(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gI : float
-        rate of recovery of infected individuals.
+        rate of removal from infected individuals.
     gE : float
-        rate of recovery of exposed individuals.
+        rate of removal from exposed individuals.
     ki : int
         number of stages of infectives.
     ke : int
@@ -1063,15 +1066,15 @@ cdef class SEAIR(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
     gE : float
-        rate of recovery of exposeds individuals.
+        rate of removal from exposeds individuals.
     gA : float
-        rate of recovery of activated individuals.
+        rate of removal from activated individuals.
         
 
 
@@ -1230,15 +1233,15 @@ cdef class SEAI5R(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
     gE : float
-        rate of recovery of exposeds individuals.
+        rate of removal from exposeds individuals.
     gA : float
-        rate of recovery of activated individuals.
+        rate of removal from activated individuals.
     gIh : float
         rate of hospitalisation of infected individuals.
     gIc : float
@@ -1444,13 +1447,13 @@ cdef class SEAIRQ(IntegratorsClass):
     beta : float
         rate of spread of infection.
     gIa : float
-        rate of recovery of asymptomatic individuals.
+        rate of removal from asymptomatic individuals.
     gIs : float
-        rate of recovery of symptomatic individuals.
+        rate of removal from symptomatic individuals.
     gE : float
-        rate of recovery of exposeds individuals.
+        rate of removal from exposed individuals.
     gA : float
-        rate of recovery of activated individuals.
+        rate of removal from activated individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
     tE  : float
