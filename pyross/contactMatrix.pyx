@@ -129,7 +129,7 @@ ctypedef np.float_t DTYPE_t
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class TemporalIntervention:
+cdef class ContactMatrixFunction:
     cdef:
         np.ndarray CH, CW, CS, CO
 
@@ -208,7 +208,7 @@ cdef class TemporalIntervention:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR(TemporalIntervention):
+cdef class SIR(ContactMatrixFunction):
     cdef:
         np.ndarray CHS, CWS, CSS, COS
 
