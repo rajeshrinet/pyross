@@ -1,5 +1,5 @@
-from setuptools import setup, find_packages, Extension
-
+#from setuptools import setup, find_packages, Extension
+from distutils.core import setup, Extension 
 
 import numpy
 import os, sys 
@@ -24,7 +24,7 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    packages = find_packages(),
+#    packages = find_packages(),
     include_package_data = True
 )
 
