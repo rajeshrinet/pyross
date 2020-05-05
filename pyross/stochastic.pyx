@@ -52,6 +52,7 @@ cdef class stochastic_integration:
         t = time + dt
 
         # decide which reaction happens
+        '''
         random = ( rand()/fRAND_MAX ) * total_rate
         cs = 0.0
         I = 0
@@ -59,6 +60,10 @@ cdef class stochastic_integration:
             cs += weights[I]
             I += 1
         I -= 1
+        ''';
+        # Alternative to the above implementation: use numpy to choose random event
+        I = np.random.choice(np.arange(max_index),
+                                      p=weights/np.sum(weights))
 
         # adjust population according to chosen reaction
         i = I//( k_tot*k_tot )
@@ -123,12 +128,13 @@ cdef class stochastic_integration:
 
             # calculate total rate
             W = self.calculate_total_reaction_rate()
+            #print("t = {0:3.5f}\tReaction rate = {1:3.5f}".format(t,W))
 
             # if total reaction rate is zero
             if W == 0.:
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = (self.rp).copy()
                 break
 
             # perform SSA step
@@ -141,7 +147,7 @@ cdef class stochastic_integration:
                 while (next_writeout < t):
                     if next_writeout > Tf:
                         break
-                    trajectory[next_writeout] = rp
+                    trajectory[next_writeout] = (self.rp).copy()
                     next_writeout += 1
 
         out_arr = np.array(trajectory,dtype=long)
