@@ -933,7 +933,7 @@ cdef class SEkIkR(IntegratorsClass):
         try:
             self.beta  = parameters.get('beta')                     # infection rate
             self.gE    = parameters.get('gE')                       # recovery rate of E
-            self.gI    = parameters.get('gI')                       # recovery rate of I
+            self.gI    = parameters.get('gI')                     # recovery rate of I
             self.ki    = parameters.get('kI')                       # number of stages
             self.ke    = parameters.get('kE')
         except TypeError:
