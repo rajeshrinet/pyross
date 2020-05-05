@@ -1,7 +1,5 @@
-#try:
-#    from setuptools import setup, Extension
-#except ImportError:
-from distutils.core import setup 
+from setuptools import setup, find_packages, Extension
+
 
 import numpy
 import os, sys 
@@ -26,8 +24,7 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    packages=['pyross'],
-    package_data={'': ['*pxd', '*xlsx']},
+    packages = find_packages(),
     include_package_data = True
 )
 
