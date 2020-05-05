@@ -8,11 +8,16 @@ ctypedef np.float_t DTYPE_t
 
 
 
-cdef class integrators:
+cdef class IntegratorsClass:
     """
-    List of all integrator used by various deterministic models
+    List of all integrator used by various deterministic models listed below
+    
+    Methods
+    -------
+    simulateRHS : Performs numerical integration
     """
-    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator='odeint', maxNumSteps=100000, **kwargs):
+
+    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
         """
         Performs numerical integration
         
@@ -34,7 +39,7 @@ cdef class integrators:
         maxNumSteps : int, optional
             maximum number of steps the integrator is allowed to take
             to obtain a solution. The default is 100000.
-        **kwargs: optional kwargs to be passed to the integrators
+        **kwargs: optional kwargs to be passed to the IntegratorsClass
 
         Raises
         ------
@@ -97,7 +102,7 @@ cdef class integrators:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR(integrators):
+cdef class SIR(IntegratorsClass):
     """
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
@@ -117,18 +122,12 @@ cdef class SIR(integrators):
         rate of recovery of symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
-    N   : int
-        Population number.
-    M   : int
-        number of compartments in contactMatrix.
-    Ni : int
-        Number of individuals in each compartment.
         
+
+
     Methods
     -------
-   def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                 Ti=0, seedRate=None, maxNumSteps=None, **kwargs)
-       Returns the deterministic path given the input parameters.
+    simulate
     """
     def __init__(self, parameters, M, Ni):
         try:
@@ -186,19 +185,21 @@ cdef class SIR(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                 Ti=0, seedRate=None, maxNumSteps=None, **kwargs):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint',
+                 Ti=0, seedRate=None, maxNumSteps=10000, **kwargs):
         """
         Parameters
         ----------
-        S0 : np.array (M,)
+        S0 : np.array
             Initial number of susceptables.
-        Ia0 : np.array (M,)
+        Ia0 : np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array (M,)
+        Is0 : np.array
             Initial number of symptomatic infectives.
         contactMatrix : python function(t)
-            Network of contact between individuals.
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
         Tf : float
             Final time of integrator
         Nf : Int
@@ -207,7 +208,7 @@ cdef class SIR(integrators):
             Start time of integrator. The default is 0.
         integrator : TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
-            The default is 'solve_ivp'.
+            The default is 'odeint'.
         seedRate : python function, optional
             Seeding of infectives. The default is None.
         maxNumSteps : int, optional (DEPRICATED)
@@ -232,9 +233,10 @@ cdef class SIR(integrators):
             return self.dx 
         
         x0 = np.concatenate((S0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, **kwargs)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 
+                                'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
 
 
@@ -244,14 +246,11 @@ cdef class SIR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIRS(integrators):
+cdef class SIRS(IntegratorsClass):
     """
     Susceptible, Infected, Recovered, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
-
-    ...
-
     Attributes
     ----------
     alpha : float
@@ -264,51 +263,35 @@ cdef class SIRS(integrators):
         rate of recovery of symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
-    N   : int
-        Population number.
-    M   : int
-        number of compartments in contactMatrix.
-    Ni : int
-        Number of individuals in each compartment.
-    ep : float
-        Fraction of recovered who become susceptable
-    sa : float, np.array (M,)
-        Daily arrival of susceptables
-    iaa : float, np.array(M,)
-        Daily arrival of asymptomatics
         
+
+
     Methods
     -------
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                 Ti=0, seedRate=None, maxNumSteps=None, **kwargs)
-       Returns the deterministic path given the input parameters.
+    simulate
     """
     
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters.get('beta')                     # infection rate
-            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-            self.fsa   = parameters.get('fsa')  
-            alpha      = parameters.get('alpha')                    # the self-isolation parameter of symptomatics
-            self.ep    = parameters.get('ep')                       # fraction of recovered who become susceptible
-            sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-            iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
-        except TypeError:
-            raise Exception("Input parameters missing or of wrong type")
-        
-      
-        
+        self.beta  = parameters.get('beta')                     # infection rate
+        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+
+        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
+        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
+        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
-        
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
-        
+
+        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -316,7 +299,7 @@ cdef class SIRS(integrators):
             self.alpha= alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
-        
+
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
             self.sa = sa*np.ones(M)
@@ -324,7 +307,7 @@ cdef class SIRS(integrators):
             self.sa= sa
         else:
             raise Exception('sa can be a number or an array of size M')
-        
+
         self.iaa   = np.zeros( self.M, dtype = DTYPE)
         if np.size(iaa)==1:
             self.iaa = iaa*np.ones(M)
@@ -361,18 +344,21 @@ cdef class SIRS(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, seedRate=None, **kwargs):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
+                     seedRate=None, maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
-        S0 : np.array (M,)
+        S0 : np.array
             Initial number of susceptables.
-        Ia0 : np.array (M,)
+        Ia0 : np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array (M,)
+        Is0 : np.array
             Initial number of symptomatic infectives.
         contactMatrix : python function(t)
-            Network of contact between individuals.
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
         Tf : float
             Final time of integrator
         Nf : Int
@@ -381,10 +367,10 @@ cdef class SIRS(integrators):
             Start time of integrator. The default is 0.
         integrator : TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
-            The default is 'solve_ivp'.
+            The default is 'odeint'.
         seedRate : python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional (DEPRICATED)
+        maxNumSteps : int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -402,9 +388,10 @@ cdef class SIRS(integrators):
             return self.dx
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, **kwargs)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 
+                        'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
 
 
@@ -414,11 +401,31 @@ cdef class SIRS(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEIR(integrators):
+cdef class SEIR(IntegratorsClass):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
     Ia: asymptomatic
     Is: symptomatic
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of recovery of exposeds individuals.
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -473,7 +480,45 @@ cdef class SEIR(integrators):
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', 
+                        seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposed.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -485,9 +530,10 @@ cdef class SEIR(integrators):
             return self.dx
 
         x0 = np.concatenate((S0, E0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+                         'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
 
 
@@ -497,7 +543,7 @@ cdef class SEIR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI5R(integrators):
+cdef class SEI5R(IntegratorsClass):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
     The infected class has 5 groups:
@@ -513,6 +559,26 @@ cdef class SEI5R(integrators):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of recovery of exposeds individuals.
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -619,7 +685,51 @@ cdef class SEI5R(integrators):
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, 
+                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Ih0 : np.array
+            Initial number of hospitalized infectives.
+        Ic0 : np.array
+            Initial number of ICU infectives.
+        Im0 : np.array
+            Initial number of mortality.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -627,9 +737,10 @@ cdef class SEI5R(integrators):
             return self.dx
         
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
 
 
@@ -639,10 +750,26 @@ cdef class SEI5R(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIkR(integrators):
+cdef class SIkR(IntegratorsClass):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gI : float
+        rate of recovery of infectives.
+    ki : int
+        number of stages of infection.
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -685,8 +812,41 @@ cdef class SIkR(integrators):
         return
 
 
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
-        from scipy.integrate import odeint
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
+                 seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        I0 : np.array
+            Initial number of  infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -696,8 +856,9 @@ cdef class SIkR(integrators):
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dx
+        
         x0=np.concatenate((S0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
@@ -709,11 +870,31 @@ cdef class SIkR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkR(integrators):
+cdef class SEkIkR(IntegratorsClass):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gI : float
+        rate of recovery of infected individuals.
+    gE : float
+        rate of recovery of exposed individuals.
+    ki : int
+        number of stages of infectives.
+    ke : int
+        number of stages of exposed. .
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -777,8 +958,43 @@ cdef class SEkIkR(integrators):
         return
 
 
-    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
-        from scipy.integrate import odeint
+    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', 
+            seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        I0 : np.array
+            Initial number of  infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -790,7 +1006,7 @@ cdef class SEkIkR(integrators):
             return self.dx
         
         x0=np.concatenate((S0, E0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
@@ -802,12 +1018,34 @@ cdef class SEkIkR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIR(integrators):
+cdef class SEAIR(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of recovery of exposeds individuals.
+    gA : float
+        rate of recovery of activated individuals.
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -869,7 +1107,47 @@ cdef class SEAIR(integrators):
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0,
+             integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        A0 : np.array
+            Initial number of activateds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -880,9 +1158,10 @@ cdef class SEAIR(integrators):
             self.rhs(xt, t)
             return self.dx
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+                    'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
 
 
@@ -892,7 +1171,7 @@ cdef class SEAIR(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI5R(integrators):
+cdef class SEAI5R(IntegratorsClass):
     """
     Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
     The infected class has 5 groups:
@@ -908,6 +1187,28 @@ cdef class SEAI5R(integrators):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of recovery of exposeds individuals.
+    gA : float
+        rate of recovery of activated individuals.
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -1018,7 +1319,53 @@ cdef class SEAI5R(integrators):
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0,
+                 integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        A0 : np.array
+            Initial number of activateds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Ih0 : np.array
+            Initial number of hospitalized infectives.
+        Ic0 : np.array
+            Initial number of ICU infectives.
+        Im0 : np.array
+            Initial number of mortality.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -1026,9 +1373,10 @@ cdef class SEAI5R(integrators):
             return self.dx
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
 
 
@@ -1038,12 +1386,43 @@ cdef class SEAI5R(integrators):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ(integrators):
+cdef class SEAIRQ(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A : Asymptomatic and infectious 
+
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    gE : float
+        rate of recovery of exposeds individuals.
+    gA : float
+        rate of recovery of activated individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    tE  : float
+        testing rate and contact tracing of exposeds
+    tA  : float
+        testing rate and contact tracing of activateds
+    tIa : float
+        testing rate and contact tracing of asymptomatics
+    tIs : float
+        testing rate and contact tracing of symptomatics
+        
+
+
+    Methods
+    -------
+    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -1114,7 +1493,49 @@ cdef class SEAIRQ(integrators):
         return                                                     
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', seedRate=None, maxNumSteps=100000):
+    def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0,
+                     integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        A0 : np.array
+            Initial number of activateds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Q0 : np.array
+            Initial number of quarantineds.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -1126,9 +1547,10 @@ cdef class SEAIRQ(integrators):
             return self.dx
             
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) 
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,
+                    'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return data
 
 
