@@ -41,6 +41,21 @@ def China():
     return CH, CW, CS, CO
 
 
+def Denmark():
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Denmark')
+    CH = np.array(my_data)                         
+                                                   
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_work_1.xlsx'), sheet_name='Denmark')
+    CW = np.array(my_data)                         
+                                                   
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='Denmark')
+    CS = np.array(my_data)                         
+                                                   
+    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'), sheet_name='Denmark')
+    CO = np.array(my_data)
+    return CH, CW, CS, CO
+
+
 def Germany():
     my_data = pd.read_excel(os.path.join(curDir, 'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Germany')
     CH = np.array(my_data)                        
