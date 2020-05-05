@@ -1,8 +1,10 @@
 #from setuptools import setup, find_packages, Extension
-from distutils.core import setup, Extension 
+#    packages = find_packages(),
+#    include_package_data = True
 
 import numpy
 import os, sys 
+from distutils.core import setup
 from Cython.Build import cythonize
 from distutils.extension import Extension
 import Cython.Compiler.Options
@@ -24,10 +26,6 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-#    packages = find_packages(),
-#    include_package_data = True
     packages=['pyross'],
     package_data={'pyross': ['*.pxd']}
 )
-
-
