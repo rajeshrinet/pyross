@@ -72,7 +72,7 @@ PyRoss requires the following software
 - Python 2.6+ or Python 3.4+
 - [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional choice for integrators) | [cma](https://anaconda.org/theochem/cma) | [pathos](https://anaconda.org/conda-forge/pathos) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
 
-### Testing
+#### Testing
 ```
 python -m unittest pyross.test (-v)
 ```
