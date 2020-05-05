@@ -1,6 +1,5 @@
 #from setuptools import setup, find_packages, Extension
-#    packages = find_packages(),
-#    include_package_data = True
+from setuptools import find_packages
 
 import numpy
 import os, sys 
@@ -26,6 +25,8 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    packages=['pyross'],
-    package_data={'pyross': ['*.pxd']}
+    packages = find_packages(),
+    include_package_data = True
+#    packages=['pyross'],
+#    package_data={'pyross': ['*.pxd']}
 )
