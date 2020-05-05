@@ -157,7 +157,8 @@ cdef class stochastic_integration:
 
 
 
-    cpdef check_for_event(self,double t,events,
+    cpdef check_for_event(self,double t,double t_previous,
+                            events,
                             list list_of_available_events):
         cdef:
             long [:] rp = self.rp
@@ -167,7 +168,7 @@ cdef class stochastic_integration:
 
         for i,index_event in enumerate(list_of_available_events):
             f = events[index_event](t,rp)
-            f_p = events[index_event](t,rp_previous)
+            f_p = events[index_event](t_previous,rp_previous)
             # if the current event has a direction, include it
             try:
                 direction = events[index_event].direction
@@ -201,7 +202,7 @@ cdef class stochastic_integration:
             int M=self.M
             int i, j, k, I, k_tot = self.k_tot
             int max_index =  k_tot*k_tot*M*M
-            double t, dt, W
+            double t, dt, W, t_previous
             double [:,:] RM = self.RM
             long [:] rp = self.rp
             long [:] rp_previous = self.rp_previous
@@ -276,10 +277,13 @@ cdef class stochastic_integration:
                 rp_previous[i] = rp[i]
 
             # perform SSA step
+            t_previous = t
             t = self.SSA_step(t,W)
+            #print("t= {0:3.3f}\tt_p ={1:3.3f}".format(t,t_previous))
 
             # check for event, and update parameters if an event happened
-            current_protocol_index = self.check_for_event(t=t,events=events,
+            current_protocol_index = self.check_for_event(t=t,t_previous=t_previous,
+                              events=events,
                             list_of_available_events=list_of_available_events)
             if current_protocol_index > -0.5: # this means an event has happened
                 #
@@ -547,7 +551,7 @@ cdef class stochastic_integration:
         cdef:
             int M=self.M
             int i, j, k,  I, K_events, k_tot = self.k_tot
-            double t, dt, W
+            double t, dt, W, t_previous
             double [:,:] RM = self.RM
             long [:] rp = self.rp
             double [:] weights = self.weights
@@ -622,6 +626,7 @@ cdef class stochastic_integration:
             # we perform either an SSA or a tau-leaping step
             for i in range(k_tot*M):
                 rp_previous[i] = rp[i]
+            t_previous = t
 
             # either perform tau-leaping or SSA step:
             if SSA_steps_left < 0.5:
@@ -661,7 +666,8 @@ cdef class stochastic_integration:
             steps_until_tau_update -= 1
 
             # check for event, and update parameters if an event happened
-            current_protocol_index = self.check_for_event(t=t,events=events,
+            current_protocol_index = self.check_for_event(t=t,t_previous=t_previous,
+                                events=events,
                             list_of_available_events=list_of_available_events)
             if current_protocol_index > -0.5: # this means an event has happened
                 #
