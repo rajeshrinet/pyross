@@ -112,7 +112,7 @@ cdef class SIR(IntegratorsClass):
 
     Attributes
     ----------
-    alpha : float
+    alpha : float, np.array (M,)
         fraction of infected who are asymptomatic.
     beta : float
         rate of spread of infection.
@@ -253,7 +253,7 @@ cdef class SIRS(IntegratorsClass):
     Is: symptomatic
     Attributes
     ----------
-    alpha : float
+    alpha : float, np.array (M,)
         fraction of infected who are asymptomatic.
     beta : float
         rate of spread of infection.
@@ -263,6 +263,12 @@ cdef class SIRS(IntegratorsClass):
         rate of recovery of symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
+    ep  : float
+        fraction of recovered who become susceptable again
+    sa  : float, np.array (M,)
+        daily arrival of new susceptables
+    iaa : float, np.array (M,)
+        daily arrival of new asymptomatics
         
 
 
@@ -273,14 +279,17 @@ cdef class SIRS(IntegratorsClass):
     
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-
-        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+            alpha      = parameters.get('alpha')
+            self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
+            sa         = parameters.get('sa')                       # daily arrival of new susceptibles
+            iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -291,7 +300,6 @@ cdef class SIRS(IntegratorsClass):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -408,7 +416,7 @@ cdef class SEIR(IntegratorsClass):
     Is: symptomatic
     Attributes
     ----------
-    alpha : float
+    alpha : float, np.array (M,)
         fraction of infected who are asymptomatic.
     beta : float
         rate of spread of infection.
@@ -429,11 +437,16 @@ cdef class SEIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.gE    = parameters.get('gE')                       # recovery rate of E
+            self.fsa   = parameters.get('fsa')                     # the self-isolation parameter
+            alpha      = parameters.get('alpha') 
+        except TypeError:
+           raise Exception("Input parameters missing or of wrong type")
+
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -444,7 +457,6 @@ cdef class SEIR(IntegratorsClass):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -561,19 +573,29 @@ cdef class SEI5R(IntegratorsClass):
     Ic ---> Im, R
     Attributes
     ----------
-    alpha : float
+    alpha : float, np.array (M,)
         fraction of infected who are asymptomatic.
     beta : float
         rate of spread of infection.
+    gE : float
+        rate of recovery of exposeds individuals.
     gIa : float
         rate of recovery of asymptomatic individuals.
     gIs : float
         rate of recovery of symptomatic individuals.
+    gIh : float
+        rate of recovery for hospitalised individuals.
+    gIc : float
+        rate of recovery for idividuals in intensive care.
     fsa : float
         fraction by which symptomatic individuals self isolate.
-    gE : float
-        rate of recovery of exposeds individuals.
-        
+    fh  : float
+        fraction by which hospitalised individuals are isolated.
+    sa : float, np.array (M,)
+        daily arrival of new susceptables.
+    hh : float, np.array (M,)
+    cc : float, np.array (M,)
+    mm : float, np.array (M,)
 
 
     Methods
@@ -582,15 +604,23 @@ cdef class SEI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
-
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gE    = parameters.get('gE')                       # recovery rate of E class
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.gIh   = parameters.get('gIh')                      # recovery rate of Is
+            self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
+            self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+            self.fh    = parameters.get('fh')                    # the self-isolation parameter of hospitalizeds
+            alpha      = parameters.get('alpha') 
+            sa         = parameters.get('sa')
+            hh         = parameters.get('hh')
+            cc         = parameters.get('cc')
+            mm         = parameters.get('mm')                  
+        except TypeError:
+           raise Exception("Input parameters missing or of wrong type")
+            
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -599,7 +629,6 @@ cdef class SEI5R(IntegratorsClass):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.dx    = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -608,7 +637,6 @@ cdef class SEI5R(IntegratorsClass):
         else:
             raise Exception('alpha can be a number or an array of size M')
 
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
             self.sa = sa*np.ones(M)
@@ -617,7 +645,6 @@ cdef class SEI5R(IntegratorsClass):
         else:
             raise Exception('sa can be a number or an array of size M')
 
-        hh         = parameters.get('hh')                       # hospital
         self.hh    = np.zeros( self.M, dtype = DTYPE)
         if np.size(hh)==1:
             self.hh = hh*np.ones(M)
@@ -626,7 +653,6 @@ cdef class SEI5R(IntegratorsClass):
         else:
             raise Exception('hh can be a number or an array of size M')
 
-        cc         = parameters.get('cc')                       # ICU
         self.cc    = np.zeros( self.M, dtype = DTYPE)
         if np.size(cc)==1:
             self.cc = cc*np.ones(M)
@@ -635,7 +661,6 @@ cdef class SEI5R(IntegratorsClass):
         else:
             raise Exception('cc can be a number or an array of size M')
 
-        mm         = parameters.get('mm')                       # mortality
         self.mm    = np.zeros( self.M, dtype = DTYPE)
         if np.size(mm)==1:
             self.mm = mm*np.ones(M)
@@ -676,7 +701,7 @@ cdef class SEI5R(IntegratorsClass):
             rateS = lmda*S[i]
             dx[i]     = -rateS + sa[i]                       # rate S  -> E
             dx[i+M]   = rateS  - gE*E[i]                     # rate E  -> Ia, Is
-            dx[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R    
+            dx[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R, Ih    
             dx[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Is -> R, Ih
             dx[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
             dx[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im 
@@ -773,9 +798,13 @@ cdef class SIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gI    = parameters.get('gI')                       # recovery rate of I
-        self.ki    = parameters.get('k')                        # number of stages
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gI    = parameters.get('gI')                       # recovery rate of I
+            self.ki    = parameters.get('k')
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")                        # number of stages
+        
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -888,7 +917,7 @@ cdef class SEkIkR(IntegratorsClass):
     ki : int
         number of stages of infectives.
     ke : int
-        number of stages of exposed. .
+        number of stages of exposed. 
         
 
 
@@ -898,11 +927,14 @@ cdef class SEkIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gI    = parameters.get('gI')                       # recovery rate of I
-        self.ki    = parameters.get('kI')                       # number of stages
-        self.ke    = parameters.get('kE')
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gE    = parameters.get('gE')                       # recovery rate of E
+            self.gI    = parameters.get('gI')                       # recovery rate of I
+            self.ki    = parameters.get('kI')                       # number of stages
+            self.ke    = parameters.get('kE')
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1049,13 +1081,18 @@ cdef class SEAIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.gE    = parameters.get('gE')                       # recovery rate of E
+            self.gA    = parameters.get('gA')                       # rate to go from A to Ia, Is
+            self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+            alpha      = parameters.get('alpha')
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
 
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gA    = parameters.get('gA')                       # rate to go from A to Ia, Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1066,7 +1103,6 @@ cdef class SEAIR(IntegratorsClass):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -1203,6 +1239,10 @@ cdef class SEAI5R(IntegratorsClass):
         rate of recovery of exposeds individuals.
     gA : float
         rate of recovery of activated individuals.
+    gIh : float
+        rate of hospitalisation of infected individuals.
+    gIc : float
+        rate hospitalised individuals are moved to intensive care.
         
 
 
@@ -1212,21 +1252,25 @@ cdef class SEAI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gA    = parameters.get('gA')                       # recovery rate of A class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gE    = parameters.get('gE')                       # recovery rate of E class
+            self.gA    = parameters.get('gA')                       # recovery rate of A class
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.gIh   = parameters.get('gIh')                      # recovery rate of Is
+            self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
+            self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+            self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        hh         = parameters.get('hh')                       # hospital
-        cc         = parameters.get('cc')                       # ICU
-        mm         = parameters.get('mm')                       # mortality
+            alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+            sa         = parameters.get('sa')                       # daily arrival of new susceptibles
+            hh         = parameters.get('hh')                       # hospital
+            cc         = parameters.get('cc')                       # ICU
+            mm         = parameters.get('mm')                       # mortality
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
+
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1426,17 +1470,22 @@ cdef class SEAIRQ(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gA    = parameters.get('gA')                       # rate to go from A to Ia and Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.gE    = parameters.get('gE')                       # recovery rate of E
+            self.gA    = parameters.get('gA')                       # rate to go from A to Ia and Is
+            self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+    
+            self.tE    = parameters.get('tE')                       # testing rate & contact tracing of E
+            self.tA    = parameters.get('tA')                       # testing rate & contact tracing of A
+            self.tIa   = parameters.get('tIa')                      # testing rate & contact tracing of Ia
+            self.tIs   = parameters.get('tIs')                      # testing rate & contact tracing of Is
+            alpha      = parameters.get('alpha') 
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
 
-        self.tE    = parameters.get('tE')                       # testing rate & contact tracing of E
-        self.tA    = parameters.get('tA')                       # testing rate & contact tracing of A
-        self.tIa   = parameters.get('tIa')                      # testing rate & contact tracing of Ia
-        self.tIs   = parameters.get('tIs')                      # testing rate & contact tracing of Is
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1447,7 +1496,6 @@ cdef class SEAIRQ(IntegratorsClass):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
         
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
