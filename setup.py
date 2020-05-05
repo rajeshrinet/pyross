@@ -1,5 +1,5 @@
 #from setuptools import setup, find_packages, Extension
-from setuptools import find_packages
+#from setuptools import find_packages
 
 import numpy
 import os, sys 
@@ -9,6 +9,13 @@ from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join('..', path, filename))
+    return paths
+extra_files = package_files('pyross/data')
 
 setup(
     name='PyRoss',
@@ -25,8 +32,8 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    packages = find_packages(),
-    package_data={'pyross': ['*.pxd']},
-    include_package_data = True
+    #packages = find_packages(),
+    package_data={'': [extra_files],'pyross': ['*.pxd']},
+    #include_package_data = True
 #    packages=['pyross'],
 )
