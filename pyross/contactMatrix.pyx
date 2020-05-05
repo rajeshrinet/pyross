@@ -129,7 +129,7 @@ ctypedef np.float_t DTYPE_t
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR:
+cdef class TemporalIntervention:
     cdef:
         np.ndarray CH, CW, CS, CO
 
@@ -208,7 +208,7 @@ cdef class SIR:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class TemporalIntervention(SIR):
+cdef class SIR(TemporalIntervention):
     cdef:
         np.ndarray CHS, CWS, CSS, COS
 
