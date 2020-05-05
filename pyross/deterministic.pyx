@@ -10,7 +10,7 @@ ctypedef np.float_t DTYPE_t
 
 cdef class integrators:
     """
-    List of all integrator used by various deterministic models listed below
+    List of all integrator used by various deterministic models
     """
     def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator='odeint', maxNumSteps=100000, **kwargs):
         """
@@ -117,16 +117,18 @@ cdef class SIR(integrators):
         rate of recovery of symptomatic individuals.
     fsa : float
         fraction by which symptomatic individuals self isolate.
+    N   : int
+        Population number.
+    M   : int
+        number of compartments in contactMatrix.
+    Ni : int
+        Number of individuals in each compartment.
         
-
-
     Methods
     -------
-    colorspace(c='rgb')
-        Represent the photo in the given colorspace.
-    gamma(n=1.0)
-        Change the photo's gamma exposure.
-
+   def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
+                 Ti=0, seedRate=None, maxNumSteps=None, **kwargs)
+       Returns the deterministic path given the input parameters.
     """
     def __init__(self, parameters, M, Ni):
         try:
@@ -189,11 +191,11 @@ cdef class SIR(integrators):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0 : np.array (M,)
             Initial number of susceptables.
-        Ia0 : np.array
+        Ia0 : np.array (M,)
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0 : np.array (M,)
             Initial number of symptomatic infectives.
         contactMatrix : python function(t)
             Network of contact between individuals.
@@ -247,29 +249,66 @@ cdef class SIRS(integrators):
     Susceptible, Infected, Recovered, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
+
+    ...
+
+    Attributes
+    ----------
+    alpha : float
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of recovery of asymptomatic individuals.
+    gIs : float
+        rate of recovery of symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    N   : int
+        Population number.
+    M   : int
+        number of compartments in contactMatrix.
+    Ni : int
+        Number of individuals in each compartment.
+    ep : float
+        Fraction of recovered who become susceptable
+    sa : float, np.array (M,)
+        Daily arrival of susceptables
+    iaa : float, np.array(M,)
+        Daily arrival of asymptomatics
+        
+    Methods
+    -------
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
+                 Ti=0, seedRate=None, maxNumSteps=None, **kwargs)
+       Returns the deterministic path given the input parameters.
     """
     
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-
-        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
-
+        try:
+            self.beta  = parameters.get('beta')                     # infection rate
+            self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
+            self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+            self.fsa   = parameters.get('fsa')  
+            alpha      = parameters.get('alpha')                    # the self-isolation parameter of symptomatics
+            self.ep    = parameters.get('ep')                       # fraction of recovered who become susceptible
+            sa         = parameters.get('sa')                       # daily arrival of new susceptibles
+            iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        except TypeError:
+            raise Exception("Input parameters missing or of wrong type")
+        
+      
+        
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
-
+        
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
-
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -277,7 +316,7 @@ cdef class SIRS(integrators):
             self.alpha= alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
-
+        
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
             self.sa = sa*np.ones(M)
@@ -285,7 +324,7 @@ cdef class SIRS(integrators):
             self.sa= sa
         else:
             raise Exception('sa can be a number or an array of size M')
-
+        
         self.iaa   = np.zeros( self.M, dtype = DTYPE)
         if np.size(iaa)==1:
             self.iaa = iaa*np.ones(M)
@@ -322,7 +361,40 @@ cdef class SIRS(integrators):
         return
 
 
-    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, seedRate=None):
+    def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, seedRate=None, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array (M,)
+            Initial number of susceptables.
+        Ia0 : np.array (M,)
+            Initial number of asymptomatic infectives.
+        Is0 : np.array (M,)
+            Initial number of symptomatic infectives.
+        contactMatrix : python function(t)
+            Network of contact between individuals.
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'solve_ivp'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional (DEPRICATED)
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
@@ -330,7 +402,7 @@ cdef class SIRS(integrators):
             return self.dx
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf)
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, **kwargs)
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
