@@ -130,14 +130,6 @@ cdef class SIR(IntegratorsClass):
     simulate
     """
     def __init__(self, parameters, M, Ni):
-        # try:
-        #     self.beta  = parameters['beta')                     # infection rate
-        #     self.gIa   = parameters['gIa')                      # recovery rate of Ia
-        #     self.gIs   = parameters['gIs')                      # recovery rate of Is
-        #     self.fsa   = parameters['fsa')  
-        #     alpha = parameters['alpha')                    # the self-isolation parameter
-        # except TypeError:
-        #     raise Exception("Input parameters missing or of wrong type")
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
         self.gIs   = parameters['gIs']                      # recovery rate of Is
@@ -606,22 +598,19 @@ cdef class SEI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters['beta']                     # infection rate
-            self.gE    = parameters['gE']                       # recovery rate of E class
-            self.gIa   = parameters['gIa']                      # recovery rate of Ia
-            self.gIs   = parameters['gIs']                      # recovery rate of Is
-            self.gIh   = parameters['gIh']                      # recovery rate of Is
-            self.gIc   = parameters['gIc']                      # recovery rate of Ih
-            self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-            self.fh    = parameters['fh']                    # the self-isolation parameter of hospitalizeds
-            alpha      = parameters['alpha'] 
-            sa         = parameters['sa']
-            hh         = parameters['hh']
-            cc         = parameters['cc']
-            mm         = parameters['mm']               
-        except TypeError:
-           raise Exception("Input parameters missing or of wrong type")
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                    # the self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha'] 
+        sa         = parameters['sa']
+        hh         = parameters['hh']
+        cc         = parameters['cc']
+        mm         = parameters['mm']               
             
         self.N     = np.sum(Ni)
         self.M     = M
@@ -789,7 +778,7 @@ cdef class SIkR(IntegratorsClass):
         rate of spread of infection.
     gI : float
         rate of removal from infectives.
-    ki : int
+    kI : int
         number of stages of infection.
         
 
@@ -800,13 +789,9 @@ cdef class SIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters['beta']                     # infection rate
-            self.gI    = parameters['gI']                       # recovery rate of I
-            self.ki    = parameters['k']
-        except TypeError:
-            raise Exception("Input parameters missing or of wrong type")                        # number of stages
-        
+        self.beta  = parameters['beta']                     # infection rate
+        self.gI    = parameters['gI']                       # recovery rate of I
+        self.ki     = parameters['kI']
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -891,7 +876,7 @@ cdef class SIkR(IntegratorsClass):
         x0=np.concatenate((S0, I0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.k }
         return data
 
 
@@ -929,14 +914,11 @@ cdef class SEkIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters['beta']                     # infection rate
-            self.gE    = parameters['gE']                       # recovery rate of E
-            self.gI    = parameters['gI']                     # recovery rate of I
-            self.ki    = parameters['kI']                       # number of stages
-            self.ke    = parameters['kE']
-        except TypeError:
-            raise Exception("Input parameters missing or of wrong type")
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gI    = parameters['gI']                     # recovery rate of I
+        self.ki    = parameters['kI']                       # number of stages
+        self.ke    = parameters['kE']
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1083,18 +1065,13 @@ cdef class SEAIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters['beta']                     # infection rate
-            self.gIa   = parameters['gIa']                      # recovery rate of Ia
-            self.gIs   = parameters['gIs']                      # recovery rate of Is
-            self.gE    = parameters['gE']                      # recovery rate of E
-            self.gA    = parameters['gA']                      # rate to go from A to Ia, Is
-            self.fsa   = parameters['fsa']                      # the self-isolation parameter
-            alpha      = parameters['alpha']
-        except TypeError:
-            raise Exception("Input parameters missing or of wrong type")
-
-        
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                      # recovery rate of E
+        self.gA    = parameters['gA']                      # rate to go from A to Ia, Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
+        alpha      = parameters['alpha']
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1254,25 +1231,21 @@ cdef class SEAI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters['beta']                     # infection rate
-            self.gE    = parameters['gE']                       # recovery rate of E class
-            self.gA    = parameters['gA']                       # recovery rate of A class
-            self.gIa   = parameters['gIa']                      # recovery rate of Ia
-            self.gIs   = parameters['gIs']                      # recovery rate of Is
-            self.gIh   = parameters['gIh']                      # recovery rate of Is
-            self.gIc   = parameters['gIc']                      # recovery rate of Ih
-            self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-            self.fh    = parameters['fh']                      # the self-isolation parameter of hospitalizeds
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gA    = parameters['gA']                       # recovery rate of A class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                      # the self-isolation parameter of hospitalizeds
 
-            alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
-            sa         = parameters['sa']                       # daily arrival of new susceptibles
-            hh         = parameters['hh']                       # hospital
-            cc         = parameters['cc']                       # ICU
-            mm         = parameters['mm']                       # mortality
-        except TypeError:
-            raise Exception("Input parameters missing or of wrong type")
-
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
+        sa         = parameters['sa']                       # daily arrival of new susceptibles
+        hh         = parameters['hh']                       # hospital
+        cc         = parameters['cc']                       # ICU
+        mm         = parameters['mm']                       # mortality
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1472,22 +1445,18 @@ cdef class SEAIRQ(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        try:
-            self.beta  = parameters['beta']                     # infection rate
-            self.gIa   = parameters['gIa']                      # recovery rate of Ia
-            self.gIs   = parameters['gIs']                      # recovery rate of Is
-            self.gE    = parameters['gE']                      # recovery rate of E
-            self.gA    = parameters['gA']                      # rate to go from A to Ia and Is
-            self.fsa   = parameters['fsa']                      # the self-isolation parameter
-    
-            self.tE    = parameters['tE']                       # testing rate & contact tracing of E
-            self.tA    = parameters['tA']                       # testing rate & contact tracing of A
-            self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia
-            self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is
-            alpha      = parameters['alpha'] 
-        except TypeError:
-            raise Exception("Input parameters missing or of wrong type")
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                      # recovery rate of E
+        self.gA    = parameters['gA']                      # rate to go from A to Ia and Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
+        self.tE    = parameters['tE']                       # testing rate & contact tracing of E
+        self.tA    = parameters['tA']                       # testing rate & contact tracing of A
+        self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia
+        self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is
+        alpha      = parameters['alpha'] 
 
         self.N     = np.sum(Ni)
         self.M     = M
