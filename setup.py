@@ -1,11 +1,12 @@
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup, Extension
+#try:
+#    from setuptools import setup, Extension
+#except ImportError:
+from distutils.core import setup 
 
 import numpy
 import os, sys 
 from Cython.Build import cythonize
+from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 
