@@ -5,14 +5,15 @@ cimport cython
 import pandas as pd
 import warnings
 from types import ModuleType
-
 import os 
 
-try:
-    curDir, theFilename = os.path.split(__file__)  ## this does not Work on Binder 
-    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Austria')
-except OSError:
-    curDir ='../'
+#
+#try:
+#    curDir, theFilename = os.path.split(__file__)  ## this does not Work on Binder 
+#    my_data = pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_home_1.xlsx'), sheet_name='Austria')
+#except OSError:
+#    curDir ='../'
+curDir ='../'
 
 
 
