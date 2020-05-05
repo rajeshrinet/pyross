@@ -6,8 +6,9 @@ import pandas as pd
 import warnings
 from types import ModuleType
 
-import os, pyross
-curDir = os.path.abspath(os.path.join(pyross.DIR_PYROSS, '..', 'examples', 'data'))
+import os
+curDir, theFilename = os.path.split(__file__)  ## this does not Work on Binder 
+curDir ='../'
 
 
 
