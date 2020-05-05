@@ -7,7 +7,7 @@ import warnings
 from types import ModuleType
 
 import os
-curDir, theFilename = os.path.split(__file__)  ## this does not Work on Binder 
+#curDir, theFilename = os.path.split(__file__)  ## this does not Work on Binder 
 curDir ='../'
 
 
