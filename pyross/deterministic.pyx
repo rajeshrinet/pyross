@@ -130,10 +130,10 @@ cdef class SIR(IntegratorsClass):
     simulate
     """
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.fsa   = parameters['fsa'] 
+        self.beta  = parameters['beta']                         # infection rate
+        self.gIa   = parameters['gIa']                          # recovery rate of Ia
+        self.gIs   = parameters['gIs']                          # recovery rate of Is
+        self.fsa   = parameters['fsa']                          # fraction of asymptomatic infectives
         alpha      = parameters['alpha'] 
             
         self.N     = np.sum(Ni)
@@ -145,8 +145,8 @@ cdef class SIR(IntegratorsClass):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dx    = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
         
-                            # fraction of asymptomatic infectives
-        # self.alpha = np.zeros( self.M, dtype = DTYPE)
+                            
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
         elif np.size(alpha)==M:
@@ -176,7 +176,7 @@ cdef class SIR(IntegratorsClass):
             for j in range(M):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                                          
-            dx[i]     = -rateS - FM[i]                                # rate S  -> Ia, Is
+            dx[i]     = -rateS - FM[i]                                           # rate S  -> Ia, Is
             dx[i+M]   = alpha[i]*rateS     - gIa*Ia[i] + alpha[i]    *FM[i]      # rate Ia -> R
             dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i] + (1-alpha[i])*FM[i]      # rate Is -> R
         return
@@ -276,14 +276,14 @@ cdef class SIRS(IntegratorsClass):
     
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                    # recovery rate of Is
-        self.fsa   = parameters['fsa']                    # the self-isolation parameter of symptomatics
+        self.beta  = parameters['beta']                         # infection rate
+        self.gIa   = parameters['gIa']                          # recovery rate of Ia
+        self.gIs   = parameters['gIs']                          # recovery rate of Is
+        self.fsa   = parameters['fsa']                          # the self-isolation parameter of symptomatics
         alpha      = parameters['alpha']
-        self.ep    = parameters['ep']                      # fraction of recovered who is susceptible
-        sa         = parameters['sa']                      # daily arrival of new susceptibles
-        iaa        = parameters['iaa']                      # daily arrival of new asymptomatics
+        self.ep    = parameters['ep']                           # fraction of recovered who is susceptible
+        sa         = parameters['sa']                           # daily arrival of new susceptibles
+        iaa        = parameters['iaa']                          # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -339,9 +339,9 @@ cdef class SIRS(IntegratorsClass):
             for j in range(M):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
-            dx[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return
-            dx[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
-            dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                          # rate Is -> R
+            dx[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])    # rate S  -> Ia, Is and also return
+            dx[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]            # rate Ia -> R
+            dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                 # rate Is -> R
             dx[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni
         return
 
@@ -431,11 +431,11 @@ cdef class SEIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
-        self.fsa   = parameters['fsa']                     # the self-isolation parameter
+        self.beta  = parameters['beta']                         # infection rate
+        self.gIa   = parameters['gIa']                          # recovery rate of Ia
+        self.gIs   = parameters['gIs']                          # recovery rate of Is
+        self.gE    = parameters['gE']                           # recovery rate of E
+        self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha'] 
 
 
@@ -476,8 +476,8 @@ cdef class SEIR(IntegratorsClass):
             for j in range(M):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                                          
-            dx[i]     = -rateS - FM[i]                                # rate S  -> E
-            dx[i+M]   = rateS       - gE*  E[i] + FM[i]               # rate E  -> Ia, Is
+            dx[i]     = -rateS - FM[i]                             # rate S  -> E
+            dx[i+M]   = rateS       - gE*  E[i] + FM[i]            # rate E  -> Ia, Is
             dx[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R
             dx[i+3*M] = ce2*E[i] - gIs*Is[i]                       # rate Is -> R
         return
@@ -584,6 +584,7 @@ cdef class SEI5R(IntegratorsClass):
         fraction by which hospitalised individuals are isolated.
     sa : float, np.array (M,)
         daily arrival of new susceptables.
+        sa is rate of additional/removal of population by birth etc
     hh : float, np.array (M,)
         fraction hospitalised from Is
     cc : float, np.array (M,)
@@ -605,7 +606,7 @@ cdef class SEI5R(IntegratorsClass):
         self.gIh   = parameters['gIh']                      # recovery rate of Is
         self.gIc   = parameters['gIc']                      # recovery rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']                    # the self-isolation parameter of hospitalizeds
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
         alpha      = parameters['alpha'] 
         sa         = parameters['sa']
         hh         = parameters['hh']
@@ -679,7 +680,7 @@ cdef class SEI5R(IntegratorsClass):
             double [:,:] CM = self.CM
             
             double [:] alpha= self.alpha
-            double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
+            double [:] sa   = self.sa       
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
@@ -690,8 +691,8 @@ cdef class SEI5R(IntegratorsClass):
             for j in range(M):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
-            dx[i]     = -rateS + sa[i]                       # rate S  -> E
-            dx[i+M]   = rateS  - gE*E[i]                     # rate E  -> Ia, Is
+            dx[i]     = -rateS + sa[i]                    # rate S  -> E
+            dx[i+M]   = rateS  - gE*E[i]                  # rate E  -> Ia, Is
             dx[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R, Ih    
             dx[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Is -> R, Ih
             dx[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
@@ -789,9 +790,9 @@ cdef class SIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                     # infection rate
-        self.gI    = parameters['gI']                       # recovery rate of I
-        self.ki     = parameters['kI']
+        self.beta  = parameters['beta']                         # infection rate
+        self.gI    = parameters['gI']                           # recovery rate of I
+        self.ki    = parameters['kI']
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -914,10 +915,10 @@ cdef class SEkIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E
-        self.gI    = parameters['gI']                     # recovery rate of I
-        self.ki    = parameters['kI']                       # number of stages
+        self.beta  = parameters['beta']                         # infection rate
+        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gI    = parameters['gI']                           # recovery rate of I
+        self.ki    = parameters['kI']                           # number of stages
         self.ke    = parameters['kE']
 
         self.N     = np.sum(Ni)
@@ -1065,12 +1066,12 @@ cdef class SEAIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                      # recovery rate of E
-        self.gA    = parameters['gA']                      # rate to go from A to Ia, Is
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter
+        self.beta  = parameters['beta']                         # infection rate
+        self.gIa   = parameters['gIa']                          # recovery rate of Ia
+        self.gIs   = parameters['gIs']                          # recovery rate of Is
+        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gA    = parameters['gA']                           # rate to go from A to Ia, Is
+        self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha']
 
         self.N     = np.sum(Ni)
@@ -1116,9 +1117,9 @@ cdef class SEAIR(IntegratorsClass):
             rateS = lmda*S[i]
             dx[i]     = -rateS - FM[i]                          # rate S  -> E
             dx[i+M]   =  rateS      - gE*E[i] + FM[i]           # rate E  -> A
-            dx[i+2*M] = gE* E[i] - gA*A[i]                   # rate A  -> Ia, Is
-            dx[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R
-            dx[i+4*M] = gAS*A[i] - gIs     *Is[i]            # rate Is -> R
+            dx[i+2*M] = gE* E[i] - gA*A[i]                      # rate A  -> Ia, Is
+            dx[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # rate Ia -> R
+            dx[i+4*M] = gAS*A[i] - gIs     *Is[i]               # rate Is -> R
         return
 
 
@@ -1239,7 +1240,7 @@ cdef class SEAI5R(IntegratorsClass):
         self.gIh   = parameters['gIh']                      # recovery rate of Is
         self.gIc   = parameters['gIc']                      # recovery rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']                      # the self-isolation parameter of hospitalizeds
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         sa         = parameters['sa']                       # daily arrival of new susceptibles
@@ -1326,8 +1327,8 @@ cdef class SEAI5R(IntegratorsClass):
             for j in range(M):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
-            dx[i]     = -rateS + sa[i]                       # rate S  -> E
-            dx[i+M]   = rateS  - gE*E[i]                     # rate E  -> A
+            dx[i]     = -rateS + sa[i]                    # rate S  -> E
+            dx[i+M]   = rateS  - gE*E[i]                  # rate E  -> A
             dx[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I                  
             dx[i+3*M] = gAA*A[i] - gIa*Ia[i]              # rate Ia -> R
             dx[i+4*M] = gAS*A[i] - gIs*Is[i]              # rate Is -> R, Ih
@@ -1448,8 +1449,8 @@ cdef class SEAIRQ(IntegratorsClass):
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
         self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                      # recovery rate of E
-        self.gA    = parameters['gA']                      # rate to go from A to Ia and Is
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.tE    = parameters['tE']                       # testing rate & contact tracing of E
@@ -1503,12 +1504,12 @@ cdef class SEAIRQ(IntegratorsClass):
             for j in range(M):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                          
-            dx[i]     = -rateS      - FM[i]        # rate S  -> E, Q
-            dx[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]        # rate E  -> A, Q
+            dx[i]     = -rateS      - FM[i]                         # rate S  -> E, Q
+            dx[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # rate E  -> A, Q
             dx[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q
             dx[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
             dx[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
-            dx[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q
+            dx[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # rate of Q
         return                                                     
 
 
