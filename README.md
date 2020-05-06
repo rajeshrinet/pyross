@@ -21,6 +21,38 @@ The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronal
 
 Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research.
 
+## Installation
+Clone (or download) the repository and use a terminal to install using
+
+```bash
+>> git clone https://github.com/rajeshrinet/pyross.git
+>> cd pyross
+>> python setup.py install
+```
+#### Pip
+
+```
+pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
+```
+
+PyRoss requires the following software
+
+- Python 2.6+ or Python 3.4+
+- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional choice for integrators) | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt) | [pathos](https://anaconda.org/conda-forge/pathos) (optional for parallelizing inference)
+
+#### Testing
+```
+python -m unittest pyross.test (-v)
+```
+
+## Data sources
+
+**Case data:** The data for COVID-19 cases is obtained from the [Worldometer website](https://www.worldometers.info/coronavirus).
+
+**Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website.
+
+**Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
+
 
 
 
