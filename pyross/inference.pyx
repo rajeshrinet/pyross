@@ -1,6 +1,6 @@
 from scipy import sparse
 from scipy.integrate import odeint
-from scipy.optimize import minimize, approx_fprime, basinhopping
+from scipy.optimize import minimize, approx_fprime
 from scipy.stats import gamma
 import numpy as np
 from numpy.polynomial.chebyshev import chebfit, chebval
@@ -62,20 +62,17 @@ cdef class SIR_type:
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
 
-        try:
-            local_params = params.copy()
-            local_params[1] /= beta_rescale
-            parameters = self.make_params_dict(local_params)
-            self.set_params(parameters)
-            model = self.make_det_model(parameters)
-            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
-            return minus_logp
-        except:
-            return INFINITY
+        local_params = params.copy()
+        local_params[1] /= beta_rescale
+        parameters = self.make_params_dict(local_params)
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
+        return minus_logp
 
 
-    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, niter=2, verbose=False,
+    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, verbose=False,
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
@@ -93,14 +90,12 @@ cdef class SIR_type:
         bounds: 2d numpy.array
             bounds for the parameters.
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        niter: int
-            deprecated (number of iterations of basinhopping)
         verbose: bool
             whether to print messages
         ftol: double
             relative tolerance of logp
         eps: double
-            deprecated (size of steps taken by L-BFGS-B algorithm for the calculation of Hessian)
+            step size used to calculate hessian in the optimisation algorithm
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
@@ -118,8 +113,8 @@ cdef class SIR_type:
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
         if cma_stds is None:
-            # Use prior standard deviations here (todo: how to scale this value properly?)
-            cma_stds = 1.0/3.0 * stds
+            # Use prior standard deviations here
+            cma_stds = stds
 
         minimize_args={'bounds':bounds, 'eps':eps, 'beta_rescale':beta_rescale, 'x':x, 'Tf':Tf, 'Nf':Nf,
                          'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
@@ -136,19 +131,18 @@ cdef class SIR_type:
         """Objective function for minimization call in infer_control."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
-        try:
-            parameters = self.make_params_dict()
-            model =self.make_det_model(parameters)
-            times = [Tf+1]
-            interventions = [params]
-            contactMatrix = generator.interventions_temporal(times, interventions)
-            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
-            return minus_logp
-        except:
-            return INFINITY
 
-    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5,
+        parameters = self.make_params_dict()
+        model =self.make_det_model(parameters)
+        times = [Tf+1]
+        interventions = [params]
+        contactMatrix = generator.interventions_temporal(times, interventions)
+        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        return minus_logp
+
+
+    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5,
                       global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
@@ -162,14 +156,12 @@ cdef class SIR_type:
         bounds: 2d numpy.array
             bounds for the parameters.
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        niter: int
-            deprecated (number of iterations of basinhopping)
         verbose: bool
             whether to print messages
         ftol: double
             relative tolerance of logp
         eps: double
-            deprecated (size of steps taken by L-BFGS-B algorithm for the calculation of Hessian)
+            step size used to calculate hessian in the optimisation algorithm
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
@@ -178,7 +170,7 @@ cdef class SIR_type:
 
         if cma_stds is None:
             # Use prior standard deviations here
-            cma_stds = 1.0/3.0 * stds
+            cma_stds = stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 'a':a, 'scale':scale}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
@@ -245,23 +237,22 @@ cdef class SIR_type:
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
         x0 =  params[param_dim:]/rescale_factor
-        try:
-            local_params = params.copy()
-            local_params[1] /= beta_rescale
-            parameters = self.make_params_dict(local_params[:param_dim])
-            self.set_params(parameters)
-            model = self.make_det_model(parameters)
-            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
-            return minus_logp
-        except:
-            return INFINITY
+    
+        local_params = params.copy()
+        local_params[1] /= beta_rescale
+        parameters = self.make_params_dict(local_params[:param_dim])
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
+        return minus_logp
+
 
     def latent_inference(self, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
-                            beta_rescale=1, verbose=False, Py_ssize_t niter=1,
-                            double ftol=1e-5, double eps=1e-4, global_max_iter=100, local_max_iter=100,
-                            global_ftol_factor=10., enable_global=True, enable_local=True, cma_processes=0,
+                            beta_rescale=1, verbose=False, double ftol=1e-5, double eps=1e-4,
+                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10., 
+                            enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         '''
         guess: numpy.array
@@ -284,12 +275,10 @@ cdef class SIR_type:
             Better bounds makes it easier to find the true global minimum.
         verbose: bool, optional
             set True to see intermediate outputs from the optimizer
-        niter: int, optional
-            deprecated (number of basinhopping performed by the optimizer)
         ftol: float, optional
             relative tolerance
         eps: float, optional
-            deprecated (step size used by L-BFGS-B in calculation of Hessian)
+            step size used to calculate hessian in the optimisation algorithm
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
@@ -308,7 +297,7 @@ cdef class SIR_type:
 
         if cma_stds is None:
             # Use prior standard deviations here
-            cma_stds = 1.0/3.0 * stds
+            cma_stds = stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'param_dim':param_dim, 'rescale_factor':rescale_factor, 'beta_rescale':beta_rescale,
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
@@ -328,28 +317,25 @@ cdef class SIR_type:
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
 
-        try:
-            parameters = self.make_params_dict()
-            model = self.make_det_model(parameters)
-            times = [Tf+1]
-            interventions = [params]
-            contactMatrix = generator.interventions_temporal(times, interventions)
-            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-            minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
-            return minus_logp
-        except:
-            return INFINITY
+        parameters = self.make_params_dict()
+        model = self.make_det_model(parameters)
+        times = [Tf+1]
+        interventions = [params]
+        contactMatrix = generator.interventions_temporal(times, interventions)
+        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        return minus_logp
 
     def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
-                            verbose=False, Py_ssize_t niter=1, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
+                            verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None):
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
-            cma_stds = 1.0/3.0 * stds
+            cma_stds = stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
                          'Nf':Nf, 'a':a, 'scale':scale}
@@ -987,8 +973,23 @@ cdef class SEAIRQ(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps):
         super().__init__(parameters, 6, M, fi, N, steps)
+    
+    def _infer_control_to_minimize(self, params, grad=0, x=None, Tf=None, Nf=None, generator=None):
+        """Objective function for minimization call in infer_control."""
+        tau_control = params
+        parameters = self.make_params_dict()
+        parameters['tE'] = tau_control[0]
+        parameters['tA'] = tau_control[1]
+        parameters['tIa'] = tau_control[2]
+        parameters['tIs'] = tau_control[3]
+        model = self.make_det_model(parameters)
+        contactMatrix = generator.constant_contactMatrix()
+        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        return minus_logp
 
-    def infer_control(self, guess, x, Tf, Nf, generator, bounds, niter=2, verbose=False, ftol=1e-6, eps=1e-5):
+    def infer_control(self, guess, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5, global_max_iter=100,
+                      local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
+                      cma_processes=0, cma_population=16, cma_stds=None):
         '''
         guess: numpy.array
             initial guess for the control parameter values
@@ -1000,65 +1001,50 @@ cdef class SEAIRQ(SIR_type):
         bounds: 2d numpy.array
             bounds for the parameters.
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        niter: int
-            number of iterations of basinhopping
         verbose: bool
             whether to print messages
         ftol: double
             relative tolerance of logp
         eps: double
             size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
+                    cma_population, cma_stds:
+            Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
-        def to_minimize(params):
-            tau_control = params
-            parameters = self.make_params_dict()
-            parameters['tE'] = tau_control[0]
-            parameters['tA'] = tau_control[1]
-            parameters['tIa'] = tau_control[2]
-            parameters['tIs'] = tau_control[3]
-            model =self.make_det_model(parameters)
-            contactMatrix = generator.constant_contactMatrix()
-            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-            return minus_logp
+        minimize_args = {'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator}
+        res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
-        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-        if verbose:
-            def callback(params):
-                print('parameters:', params)
-            minimizer_kwargs['callback'] = callback
-        take_step = BoundedSteps(bounds)
-        res = basinhopping(to_minimize, guess, niter=niter,
-                            minimizer_kwargs=minimizer_kwargs,
-                            take_step=take_step, disp=verbose)
-        return res.x, res.nit
+        return res[0]
+
+    def _latent_infer_control_to_minimize(self, params, grad=0, generator=None, x0=None, obs=None, fltr=None, 
+                                          Tf=None, Nf=None):
+        """Objective function for minimization call in latent_infer_control."""
+        tau_control = params
+        parameters = self.make_params_dict()
+        parameters['tE'] = tau_control[0]
+        parameters['tA'] = tau_control[1]
+        parameters['tIa'] = tau_control[2]
+        parameters['tIs'] = tau_control[3]
+        model = self.make_det_model(parameters)
+        contactMatrix = generator.constant_contactMatrix()
+        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        return minus_logp
 
     def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
-                            verbose=False, Py_ssize_t niter=1,
-                            double ftol=1e-5, double eps=1e-4):
-        def to_minimize(params):
-            tau_control = params
-            parameters = self.make_params_dict()
-            parameters['tE'] = tau_control[0]
-            parameters['tA'] = tau_control[1]
-            parameters['tIa'] = tau_control[2]
-            parameters['tIs'] = tau_control[3]
-            model = self.make_det_model(parameters)
-            contactMatrix = generator.constant_contactMatrix()
-            minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-            return minus_logp
-        options={'eps': eps, 'ftol': ftol, 'disp': verbose}
-        minimizer_kwargs = {'method':'L-BFGS-B', 'bounds': bounds, 'options': options}
-        if verbose:
-            def callback(params):
-                print('parameters:', params)
-            minimizer_kwargs['callback'] = callback
-        take_step = BoundedSteps(bounds)
-        res = basinhopping(to_minimize, guess, niter=niter,
-                            minimizer_kwargs=minimizer_kwargs,
-                            take_step=take_step, disp=verbose)
-        return res.x
+                            verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
+                            local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
+                            cma_processes=0, cma_population=16, cma_stds=None):
+        minimize_args = {'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf}
+        res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+
+        return res[0]
 
     def set_params(self, parameters):
         super().set_params(parameters)
