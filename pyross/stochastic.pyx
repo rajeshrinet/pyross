@@ -14,12 +14,49 @@ from libc.stdlib cimport rand, RAND_MAX
 
 
 cdef class stochastic_integration:
+    """
+    Integrators used by stochastic models: 
+        Gillespie and tau-leaping
+    
+    Methods
+    -------
+    calculate_total_reaction_rate
+    SSA_step: 
+        Gillespie Stochastic Simulation Step (SSA)
+    simulate_gillespie: 
+        Performs stochastic simulation using the 
+        Gillespie algorithm
+    check_for_event
+    simulate_gillespie_events
+    tau_leaping_update_timesteps
+    """
     cdef:
         readonly int N, M,
         int k_tot
         np.ndarray RM, rp, weights, FM, CM, rp_previous
 
     cdef calculate_total_reaction_rate(self):
+        """
+        Calculates total reaction constant W = \sum_i r_i
+        r_i = reaction rate for channel i
+        
+        
+        Parameters
+        ----------
+        None (will be restructured in future updates)
+        
+        
+        Modifies
+        ----------
+        self.weights: np.array
+            Percentage chance of reaction occuring
+            
+        
+        Returns
+        -------
+        W : double
+            Total reaction constant
+        """
         cdef:
             double W = 0. # total rate for next reaction to happen
             double [:,:] RM = self.RM
@@ -38,6 +75,27 @@ cdef class stochastic_integration:
 
     cdef SSA_step(self,double time,
                       double total_rate):
+        """
+        Gillespie Stochastic Simulation Algorithm step (SSA)
+        Probabiliity of reaction occuring in time P ~ e^-W\tau
+        W = sum of all reaction rates.
+        Solve to get \tau =d
+        
+        
+        Parameters
+        ----------
+        time : double
+            Time point at which step is evaluated
+        total_rate : double
+            Total rate constant W.
+            
+        Returns
+        -------
+        X : np.array(len(t), len(x0))
+            Numerical integration solution.
+        time_points : np.array
+            Corresponding times at which X is evaluated at.
+        """
         cdef:
             double [:] weights = self.weights
             long [:] rp = self.rp
@@ -85,6 +143,39 @@ cdef class stochastic_integration:
 
     cpdef simulate_gillespie(self, contactMatrix, Tf, Nf,
                               seedRate=None):
+        """
+        Performs the stochastic simulation using the Gillespie algorithm.
+        1. Rates for each reaction channel r_i calculated from current state.
+        2. The timestep tau is chosen randomly from an 
+            exponential distribution P ~ e^-W\tau.
+        3. A single reaction occurs with probablity proportional to its fractional
+            rate constant r_i/W.
+        4. The state is updated to reflect this reaction occuring and time is
+            propagated forward by \tau
+        Stops if population becomes too small.
+        
+        
+        Parameters
+        ----------
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        
+        
+        Returns
+        -------
+        t_arr : np.array(Nf,)
+            Array of time points at which the integrator was evaluated.
+        out_arr : np.array
+            Output path from integrator.
+        """
         cdef:
             int M=self.M
             int i, j, k, I, k_tot = self.k_tot
@@ -160,6 +251,10 @@ cdef class stochastic_integration:
     cpdef check_for_event(self,double t,double t_previous,
                             events,
                             list list_of_available_events):
+        """
+        
+        """
+        
         cdef:
             long [:] rp = self.rp
             long [:] rp_previous = self.rp_previous
@@ -715,17 +810,41 @@ cdef class SIR(stochastic_integration):
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
     Is: symptomatic
+
+    ...
+
+    Attributes
+    ----------
+    alpha : float, np.array (M,)
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of removal from asymptomatic individuals.
+    gIs : float
+        rate of removal from symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+        
+
+
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
     """
     cdef:
         readonly double alpha, beta, gIa, gIs, fsa
         readonly np.ndarray rp0, Ni, drpdt, lld, CC
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIa')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIa']                      # recovery rate of Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -779,6 +898,44 @@ cdef class SIR(stochastic_integration):
                 int tau_update_frequency = 1,
                 seedRate=None
                 ):
+        """
+        Performs the Stochastic Simulation Algorithm (SSA)
+        
+        
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        method : str, optional
+           SSA to use, either 'gillespie' or 'tau_leaping'. 
+           The default is 'gillespie'.
+        nc : TYPE, optional
+        epsilon: TYPE, optional
+        tau_update_frequency: TYPE, optional
+        seedRate: python function, optional
+            Seeding of infectives. The default is None.
+            
+        
+       Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'event_occured' , 'param': input param to integrator.
+
+        """
+        
         cdef:
             int M = self.M, i
             long [:] rp = self.rp
@@ -870,11 +1027,11 @@ cdef class SIkR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
-        gI    = parameters.get('gI')                      # recovery rate of I
+        gI    = parameters['gI']                     # recovery rate of I
         self.gI    = np.zeros( self.M, dtype = DTYPE)
         if np.size(gI)==1:
             self.gI = gI*np.ones(M)
@@ -1020,18 +1177,41 @@ cdef class SEIR(stochastic_integration):
     Susceptible, Exposed, Infected, Recovered (SEIR)
     Ia: asymptomatic
     Is: symptomatic
+    Attributes
+    ----------
+    alpha : float, np.array (M,)
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gIa : float
+        rate of removal from asymptomatic individuals.
+    gIs : float
+        rate of removal from symptomatic individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of removal from exposed individuals.
+        
+
+
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
     """
     cdef:
         readonly double alpha, beta, fsa, gIa, gIs, gE
         readonly np.ndarray rp0, Ni, drpdt, lld, CC
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1175,33 +1355,72 @@ cdef class SEI5R(stochastic_integration):
     * Ih: hospitalized
     * Ic: ICU
     * Im: Mortality
+
     S  ---> E
     E  ---> Ia, Is
     Ia ---> R
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+    
+    Attributes
+    ----------
+    alpha : float, np.array (M,)
+        fraction of infected who are asymptomatic.
+    beta : float
+        rate of spread of infection.
+    gE : float
+        rate of removal from exposeds individuals.
+    gIa : float
+        rate of removal from asymptomatic individuals.
+    gIs : float
+        rate of removal from symptomatic individuals.
+    gIh : float
+        rate of recovery for hospitalised individuals.
+    gIc : float
+        rate of recovery for idividuals in intensive care.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    fh  : float
+        fraction by which hospitalised individuals are isolated.
+    sa : float, np.array (M,)
+        daily arrival of new susceptables.
+        sa is rate of additional/removal of population by birth etc
+    hh : float, np.array (M,)
+        fraction hospitalised from Is
+    cc : float, np.array (M,)
+        fraction sent to intensive care from hospitalised.
+    mm : float, np.array (M,)
+        mortality rate in intensive care
+
+
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
     """
     cdef:
         readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray rp0, Ni, drpdt, CC, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIc   = parameters['gIc']                      # recovery rate of Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        hh         = parameters.get('hh')                       # hospital
-        cc         = parameters.get('cc')                       # ICU
-        mm         = parameters.get('mm')                       # mortality
-        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        sa         = parameters['sa']                       # daily arrival of new susceptibles
+        hh         = parameters['hh']                       # hospital
+        cc         = parameters['cc']                       # ICU
+        mm         = parameters['mm']                       # mortality
+        iaa        = parameters['iaa']                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1489,22 +1708,22 @@ cdef class SEAI5R(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, CC, sa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # progression rate of E class
-        self.gA    = parameters.get('gA')                       # progression rate of A class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Ih
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ic
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # progression rate of E class
+        self.gA    = parameters['gA']                       # progression rate of A class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIh   = parameters['gIh']                      # recovery rate of Ih
+        self.gIc   = parameters['gIc']                      # recovery rate of Ic
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        hh         = parameters.get('hh')                       # hospital
-        cc         = parameters.get('cc')                       # ICU
-        mm         = parameters.get('mm')                       # mortality
-        #iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        sa         = parameters['sa']                       # daily arrival of new susceptibles
+        hh         = parameters['hh']                       # hospital
+        cc         = parameters['cc']                       # ICU
+        mm         = parameters['mm']                       # mortality
+        #iaa        = parameters['iaa')                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1773,19 +1992,19 @@ cdef class SEAIRQ(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, CC
 
     def __init__(self, parameters, M, Ni):
-        self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # progression rate from E
-        self.gA   = parameters.get('gA')                      # rate to go from A to I
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # progression rate from E
+        self.gA   = parameters['gA']                      # rate to go from A to I
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
-        #self.tS    = parameters.get('tS')                       # testing rate in S
-        self.tE    = parameters.get('tE')                       # testing rate in E
-        self.tA    = parameters.get('tA')                       # testing rate in A
-        self.tIa   = parameters.get('tIa')                       # testing rate in Ia
-        self.tIs   = parameters.get('tIs')                       # testing rate in Is
+        #self.tS    = parameters['tS')                       # testing rate in S
+        self.tE    = parameters['tE']                      # testing rate in E
+        self.tA    = parameters['tA']                       # testing rate in A
+        self.tIa   = parameters['tIa']                       # testing rate in Ia
+        self.tIs   = parameters['tIs']                       # testing rate in Is
 
         self.N     = np.sum(Ni)
         self.M     = M

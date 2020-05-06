@@ -367,7 +367,7 @@ cdef class SIRS(IntegratorsClass):
             Number of time points to evaluate.
         Ti : float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator : str, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         seedRate : python function, optional
@@ -562,6 +562,7 @@ cdef class SEI5R(IntegratorsClass):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+    
     Attributes
     ----------
     alpha : float, np.array (M,)
