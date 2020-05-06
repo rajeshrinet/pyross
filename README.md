@@ -12,7 +12,7 @@ The library uses **Gaussian process regression**, on both the epidemiological ma
 
 Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
 
-The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, and **SEAIRQ**.
+The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, **SEAI5R**, and **SEAIRQ**.
 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
@@ -51,8 +51,6 @@ python -m unittest pyross.test (-v)
 ```
 
 ### Data sources
-
-**Case data:** The data for COVID-19 cases is obtained from the [Worldometer website](https://www.worldometers.info/coronavirus).
 
 **Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website.
 
