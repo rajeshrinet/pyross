@@ -105,8 +105,6 @@ cdef class SIR_type:
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
-
         # make bounds if it does not exist and rescale
         if bounds is None:
             bounds = np.array([[eps, g*5] for g in guess])
@@ -115,6 +113,9 @@ cdef class SIR_type:
         bounds = np.array(bounds)
         guess[1] *= beta_rescale
         bounds[1] *= beta_rescale
+        stds[1] *= beta_rescale
+
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here (todo: how to scale this value properly?)
@@ -174,6 +175,10 @@ cdef class SIR_type:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            cma_stds = 1.0/3.0 * stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 'a':a, 'scale':scale}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
@@ -297,6 +302,8 @@ cdef class SIR_type:
         guess[1] *= beta_rescale
         bounds[param_dim:, :] *= rescale_factor
         bounds[1, :] *= beta_rescale
+        stds[param_dim:] *= rescale_factor
+        stds[1] *= beta_rescale
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
         if cma_stds is None:
@@ -339,6 +346,10 @@ cdef class SIR_type:
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None):
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            cma_stds = 1.0/3.0 * stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
                          'Nf':Nf, 'a':a, 'scale':scale}
