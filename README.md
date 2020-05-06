@@ -42,7 +42,7 @@ pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
 PyRoss requires the following software
 
 - Python 2.6+ or Python 3.4+
-- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
+- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
 - Optional dependencies : [OdesPy](https://github.com/rajeshrinet/odespy) (integrators) |  [pathos](https://anaconda.org/conda-forge/pathos) (parallelizing inference) | [Pandas](https://pandas.pydata.org/) (for data files)
 
 #### Testing
@@ -50,11 +50,9 @@ PyRoss requires the following software
 python -m unittest pyross.test (-v)
 ```
 
-#### Data sources
+**Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website.
 
-**Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website.
-
-**Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
+**Contact structure data:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
 
 
 
@@ -102,9 +100,8 @@ data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 
 ## Publications
 
-* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa)). Rajesh Singh and R. Adhikari (2020).
-
-This paper is amongst the  **top ten most read COVID-19 papers** on [Research Gate
+* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa)). Rajesh Singh and R. Adhikari (2020). <br/><br/>
+ This paper is amongst the  **top ten most read COVID-19 papers** on [Research Gate
 ](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the [Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-COVID-19-India-paper) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible.
 
 
