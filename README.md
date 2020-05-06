@@ -22,23 +22,7 @@ The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronal
 Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research.
 
 
-## Contact
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
-
-Please first [read the wiki](https://github.com/rajeshrinet/pyross/wiki) and  then only [open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
-
-## Publications
-
-* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa)). Rajesh Singh and R. Adhikari (2020).
-
-This paper is amongst the  **top ten most read COVID-19 papers** on [Research Gate
-](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the [Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-COVID-19-India-paper) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible.
-
-The figures below show how the lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the
-number of infectives using case data for India till 25-03-2020.
-
-![SIR and SEIR](draft/sir-seir.gif)
 
 
 ## News
@@ -52,38 +36,6 @@ number of infectives using case data for India till 25-03-2020.
 * Python Weekly has tweeted about PyRoss <blockquote class="twitter-tweet"><p lang="en" dir="ltr">PyRoss - Mathematical modelling of infectious disease in Python. <a href="https://t.co/MyTWTM1ItP">https://t.co/MyTWTM1ItP</a> <a href="https://twitter.com/hashtag/Python?src=hash&amp;ref_src=twsrc%5Etfw">#Python</a> <a href="https://twitter.com/hashtag/Coronavirus?src=hash&amp;ref_src=twsrc%5Etfw">#Coronavirus</a> <a href="https://twitter.com/hashtag/Covid19?src=hash&amp;ref_src=twsrc%5Etfw">#Covid19</a> <a href="https://t.co/gzPNpWf7mK">pic.twitter.com/gzPNpWf7mK</a></p>&mdash; Python Weekly (@PythonWeekly) <a href="https://twitter.com/PythonWeekly/status/1248324915788492807?ref_src=twsrc%5Etfw">April 9, 2020</a></blockquote>
 
 
-
-## Installation
-Clone (or download) the repository and use a terminal to install using
-
-```bash
->> git clone https://github.com/rajeshrinet/pyross.git
->> cd pyross
->> python setup.py install
-```
-#### Pip
-
-```
-pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
-```
-
-PyRoss requires the following software
-
-- Python 2.6+ or Python 3.4+
-- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  [OdesPy](https://github.com/rajeshrinet/odespy) (optional choice for integrators) | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt) | [pathos](https://anaconda.org/conda-forge/pathos) (optional for parallelizing inference)
-
-#### Testing
-```
-python -m unittest pyross.test (-v)
-```
-
-## Data sources
-
-**Case data:** The data for COVID-19 cases is obtained from the [Worldometer website](https://www.worldometers.info/coronavirus).
-
-**Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website.
-
-**Contact structure:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)  and [Supporting Information Data](https://doi.org/10.1371/journal.pcbi.1005697.s001).
 
 
 ## Examples
@@ -130,3 +82,23 @@ data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 
 ## License
 We believe that openness and sharing improves the practice of science and increases the reach of its benefits. This code is released under the [MIT license](http://opensource.org/licenses/MIT). Our choice is guided by the excellent article on [Licensing for the scientist-programmer](http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002598).
+
+## Publications
+
+* [Age-structured impact of social distancing on the COVID-19 epidemic in India](https://github.com/rajeshrinet/pyross/blob/master/draft/covid19.pdf) ([arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa)). Rajesh Singh and R. Adhikari (2020).
+
+This paper is amongst the  **top ten most read COVID-19 papers** on [Research Gate
+](https://www.researchgate.net/community/COVID-19). The authors have received (literally) hundreds of emails with inquiries and apologise that they can no longer respond individually to these. Please read the [Frequently Asked Questions](https://github.com/rajeshrinet/pyross/wiki/FAQ-on-COVID-19-India-paper) in the first instance. The authors promise to include questions not covered in the FAQ as soon as possible.
+
+The figures below show how the lockdown forecasts from the paper are altered by a change in the epidemiological model. The SIR model provides a lower bound on the rapidity with which the epidemic decreases. All other models exceed this bound, as shown for an SEIR model. Both models are fitted to the
+number of infectives using case data for India till 25-03-2020.
+
+![SIR and SEIR](draft/sir-seir.gif)
+
+
+
+## Contact
+
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
+
+Please first [read the wiki](https://github.com/rajeshrinet/pyross/wiki) and  then only [open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
