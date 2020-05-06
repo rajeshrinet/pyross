@@ -6,7 +6,7 @@
 
 ## About
 
-[PyRoss](https://gitlab.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctions.
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctions.
 
 The library uses **Gaussian process regression**, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
 
@@ -18,13 +18,13 @@ The library is designed to be model-agnostic. Currently implemented [models](htt
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet). 
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
 
 Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
 
 ## Installation
-You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) loads. 
+You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) loads.
 
 Clone (or download) the repository and use a terminal to install using
 
@@ -42,15 +42,15 @@ pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
 PyRoss requires the following software
 
 - Python 2.6+ or Python 3.4+
-- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |  [Pandas](https://pandas.pydata.org/) | [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt) 
-- Optional dependencies : [OdesPy](https://github.com/rajeshrinet/odespy) (integrators) |  [pathos](https://anaconda.org/conda-forge/pathos) (parallelizing inference)
+- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/) | [xlrd](https://xlrd.readthedocs.io/en/latest/) |  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
+- Optional dependencies : [OdesPy](https://github.com/rajeshrinet/odespy) (integrators) |  [pathos](https://anaconda.org/conda-forge/pathos) (parallelizing inference) | [Pandas](https://pandas.pydata.org/) (for data files)
 
 #### Testing
 ```
 python -m unittest pyross.test (-v)
 ```
 
-### Data sources
+#### Data sources
 
 **Age structure:** [Population Pyramid](https://www.populationpyramid.net/) website.
 
@@ -121,4 +121,3 @@ This paper is amongst the  **top ten most read COVID-19 papers** on [Research Ga
 
 ## License
 We believe that openness and sharing improves the practice of science and increases the reach of its benefits. This code is released under the [MIT license](http://opensource.org/licenses/MIT). Our choice is guided by the excellent article on [Licensing for the scientist-programmer](http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002598).
-

@@ -87,8 +87,8 @@ cdef class IntegratorsClass:
             X, time_points = solver.solve(time_points, **kwargs) 
 
         else:
-            raise Exception("Error: Integration failed! \n \
-                            Please set integrator='odeint' to use the scipy odeint (Default). \n \
+            raise Exception("Error: Integration method not found! \n \
+                            Please set integrator='odeint' to use the scipy's odeint (Default). \n \
                             Use integrator='odespy-vode' to use vode from odespy (github.com/rajeshrinet/odespy). \n \
                             Use integrator='odespy-rkf45' to use RKF45 from odespy (github.com/rajeshrinet/odespy). \n \
                             Use integrator='odespy-rk4' to use RK4 from odespy (github.com/rajeshrinet/odespy). \n \
