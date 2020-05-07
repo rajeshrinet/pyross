@@ -1,14 +1,12 @@
 name: pyross
-channels:
-  - conda-forge
 dependencies:
   - python
-  - cython
-  - numpy
-  - matplotlib
-  - scipy 
-  - pandas 
-  - xlrd 
-  - nlopt
+  - conda-forge::cython
+  - conda-forge::numpy
+  - conda-forge::matplotlib
+  - conda-forge::scipy 
+  - conda-forge::pandas 
+  - conda-forge::xlrd 
+  - conda-forge::nlopt
   - cma-es::cma 
-  - pathos
+  - conda-forge::pathos
