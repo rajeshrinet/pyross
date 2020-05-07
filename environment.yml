@@ -7,8 +7,6 @@ dependencies:
   - numpy
   - matplotlib
   - scipy 
-  - pandas 
-  - xlrd 
   - nlopt
   - cma
   - pathos
