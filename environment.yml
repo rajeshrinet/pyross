@@ -14,5 +14,4 @@ dependencies:
   - pathos
   - pip
   - pip:
-    - cma=3.0.3
-  
+    - cma
