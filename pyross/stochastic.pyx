@@ -15,16 +15,16 @@ from libc.stdlib cimport rand, RAND_MAX
 
 cdef class stochastic_integration:
     """
-    Integrators used by stochastic models: 
+    Integrators used by stochastic models:
         Gillespie and tau-leaping
-    
+
     Methods
     -------
     calculate_total_reaction_rate
-    SSA_step: 
+    SSA_step:
         Gillespie Stochastic Simulation Step (SSA)
-    simulate_gillespie: 
-        Performs stochastic simulation using the 
+    simulate_gillespie:
+        Performs stochastic simulation using the
         Gillespie algorithm
     check_for_event
     simulate_gillespie_events
@@ -39,19 +39,19 @@ cdef class stochastic_integration:
         """
         Calculates total reaction constant W = \sum_i r_i
         r_i = reaction rate for channel i
-        
-        
+
+
         Parameters
         ----------
         None (will be restructured in future updates)
-        
-        
+
+
         Modifies
         ----------
         self.weights: np.array
             Percentage chance of reaction occuring
-            
-        
+
+
         Returns
         -------
         W : double
@@ -80,15 +80,15 @@ cdef class stochastic_integration:
         Probabiliity of reaction occuring in time P ~ e^-W\tau
         W = sum of all reaction rates.
         Solve to get \tau =d
-        
-        
+
+
         Parameters
         ----------
         time : double
             Time point at which step is evaluated
         total_rate : double
             Total rate constant W.
-            
+
         Returns
         -------
         X : np.array(len(t), len(x0))
@@ -146,20 +146,20 @@ cdef class stochastic_integration:
         """
         Performs the stochastic simulation using the Gillespie algorithm.
         1. Rates for each reaction channel r_i calculated from current state.
-        2. The timestep tau is chosen randomly from an 
+        2. The timestep tau is chosen randomly from an
             exponential distribution P ~ e^-W\tau.
         3. A single reaction occurs with probablity proportional to its fractional
             rate constant r_i/W.
         4. The state is updated to reflect this reaction occuring and time is
             propagated forward by \tau
         Stops if population becomes too small.
-        
-        
+
+
         Parameters
         ----------
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf : float
             Final time of integrator
@@ -167,8 +167,8 @@ cdef class stochastic_integration:
             Number of time points to evaluate.
         seedRate : python function, optional
             Seeding of infectives. The default is None.
-        
-        
+
+
         Returns
         -------
         t_arr : np.array(Nf,)
@@ -252,9 +252,9 @@ cdef class stochastic_integration:
                             events,
                             list list_of_available_events):
         """
-        
+
         """
-        
+
         cdef:
             long [:] rp = self.rp
             long [:] rp_previous = self.rp_previous
@@ -906,8 +906,8 @@ cdef class SIR(stochastic_integration):
                 ):
         """
         Performs the Stochastic Simulation Algorithm (SSA)
-        
-        
+
+
         Parameters
         ----------
         S0 : np.array
@@ -917,23 +917,23 @@ cdef class SIR(stochastic_integration):
         Is0 : np.array
             Initial number of symptomatic infectives.
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf : float
             Final time of integrator
         Nf : Int
             Number of time points to evaluate.
         method : str, optional
-           SSA to use, either 'gillespie' or 'tau_leaping'. 
+           SSA to use, either 'gillespie' or 'tau_leaping'.
            The default is 'gillespie'.
         nc : TYPE, optional
         epsilon: TYPE, optional
         tau_update_frequency: TYPE, optional
         seedRate: python function, optional
             Seeding of infectives. The default is None.
-            
-        
+
+
        Returns
         -------
         dict
@@ -941,7 +941,7 @@ cdef class SIR(stochastic_integration):
             'event_occured' , 'param': input param to integrator.
 
         """
-        
+
         cdef:
             int M = self.M, i
             long [:] rp = self.rp
@@ -1040,7 +1040,7 @@ cdef class SIkR(stochastic_integration):
                 fraction by which symptomatic individuals self isolate.
             kI : int
                 number of stages of infection.
-            
+
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1060,8 +1060,7 @@ cdef class SIkR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
-        """This needs a look"""
-        self.k_tot = parameters['kI']
+        self.kk = parameters['k']
         self.nClass = 2
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
@@ -1070,7 +1069,7 @@ cdef class SIkR(stochastic_integration):
         gI    = parameters['gI']                     # recovery rate of I
         self.gI    = np.zeros( self.M, dtype = DTYPE)
         if np.size(gI)==1:
-            self.gI = gI*np.ones(M)
+            self.gI = gI*np.ones(self.kk)
         elif np.size(gI)==M:
             self.gI= gI
         else:
@@ -1234,7 +1233,7 @@ cdef class SEIR(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
         Initial number in each compartment and class
-        
+
     Methods
     -------
     rate_matrix:
@@ -1404,7 +1403,7 @@ cdef class SEI5R(stochastic_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    
+
     Attributes
     ----------
      parameters: dict
@@ -1778,14 +1777,14 @@ cdef class SEAI5R(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
         Initial number in each compartment and class.
-        
+
     Methods
     -------
     rate_matrix:
         Calculates the rate constant for each reaction channel.
     simulate:
         Performs stochastic numerical integration.
-    """ 
+    """
     cdef:
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray rp0, Ni, drpdt, CC, sa, hh, cc, mm
@@ -2069,11 +2068,11 @@ cdef class SEAIRQ(stochastic_integration):
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
-    
+
     Attributes
     ----------
     parameters: dict
-        Contains the following keys:   
+        Contains the following keys:
             alpha : float
                 fraction of infected who are asymptomatic.
             beta : float
@@ -2100,8 +2099,8 @@ cdef class SEAIRQ(stochastic_integration):
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(6*M, )
-        Initial number in each compartment and class    
-        
+        Initial number in each compartment and class
+
     Methods
     -------
     rate_matrix:
