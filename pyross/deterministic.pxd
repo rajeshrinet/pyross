@@ -4,7 +4,7 @@ cimport cython
 
 cdef class IntegratorsClass:
     cdef:
-        readonly int N, M, ki, ke
+        readonly int N, M, ki, ke, nClass
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh, ep, gI
         readonly double tS, tE, tA, tIa, tIs
         readonly np.ndarray rp0, Ni, dx, CM, FM, sa, iaa, hh, cc, mm, alpha
