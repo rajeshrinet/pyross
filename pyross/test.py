@@ -18,7 +18,7 @@ class DeterministicTest(unittest.TestCase):
     N = np.asarray([10000], dtype=np.float64)
     M = 1
     alpha = 0
-    beta = 0.007
+    beta = 0.0071
     gIa = 0.008
     gIs = 0.008
     gI = 0.008
