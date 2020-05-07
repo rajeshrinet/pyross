@@ -624,7 +624,7 @@ cdef class SEI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 8 -1  #only 7 input classes
+        self.nClass = 8 -1  # only 7 input classes
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
