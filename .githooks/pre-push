@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Hook file that automatically runs unit tests before a push
+
+CHANGED=$(git diff --name-only HEAD^ HEAD)
+cd ~
+for item in $CHANGED
+do
+    if [[ $item =~ pyross/stochastic ]];
+        then 
+            echo "pyross/stochastic changed, running tests..."
+            python -m unittest pyross.test.StochasticTest
+    elif [[ $item =~ pyross/deterministic ]];
+        then
+            echo "pyross/deterministic changed, running tests..."
+            python -m unittest pyross.test.DeterministicTest
+    elif [[ $item =~ pyross/test ]];
+        then
+            echo "pyross/test changed, running tests..."
+            python -m unittest -v pyross.test
+    fi
+done;
