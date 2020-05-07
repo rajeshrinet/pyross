@@ -22,8 +22,7 @@ The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](
 
 Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
-**Coming soon** - PyRossGeo - extension of PyRoss to spatially-resolved models with explicit modelling of commuting.
-
+- **Coming soon**: PyRossGeo, an extension of PyRoss that is spatially resolved and explicitly models commuting networks.
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) loads.
 
