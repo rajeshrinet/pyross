@@ -31,7 +31,7 @@ cdef class stochastic_integration:
     tau_leaping_update_timesteps
     """
     cdef:
-        readonly int N, M,
+        readonly int N, M, nClass
         int k_tot
         np.ndarray RM, rp, weights, FM, CM, rp_previous
 
@@ -815,18 +815,23 @@ cdef class SIR(stochastic_integration):
 
     Attributes
     ----------
-    alpha : float, np.array (M,)
-        fraction of infected who are asymptomatic.
-    beta : float
-        rate of spread of infection.
-    gIa : float
-        rate of removal from asymptomatic individuals.
-    gIs : float
-        rate of removal from symptomatic individuals.
-    fsa : float
-        fraction by which symptomatic individuals self isolate.
-        
-
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(3*M, )
+        Initial number in each compartment and class
 
     Methods
     -------
@@ -840,6 +845,7 @@ cdef class SIR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC
 
     def __init__(self, parameters, M, Ni):
+        self.nClass = 3
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
@@ -1020,6 +1026,30 @@ cdef class SIkR(stochastic_integration):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gI : float
+                rate of removal from infectives.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array((kI + 1)*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
     """
     cdef:
         readonly int kk
@@ -1027,6 +1057,7 @@ cdef class SIkR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
+        self.nClass = 2
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
@@ -1179,21 +1210,26 @@ cdef class SEIR(stochastic_integration):
     Is: symptomatic
     Attributes
     ----------
-    alpha : float, np.array (M,)
-        fraction of infected who are asymptomatic.
-    beta : float
-        rate of spread of infection.
-    gIa : float
-        rate of removal from asymptomatic individuals.
-    gIs : float
-        rate of removal from symptomatic individuals.
-    fsa : float
-        fraction by which symptomatic individuals self isolate.
-    gE : float
-        rate of removal from exposed individuals.
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            gE : float
+                rate of removal from exposed individuals.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(4*M, )
+        Initial number in each compartment and class
         
-
-
     Methods
     -------
     rate_matrix:
@@ -1206,6 +1242,7 @@ cdef class SEIR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC
 
     def __init__(self, parameters, M, Ni):
+        self.nClass = 4
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
@@ -1365,34 +1402,40 @@ cdef class SEI5R(stochastic_integration):
     
     Attributes
     ----------
-    alpha : float, np.array (M,)
-        fraction of infected who are asymptomatic.
-    beta : float
-        rate of spread of infection.
-    gE : float
-        rate of removal from exposeds individuals.
-    gIa : float
-        rate of removal from asymptomatic individuals.
-    gIs : float
-        rate of removal from symptomatic individuals.
-    gIh : float
-        rate of recovery for hospitalised individuals.
-    gIc : float
-        rate of recovery for idividuals in intensive care.
-    fsa : float
-        fraction by which symptomatic individuals self isolate.
-    fh  : float
-        fraction by which hospitalised individuals are isolated.
-    sa : float, np.array (M,)
-        daily arrival of new susceptables.
-        sa is rate of additional/removal of population by birth etc
-    hh : float, np.array (M,)
-        fraction hospitalised from Is
-    cc : float, np.array (M,)
-        fraction sent to intensive care from hospitalised.
-    mm : float, np.array (M,)
-        mortality rate in intensive care
-
+     parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gE : float
+                rate of removal from exposeds individuals.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gIh : float
+                rate of recovery for hospitalised individuals.
+            gIc : float
+                rate of recovery for idividuals in intensive care.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            fh  : float
+                fraction by which hospitalised individuals are isolated.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(8*M, )
+        Initial number in each compartment and class
 
     Methods
     -------
@@ -1406,6 +1449,7 @@ cdef class SEI5R(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, CC, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
+        self.nClass = 7
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
@@ -1688,26 +1732,61 @@ cdef class SEI5R(stochastic_integration):
 
 cdef class SEAI5R(stochastic_integration):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
     * Ih: hospitalized
     * Ic: ICU
     * Im: Mortality
+
     S  ---> E
-    E  ---> A
-    A  ---> Ia, Is
+    E  ---> Ia, Is
     Ia ---> R
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    """
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            gE : float
+                rate of removal from exposeds individuals.
+            gA : float
+                rate of removal from activated individuals.
+            gIh : float
+                rate of hospitalisation of infected individuals.
+            gIc : float
+                rate hospitalised individuals are moved to intensive care.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(9*M, )
+        Initial number in each compartment and class
+        
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
+    """ 
     cdef:
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray rp0, Ni, drpdt, CC, sa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
+        self.nClass = 8
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate of E class
@@ -1985,6 +2064,45 @@ cdef class SEAIRQ(stochastic_integration):
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
+    
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:   
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            gA : float
+                rate of removal from activated individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            tE  : float
+                testing rate and contact tracing of exposeds
+            tA  : float
+                testing rate and contact tracing of activateds
+            tIa : float
+                testing rate and contact tracing of asymptomatics
+            tIs : float
+                testing rate and contact tracing of symptomatics
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(6*M, )
+        Initial number in each compartment and class    
+        
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
     """
     cdef:
         readonly double alpha, beta, gIa, gIs, gE, gA, fsa
@@ -1992,6 +2110,7 @@ cdef class SEAIRQ(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, CC
 
     def __init__(self, parameters, M, Ni):
+        self.nClass = 6
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate from E
