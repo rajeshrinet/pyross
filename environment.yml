@@ -11,5 +11,5 @@ dependencies:
   - pandas 
   - xlrd 
   - nlopt
-  - cma=3.0.*
+  - cma
   - pathos
