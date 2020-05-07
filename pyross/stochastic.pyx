@@ -1772,7 +1772,7 @@ cdef class SEAI5R(stochastic_integration):
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
-        Initial number in each compartment and class
+        Initial number in each compartment and class.
         
     Methods
     -------
