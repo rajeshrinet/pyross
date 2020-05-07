@@ -5,6 +5,7 @@ import sys
 for i in sys.path:
     if 'pyross' in i or i == '':
         sys.path.remove(i)
+# print(sys.path)
 import pyross
 import unittest
 import inspect
