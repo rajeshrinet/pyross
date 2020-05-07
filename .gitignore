@@ -77,3 +77,4 @@ build/
 *.pvd
 build/ 
 .DS_Store
+*.npy
