@@ -173,7 +173,11 @@ class StochasticTest(unittest.TestCase):
                               *np.zeros(m.nClass -2)],
                              dtype=np.float64).reshape((m.nClass,1))
                traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
-
+    
+    def test_stochastic_mean(self):
+        """Runs stochastic models a few times and compares mean to 
+        deterministic"""
+        
 
 
 if __name__ == '__main__':
