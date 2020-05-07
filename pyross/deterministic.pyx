@@ -287,7 +287,7 @@ cdef class SIRS(IntegratorsClass):
     
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 4
+        self.nClass = 3
         self.beta  = parameters['beta']                         # infection rate
         self.gIa   = parameters['gIa']                          # recovery rate of Ia
         self.gIs   = parameters['gIs']                          # recovery rate of Is
@@ -624,7 +624,7 @@ cdef class SEI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 8
+        self.nClass = 8 -1  #only 7 input classes
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
@@ -909,7 +909,7 @@ cdef class SIkR(IntegratorsClass):
         x0=np.concatenate((S0, I0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.k }
+        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.ki }
         return data
 
 
@@ -1281,7 +1281,7 @@ cdef class SEAI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 9
+        self.nClass = 9 - 1#only 8 input classes
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
         self.gA    = parameters['gA']                       # recovery rate of A class
