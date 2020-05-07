@@ -134,5 +134,30 @@ class DeterministicTest(unittest.TestCase):
                                *np.zeros(m.nClass -2)], dtype=np.float64).reshape((m.nClass,1))
                 traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
 
+
+class StochasticTest(unittest.TestCase):
+    """testing stochastic.pyx"""
+    
+    def __init__(self, *args, **kwargs):
+        super(StochasticTest, self).__init__(*args, **kwargs)
+        self.parameters = DeterministicTest.parameters
+        print(self.parameters)
+    
+    
+    def test(self): pass
+    # def test_run_models(self):
+    #     """Runs all deterministic models"""
+    #     deterministic_models = dict(inspect.getmembers(pyross.deterministic,
+    #                                                     inspect.isclass))
+    #     traj_dict={}
+    #     for name, model in deterministic_models.items():
+    #         if name.startswith('S'):
+    #             m = model(self.parameters, self.M, self.N)
+    #             x0 = np.array([*self.N, *np.ones(self.M), 
+    #                             *np.zeros(m.nClass -2)], dtype=np.float64).reshape((m.nClass,1))
+    #             traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
+    
+    
+    
 if __name__ == '__main__':
     unittest.main()
