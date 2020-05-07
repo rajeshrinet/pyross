@@ -12,3 +12,6 @@ dependencies:
   - nlopt
   - cma
   - pathos
+  - pip
+  - pip:
+    - cma
