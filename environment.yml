@@ -1,6 +1,7 @@
 name: pyross
 channels:
   - conda-forge
+  - cma-es
 dependencies:
   - python
   - cython
@@ -10,5 +11,5 @@ dependencies:
   - pandas 
   - xlrd 
   - nlopt
-  - cma-es cma
+  - cma
   - pathos
