@@ -31,7 +31,7 @@ cdef class stochastic_integration:
     tau_leaping_update_timesteps
     """
     cdef:
-        readonly int N, M,
+        readonly int N, M, nClass
         int k_tot
         np.ndarray RM, rp, weights, FM, CM, rp_previous
 
