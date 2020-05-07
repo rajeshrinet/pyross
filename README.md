@@ -46,7 +46,7 @@ PyRoss requires the following software
 - Optional: [OdesPy](https://github.com/rajeshrinet/odespy) (integrators) |  [pathos](https://anaconda.org/conda-forge/pathos) (parallelizing inference) 
 #### Testing
 ```
-python -m unittest pyross.test (-v)
+python -m unittest pyross.test
 ```
 
 **Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website.
