@@ -9,6 +9,7 @@ dependencies:
   - scipy 
   - nlopt
   - cma
+  - pandas
   - pathos
   - pip
   - pip:
