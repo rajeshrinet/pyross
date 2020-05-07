@@ -6,4 +6,8 @@ to enable automatic unit testing before pushing.
 
 You can do this by running
 
-`cp .githooks/pre-push .git/hooks/`
+```
+cp .githooks/pre-push .git/hooks/
+cd .git/hooks/
+chmod +x pre-push
+ ```
