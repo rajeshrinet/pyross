@@ -1038,6 +1038,9 @@ cdef class SIkR(stochastic_integration):
                 rate of removal from infectives.
             fsa : float
                 fraction by which symptomatic individuals self isolate.
+            kI : int
+                number of stages of infection.
+            
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1057,6 +1060,8 @@ cdef class SIkR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
+        """This needs a look"""
+        self.k_tot = parameters['kI']
         self.nClass = 2
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate

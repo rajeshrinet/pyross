@@ -115,7 +115,6 @@ class DeterministicTest(unittest.TestCase):
         self.assertTrue((SIRdata-SIRSdata[:, 0:3] < 0.001).all(),
                         msg="paths differ > .1%")
 
-
     def test_init_models(self):
         """Test initialisation of deterministic models"""
         deterministic_models = dict(inspect.getmembers(pyross.deterministic,
@@ -177,6 +176,38 @@ class StochasticTest(unittest.TestCase):
     def test_stochastic_mean(self):
         """Runs stochastic models a few times and compares mean to 
         deterministic"""
+        pass
+        # nloops=20
+        # iinfec = 1000
+        # stochastic_models = dict(inspect.getmembers(pyross.stochastic,
+        #                                                inspect.isclass))
+        # deterministic_models = dict(inspect.getmembers(pyross.deterministic,
+        #                                                inspect.isclass))
+        # params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
+        # traj_dict={}
+        # for name, model in stochastic_models.items():
+        #    if name.startswith('S'):
+        #        mS = model(params, M, N + M*iinfec)
+        #        print(mS.kk)
+        #        mD = deterministic_models[name](params, M, N + M*iinfec)
+        #        x0 = np.array([*self.parameters['N'],
+        #                       *np.ones(self.parameters['M'])*iinfec,
+        #                       *np.zeros(mS.nClass -2)],
+        #                      dtype=np.float64).reshape((mS.nClass,1))
+        #        trajectories = []
+        #        for i in range(nloops):
+        #            traj =  mS.simulate(*x0, self.contactMatrix, 100, 100)['X']
+        #            trajectories.append(traj)
+        #        traj_dict[name] = np.mean(trajectories, axis=0)[:-1]
+        #        mean = mD.simulate(*x0, self.contactMatrix, 100, 100)['X']
+        #        # self.assertTrue(((traj_dict[name] - mean)<0.001).all())
+        #        print(name, (traj_dict[name] - mean)[0])
+               
+           
+                   
+                   
+               
+        
         
 
 
