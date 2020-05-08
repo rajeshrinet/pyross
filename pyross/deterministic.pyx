@@ -243,6 +243,66 @@ cdef class SIR(IntegratorsClass):
         return data
 
 
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population as a function of timee
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population as a function of timee
+        """
+        X  = data['X'] 
+        Ia = X[:, self.M:2*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population as a function of timee
+        """
+        X  = data['X'] 
+        Is = X[:, 2*self.M:3*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population as a function of timee
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
+        return R
+
+
 
 
 @cython.wraparound(False)
@@ -409,6 +469,83 @@ cdef class SIRS(IntegratorsClass):
         return data
 
 
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population as a function of timee
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population as a function of timee
+        """
+        X  = data['X'] 
+        Ia = X[:, self.M:2*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population as a function of timee
+        """
+        X  = data['X'] 
+        Is = X[:, 2*self.M:3*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population as a function of timee
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
+        return R
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X'] 
+        ppln  = X[:,3*self.M:4*self.M]
+        return ppln 
+
+
+
+
 
 
 @cython.wraparound(False)
@@ -556,6 +693,81 @@ cdef class SEIR(IntegratorsClass):
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
                          'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population as a function of timee
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population as a function of timee
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population as a function of timee
+        """
+        X  = data['X'] 
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population as a function of timee
+        """
+        X  = data['X'] 
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population as a function of timee
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
+        return R
 
 
 
