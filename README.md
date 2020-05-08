@@ -31,7 +31,8 @@ Clone (or download) the repository and use a terminal to install using
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
 >> cd pyross
->> python setup.py install
+>> make env
+>> make
 ```
 #### Pip
 
@@ -46,7 +47,7 @@ PyRoss requires the following software
 - Optional: [OdesPy](https://github.com/rajeshrinet/odespy) (integrators) |  [pathos](https://anaconda.org/conda-forge/pathos) (parallelizing inference) 
 #### Testing
 ```
-python -m unittest pyross.test
+make test
 ```
 
 **Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website.
