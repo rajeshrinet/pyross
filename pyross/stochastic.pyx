@@ -876,7 +876,7 @@ cdef class SIR(stochastic_integration):
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, aa, bb
+            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, rateS, lmda
             double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
             long [:] S    = rp[0  :M]
             long [:] Ia   = rp[M  :2*M]
@@ -888,13 +888,13 @@ cdef class SIR(stochastic_integration):
             double [:]   FM = self.FM
 
         for i in range(M): #, nogil=False):
-            bb=0
+            lmda=0
             for j in range(M): #, nogil=False):
-                 bb += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
-            aa = bb*S[i]
+                 lmda += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
+            rateS = lmda*S[i]
             #
-            RM[i+M,i] = alpha *aa + FM[i] # rate S -> Ia
-            RM[i+2*M,i] = alphab *aa # rate S -> Is
+            RM[i+M,i] = alpha *rateS + FM[i] # rate S -> Ia
+            RM[i+2*M,i] = alphab *rateS # rate S -> Is
             RM[i+M,i+M] = gIa*Ia[i] # rate Ia -> R
             RM[i+2*M,i+2*M] = gIs*Is[i] # rate Is -> R
         return
@@ -1088,7 +1088,7 @@ cdef class SIkR(stochastic_integration):
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kk=self.kk
-            double beta=self.beta, aa, bb
+            double beta=self.beta, rateS, lmda
             long [:] S    = rp[0  :M]
             long [:] I    = rp[M  :(kk+1)*M]
             double [:] gI = self.gI
@@ -1099,13 +1099,13 @@ cdef class SIkR(stochastic_integration):
             double [:]   FM = self.FM
 
         for i in range(M): #, nogil=False):
-            bb=0
+            lmda=0
             for jj in range(kk):
                 for j in range(M):
-                    bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
-            aa = bb*S[i]
+                    lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
+            rateS = lmda*S[i]
             #
-            RM[i+M,i] =  aa + FM[i] # rate S -> I1
+            RM[i+M,i] =  rateS + FM[i] # rate S -> I1
             for j in range(kk-1):
                 RM[i+(j+2)*M, i + (j+1)*M]   =  kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
             RM[i+kk*M, i+kk*M] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
@@ -1255,7 +1255,7 @@ cdef class SEIR(stochastic_integration):
             int N=self.N, M=self.M, i, j
             double gIa=self.gIa, gIs=self.gIs
             double gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
-            double beta=self.beta, aa, bb
+            double beta=self.beta, rateS, lmda
             double fsa = self.fsa
             long [:] S    = rp[0  :  M]
             long [:] E    = rp[  M:2*M]
@@ -1267,12 +1267,12 @@ cdef class SEIR(stochastic_integration):
             double [:]   FM = self.FM
 
         for i in range(M): #, nogil=False):
-            bb=0
+            lmda=0
             for j in range(M):
-                 bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
-            aa = bb*S[i]
+                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
+            rateS = lmda*S[i]
             #
-            RM[i+M  , i]     =  aa + FM[i] # rate S -> E
+            RM[i+M  , i]     =  rateS + FM[i] # rate S -> E
             RM[i+2*M, i+M]   = ce1 * E[i] # rate E -> Ia
             RM[i+3*M, i+M]   = ce2 * E[i] # rate E -> Is
             RM[i+2*M, i+2*M] = gIa * Ia[i] # rate Ia -> R
@@ -1510,7 +1510,7 @@ cdef class SEI5R(stochastic_integration):
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, aa, bb
+            double alpha=self.alpha, beta=self.beta, rateS, lmda
             double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
@@ -1540,15 +1540,15 @@ cdef class SEI5R(stochastic_integration):
             Ni[i] = S[i] + E[i] + Ia[i] + Is[i] + Ih[i] + Ic[i] + R[i]
 
         for i in range(M):
-            bb=0
+            lmda=0
             for j in range(M):
-                bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
-            aa = bb*S[i]
+                lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+            rateS = lmda*S[i]
             #
             RM[i,i] = sa[i] # birth rate (note also associated hard-coded increase
                            #              for the diagonal element with M = 0 in
                           #               the integrators in the mother class)
-            RM[i+M  , i]     =  aa  # rate S -> E
+            RM[i+M  , i]     =  rateS  # rate S -> E
             RM[i+2*M, i+M]   = ce1 * E[i] # rate E -> Ia
             RM[i+3*M, i+M]   = ce2 * E[i] # rate E -> Is
             #
@@ -1825,7 +1825,7 @@ cdef class SEAI5R(stochastic_integration):
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, aa, bb
+            double alpha=self.alpha, beta=self.beta, rateS, lmda
             double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE,  gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double ce1=self.gA*self.alpha, ce2=self.gA*(1-self.alpha)
@@ -1855,16 +1855,16 @@ cdef class SEAI5R(stochastic_integration):
             Ni[i] = S[i] + E[i] + A[i] + Ia[i] + Is[i] + Ih[i] + Ic[i] + R[i]
 
         for i in range(M):
-            bb=0
+            lmda=0
             for j in range(M):
-                bb += beta*CM[i,j]*(A[j] + Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
-            aa = bb*S[i]
+                lmda += beta*CM[i,j]*(A[j] + Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+            rateS = lmda*S[i]
             #
             # rates from S
             RM[i,i] = sa[i] # birth rate (note also associated hard-coded increase
                            #              for the diagonal element with M = 0 in
                           #               the integrators in the mother class)
-            RM[i+M  , i]     =  aa  # rate S -> E
+            RM[i+M  , i]     =  rateS  # rate S -> E
             # rates from E
             RM[i+2*M, i+M]   = gE * E[i] # rate E -> A
             # rates from A
@@ -2106,7 +2106,7 @@ cdef class SEAIRQ(stochastic_integration):
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double beta=self.beta, aa, bb
+            double beta=self.beta, rateS, lmda
             #double tS=self.tS,
             double tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
@@ -2126,12 +2126,12 @@ cdef class SEAIRQ(stochastic_integration):
             double [:,:] RM = self.RM
 
         for i in range(M):
-            bb=0
+            lmda=0
             for j in range(M):
-                bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
-            aa = bb*S[i]
+                lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
+            rateS = lmda*S[i]
             # rates away from S
-            RM[i+M  , i]     = aa  # rate S -> E
+            RM[i+M  , i]     = rateS  # rate S -> E
             #RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
             # rates away from E
             RM[i+2*M, i+M]   = gE  * E[i] # rate E -> A
