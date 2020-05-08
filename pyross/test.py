@@ -258,13 +258,26 @@ class StochasticTest(unittest.TestCase):
         #         gmean = np.sum(gtraj, axis=0)
         #         taumean= np.sum(tautraj, axis=0)
         #         absdiff = np.abs(gmean - taumean)/(N*self.Tf)
-        #         # print(name, np.sum(absdiff), np.shape(gmean), np.shape(taumean))
+        #         print(name, np.sum(absdiff), np.shape(gmean), np.shape(taumean))
         #         self.assertTrue(np.sum(absdiff)<.1, msg=f"{name} model disagreement")
-                
-            
-        
-        
-        
+
+class ControlTest(unittest.TestCase):
+    """testing control.pyx"""
+    
+    def __init__(self, *args, **kwargs):
+        super(ControlTest, self).__init__(*args, **kwargs)
+        self.parameters = DeterministicTest.parameters
+        self.control_models = dict(inspect.getmembers(pyross.control,
+                                                       inspect.isclass))
+
+    def contactMatrix(self, t): return np.identity(self.parameters['M'])
+
+    def test_init_models(self):
+        """Initializes all control models"""
+        for name, model in self.control_models.items():
+            if name.startswith('S'):
+                params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
+                m = model(params, M, N)
 
 
 if __name__ == '__main__':

@@ -18,5 +18,9 @@ do
         then
             echo "pyross/test changed, running tests..."
             python -m unittest -v pyross.test
+    elif [[ $item =~ pyross/control ]];
+        then
+            echo "pyross/control changed, running tests..."
+            python -m unittest pyross.test.ControlTest
     fi
 done;
