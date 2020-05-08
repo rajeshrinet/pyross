@@ -12,7 +12,7 @@ The library uses **Gaussian process regression**, on both the epidemiological ma
 
 Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
 
-The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, **SEAI5R**, and **SEAIRQ**, and **SIRS**.
+The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, **SEAI5R**, **SEAIRQ**, and **SIRS**.
 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
