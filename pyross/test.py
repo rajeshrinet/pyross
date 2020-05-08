@@ -88,9 +88,13 @@ class DeterministicTest(unittest.TestCase):
         paths = []
         model = pyross.deterministic.SIR(self.parameters, self.M, self.N)
         for integrator in integrators:
-            data = model.simulate(np.zeros(1), np.zeros(1), self.N,
-                                  self.contactMatrix, self.Tf,
-                                  self.Nf, integrator=integrator)
+            try:
+                data = model.simulate(np.zeros(1), np.zeros(1), self.N,
+                                      self.contactMatrix, self.Tf,
+                                      self.Nf, integrator=integrator)
+            except ModeuleNotFoundError:
+                print(f"{integrator} is not installed, skipping...")
+                pass
             paths.append(data['X'])
         for i in range(len(paths)):
             for j in range(len(paths)):
