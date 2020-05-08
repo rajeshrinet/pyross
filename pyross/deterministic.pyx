@@ -303,8 +303,7 @@ cdef class SIR(IntegratorsClass):
             'R' : Recovered population as a function of timee
         """
         X = data['X'] 
-        #R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
-        R = self.Ni - X.sum(axis=1)
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
         return R
 
 
@@ -535,8 +534,7 @@ cdef class SIRS(IntegratorsClass):
             'R' : Recovered population as a function of timee
         """
         X = data['X'] 
-        #R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
-        R = self.Ni - X.sum(axis=1)
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
         return R
 
 
@@ -1157,7 +1155,9 @@ cdef class SEI5R(IntegratorsClass):
             'R' : Recovered population as a function of timee
         """
         X = data['X'] 
-        R = self.Ni - X.sum(axis=1)
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] - X[:, 7*self.M:8*self.M]
+                        
         return R
 
 
@@ -1691,7 +1691,8 @@ cdef class SEAIR(IntegratorsClass):
             'R' : Recovered population as a function of timee
         """
         X = data['X'] 
-        R = self.Ni - X.sum(axis=1)
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] 
         return R
 
 
@@ -2080,7 +2081,9 @@ cdef class SEAI5R(IntegratorsClass):
             'R' : Recovered population as a function of timee
         """
         X = data['X'] 
-        R = self.Ni - X.sum(axis=1)
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] - X[:, 7*self.M:8*self.M] \
+             -X[:,8*self.M:9*self.M] 
         return R
 
 
@@ -2372,7 +2375,8 @@ cdef class SEAIRQ(IntegratorsClass):
             'R' : Recovered population as a function of timee
         """
         X = data['X'] 
-        R = self.Ni - X.sum(axis=1)
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] 
         return R
 
 
