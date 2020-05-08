@@ -1,4 +1,5 @@
 PYTHON=python
+#PYTHON=path to your python installation
 
 make:
 	@echo Installing pyross...
@@ -7,12 +8,10 @@ make:
 	cp .githooks/pre-push .git/hooks/
 	chmod +x .git/hooks/pre-push
 
-
 clean:
 	@echo removing all compiled files
 	${PYTHON} setup.py clean
 	rm pyross/*.c pyross/*.html
-	rm -r pyross/__pycache_
 	
 env:
 	@echo creating conda environment...

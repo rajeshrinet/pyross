@@ -139,7 +139,7 @@ cdef class SIR(IntegratorsClass):
     R
     """
     def __init__(self, parameters, M, Ni):
-        self.nClass = 3
+        self.nClass= 3
         self.beta  = parameters['beta']                         # infection rate
         self.gIa   = parameters['gIa']                          # recovery rate of Ia
         self.gIs   = parameters['gIs']                          # recovery rate of Is
@@ -356,7 +356,7 @@ cdef class SIRS(IntegratorsClass):
     
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 3
+        self.nClass= 3
         self.beta  = parameters['beta']                         # infection rate
         self.gIa   = parameters['gIa']                          # recovery rate of Ia
         self.gIs   = parameters['gIs']                          # recovery rate of Is
@@ -600,7 +600,7 @@ cdef class SEIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 4
+        self.nClass= 4
         self.beta  = parameters['beta']                         # infection rate
         self.gIa   = parameters['gIa']                          # recovery rate of Ia
         self.gIs   = parameters['gIs']                          # recovery rate of Is
@@ -860,7 +860,7 @@ cdef class SEI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 8 -1  # only 7 input classes
+        self.nClass= 8 -1  # only 7 input classes
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
@@ -1488,7 +1488,7 @@ cdef class SEAIR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 5
+        self.nClass= 5
         self.beta  = parameters['beta']                         # infection rate
         self.gIa   = parameters['gIa']                          # recovery rate of Ia
         self.gIs   = parameters['gIs']                          # recovery rate of Is
@@ -1765,7 +1765,7 @@ cdef class SEAI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 9 - 1#only 8 input classes
+        self.nClass= 9 - 1#only 8 input classes
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
         self.gA    = parameters['gA']                       # recovery rate of A class
@@ -2144,7 +2144,7 @@ cdef class SEAIRQ(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 6
+        self.nClass= 6
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
         self.gIs   = parameters['gIs']                      # recovery rate of Is
