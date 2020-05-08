@@ -13,6 +13,32 @@ cdef class SIR:
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
     Is: symptomatic
+
+    ...
+
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(3*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         readonly int N, M,

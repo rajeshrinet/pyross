@@ -9,6 +9,14 @@ import pyross.stochastic
 
 
 cdef class control_integration:
+    """
+    Integrator class to implement control through changing the contact matrix
+    as a function of the path
+    
+    Methods
+    -------
+    simulate_deteministic : Performs a deterministic simulation.
+    """
     cdef:
         readonly int N, M
         int k_tot
@@ -22,6 +30,41 @@ cdef class control_integration:
                          Tf, Nf, Ti=0,seedRate=None,
                          events_repeat=False,
                          events_subsequent=True): # only relevant of repeat_events = False
+        """
+        Performs detemrinistic numerical integration
+        
+        Parameters
+        ----------
+        y0 : np.array
+            Inital state of the system.
+        events : list
+            List of events to be satisfied by the path, triggering a change in
+            contactMatricies
+        contactMatricies: list of python functions
+            New contact matrix after the corresponding event occurs
+        Tf : float
+            End time for integrator.
+        Nf : Int
+            Number of time points to evaluate at.
+        Ti : float, optional
+            Start time for integrator. The default is 0.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        events_repeat: bool, optional
+            Wheither events is periodic in time. The default is false.
+        events_subsequent : bool, optional
+            TODO
+
+        Returns
+        -------
+        y_eval : np.array(len(t), len(y0))
+            Numerical integration solution.
+        t_eval : np.array
+            Corresponding times at which X is evaluated at.
+        event_out : list
+            List of events that occured during the run.
+
+        """
         cdef:
             int cur_index_i = 0,  current_protocol_index
             double t_i, cur_t_f
@@ -149,6 +192,32 @@ cdef class SIR(control_integration):
     Susceptible, Infected, Recovered (SIR)
     Ia: asymptomatic
     Is: symptomatic
+
+    ...
+
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(3*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gIa, gIs, fsa
@@ -158,10 +227,10 @@ cdef class SIR(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
 
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -174,7 +243,7 @@ cdef class SIR(control_integration):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -268,14 +337,14 @@ cdef class SIRS(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
 
-        self.ep    = parameters.get('ep')                       # fraction of recovered who is susceptible
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        iaa        = parameters.get('iaa')                      # daily arrival of new asymptomatics
+        self.ep    = parameters['ep']                       # fraction of recovered who is susceptible
+        sa         = parameters['sa']                       # daily arrival of new susceptibles
+        iaa        = parameters['iaa']                      # daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -286,7 +355,7 @@ cdef class SIRS(control_integration):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -397,11 +466,11 @@ cdef class SEIR(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -412,7 +481,7 @@ cdef class SEIR(control_integration):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -513,14 +582,14 @@ cdef class SEI5R(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -530,7 +599,7 @@ cdef class SEI5R(control_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -539,7 +608,7 @@ cdef class SEI5R(control_integration):
         else:
             print('alpha can be a number or an array of size M')
 
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
+        sa         = parameters['sa']                       # daily arrival of new susceptibles
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
             self.sa = sa*np.ones(M)
@@ -548,7 +617,7 @@ cdef class SEI5R(control_integration):
         else:
             print('sa can be a number or an array of size M')
 
-        hh         = parameters.get('hh')                       # hospital
+        hh         = parameters['hh']                       # hospital
         self.hh    = np.zeros( self.M, dtype = DTYPE)
         if np.size(hh)==1:
             self.hh = hh*np.ones(M)
@@ -557,7 +626,7 @@ cdef class SEI5R(control_integration):
         else:
             print('hh can be a number or an array of size M')
 
-        cc         = parameters.get('cc')                       # ICU
+        cc         = parameters['cc']                       # ICU
         self.cc    = np.zeros( self.M, dtype = DTYPE)
         if np.size(cc)==1:
             self.cc = cc*np.ones(M)
@@ -566,7 +635,7 @@ cdef class SEI5R(control_integration):
         else:
             print('cc can be a number or an array of size M')
 
-        mm         = parameters.get('mm')                       # mortality
+        mm         = parameters['mm']                       # mortality
         self.mm    = np.zeros( self.M, dtype = DTYPE)
         if np.size(mm)==1:
             self.mm = mm*np.ones(M)
@@ -673,9 +742,9 @@ cdef class SIkR(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gI    = parameters.get('gI')                       # recovery rate of I
-        self.ki    = parameters.get('k')                        # number of stages
+        self.beta  = parameters['beta']                     # infection rate
+        self.gI    = parameters['gI']                       # recovery rate of I
+        self.ki    = parameters['k']                        # number of stages
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -768,11 +837,11 @@ cdef class SEkIkR(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gI    = parameters.get('gI')                       # recovery rate of I
-        self.ki    = parameters.get('kI')                       # number of stages
-        self.ke    = parameters.get('kE')
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gI    = parameters['gI']                       # recovery rate of I
+        self.ki    = parameters['kI']                       # number of stages
+        self.ke    = parameters['kE']
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -877,12 +946,12 @@ cdef class SEAIR(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gA    = parameters.get('gA')                       # rate to go from A to Ia, Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gA    = parameters['gA']                       # rate to go from A to Ia, Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -893,7 +962,7 @@ cdef class SEAIR(control_integration):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -998,21 +1067,21 @@ cdef class SEAI5R(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.params = parameters
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gA    = parameters.get('gA')                       # recovery rate of A class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gA    = parameters['gA']                       # recovery rate of A class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
-        sa         = parameters.get('sa')                       # daily arrival of new susceptibles
-        hh         = parameters.get('hh')                       # hospital
-        cc         = parameters.get('cc')                       # ICU
-        mm         = parameters.get('mm')                       # mortality
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
+        sa         = parameters['sa']                       # daily arrival of new susceptibles
+        hh         = parameters['hh']                       # hospital
+        cc         = parameters['cc']                       # ICU
+        mm         = parameters['mm']                       # mortality
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1173,17 +1242,17 @@ cdef class SEAIRQ(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
 
-        self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
-        self.gE    = parameters.get('gE')                       # recovery rate of E
-        self.gA    = parameters.get('gA')                       # rate to go from A to Ia and Is
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
-        self.tE    = parameters.get('tE')                       # testing rate & contact tracing of E
-        self.tA    = parameters.get('tA')                       # testing rate & contact tracing of A
-        self.tIa   = parameters.get('tIa')                      # testing rate & contact tracing of Ia
-        self.tIs   = parameters.get('tIs')                      # testing rate & contact tracing of Is
+        self.tE    = parameters['tE']                       # testing rate & contact tracing of E
+        self.tA    = parameters['tA']                       # testing rate & contact tracing of A
+        self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia
+        self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1194,7 +1263,7 @@ cdef class SEAIRQ(control_integration):
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.drpdt = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
 
-        alpha      = parameters.get('alpha')                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
