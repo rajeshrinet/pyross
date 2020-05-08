@@ -12,7 +12,6 @@ cdef extern from "math.h":
 
 from libc.stdlib cimport rand, RAND_MAX
 
-
 cdef class stochastic_integration:
     """
     Integrators used by stochastic models:
@@ -136,10 +135,6 @@ cdef class stochastic_integration:
             rp[i + M*k] -= 1
         return t
 
-
-
-
-
     cpdef simulate_gillespie(self, contactMatrix, Tf, Nf,
                               seedRate=None):
         """
@@ -244,9 +239,6 @@ cdef class stochastic_integration:
         t_arr = np.array(t_arr)
         return t_arr, out_arr
 
-
-
-
     cpdef check_for_event(self,double t,double t_previous,
                             events,
                             list list_of_available_events):
@@ -285,8 +277,6 @@ cdef class stochastic_integration:
                 if (f_p*f <= 0):
                     return index_event
         return -1 # if no event was found, we return -1
-
-
 
     cpdef simulate_gillespie_events(self, events, contactMatrices,
                                 Tf, Nf,
@@ -415,33 +405,35 @@ cdef class stochastic_integration:
         t_arr = np.array(t_arr)
         return t_arr, out_arr, events_out
 
-
-
-
-
-
-
-
-
-
-
-
     cdef tau_leaping_update_timestep(self,
                                     double epsilon = 0.03):
+        """
+        Tau leaping timestep
+        This is based on Eqs. (32), (33) of
+        https://doi.org/10.1063/1.2159468   (Ref. 1)
+        
+        Note that a single index in the above cited paper corresponds
+        to a tuple here. In the paper, possible reactions are enumerated
+        with a single index, we enumerate the reactions as elements of the
+        matrix RM.
+        
+        Parameters
+        ----------
+        epsilon : float, optional
+            Acceptable error in leap. The default is 0.03.
+
+        Returns
+        -------
+        cur_tau : float
+            The maximal timestep that can be taken with error < epsilon
+        """
         cdef:
             int M=self.M, k_tot = self.k_tot
             int i, j, k
             double [:,:] RM = self.RM
             long [:] rp = self.rp
             double cur_tau, cur_mu, cur_sig_sq
-        # Determine current timestep
-        # This is based on Eqs. (32), (33) of
-        # https://doi.org/10.1063/1.2159468   (Ref. 1)
-        #
-        # note that a single index in the above cited paper corresponds
-        # to a tuple here. In the paper, possible reactions are enumerated
-        # with a single index, we enumerate the reactions as elements of the
-        # matrix RM.
+        # 
         #
         # evaluate Eqs. (32), (33) of Ref. 1
         cur_tau = INFINITY
@@ -488,8 +480,6 @@ cdef class stochastic_integration:
                         cur_tau = cur_sig_sq
         return cur_tau
 
-
-
     cdef tau_leaping_update_state(self,double cur_tau):
         cdef:
             int M=self.M, k_tot = self.k_tot
@@ -518,12 +508,45 @@ cdef class stochastic_integration:
                                   "argument 'nc'")
         return
 
-
-
     cpdef simulate_tau_leaping(self, contactMatrix, Tf, Nf,
                           int nc = 30, double epsilon = 0.03,
                           int tau_update_frequency = 1,
                           seedRate=None):
+        """
+        Tau leaping algorithm for producing stochastically correct trajectories
+        https://doi.org/10.1063/1.2159468
+        This method can run much faster than the Gillespie algorithm
+        1. Rates for each reaction channel r_i calculated from current state.
+        2. Timestep \tau chosen such that \Delta r_i < epsilon \Sum r_i
+        3. Number of reactions that occur in channel i ~Poisson(r_i \tau)
+        4. Update state by this amount
+        
+        Parameters
+        ----------
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        nc : optional
+            The default is 30
+        epsilon : float, optional
+            The acceptable error in each step. The default is 0.03
+        tau_update_frequency: optional
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+
+
+        Returns
+        -------
+        t_arr : np.array(Nf,)
+            Array of time points at which the integrator was evaluated.
+        out_arr : np.array
+            Output path from integrator.
+        """
         cdef:
             int M=self.M
             int i, j, k,  I, K_events, k_tot = self.k_tot
@@ -548,10 +571,6 @@ cdef class stochastic_integration:
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
             trajectory[0] = rp
             next_writeout = 1
-
-
-
-
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
@@ -562,12 +581,10 @@ cdef class stochastic_integration:
                     for i in range(next_writeout,int(Tf)+1):
                         trajectory[i] = rp
                 break
-
             if None != seedRate :
                 self.FM = seedRate(t)
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
-
             # calculate current rate matrix
             self.CM = contactMatrix(t)
             self.rate_matrix(rp, t)
@@ -630,10 +647,6 @@ cdef class stochastic_integration:
         out_arr = np.array(trajectory,dtype=long)
         t_arr = np.array(t_arr)
         return t_arr, out_arr
-
-
-
-
 
     cpdef simulate_tau_leaping_events(self,
                               events,contactMatrices,
@@ -798,12 +811,6 @@ cdef class stochastic_integration:
         return t_arr, out_arr, events_out
 
 
-
-
-
-
-
-
 cdef class SIR(stochastic_integration):
     """
     Susceptible, Infected, Recovered (SIR)
@@ -866,8 +873,6 @@ cdef class SIR(stochastic_integration):
         # (for event-driven simulations)
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-
-
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
@@ -893,9 +898,6 @@ cdef class SIR(stochastic_integration):
             RM[i+M,i+M] = gIa*Ia[i] # rate Ia -> R
             RM[i+2*M,i+2*M] = gIs*Is[i] # rate Is -> R
         return
-
-
-
 
     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
                 method='gillespie',
@@ -931,7 +933,6 @@ cdef class SIR(stochastic_integration):
         tau_update_frequency: TYPE, optional
         seedRate: python function, optional
             Seeding of infectives. The default is None.
-
 
        Returns
         -------
@@ -1016,11 +1017,6 @@ cdef class SIR(stochastic_integration):
         return out_dict
 
 
-
-
-
-
-
 cdef class SIkR(stochastic_integration):
     """
     Susceptible, Infected, Recovered (SIkR)
@@ -1089,8 +1085,6 @@ cdef class SIkR(stochastic_integration):
         self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-
-
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kk=self.kk
@@ -1116,10 +1110,6 @@ cdef class SIkR(stochastic_integration):
                 RM[i+(j+2)*M, i + (j+1)*M]   =  kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
             RM[i+kk*M, i+kk*M] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
         return
-
-
-
-
 
     cpdef simulate(self, S0, I0, contactMatrix, Tf, Nf,
                 method='gillespie',
@@ -1153,7 +1143,6 @@ cdef class SIkR(stochastic_integration):
                       'alpha':self.alpha, 'beta':self.beta,
                       'gI':self.gI, 'kI':self.kk }
         return out_dict
-
 
     cpdef simulate_events(self, S0, I0, events,
                 contactMatrices, Tf, Nf,
@@ -1199,12 +1188,6 @@ cdef class SIkR(stochastic_integration):
                     'alpha':self.alpha, 'beta':self.beta,
                     'gI':self.gI, 'kI':self.kk }
         return out_dict
-
-
-
-
-
-
 
 cdef class SEIR(stochastic_integration):
     """
@@ -1267,8 +1250,6 @@ cdef class SEIR(stochastic_integration):
         self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-
-
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
@@ -1297,7 +1278,6 @@ cdef class SEIR(stochastic_integration):
             RM[i+2*M, i+2*M] = gIa * Ia[i] # rate Ia -> R
             RM[i+3*M, i+3*M] = gIs * Is[i] # rate Is -> R
         return
-
 
     cpdef simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf,
                 method='gillespie',
@@ -1332,8 +1312,6 @@ cdef class SEIR(stochastic_integration):
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gE':self.gE}
         return out_dict
-
-
 
     cpdef simulate_events(self, S0, E0, Ia0, Is0, events,
                 contactMatrices, Tf, Nf,
@@ -1380,11 +1358,6 @@ cdef class SEIR(stochastic_integration):
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gE':self.gE}
         return out_dict
-
-
-
-
-
 
 cdef class SEI5R(stochastic_integration):
     """
@@ -1718,9 +1691,6 @@ cdef class SEI5R(stochastic_integration):
                     }
         return out_dict
 
-
-
-
 cdef class SEAI5R(stochastic_integration):
     """
     Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
@@ -2045,10 +2015,6 @@ cdef class SEAI5R(stochastic_integration):
                     }
         return out_dict
 
-
-
-
-
 cdef class SEAIRQ(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
@@ -2137,7 +2103,6 @@ cdef class SEAIRQ(stochastic_integration):
         self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-
     cdef rate_matrix(self, rp, tt):
         cdef:
             int N=self.N, M=self.M, i, j
@@ -2184,8 +2149,6 @@ cdef class SEAIRQ(stochastic_integration):
             #
         return
 
-
-
     cpdef simulate(self, S0, E0, A0, Ia0, Is0, Q0,
                   contactMatrix, Tf, Nf,
                 method='gillespie',
@@ -2223,8 +2186,6 @@ cdef class SEAIRQ(stochastic_integration):
                 'gE':self.gE,'gA':self.gA,
                 'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return out_dict
-
-
 
     cpdef simulate_events(self, S0, E0, A0, Ia0, Is0, Q0,
                 events, contactMatrices, Tf, Nf,
