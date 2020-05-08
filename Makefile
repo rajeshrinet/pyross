@@ -17,4 +17,7 @@ env:
 	conda env create --file environment.yml
 	conda activate pyross
 	@echo use make to install pyross
-	
+
+test:
+	@echo testing pyross...
+	cd ~ && python -m unittest pyross.test
