@@ -1473,7 +1473,7 @@ cdef class SEI5R(stochastic_integration):
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
+        self.Ni    = np.array(Ni.copy(),dtype=long)
 
         self.k_tot = 8 # total number of explicit states per age group
         # here:
@@ -1552,7 +1552,7 @@ cdef class SEI5R(stochastic_integration):
             long [:] Im   = rp[6*M:7*M]
             long [:] R    = rp[7*M:8*M]
             #
-            double [:] Ni    = self.Ni
+            long [:] Ni    = self.Ni
             #
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
@@ -1591,22 +1591,6 @@ cdef class SEI5R(stochastic_integration):
             RM[i+7*M, i+5*M] = (1.-mm[i])*gIc * Ic[i] # rate Ic -> R
             RM[i+6*M, i+5*M] = mm[i]*gIc * Ic[i] # rate Ic -> Im
             #
-            if False: # for debugging purposes
-                if tt < 0.1:
-                    print('aa =',aa)
-                    print("S[i] =",S[i])
-                    print("Is[i] =",Is[i])
-                    print("  -> S:\t",RM[i,i])
-                    print("S -> E:\t",RM[i+M,i])
-                    print("E -> Ia:\t",RM[i+2*M,i+M])
-                    print("E -> Is:\t",RM[i+3*M,i+M])
-                    print("Ia -> R:\t",RM[i+7*M,i+2*M])
-                    print("Is -> R:\t",RM[i+7*M,i+3*M])
-                    print("Is -> Ih:\t",RM[i+4*M,i+3*M])
-                    print("Ih -> R:\t",RM[i+7*M,i+4*M])
-                    print("Ih -> Im:\t",RM[i+5*M,i+4*M])
-                    print("Ic -> R:\t",RM[i+7*M,i+5*M])
-                    print("Ic -> Im:\t",RM[i+6*M,i+5*M])
         return
 
 
@@ -1630,13 +1614,15 @@ cdef class SEI5R(stochastic_integration):
             rp[i+4*M] = Ih0[i]
             rp[i+5*M] = Ic0[i]
             rp[i+6*M] = Im0[i]
-            rp[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i]
-            rp[i+7*M] -= Ih0[i] + Ic0[i] + Im0[i]
-            #print(rp[i+7*M])
+            rp[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i] \
+                                   - Ih0[i] - Ic0[i] - Im0[i]
             if rp[i+7*M] < 0:
-                raise RuntimeError("Sum of provided initial populations for class" + \
-                    " {0} exceeds total initial population for that class\n".format(i) + \
-                    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
+                rp[i+7*M] = 0
+                # It is probably better to have the error message below,
+                # to warn the user if their input numbers do not match?
+                #raise RuntimeError("Sum of provided initial populations for class" + \
+                #    " {0} exceeds total initial population for that class\n".format(i) + \
+                #    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
@@ -1694,11 +1680,13 @@ cdef class SEI5R(stochastic_integration):
             rp[i+6*M] = Im0[i]
             rp[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i]
             rp[i+7*M] -= Ih0[i] + Ic0[i] + Im0[i]
-            #print(rp[i+7*M])
             if rp[i+7*M] < 0:
-                raise RuntimeError("Sum of provided initial populations for class" + \
-                    " {0} exceeds total initial population for that class\n".format(i) + \
-                    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
+                rp[i+7*M] = 0
+                # It is probably better to have the error message below,
+                # to warn the user if their input numbers do not match?
+                #raise RuntimeError("Sum of provided initial populations for class" + \
+                #    " {0} exceeds total initial population for that class\n".format(i) + \
+                #    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,

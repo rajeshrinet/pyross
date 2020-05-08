@@ -237,7 +237,7 @@ cdef class SIR_type:
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
         x0 =  params[param_dim:]/rescale_factor
-    
+
         local_params = params.copy()
         local_params[1] /= beta_rescale
         parameters = self.make_params_dict(local_params[:param_dim])
@@ -251,7 +251,7 @@ cdef class SIR_type:
     def latent_inference(self, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
                             beta_rescale=1, verbose=False, double ftol=1e-5, double eps=1e-4,
-                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10., 
+                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         '''
@@ -973,8 +973,9 @@ cdef class SEAIRQ(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps):
         super().__init__(parameters, 6, M, fi, N, steps)
-    
-    def _infer_control_to_minimize(self, params, grad=0, x=None, Tf=None, Nf=None, generator=None):
+
+    def _infer_control_to_minimize(self, params, grad=0, x=None, Tf=None, Nf=None,
+                                    generator=None, a=None, scale=None):
         """Objective function for minimization call in infer_control."""
         tau_control = params
         parameters = self.make_params_dict()
@@ -985,9 +986,10 @@ cdef class SEAIRQ(SIR_type):
         model = self.make_det_model(parameters)
         contactMatrix = generator.constant_contactMatrix()
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(tau_control, a, scale=scale))
         return minus_logp
 
-    def infer_control(self, guess, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5, global_max_iter=100,
+    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5, global_max_iter=100,
                       local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                       cma_processes=0, cma_population=16, cma_stds=None):
         '''
@@ -1011,16 +1013,24 @@ cdef class SEAIRQ(SIR_type):
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
         '''
-        minimize_args = {'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator}
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            cma_stds = stds
+
+        minimize_args = {'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 'a':a, 'scale':scale}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+                      local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                      enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                      cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
         return res[0]
 
-    def _latent_infer_control_to_minimize(self, params, grad=0, generator=None, x0=None, obs=None, fltr=None, 
-                                          Tf=None, Nf=None):
+
+
+    def _latent_infer_control_to_minimize(self, params, grad=0, generator=None, x0=None, obs=None, fltr=None,
+                                          Tf=None, Nf=None, a=None, scale=None):
         """Objective function for minimization call in latent_infer_control."""
         tau_control = params
         parameters = self.make_params_dict()
@@ -1031,14 +1041,22 @@ cdef class SEAIRQ(SIR_type):
         model = self.make_det_model(parameters)
         contactMatrix = generator.constant_contactMatrix()
         minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(tau_control, a, scale=scale))
         return minus_logp
 
-    def latent_infer_control(self, np.ndarray guess, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
                             verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None):
-        minimize_args = {'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf}
+
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            cma_stds = stds
+        minimize_args = {'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr,
+                            'Tf':Tf, 'Nf':Nf, 'a':a, 'scale':scale}
         res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
