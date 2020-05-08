@@ -112,7 +112,6 @@ cdef class stochastic_integration:
         # decide which reaction happens
         '''
         random = ( rand()/fRAND_MAX ) * total_rate
-        cs = 0.0
         I = 0
         while cs < random and I < max_index:
             cs += weights[I]
@@ -1060,8 +1059,8 @@ cdef class SIkR(stochastic_integration):
         readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
-        self.kk = parameters['k']
-        self.nClass = 2
+        self.kk = parameters['kI']
+        self.nClass = 1 + self.kk
         self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
@@ -1152,7 +1151,7 @@ cdef class SIkR(stochastic_integration):
         out_dict = {'X':out_arr, 't':t_arr,
                       'N':self.N, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
-                      'gI':self.gI, 'k':self.kk }
+                      'gI':self.gI, 'kI':self.kk }
         return out_dict
 
 
@@ -1198,7 +1197,7 @@ cdef class SIkR(stochastic_integration):
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'N':self.N, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
-                    'gI':self.gI, 'k':self.kk }
+                    'gI':self.gI, 'kI':self.kk }
         return out_dict
 
 

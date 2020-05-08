@@ -164,6 +164,7 @@ class StochasticTest(unittest.TestCase):
                                                        inspect.isclass))
        traj_dict={}
        for name, model in stochastic_models.items():
+           
            if name.startswith('S'):
                params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                m = model(params, M, N + M*10)
@@ -176,39 +177,35 @@ class StochasticTest(unittest.TestCase):
     def test_stochastic_mean(self):
         """Runs stochastic models a few times and compares mean to 
         deterministic"""
-        pass
-        # nloops=20
-        # iinfec = 1000
-        # stochastic_models = dict(inspect.getmembers(pyross.stochastic,
-        #                                                inspect.isclass))
-        # deterministic_models = dict(inspect.getmembers(pyross.deterministic,
-        #                                                inspect.isclass))
-        # params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
-        # traj_dict={}
-        # for name, model in stochastic_models.items():
-        #    if name.startswith('S'):
-        #        mS = model(params, M, N + M*iinfec)
-        #        print(mS.kk)
-        #        mD = deterministic_models[name](params, M, N + M*iinfec)
-        #        x0 = np.array([*self.parameters['N'],
-        #                       *np.ones(self.parameters['M'])*iinfec,
-        #                       *np.zeros(mS.nClass -2)],
-        #                      dtype=np.float64).reshape((mS.nClass,1))
-        #        trajectories = []
-        #        for i in range(nloops):
-        #            traj =  mS.simulate(*x0, self.contactMatrix, 100, 100)['X']
-        #            trajectories.append(traj)
-        #        traj_dict[name] = np.mean(trajectories, axis=0)[:-1]
-        #        mean = mD.simulate(*x0, self.contactMatrix, 100, 100)['X']
-        #        # self.assertTrue(((traj_dict[name] - mean)<0.001).all())
-        #        print(name, (traj_dict[name] - mean)[0])
-               
-           
-                   
-                   
-               
-        
-        
+        # pass
+        nloops=10
+        iinfec = 3000
+        Tf = 10
+        stochastic_models = dict(inspect.getmembers(pyross.stochastic,
+                                                        inspect.isclass))
+        deterministic_models = dict(inspect.getmembers(pyross.deterministic,
+                                                        inspect.isclass))
+        params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
+        traj_dict={}
+        for name, model in stochastic_models.items():
+            if name.startswith('S'):
+                mS = model(params, M, N + M*iinfec)
+                # print(mS.kk)
+                mD = deterministic_models[name](params, M, N + M*iinfec)
+                x0 = np.array([*self.parameters['N'],
+                              *np.ones(self.parameters['M'])*iinfec,
+                              *np.zeros(mS.nClass -2)],
+                              dtype=np.float64).reshape((mS.nClass,1))
+                trajectories = []
+                for i in range(nloops):
+                    traj =  mS.simulate(*x0, self.contactMatrix, Tf, Tf)['X']
+                    trajectories.append(traj)
+                traj_dict[name] = np.mean(trajectories, axis=0)[:-1]
+                mean = mD.simulate(*x0, self.contactMatrix, Tf, Tf)['X']
+                # self.assertTrue(((traj_dict[name] - mean)<0.001).all())
+                self.assertTrue(np.sum(np.abs((traj_dict[name] -mean)[:,:-1]
+                                              /(N*Tf)))<0.01, 
+                                msg=f"{name} model disagreement")
 
 
 if __name__ == '__main__':
