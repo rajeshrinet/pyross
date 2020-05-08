@@ -33,7 +33,7 @@ PyRoss requires the following software
 - [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/)  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
 - Optional:  integrators ([OdesPy](https://github.com/rajeshrinet/odespy)) |  parallelizing inference ([pathos](https://anaconda.org/conda-forge/pathos)) |  data files ([Pandas](https://pandas.pydata.org/), [xlrd](https://xlrd.readthedocs.io/en/latest/))
 
-Clone (or download) the repository and use a terminal to install PyRoss and its dependencies in a pyross env
+Clone (or download) the repository and use a terminal to install PyRoss and its dependencies in a pyross [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml)
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
 >> cd pyross
