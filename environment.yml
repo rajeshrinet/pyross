@@ -10,6 +10,7 @@ dependencies:
   - nlopt
   - cma
   - pandas
+  - xlrd
   - pathos
   - pip
   - pip:
