@@ -24,6 +24,53 @@ ctypedef np.uint8_t BOOL_t
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR_type:
+    '''
+    Parent class for inference for all SIR-type classes listed below
+
+    Attributes:
+    ----------
+    nClass : int
+        Number of classes (set in subclasses).
+    N : int
+        Total popuation.
+    M : int
+        Number of compartments of individual for each class.
+    steps : int
+        Number of internal integration points used for interpolation.
+    dim : int
+        nClass * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    fsa : float
+        Fraction by which symptomatic individuals self isolate.
+
+    Methods:
+    -------
+    inference : Infers epidemiological parameters given all information.
+    infer_control : Infers control parameters given all information.
+    hessian : Computes the hessian of -log(p) around the maximum a posteriori estimates.
+    obtain_minus_log_p : Computes -log(p) of a fully observed trajectory for
+                         given epidemiological parameters.
+    error_bars : Computes the errors of the maximum a posteriori estimates
+                 using the hessian (under maintenance).
+    log_G_evidence : Computes the log G evidence of the model (under maintenance).
+    latent_inference : Infers epidemiological parametesr and initial conditions
+                       given partial information.
+    latent_infer_control : Infers control parameters given partial information.
+    hessian_latent : Computes the hessian of -logp around the maximum a posteriori
+                     estimates for both parameters and initial conditions.
+    minus_logp_red : Computes -log(p) of a partially observed trajectory for
+                     given epidemiological parameters and initial conditions.
+    integrate : A wrapper around simulate methods in pyross.deterministic
+    '''
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly double alpha, beta, gIa, gIs, fsa
@@ -76,29 +123,36 @@ cdef class SIR_type:
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
-        guess: numpy.array
-            initial guess for the parameter values
-        stds: numpy.array
+        Parameters
+        ----------
+        guess: np.array
+            Initial guess for the parameter values
+        stds: np.array
             Standard deviations for the Gamma prior
-        x:
+        x: np.array
             Observed trajectory
         Tf: float
-            total time of the trajectory
+            Total time of the trajectory
         Nf: float
-            number of data points along the trajectory
+            Number of data points along the trajectory
         contactMatrix: callable
-        bounds: 2d numpy.array
-            bounds for the parameters.
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+            A function that returns the contact matrix
+        bounds: 2d np.array, optional
+            Bounds for the parameters. For good results, specify the bounds.
         verbose: bool
-            whether to print messages
-        ftol: double
-            relative tolerance of logp
+            Boolean flag for printing
+        ftol: flat
+            Relative tolerance for the optimizer
         eps: double
             step size used to calculate hessian in the optimisation algorithm
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
+        local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
             Parameters of `minimization` function in `utils_python.py` which are documented there.
+
+        Returns
+        -------
+        estimates: np.array
+            Best estimates for parameters
         '''
         # make bounds if it does not exist and rescale
         if bounds is None:
@@ -146,20 +200,26 @@ cdef class SIR_type:
                       global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
-        guess: numpy.array
-            initial guess for the control parameter values
+        Parameters
+        ----------
+        guess: np.array
+            Initial guess for the control parameter values
+        stds: np.array
+            Standard deviations for the Gamma prior
+        x: np.array
+            Observed trajectory
         Tf: float
-            total time of the trajectory
+            Total time of the trajectory
         Nf: float
-            number of data points along the trajectory
+            Number of data points along the trajectory
         generator: pyross.contactMatrix
-        bounds: 2d numpy.array
-            bounds for the parameters.
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+            Generator for contact matrix
+        bounds: 2d np.array
+            Bounds for the parameters.
         verbose: bool
-            whether to print messages
+            Enable printing
         ftol: double
-            relative tolerance of logp
+            Relative tolerance for optimizer.
         eps: double
             step size used to calculate hessian in the optimisation algorithm
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
