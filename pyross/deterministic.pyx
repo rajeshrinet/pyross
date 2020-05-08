@@ -256,7 +256,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -271,7 +271,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, self.M:2*self.M]
@@ -286,7 +286,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 2*self.M:3*self.M]
@@ -301,7 +301,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
@@ -472,7 +472,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -487,7 +487,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'E' : Exposed population as a function of timee
+            'E' : Exposed population time series
         """
         X = data['X'] 
         E = X[:, self.M:2*self.M]
@@ -502,7 +502,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, 2*self.M:3*self.M]
@@ -517,7 +517,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 3*self.M:4*self.M]
@@ -532,7 +532,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
@@ -786,7 +786,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -801,7 +801,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'E' : Exposed population as a function of timee
+            'E' : Exposed population time series
         """
         X = data['X'] 
         E = X[:, self.M:2*self.M]
@@ -816,7 +816,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, 2*self.M:3*self.M]
@@ -831,7 +831,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 3*self.M:4*self.M]
@@ -846,7 +846,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ic' : hospitalized population as a function of timee
+            'Ic' : hospitalized population time series
         """
         X  = data['X'] 
         Ih = X[:, 4*self.M:5*self.M]
@@ -861,7 +861,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ic' : ICU hospitalized population as a function of timee
+            'Ic' : ICU hospitalized population time series
         """
         X  = data['X'] 
         Ic = X[:, 5*self.M:6*self.M]
@@ -876,7 +876,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ic' : mortality as a function of timee
+            'Ic' : mortality time series
         """
         X  = data['X'] 
         Im = X[:, 6*self.M:7*self.M]
@@ -906,7 +906,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -1370,7 +1370,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -1385,7 +1385,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'E' : Exposed population as a function of timee
+            'E' : Exposed population time series
         """
         X = data['X'] 
         E = X[:, self.M:2*self.M]
@@ -1400,7 +1400,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'A' : Activated population as a function of timee
+            'A' : Activated population time series
         """
         X = data['X'] 
         A = X[:, 2*self.M:3*self.M]
@@ -1415,7 +1415,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, 3*self.M:4*self.M]
@@ -1430,7 +1430,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 4*self.M:5*self.M]
@@ -1445,7 +1445,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -1701,7 +1701,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -1716,7 +1716,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'E' : Exposed population as a function of timee
+            'E' : Exposed population time series
         """
         X = data['X'] 
         E = X[:, self.M:2*self.M]
@@ -1731,7 +1731,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'A' : Activated population as a function of timee
+            'A' : Activated population time series
         """
         X = data['X'] 
         A = X[:, 2*self.M:3*self.M]
@@ -1746,7 +1746,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, 3*self.M:4*self.M]
@@ -1761,7 +1761,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 4*self.M:5*self.M]
@@ -1776,7 +1776,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ic' : hospitalized population as a function of timee
+            'Ic' : hospitalized population time series
         """
         X  = data['X'] 
         Ih = X[:, 5*self.M:6*self.M]
@@ -1791,7 +1791,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ic' : ICU hospitalized population as a function of timee
+            'Ic' : ICU hospitalized population time series
         """
         X  = data['X'] 
         Ic = X[:, 6*self.M:7*self.M]
@@ -1806,7 +1806,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'Ic' : mortality as a function of timee
+            'Ic' : mortality time series
         """
         X  = data['X'] 
         Im = X[:, 7*self.M:8*self.M]
@@ -1836,7 +1836,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -2041,7 +2041,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -2056,7 +2056,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'E' : Exposed population as a function of timee
+            'E' : Exposed population time series
         """
         X = data['X'] 
         E = X[:, self.M:2*self.M]
@@ -2071,7 +2071,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'A' : Activated population as a function of timee
+            'A' : Activated population time series
         """
         X = data['X'] 
         A = X[:, 2*self.M:3*self.M]
@@ -2086,7 +2086,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, 3*self.M:4*self.M]
@@ -2101,7 +2101,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 4*self.M:5*self.M]
@@ -2116,7 +2116,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'Q' : Quarantined population as a function of timee
+            'Q' : Quarantined population time series
         """
         X  = data['X'] 
         Is = X[:, 5*self.M:6*self.M]
@@ -2131,7 +2131,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -2319,7 +2319,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'S' : Susceptible population as a function of timee
+            'S' : Susceptible population time series
         """
         X = data['X'] 
         S = X[:, 0:self.M]
@@ -2334,7 +2334,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'Ia' : Asymptomatics population as a function of timee
+            'Ia' : Asymptomatics population time series
         """
         X  = data['X'] 
         Ia = X[:, self.M:2*self.M]
@@ -2349,7 +2349,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'Is' : symptomatics population as a function of timee
+            'Is' : symptomatics population time series
         """
         X  = data['X'] 
         Is = X[:, 2*self.M:3*self.M]
@@ -2364,7 +2364,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population as a function of timee
+            'R' : Recovered population time series
         """
         X = data['X'] 
         R =  X[:, 3*self.M:4*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] 
