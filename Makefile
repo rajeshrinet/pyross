@@ -5,6 +5,8 @@ make:
 	${PYTHON} setup.py install
 	@echo adding githook...
 	cp .githooks/pre-push .git/hooks/
+	chmod +x .git/hooks/pre-push
+
 
 clean:
 	@echo removing all compiled files
