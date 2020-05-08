@@ -23,28 +23,38 @@ The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](
 Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
 - **Coming soon**: PyRossGeo, an extension of PyRoss that is spatially resolved and explicitly models commuting networks.
+
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) loads.
-
-Clone (or download) the repository and use a terminal to install using
-
-```bash
->> git clone https://github.com/rajeshrinet/pyross.git
->> cd pyross
->> make env
->> make
-```
-#### Pip
-
-```
-pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
-```
 
 PyRoss requires the following software
 
 - Python 2.6+ or Python 3.4+
 - [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/)  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
 - Optional: [OdesPy](https://github.com/rajeshrinet/odespy) (integrators) |  [pathos](https://anaconda.org/conda-forge/pathos) (parallelizing inference) 
+
+Clone (or download) the repository and use a terminal to install install pyross and its dependencies 
+```bash
+>> git clone https://github.com/rajeshrinet/pyross.git
+>> cd pyross
+>> make env
+>> make
+```
+
+Alternatively, first install all the dependencies followed by 
+```bash
+>> git clone https://github.com/rajeshrinet/pyross.git
+>> cd pyross
+>> python setup.py install
+```
+
+#### Pip
+
+```
+pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
+```
+
+
 #### Testing
 ```
 make test
