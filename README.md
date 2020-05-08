@@ -43,9 +43,11 @@ Clone (or download) the repository and use a terminal to install PyRoss and its 
 
 Alternatively, first install all the dependencies and then, install PyRoss using 
 ```bash
->> git clone https://github.com/rajeshrinet/pyross.git
->> cd pyross
 >> python setup.py install
+```
+or
+```bash
+>> make
 ```
 
 #### Pip
@@ -106,7 +108,7 @@ data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 
 # time series of S, Ia, Is, R
 S  = model.S(data)
-Is = model.Ia(data)
+Ia = model.Ia(data)
 Is = model.Is(data)
 R  = model.R(data)
 ```
