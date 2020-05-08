@@ -848,7 +848,6 @@ cdef class SEI5R(IntegratorsClass):
     Methods
     -------
     simulate
-    simulate
     S
     E
     Ia

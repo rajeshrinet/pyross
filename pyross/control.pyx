@@ -11,7 +11,7 @@ import pyross.stochastic
 cdef class control_integration:
     """
     Integrator class to implement control through changing the contact matrix
-    as a function of the path
+    as a function of the current state.
     
     Methods
     -------
@@ -38,7 +38,8 @@ cdef class control_integration:
         y0 : np.array
             Inital state of the system.
         events : list
-            List of events to be satisfied by the path, triggering a change in
+            List of events that the current state can satisfy to change behaviour
+            of the contact matrix.
             contactMatricies
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
@@ -329,6 +330,35 @@ cdef class SIRS(control_integration):
     Susceptible, Infected, Recovered, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            ep  : float
+                fraction of recovered who become susceptable again
+            sa  : float, np.array (M,)
+                daily arrival of new susceptables
+            iaa : float, np.array (M,)
+                daily arrival of new asymptomatics
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(4*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gIa, gIs, fsa, ep
@@ -458,6 +488,31 @@ cdef class SEIR(control_integration):
     Susceptible, Exposed, Infected, Recovered (SEIR)
     Ia: asymptomatic
     Is: symptomatic
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            gE : float
+                rate of removal from exposed individuals.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(4*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gIa, gIs, gE, fsa
@@ -574,6 +629,47 @@ cdef class SEI5R(control_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+    
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gE : float
+                rate of removal from exposeds individuals.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gIh : float
+                rate of recovery for hospitalised individuals.
+            gIc : float
+                rate of recovery for idividuals in intensive care.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            fh  : float
+                fraction by which hospitalised individuals are isolated.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(8*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gIa, gIs, gIh, gIc, fsa, fh
@@ -734,6 +830,27 @@ cdef class SIkR(control_integration):
     """
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gI : float
+                rate of removal from infectives.
+            kI : int
+                number of stages of infection.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array((kI + 1)*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gI
@@ -829,6 +946,31 @@ cdef class SEkIkR(control_integration):
     Susceptible, Infected, Recovered (SIkR)
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gI : float
+                rate of removal from infected individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            ki : int
+                number of stages of infectives.
+            ke : int
+                number of stages of exposed. 
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array((kI = kE +1)*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gE, gI, fsa
@@ -938,6 +1080,33 @@ cdef class SEAIR(control_integration):
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            gE : float
+                rate of removal from exposeds individuals.
+            gA : float
+                rate of removal from activated individuals.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(5*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gE, gA, gIa, gIs, fsa, gIh, gIc
@@ -1059,6 +1228,37 @@ cdef class SEAI5R(control_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            gE : float
+                rate of removal from exposeds individuals.
+            gA : float
+                rate of removal from activated individuals.
+            gIh : float
+                rate of hospitalisation of infected individuals.
+            gIc : float
+                rate hospitalised individuals are moved to intensive care.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(9*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
     """
     cdef:
         double beta, gE, gA, gIa, gIs, fsa, gIh, gIc, fh
@@ -1231,7 +1431,43 @@ cdef class SEAIRQ(control_integration):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A : Asymptomatic and infectious 
+
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:   
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            gA : float
+                rate of removal from activated individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            tE  : float
+                testing rate and contact tracing of exposeds
+            tA  : float
+                testing rate and contact tracing of activateds
+            tIa : float
+                testing rate and contact tracing of asymptomatics
+            tIs : float
+                testing rate and contact tracing of symptomatics
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(6*M, )
+        Initial number in each compartment and class    
+
+    Methods
+    -------
+    simulate 
     """
     cdef:
         double beta, gIa, gIs, gE, gA, fsa
