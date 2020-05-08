@@ -6,13 +6,13 @@
 
 ## About
 
-[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctions.
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctuations. 
 
 The library uses **Gaussian process regression**, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
 
 Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
 
-The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SIRS**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, **SEAI5R**, and **SEAIRQ**.
+The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, **SEAI5R**, and **SEAIRQ**, and **SIRS**.
 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
