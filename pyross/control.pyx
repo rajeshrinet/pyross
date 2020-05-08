@@ -672,7 +672,7 @@ cdef class SEI5R(control_integration):
     simulate
     """
     cdef:
-        double beta, gIa, gIs, gIh, gIc, fsa, fh
+        double beta, gIa, gIs, gIh, gIc, fsa, fh, gE
         np.ndarray alpha, sa, hh, cc, mm
         dict params
 
