@@ -92,7 +92,7 @@ class DeterministicTest(unittest.TestCase):
                 data = model.simulate(np.zeros(1), np.zeros(1), self.N,
                                       self.contactMatrix, self.Tf,
                                       self.Nf, integrator=integrator)
-            except ModuleNotFoundError:
+            except ModuleNotFoundError or ImportError:
                 print(f"{integrator} is not installed, skipping...")
                 pass
             paths.append(data['X'])
@@ -238,28 +238,27 @@ class StochasticTest(unittest.TestCase):
             Also, difference is an order of magnitude greater than
             Gillespie from the mean.
         """
-        pass
-        # self.nloops=100
-        # params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
-        # for name, model in self.stochastic_models.items():
-        #     if name.startswith('S'):
-        #         mS = model(params, M, N + M*self.iinfec)
-        #         x0 = np.array([*self.parameters['N'],
-        #                       *np.ones(self.parameters['M'])*self.iinfec,
-        #                       *np.zeros(mS.nClass -2)],
-        #                       dtype=np.float64).reshape((mS.nClass,1))
-        #         gtraj = []
-        #         tautraj = []
-        #         for i in range(self.nloops):
-        #             gtraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf, 
-        #                                 method='gillespie')['X'])
-        #             tautraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf, 
-        #                                 method='tau_leaping')['X'])
-        #         gmean = np.sum(gtraj, axis=0)
-        #         taumean= np.sum(tautraj, axis=0)
-        #         absdiff = np.abs(gmean - taumean)/(N*self.Tf)
-        #         print(name, np.sum(absdiff), np.shape(gmean), np.shape(taumean))
-        #         self.assertTrue(np.sum(absdiff)<.1, msg=f"{name} model disagreement")
+        self.nloops=10
+        params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
+        for name, model in self.stochastic_models.items():
+            if name.startswith('S'):
+                mS = model(params, M, N + M*self.iinfec)
+                x0 = np.array([*self.parameters['N'],
+                              *np.ones(self.parameters['M'])*self.iinfec,
+                              *np.zeros(mS.nClass -2)],
+                              dtype=np.float64).reshape((mS.nClass,1))
+                gtraj = []
+                tautraj = []
+                for i in range(self.nloops):
+                    gtraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf, 
+                                        method='gillespie')['X'])
+                    tautraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf, 
+                                        method='tau_leaping', epsilon=1E-3)['X'])
+                gmean = np.sum(gtraj, axis=0)
+                taumean= np.sum(tautraj, axis=0)
+                absdiff = np.abs(gmean - taumean)/(N*self.Tf)
+                # print(name, np.sum(absdiff), np.shape(gmean), np.shape(taumean))
+                self.assertTrue(np.sum(absdiff)<.1, msg=f"{name} model disagreement")
 
 class ControlTest(unittest.TestCase):
     """testing control.pyx"""
@@ -278,6 +277,8 @@ class ControlTest(unittest.TestCase):
             if name.startswith('S'):
                 params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                 m = model(params, M, N)
+    
+    
 
 
 if __name__ == '__main__':
