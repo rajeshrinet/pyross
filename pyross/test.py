@@ -92,7 +92,7 @@ class DeterministicTest(unittest.TestCase):
                 data = model.simulate(np.zeros(1), np.zeros(1), self.N,
                                       self.contactMatrix, self.Tf,
                                       self.Nf, integrator=integrator)
-            except ModuleNotFoundError or ImportError:
+            except ImportError:
                 print(f"{integrator} is not installed, skipping...")
                 pass
             paths.append(data['X'])
