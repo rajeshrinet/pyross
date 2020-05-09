@@ -47,6 +47,7 @@ Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/e
 >> git clone https://github.com/rajeshrinet/pyross.git
 >> cd pyross
 >> make env
+>> conda activate pyross
 >> make
 ```
 #### Pip
