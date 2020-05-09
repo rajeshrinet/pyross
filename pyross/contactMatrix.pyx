@@ -112,8 +112,30 @@ cdef class ContactMatrixFunction:
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR(ContactMatrixFunction):
-    cdef:
-        np.ndarray CHS, CWS, CSS, COS
+    
+
+    def reproductiveRatio(self, C, parameters, M, Ni):
+        # matrix for linearised dynamics
+        alpha = parameters['alpha']                         # infection rate
+        beta  = parameters['beta']                         # infection rate
+        gIa   = parameters['gIa']                          # recovery rate of Ia
+        gIs   = parameters['gIs']                          # recovery rate of Is
+        fsa   = parameters['fsa']                          # the self-isolation parameter
+        L0 = np.zeros((M, M))
+        L  = np.zeros((2*M, 2*M))
+        
+        for i in range(M):
+            for j in range(M):
+                L0[i,j]=C[i,j]*Ni[i]/Ni[j]
+        
+        L[0:M, 0:M]     = alpha*beta/gIa*L0
+        L[0:M, M:2*M]   = fsa*alpha*beta/gIs*L0
+        L[M:2*M, 0:M]   = ((1-alpha)*beta/gIa)*L0
+        L[M:2*M, M:2*M] = fsa*((1-alpha)*beta/gIs)*L0
+        return np.max(np.linalg.eigvals(L))
+        
+
+    
 
 
 
