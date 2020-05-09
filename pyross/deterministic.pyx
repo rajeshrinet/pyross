@@ -1040,6 +1040,51 @@ cdef class SIkR(IntegratorsClass):
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.ki }
         return data
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] 
+        return R
 
 
 
@@ -1195,6 +1240,66 @@ cdef class SEkIkR(IntegratorsClass):
 
         data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
+        return R
 
 
 
