@@ -153,7 +153,7 @@ cdef class SIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
         
                             
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -177,7 +177,7 @@ cdef class SIR(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
             double [:] alpha= self.alpha
 
@@ -187,9 +187,9 @@ cdef class SIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                                          
             #
-            dx[i]     = -rateS - FM[i]                                           # \dot S 
-            dx[i+M]   = alpha[i]*rateS     - gIa*Ia[i] + alpha[i]    *FM[i]      # \dot Ia
-            dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i] + (1-alpha[i])*FM[i]      # \dot Is
+            dxdt[i]     = -rateS - FM[i]                                           # \dot S 
+            dxdt[i+M]   = alpha[i]*rateS     - gIa*Ia[i] + alpha[i]    *FM[i]      # \dot Ia
+            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i] + (1-alpha[i])*FM[i]      # \dot Is
         return
 
 
@@ -238,7 +238,7 @@ cdef class SIR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx 
+            return self.dxdt 
         
         x0 = np.concatenate((S0, Ia0, Is0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -369,7 +369,7 @@ cdef class SEIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -391,7 +391,7 @@ cdef class SEIR(IntegratorsClass):
             double [:] Ni    = self.Ni
             double [:,:] CM  = self.CM
             double [:]   FM  = self.FM
-            double [:] dx    = self.dx
+            double [:] dxdt  = self.dxdt
             double [:] alpha = self.alpha
 
         for i in range(M):
@@ -400,10 +400,10 @@ cdef class SEIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                                          
             #
-            dx[i]     = -rateS - FM[i]                             # \dot S  
-            dx[i+M]   = rateS       - gE*  E[i] + FM[i]            # \dot E  
-            dx[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # \dot Ia 
-            dx[i+3*M] = ce2*E[i] - gIs*Is[i]                       # \dot Is 
+            dxdt[i]     = -rateS - FM[i]                             # \dot S  
+            dxdt[i+M]   = rateS       - gE*  E[i] + FM[i]            # \dot E  
+            dxdt[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # \dot Ia 
+            dxdt[i+3*M] = ce2*E[i] - gIs*Is[i]                       # \dot Is 
         return
 
 
@@ -454,7 +454,7 @@ cdef class SEIR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
 
         x0 = np.concatenate((S0, E0, Ia0, Is0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -635,7 +635,7 @@ cdef class SEI5R(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dx    = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -700,7 +700,7 @@ cdef class SEI5R(IntegratorsClass):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
         for i in range(M):
             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
@@ -708,14 +708,14 @@ cdef class SEI5R(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS + sa[i]                    # \dot S   
-            dx[i+M]   = rateS  - gE*E[i]                  # \dot E   
-            dx[i+2*M] = ce1*E[i] - gIa*Ia[i]              # \dot Ia    
-            dx[i+3*M] = ce2*E[i] - gIs*Is[i]              # \dot Is  
-            dx[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih  
-            dx[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic  
-            dx[i+6*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
-            dx[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
+            dxdt[i]     = -rateS + sa[i]                    # \dot S   
+            dxdt[i+M]   = rateS  - gE*E[i]                  # \dot E   
+            dxdt[i+2*M] = ce1*E[i] - gIa*Ia[i]              # \dot Ia    
+            dxdt[i+3*M] = ce2*E[i] - gIs*Is[i]              # \dot Is  
+            dxdt[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih  
+            dxdt[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic  
+            dxdt[i+6*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
+            dxdt[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
         return
 
 
@@ -768,7 +768,7 @@ cdef class SEI5R(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
         
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -961,7 +961,7 @@ cdef class SIkR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
+        self.dxdt  = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
 
 
     cdef rhs(self, xt, tt):
@@ -973,7 +973,7 @@ cdef class SIkR(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
         for i in range(M):
             lmda=0
@@ -982,11 +982,11 @@ cdef class SIkR(IntegratorsClass):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS - FM[i]
-            dx[i+M]   = rateS - gI*I[i] + FM[i]
+            dxdt[i]     = -rateS - FM[i]
+            dxdt[i+M]   = rateS - gI*I[i] + FM[i]
 
             for j in range(ki-1):
-                dx[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+                dxdt[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
 
@@ -1033,7 +1033,7 @@ cdef class SIkR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
         
         x0=np.concatenate((S0, I0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -1140,7 +1140,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, xt, tt):
@@ -1154,7 +1154,7 @@ cdef class SEkIkR(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
         for i in range(M):
             lmda=0
@@ -1163,28 +1163,21 @@ cdef class SEkIkR(IntegratorsClass):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS - FM[i]
+            dxdt[i]     = -rateS - FM[i]
 
-            # If there is any E stage...
             if 0 != ke :
-                # People removed from S are put in E[0]
-                dx[i+M+0] = rateS - gE*E[i] + FM[i]
+                dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
 
-                # Propagate cases along the E stages
                 for j in range(ke - 1) :
-                    dx[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+                    dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
 
-                # Transfer cases from E[-1] to I[0]
-                dx[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
+                dxdt[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
 
-            # However, if there aren't any E stages
             else :
-                # People removed from S are put in I[0]
-                dx[i + (ke+1)* M + 0] = rateS + FM[i] - gI * I[i]
+                dxdt[i + (ke+1)* M + 0] = rateS + FM[i] - gI * I[i]
 
-            # In both cases, propagate cases along the I stages.
             for j in range(ki-1):
-                dx[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+                dxdt[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
 
@@ -1233,7 +1226,7 @@ cdef class SEkIkR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
         
         x0=np.concatenate((S0, E0, I0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -1366,7 +1359,7 @@ cdef class SEAIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1391,7 +1384,7 @@ cdef class SEAIR(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
             
             double [:] alpha= self.alpha
 
@@ -1401,11 +1394,11 @@ cdef class SEAIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS - FM[i]                          # \dot S  
-            dx[i+M]   =  rateS      - gE*E[i] + FM[i]           # \dot E  
-            dx[i+2*M] = gE* E[i] - gA*A[i]                      # \dot A  
-            dx[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # \dot Ia
-            dx[i+4*M] = gAS*A[i] - gIs     *Is[i]               # \dot Is
+            dxdt[i]     = -rateS - FM[i]                          # \dot S  
+            dxdt[i+M]   =  rateS      - gE*E[i] + FM[i]           # \dot E  
+            dxdt[i+2*M] = gE* E[i] - gA*A[i]                      # \dot A  
+            dxdt[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - gIs     *Is[i]               # \dot Is
         return
 
 
@@ -1458,7 +1451,7 @@ cdef class SEAIR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
@@ -1651,7 +1644,7 @@ cdef class SEAI5R(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dx    = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1717,7 +1710,7 @@ cdef class SEAI5R(IntegratorsClass):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
         for i in range(M):
             lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
@@ -1725,15 +1718,15 @@ cdef class SEAI5R(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS + sa[i]                    # \dot S 
-            dx[i+M]   = rateS  - gE*E[i]                  # \dot E 
-            dx[i+2*M] = gE*E[i]  - gA*A[i]                # \dot A              
-            dx[i+3*M] = gAA*A[i] - gIa*Ia[i]              # \dot Ia
-            dx[i+4*M] = gAS*A[i] - gIs*Is[i]              # \dot Is
-            dx[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih
-            dx[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic
-            dx[i+7*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
-            dx[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
+            dxdt[i]     = -rateS + sa[i]                    # \dot S 
+            dxdt[i+M]   = rateS  - gE*E[i]                  # \dot E 
+            dxdt[i+2*M] = gE*E[i]  - gA*A[i]                # \dot A              
+            dxdt[i+3*M] = gAA*A[i] - gIa*Ia[i]              # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - gIs*Is[i]              # \dot Is
+            dxdt[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih
+            dxdt[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic
+            dxdt[i+7*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
+            dxdt[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
         return
 
 
@@ -1788,7 +1781,7 @@ cdef class SEAI5R(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -2029,7 +2022,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
         
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2058,7 +2051,7 @@ cdef class SEAIRQ(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
             
             double [:] alpha= self.alpha
 
@@ -2068,12 +2061,12 @@ cdef class SEAIRQ(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                          
             #
-            dx[i]     = -rateS      - FM[i]                         # \dot S  
-            dx[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E  
-            dx[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A  
-            dx[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia 
-            dx[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is 
-            dx[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # \dot Q
+            dxdt[i]     = -rateS      - FM[i]                         # \dot S  
+            dxdt[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E  
+            dxdt[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A  
+            dxdt[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia 
+            dxdt[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is 
+            dxdt[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # \dot Q
         return                                                     
 
 
@@ -2128,7 +2121,7 @@ cdef class SEAIRQ(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
             
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) 
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
@@ -2310,7 +2303,7 @@ cdef class SIRS(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2349,7 +2342,7 @@ cdef class SIRS(IntegratorsClass):
             double [:,:] CM = self.CM
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
             double [:] alpha= self.alpha
 
         for i in range(M):
@@ -2358,10 +2351,10 @@ cdef class SIRS(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])    # \dot S 
-            dx[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]            # \dot Ia
-            dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                 # \dot Is
-            dx[i+3*M] = sa[i] + iaa[i]                                 # \dot Ni
+            dxdt[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])    # \dot S 
+            dxdt[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]            # \dot Ia
+            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                 # \dot Is
+            dxdt[i+3*M] = sa[i] + iaa[i]                                 # \dot Ni
         return
 
 
@@ -2406,7 +2399,7 @@ cdef class SIRS(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
