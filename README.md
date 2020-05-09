@@ -18,7 +18,7 @@ The library is designed to be model-agnostic. Currently implemented [models](htt
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), [Patrick Pietzonka](https://github.com/ppietzonka) and [Rajesh Singh](https://github.com/rajeshrinet).
 
 Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
 
@@ -33,21 +33,23 @@ PyRoss requires the following software
 - [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/)  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt)
 - Optional:  integrators ([OdesPy](https://github.com/rajeshrinet/odespy)) |  parallelizing inference ([pathos](https://anaconda.org/conda-forge/pathos)) |  data files ([Pandas](https://pandas.pydata.org/), [xlrd](https://xlrd.readthedocs.io/en/latest/))
 
-Clone (or download) the repository and use a terminal to install PyRoss and its dependencies in a pyross [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml)
-```bash
->> git clone https://github.com/rajeshrinet/pyross.git
->> cd pyross
->> make env
->> make
-```
-
-Alternatively, first install all the dependencies and then, install PyRoss using 
+ 
+Clone (or download) the repository and use a terminal to install PyRoss (the above requirements need to be satisfied) 
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
 >> cd pyross
 >> python setup.py install
 ```
 
+
+Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/macos.html) to install PyRoss and its dependencies in a pyross [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml)
+```bash
+>> git clone https://github.com/rajeshrinet/pyross.git
+>> cd pyross
+>> make env
+>> conda activate pyross
+>> make
+```
 #### Pip
 
 ```
@@ -62,7 +64,7 @@ make test
 
 **Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website
 
-**Contact structure data:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697), [Supporting Information Text](https://doi.org/10.1371/journal.pcbi.1005697.s001)
+**Contact structure data:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017) [DOI]( https://doi.org/10.1371/journal.pcbi.1005697)
 
 
 
@@ -106,7 +108,7 @@ data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
 
 # time series of S, Ia, Is, R
 S  = model.S(data)
-Is = model.Ia(data)
+Ia = model.Ia(data)
 Is = model.Is(data)
 R  = model.R(data)
 ```
