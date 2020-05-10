@@ -2224,7 +2224,7 @@ cdef class SEAI5R(stochastic_integration):
         cdef:
             int M = self.M, i
             long [:] xt = self.xt
-        R_0 = self.Ni-(Ia0+Is0+S0+E0+A0+Ih0+Ic0+Im0)
+        R_0 = self.Ni-(S0+E0+A0+Ia0+Is0+Ih0+Ic0)
         # write initial condition to xt
         for i in range(M):
             xt[i] = S0[i]

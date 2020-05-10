@@ -134,7 +134,7 @@ def plotSIR(data, showPlot=True):
     plt.ylabel('Fraction of compartment value')
     plt.xlabel('Days')
 
-    if None != showPlot:
-        plt.show()
-    else:
+    if True != showPlot:
         pass
+    else:
+        plt.show()
