@@ -102,7 +102,7 @@ def make_gamma_dist(means, stds):
 
 
 
-def plotSIR(data):
+def plotSIR(data, showPlot=True):
     t = data['t']
     X = data['X']
     M = data['M']
@@ -133,4 +133,8 @@ def plotSIR(data):
     
     plt.ylabel('Fraction of compartment value')
     plt.xlabel('Days')
-    plt.show()
+
+    if None != showPlot:
+        plt.show()
+    else:
+        pass
