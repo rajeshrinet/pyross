@@ -344,8 +344,8 @@ cdef class SIkR(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters['beta']                         # infection rate
         self.gI    = parameters['gI']                           # recovery rate of I
-        self.ki    = parameters['kI']
-        self.nClass = self.ki + 1
+        self.kI    = parameters['kI']
+        self.nClass = self.kI + 1
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -354,15 +354,15 @@ cdef class SIkR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dxdt  = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
+        self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # right hand side
 
 
     cdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, ki=self.ki
-            double beta=self.beta, gI=self.ki*self.gI, rateS, lmda
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI
+            double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
             double [:] S    = xt[0  :M]
-            double [:] I    = xt[M  :(ki+1)*M]
+            double [:] I    = xt[M  :(kI+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
@@ -370,7 +370,7 @@ cdef class SIkR(IntegratorsClass):
 
         for i in range(M):
             lmda=0
-            for jj in range(ki):
+            for jj in range(kI):
                 for j in range(M):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
@@ -378,7 +378,7 @@ cdef class SIkR(IntegratorsClass):
             dxdt[i]     = -rateS - FM[i]
             dxdt[i+M]   = rateS - gI*I[i] + FM[i]
 
-            for j in range(ki-1):
+            for j in range(kI-1):
                 dxdt[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
@@ -431,7 +431,7 @@ cdef class SIkR(IntegratorsClass):
         x0=np.concatenate((S0, I0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.ki }
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI }
         return data
     
 
@@ -460,9 +460,10 @@ cdef class SIkR(IntegratorsClass):
         -------
             'E' : Exposed population time series
         """
+        kI = data['kI']
         X = data['X'] 
-        E = X[:, self.M:2*self.M]
-        return E
+        I = X[:, self.M:(kI+1)*self.M]
+        return I
 
 
     def R(self,  data):
@@ -476,7 +477,12 @@ cdef class SIkR(IntegratorsClass):
             'R' : Recovered population time series
         """
         X = data['X'] 
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] 
+        kI = data['kI']
+    
+        I0 = np.zeros(self.M)
+        for i in range(kI):
+            I0 += X[:, (i+1)*self.M : (i+2)*self.M]
+        R = self.Ni - X[:, 0:self.M] - I0 
         return R
 
 
@@ -734,9 +740,9 @@ cdef class SEkIkR(IntegratorsClass):
                 rate of removal from infected individuals.
             gE : float
                 rate of removal from exposed individuals.
-            ki : int
+            kI : int
                 number of stages of infectives.
-            ke : int
+            kE : int
                 number of stages of exposed. 
     M : int
         Number of compartments of individual for each class.
@@ -753,9 +759,9 @@ cdef class SEkIkR(IntegratorsClass):
         self.beta  = parameters['beta']                         # infection rate
         self.gE    = parameters['gE']                           # recovery rate of E
         self.gI    = parameters['gI']                           # recovery rate of I
-        self.ki    = parameters['kI']                           # number of stages
-        self.ke    = parameters['kE']
-        self.nClass = self.ki + self.ke + 1
+        self.kI    = parameters['kI']                           # number of stages
+        self.kE    = parameters['kE']
+        self.nClass = self.kI + self.kE + 1
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -764,17 +770,17 @@ cdef class SEkIkR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dxdt  = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( (self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
-            double beta=self.beta, gI=self.ki*self.gI, rateS, lmda
-            double gE = self.ke * self.gE
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
+            double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
+            double gE = self.kE * self.gE
             double [:] S    = xt[0  :M]
-            double [:] E    = xt[M  :(ke+1)*M]
-            double [:] I    = xt[(ke+1)*M  :(ke+ki+1)*M]
+            double [:] E    = xt[M  :(kE+1)*M]
+            double [:] I    = xt[(kE+1)*M  :(kE+kI+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
@@ -782,26 +788,26 @@ cdef class SEkIkR(IntegratorsClass):
 
         for i in range(M):
             lmda=0
-            for jj in range(ki):
+            for jj in range(kI):
                 for j in range(M):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
             dxdt[i]     = -rateS - FM[i]
 
-            if 0 != ke :
+            if 0 != kE :
                 dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
 
-                for j in range(ke - 1) :
+                for j in range(kE - 1) :
                     dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
 
-                dxdt[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
+                dxdt[i + (kE+1)* M + 0] = gE * E[i+(kE-1)*M] - gI * I[i]
 
             else :
-                dxdt[i + (ke+1)* M + 0] = rateS + FM[i] - gI * I[i]
+                dxdt[i + (kE+1)* M + 0] = rateS + FM[i] - gI * I[i]
 
-            for j in range(ki-1):
-                dxdt[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+            for j in range(kI-1):
+                dxdt[i+(kE+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
 
 
@@ -855,7 +861,7 @@ cdef class SEkIkR(IntegratorsClass):
         x0=np.concatenate((S0, E0, I0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI, 'kE':self.kE }
         return data
     
 
@@ -884,8 +890,10 @@ cdef class SEkIkR(IntegratorsClass):
         -------
             'E' : Exposed population time series
         """
+        kI = data['kI'] 
+        kE = data['kE'] 
         X = data['X'] 
-        E = X[:, self.M:2*self.M]
+        E = X[:, self.M:(1+self.kE)*self.M]
         return E
 
 
@@ -899,8 +907,10 @@ cdef class SEkIkR(IntegratorsClass):
         -------
             'Is' : symptomatics population time series
         """
+        kI = data['kI'] 
+        kE = data['kE'] 
         X  = data['X'] 
-        Is = X[:, 3*self.M:4*self.M]
+        Is = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
         return Is
 
 
@@ -915,6 +925,14 @@ cdef class SEkIkR(IntegratorsClass):
             'R' : Recovered population time series
         """
         X = data['X'] 
+        kI = data['kI'] 
+        kE = data['kE'] 
+        I0 = np.zeros(self.M)
+        E0 = np.zeros(self.M)
+        for i in range(kE):
+            E0 += X[:, (i+1)*self.M : (i+2)*self.M]
+        for i in range(kI):
+            I0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
         return R
 
