@@ -21,6 +21,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
     This function computes the global minimum of `objective_fct` using a combination of a global minimisation step 
     (CMA-ES) and a local refinement step (NEWUOA) (both derivative free).
     
+    Parameters
+    ----------
     objective_fct: callable 
         The objective function. It must be of the form fct(params, grad=0) for the use in NLopt. The parameters 
         should not be modified and `grad` can be ignored (since only derivative free algorithms are used).
@@ -52,6 +54,11 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
         Enable output.
     args_dict: dict
         Key-word arguments that are passed to the minimisation function.
+
+    Returns
+    -------
+    x_result, y_result
+        Returns parameter estimate and minimal value.
     """         
     x_result = guess
     y_result = 0
