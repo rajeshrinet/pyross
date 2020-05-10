@@ -1017,6 +1017,68 @@ cdef class SIR(stochastic_integration):
         return out_dict
 
 
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, self.M:2*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 2*self.M:3*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
+        return R
+
+
+
+
 cdef class SIkR(stochastic_integration):
     """
     Susceptible, Infected, Recovered (SIkR)
@@ -1188,6 +1250,54 @@ cdef class SIkR(stochastic_integration):
                     'alpha':self.alpha, 'beta':self.beta,
                     'gI':self.gI, 'kI':self.kk }
         return out_dict
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] 
+        return R
+
+
+
 
 cdef class SEIR(stochastic_integration):
     """
@@ -1358,6 +1468,84 @@ cdef class SEIR(stochastic_integration):
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gE':self.gE}
         return out_dict
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
+        return R
+
+
+
 
 cdef class SEI5R(stochastic_integration):
     """
@@ -1692,6 +1880,144 @@ cdef class SEI5R(stochastic_integration):
         return out_dict
 
 
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X'] 
+        Ih = X[:, 4*self.M:5*self.M]
+        return Ih
+
+    
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X'] 
+        Ic = X[:, 5*self.M:6*self.M]
+        return Ic
+    
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X'] 
+        Im = X[:, 6*self.M:7*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X'] 
+        ppln  = X[:,7*self.M:8*self.M]
+        return ppln 
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + Ia + Is + Ih + Ic)
+        """
+        X = data['X'] 
+        R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]  
+                        
+        return R
+
+
 
 
 cdef class SEAI5R(stochastic_integration):
@@ -2017,6 +2343,165 @@ cdef class SEAI5R(stochastic_integration):
                     }
         return out_dict
 
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activated population time series
+        """
+        X = data['X'] 
+        A = X[:, 2*self.M:3*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X'] 
+        Ih = X[:, 5*self.M:6*self.M]
+        return Ih
+
+    
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X'] 
+        Ic = X[:, 6*self.M:7*self.M]
+        return Ic
+    
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X'] 
+        Im = X[:, 7*self.M:8*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X'] 
+        ppln = X[:, 8*self.M:9*self.M]
+        return ppln 
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
+        """
+        X = data['X'] 
+        R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] 
+        return R
+
+
+
+
+
+
+
+
 cdef class SEAIRQ(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
@@ -2237,3 +2722,110 @@ cdef class SEAIRQ(stochastic_integration):
                   'gE':self.gE,'gA':self.gA,
                   'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activated population time series
+        """
+        X = data['X'] 
+        A = X[:, 2*self.M:3*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] 
+        return R
+
+
+
+    def Q(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Q' : Quarantined population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 5*self.M:6*self.M]
+        return Is
