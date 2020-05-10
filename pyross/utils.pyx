@@ -133,3 +133,4 @@ def plotSIR(data):
     
     plt.ylabel('Fraction of compartment value')
     plt.xlabel('Days')
+    plt.show()
