@@ -24,6 +24,19 @@ ctypedef np.uint8_t BOOL_t
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR_type:
+    """
+    Base class that implements inference for age-structured SIR type models which needs to be subclassed for specific models.
+
+    Model-specific methods
+    ----------------------
+    set_params
+    make_det_model
+    make_params_dict
+    lyapunov_fun
+    jacobian
+    noise_correlation
+    integrate
+    """
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly double alpha, beta, gIa, gIs, fsa
@@ -75,31 +88,43 @@ cdef class SIR_type:
     def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, verbose=False,
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
-        '''
+        """
+        Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
+        assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
+
+        Parameters
+        ----------
         guess: numpy.array
-            initial guess for the parameter values
+            Prior expectation (and initial guess) for the parameter values
         stds: numpy.array
-            Standard deviations for the Gamma prior
-        x:
-            Observed trajectory
+            Standard deviations for the Gamma prior of the parameters
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
-            total time of the trajectory
+            Total time of the trajectory
         Nf: float
-            number of data points along the trajectory
+            Number of data points along the trajectory
         contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
         bounds: 2d numpy.array
-            bounds for the parameters.
+            Bounds for the parameters (number of parameters x 2).
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        verbose: bool
-            whether to print messages
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimizer.
         ftol: double
-            relative tolerance of logp
+            Relative tolerance of logp
         eps: double
-            step size used to calculate hessian in the optimisation algorithm
+            Disallow parameters closer than `eps` to the boundary (to avoid numerical instabilities).
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there.
-        '''
+            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
+            specified, `cma_stds` is set to `stds`.
+
+        Returns
+        -------
+        estimates : numpy.array
+            the MAP parameter estimate
+        """
         # make bounds if it does not exist and rescale
         if bounds is None:
             bounds = np.array([[eps, g*5] for g in guess])
@@ -145,27 +170,46 @@ cdef class SIR_type:
     def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5,
                       global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
-        '''
+        """
+        Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
+        lockdown. The lockdown is modelled by scaling the contact matrices for contact at work, school, and other
+        (but not home) uniformly in all age groups. This function infers the scaling parameters assuming that full data 
+        on all classes is available (with latent variables, use SIR_type.latent_infer_control).
+
+        Parameters
+        ----------
         guess: numpy.array
-            initial guess for the control parameter values
+            Prior expectation (and initial guess) for the control parameter values
+        stds: numpy.array
+            Standard deviations for the Gamma prior of the control parameters
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
-            total time of the trajectory
+            Total time of the trajectory
         Nf: float
-            number of data points along the trajectory
+            Number of data points along the trajectory
         generator: pyross.contactMatrix
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
         bounds: 2d numpy.array
-            bounds for the parameters.
+            Bounds for the parameters (number of parameters x 2).
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        verbose: bool
-            whether to print messages
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimizer.
         ftol: double
-            relative tolerance of logp
+            Relative tolerance of logp
         eps: double
-            step size used to calculate hessian in the optimisation algorithm
+            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there.
-        '''
+            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
+            specified, `cma_stds` is set to `stds`.
+
+        Returns
+        -------
+        res: numpy.array
+            MAP estimate of the control parameters
+        """
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
         if cma_stds is None:
@@ -254,35 +298,48 @@ cdef class SIR_type:
                             global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
-        '''
+        """
+        Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model 
+        when the classes are only partially observed. Unobserved classes are treated as latent variables.
+
+        Parameters
+        ----------
         guess: numpy.array
-            initial guess, arranged in the order of parameters and initial conditions
+            Prior expectation (and initial guess) for the parameter values.
         stds: numpy.array
-            Standard deviations for the Gamma prior.
-        obs: numpy.array
-            the observed trajectories with reduced number of variables
+            Standard deviations for the Gamma prior of the parameters
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables 
+            (number of data points x (age groups * observed model classes))
         fltr: boolean sequence or array
-            True for observed and False for unobserved.
+            True for observed and False for unobserved classes.
             e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
         Tf: float
-            total time of the trajectory
+            Total time of the trajectory
         Nf: int
-            total number of data points along the trajectory
+            Total number of data points along the trajectory
         contactMatrix: callable
-            a function that takes time as an input and outputs the contactMatrix
+            A function that returns the contact matrix at time t (input).
         bounds: 2d numpy.array
-            bounds for the parameters + initial conditions.
+            Bounds for the parameters + initial conditions 
+            ((number of parameters + number of initial conditions) x 2).
             Better bounds makes it easier to find the true global minimum.
         verbose: bool, optional
-            set True to see intermediate outputs from the optimizer
+            Set to True to see intermediate outputs from the optimizer.
         ftol: float, optional
-            relative tolerance
+            Relative tolerance
         eps: float, optional
-            step size used to calculate hessian in the optimisation algorithm
+            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
         global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
                     cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there.
-        '''
+            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
+            specified, `cma_stds` is set to `stds`.
+
+        Returns
+        -------
+        params: numpy.array
+            MAP estimate of paramters and initial values of the classes.
+        """
         cdef:
             double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
             double rescale_factor = eps_for_params/eps_for_init_cond
@@ -331,6 +388,52 @@ cdef class SIR_type:
                             verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None):
+        """
+        Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
+        lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown 
+        is modelled by scaling the contact matrices for contact at work, school, and other (but not home) uniformly in
+        all age groups. This function infers the scaling parameters.
+
+        Parameters
+        ----------
+        guess: numpy.array
+            Prior expectation (and initial guess) for the control parameter values.
+        stds: numpy.array
+            Standard deviations for the Gamma prior of the control parameters
+        x0: numpy.array
+            Observed trajectory (number of data points x (age groups * observed model classes))
+        obs:
+            ...
+        fltr: boolean sequence or array
+            True for observed and False for unobserved classes.
+            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        generator: pyross.contactMatrix
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+        bounds: 2d numpy.array
+            Bounds for the parameters (number of parameters x 2).
+            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimizer.
+        ftol: double
+            Relative tolerance of logp
+        eps: double
+            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
+                    cma_population, cma_stds:
+            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
+            specified, `cma_stds` is set to `stds`.
+
+        Returns
+        -------
+        res: numpy.array
+            MAP estimate of the control parameters
+        """
+
         a, scale = pyross.utils.make_gamma_dist(guess, stds)
 
         if cma_stds is None:
@@ -350,22 +453,25 @@ cdef class SIR_type:
     def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
         '''
-        compute the Hessian over the params and initial conditions
+        Compute the Hessian over the parameters and initial conditions.
+
+        Parameters
+        ----------
         maps: numpy.array
-            maximum a posteriori
+            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
         obs: numpy.array
-            the observed data without the initial datapoint
+            The observed data without the initial datapoint
         fltr: boolean sequence or array
             True for observed and False for unobserved.
             e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
         Tf: float
-            total time of the trajectory
+            Total time of the trajectory
         Nf: int
-            total number of data points along the trajectory
+            Total number of data points along the trajectory
         contactMatrix: callable
-            a function that takes time as an input and outputs the contactMatrix
+            A function that returns the contact matrix at time t (input).
         eps: float, optional
-            step size in the calculation of the Hessian
+            Step size in the calculation of the Hessian
         '''
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
