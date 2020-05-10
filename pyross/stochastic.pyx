@@ -1610,7 +1610,7 @@ cdef class SEI5R(stochastic_integration):
         # equivalent to knowing the recovered population).
         for i in range(M):
             out_arr[:,i+7*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
-            out_arr[:,i+7*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+            out_arr[:,i+7*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+0*M]
 
 
         out_dict = {'X':out_arr, 't':t_arr,
@@ -1690,6 +1690,9 @@ cdef class SEI5R(stochastic_integration):
                     'iaa':self.iaa,
                     }
         return out_dict
+
+
+
 
 cdef class SEAI5R(stochastic_integration):
     """
@@ -1895,7 +1898,7 @@ cdef class SEAI5R(stochastic_integration):
         cdef:
             int M = self.M, i
             long [:] xt = self.xt
-
+        R_0 = self.Ni-(Ia0+Is0+S0+E0+A0+Ih0+Ic0+Im0)
         # write initial condition to xt
         for i in range(M):
             xt[i] = S0[i]
@@ -1906,8 +1909,7 @@ cdef class SEAI5R(stochastic_integration):
             xt[i+5*M] = Ih0[i]
             xt[i+6*M] = Ic0[i]
             xt[i+7*M] = Im0[i]
-            xt[i+8*M] = self.Ni[i] - S0[i] - E0[i] - A0[i] - Ia0[i] - Is0[i]
-            xt[i+8*M] -= Ih0[i] + Ic0[i] + Im0[i]
+            xt[i+8*M] = R_0[i]
             #print(xt[i+7*M])
             if xt[i+8*M] < 0:
                 raise RuntimeError("Sum of provided initial populations for class" + \
@@ -1928,7 +1930,7 @@ cdef class SEAI5R(stochastic_integration):
         for i in range(M):
             out_arr[:,i+8*M] += out_arr[:,i+6*M]
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
-            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i]
 
         out_dict = {'X':out_arr, 't':t_arr,
                       'Ni':self.Ni, 'M':self.M,
@@ -2000,7 +2002,7 @@ cdef class SEAI5R(stochastic_integration):
         for i in range(M):
             out_arr[:,i+8*M] += out_arr[:,i+6*M]
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
-            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+0*M]
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'Ni':self.Ni, 'M':self.M,
