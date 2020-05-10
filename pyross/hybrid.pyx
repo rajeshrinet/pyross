@@ -151,7 +151,7 @@ cdef class SIR:
                                    cur_traj[passing_index,M:2*M],
                                    cur_traj[passing_index,2*M:] )
         out_dict = {'X':trajectory, 't':t_arr,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs,
                       'from_below':thresholds_from_below,

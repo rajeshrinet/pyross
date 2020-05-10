@@ -121,7 +121,7 @@ cdef class SIR:
 
         out_dict = {'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs,
                      'cov':self.cov,
@@ -248,7 +248,7 @@ cdef class SIR_latent:
 
         out_dict = {'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs,
                      'cov_params':self.cov_params,
@@ -379,7 +379,7 @@ cdef class SEIR:
 
         out_dict = {'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gE':self.gE,
                      'gIa':self.gIa, 'gIs':self.gIs,
@@ -522,7 +522,7 @@ cdef class SEIR_latent:
 
         out_dict = {'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gE':self.gE,
                      'gIa':self.gIa, 'gIs':self.gIs,
@@ -667,7 +667,7 @@ cdef class SEAIRQ():
 
         out_dict={'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                'N':self.N, 'M':self.M,
+                'Ni':self.Ni, 'M':self.M,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
@@ -830,7 +830,7 @@ cdef class SEAIRQ_latent():
 
         out_dict={'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                'N':self.N, 'M':self.M,
+                'Ni':self.Ni, 'M':self.M,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
@@ -1023,7 +1023,7 @@ cdef class SEAI5R():
 
         out_dict = {'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gIh':self.gIh,'gIc':self.gIc,
@@ -1240,7 +1240,7 @@ cdef class SEAI5R_latent():
 
         out_dict = {'X':trajectories, 't':cur_result['t'],
                     'X_mean':mean_traj,'X_std':std_traj,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gIh':self.gIh,'gIc':self.gIc,

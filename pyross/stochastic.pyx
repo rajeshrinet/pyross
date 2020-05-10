@@ -965,7 +965,7 @@ cdef class SIR(stochastic_integration):
                                   seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
@@ -1011,7 +1011,7 @@ cdef class SIR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
@@ -1139,7 +1139,7 @@ cdef class SIkR(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gI':self.gI, 'kI':self.kk }
         return out_dict
@@ -1184,7 +1184,7 @@ cdef class SIkR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gI':self.gI, 'kI':self.kk }
         return out_dict
@@ -1307,7 +1307,7 @@ cdef class SEIR(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gE':self.gE}
@@ -1353,7 +1353,7 @@ cdef class SEIR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gE':self.gE}
@@ -1614,7 +1614,7 @@ cdef class SEI5R(stochastic_integration):
 
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gIh':self.gIh,'gIc':self.gIc,
@@ -1679,7 +1679,7 @@ cdef class SEI5R(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gIh':self.gIh,'gIc':self.gIc,
@@ -1931,7 +1931,7 @@ cdef class SEAI5R(stochastic_integration):
             out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gIh':self.gIh,'gIc':self.gIc,
@@ -2003,7 +2003,7 @@ cdef class SEAI5R(stochastic_integration):
             out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gIh':self.gIh,'gIc':self.gIc,
@@ -2180,7 +2180,7 @@ cdef class SEAIRQ(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict={'X':out_arr, 't':t_arr,
-                'N':self.N, 'M':self.M,
+                'Ni':self.Ni, 'M':self.M,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
@@ -2229,7 +2229,7 @@ cdef class SEAIRQ(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                  'N':self.N, 'M':self.M,
+                  'Ni':self.Ni, 'M':self.M,
                   'alpha':self.alpha,'beta':self.beta,
                   'gIa':self.gIa,'gIs':self.gIs,
                   'gE':self.gE,'gA':self.gA,

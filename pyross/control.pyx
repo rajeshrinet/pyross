@@ -302,7 +302,7 @@ cdef class SIR(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                      'N':self.N, 'M':self.M,'alpha':self.alpha,
+                      'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
         else:
@@ -458,7 +458,7 @@ cdef class SIRS(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                      'N':self.N, 'M':self.M,'alpha':self.alpha,
+                      'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
         else:
@@ -592,7 +592,7 @@ cdef class SEIR(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                'N':self.N, 'M':self.M,'alpha':self.alpha,
+                'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
         else:
@@ -802,7 +802,7 @@ cdef class SEI5R(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                  'N':self.N, 'M':self.M,'alpha':self.alpha,
+                  'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                   'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
         else:
@@ -919,7 +919,7 @@ cdef class SIkR(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-              'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+              'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             return data
         else:
             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
@@ -1064,7 +1064,7 @@ cdef class SEkIkR(control_integration):
             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")
 
         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-            'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+            'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
 
 
@@ -1197,7 +1197,7 @@ cdef class SEAIR(control_integration):
             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")
 
         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-              'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
+              'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
 
@@ -1396,7 +1396,7 @@ cdef class SEAI5R(control_integration):
                                   events_repeat=events_repeat,seedRate=seedRate,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                          'N':self.N, 'M':self.M,
+                          'Ni':self.Ni, 'M':self.M,
                           'alpha':self.alpha, 'beta':self.beta,
                           'gIa':self.gIa,'gIs':self.gIs,
                           'gIh':self.gIh,'gIc':self.gIc,
@@ -1566,7 +1566,7 @@ cdef class SEAIRQ(control_integration):
                                   events_repeat=events_repeat,seedRate=seedRate,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                    'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
+                    'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
                       'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
             return data
