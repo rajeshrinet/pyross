@@ -411,12 +411,12 @@ cdef class stochastic_integration:
         Tau leaping timestep
         This is based on Eqs. (32), (33) of
         https://doi.org/10.1063/1.2159468   (Ref. 1)
-        
+
         Note that a single index in the above cited paper corresponds
         to a tuple here. In the paper, possible reactions are enumerated
         with a single index, we enumerate the reactions as elements of the
         matrix RM.
-        
+
         Parameters
         ----------
         epsilon : float, optional
@@ -433,7 +433,7 @@ cdef class stochastic_integration:
             double [:,:] RM = self.RM
             long [:] xt = self.xt
             double cur_tau, cur_mu, cur_sig_sq
-        # 
+        #
         #
         # evaluate Eqs. (32), (33) of Ref. 1
         cur_tau = INFINITY
@@ -520,7 +520,7 @@ cdef class stochastic_integration:
         2. Timestep \tau chosen such that \Delta r_i < epsilon \Sum r_i
         3. Number of reactions that occur in channel i ~Poisson(r_i \tau)
         4. Update state by this amount
-        
+
         Parameters
         ----------
         contactMatrix : python function(t)
@@ -966,6 +966,7 @@ cdef class SIR(stochastic_integration):
 
         out_dict = {'X':out_arr, 't':t_arr,
                      'Ni':self.Ni, 'M':self.M,
+                     'fsa':self.fsa,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
@@ -1012,6 +1013,7 @@ cdef class SIR(stochastic_integration):
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                      'Ni':self.Ni, 'M':self.M,
+                     'fsa':self.fsa,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
@@ -1027,7 +1029,7 @@ cdef class SIR(stochastic_integration):
         -------
             'S' : Susceptible population time series
         """
-        X = data['X'] 
+        X = data['X']
         S = X[:, 0:self.M]
         return S
 
@@ -1042,7 +1044,7 @@ cdef class SIR(stochastic_integration):
         -------
             'Ia' : Asymptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ia = X[:, self.M:2*self.M]
         return Ia
 
@@ -1057,7 +1059,7 @@ cdef class SIR(stochastic_integration):
         -------
             'Is' : symptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Is = X[:, 2*self.M:3*self.M]
         return Is
 
@@ -1072,7 +1074,7 @@ cdef class SIR(stochastic_integration):
         -------
             'R' : Recovered population time series
         """
-        X = data['X'] 
+        X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
         return R
 
@@ -1201,7 +1203,7 @@ cdef class SIkR(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'Ni':self.Ni, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gI':self.gI, 'kI':self.kk }
         return out_dict
@@ -1246,11 +1248,11 @@ cdef class SIkR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'Ni':self.Ni, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gI':self.gI, 'kI':self.kk }
         return out_dict
-    
+
 
     def S(self,  data):
         """
@@ -1262,7 +1264,7 @@ cdef class SIkR(stochastic_integration):
         -------
             'S' : Susceptible population time series
         """
-        X = data['X'] 
+        X = data['X']
         S = X[:, 0:self.M]
         return S
 
@@ -1277,7 +1279,7 @@ cdef class SIkR(stochastic_integration):
         -------
             'E' : Exposed population time series
         """
-        X = data['X'] 
+        X = data['X']
         E = X[:, self.M:2*self.M]
         return E
 
@@ -1292,8 +1294,8 @@ cdef class SIkR(stochastic_integration):
         -------
             'R' : Recovered population time series
         """
-        X = data['X'] 
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] 
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M]
         return R
 
 
@@ -1419,7 +1421,7 @@ cdef class SEIR(stochastic_integration):
         out_dict = {'X':out_arr, 't':t_arr,
                       'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
-                      'gIa':self.gIa,'gIs':self.gIs,
+                      'gIa':self.gIa,'gIs':self.gIs,'fsa':self.fsa,
                       'gE':self.gE}
         return out_dict
 
@@ -1465,10 +1467,10 @@ cdef class SEIR(stochastic_integration):
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
-                    'gIa':self.gIa,'gIs':self.gIs,
+                    'gIa':self.gIa,'gIs':self.gIs,'fsa':self.fsa,
                     'gE':self.gE}
         return out_dict
-    
+
 
     def S(self,  data):
         """
@@ -1480,7 +1482,7 @@ cdef class SEIR(stochastic_integration):
         -------
             'S' : Susceptible population time series
         """
-        X = data['X'] 
+        X = data['X']
         S = X[:, 0:self.M]
         return S
 
@@ -1495,7 +1497,7 @@ cdef class SEIR(stochastic_integration):
         -------
             'E' : Exposed population time series
         """
-        X = data['X'] 
+        X = data['X']
         E = X[:, self.M:2*self.M]
         return E
 
@@ -1510,7 +1512,7 @@ cdef class SEIR(stochastic_integration):
         -------
             'Ia' : Asymptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ia = X[:, 2*self.M:3*self.M]
         return Ia
 
@@ -1525,7 +1527,7 @@ cdef class SEIR(stochastic_integration):
         -------
             'Is' : symptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Is = X[:, 3*self.M:4*self.M]
         return Is
 
@@ -1540,7 +1542,7 @@ cdef class SEIR(stochastic_integration):
         -------
             'R' : Recovered population time series
         """
-        X = data['X'] 
+        X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
         return R
 
@@ -1890,7 +1892,7 @@ cdef class SEI5R(stochastic_integration):
         -------
             'S' : Susceptible population time series
         """
-        X = data['X'] 
+        X = data['X']
         S = X[:, 0:self.M]
         return S
 
@@ -1905,7 +1907,7 @@ cdef class SEI5R(stochastic_integration):
         -------
             'E' : Exposed population time series
         """
-        X = data['X'] 
+        X = data['X']
         E = X[:, self.M:2*self.M]
         return E
 
@@ -1920,7 +1922,7 @@ cdef class SEI5R(stochastic_integration):
         -------
             'Ia' : Asymptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ia = X[:, 2*self.M:3*self.M]
         return Ia
 
@@ -1935,7 +1937,7 @@ cdef class SEI5R(stochastic_integration):
         -------
             'Is' : symptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Is = X[:, 3*self.M:4*self.M]
         return Is
 
@@ -1950,11 +1952,11 @@ cdef class SEI5R(stochastic_integration):
         -------
             'Ic' : hospitalized population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ih = X[:, 4*self.M:5*self.M]
         return Ih
 
-    
+
     def Ic(self,  data):
         """
         Parameters
@@ -1965,10 +1967,10 @@ cdef class SEI5R(stochastic_integration):
         -------
             'Ic' : ICU hospitalized population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ic = X[:, 5*self.M:6*self.M]
         return Ic
-    
+
 
     def Im(self,  data):
         """
@@ -1980,7 +1982,7 @@ cdef class SEI5R(stochastic_integration):
         -------
             'Ic' : mortality time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Im = X[:, 6*self.M:7*self.M]
         return Im
 
@@ -1995,9 +1997,9 @@ cdef class SEI5R(stochastic_integration):
         -------
             population
         """
-        X = data['X'] 
+        X = data['X']
         ppln  = X[:,7*self.M:8*self.M]
-        return ppln 
+        return ppln
 
 
     def R(self,  data):
@@ -2011,10 +2013,10 @@ cdef class SEI5R(stochastic_integration):
             'R' : Recovered population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
-        X = data['X'] 
+        X = data['X']
         R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]  
-                        
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+
         return R
 
 
@@ -2354,7 +2356,7 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'S' : Susceptible population time series
         """
-        X = data['X'] 
+        X = data['X']
         S = X[:, 0:self.M]
         return S
 
@@ -2369,7 +2371,7 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'E' : Exposed population time series
         """
-        X = data['X'] 
+        X = data['X']
         E = X[:, self.M:2*self.M]
         return E
 
@@ -2384,7 +2386,7 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'A' : Activated population time series
         """
-        X = data['X'] 
+        X = data['X']
         A = X[:, 2*self.M:3*self.M]
         return A
 
@@ -2399,7 +2401,7 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'Ia' : Asymptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ia = X[:, 3*self.M:4*self.M]
         return Ia
 
@@ -2414,7 +2416,7 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'Is' : symptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Is = X[:, 4*self.M:5*self.M]
         return Is
 
@@ -2429,11 +2431,11 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'Ic' : hospitalized population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ih = X[:, 5*self.M:6*self.M]
         return Ih
 
-    
+
     def Ic(self,  data):
         """
         Parameters
@@ -2444,10 +2446,10 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'Ic' : ICU hospitalized population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ic = X[:, 6*self.M:7*self.M]
         return Ic
-    
+
 
     def Im(self,  data):
         """
@@ -2459,7 +2461,7 @@ cdef class SEAI5R(stochastic_integration):
         -------
             'Ic' : mortality time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Im = X[:, 7*self.M:8*self.M]
         return Im
 
@@ -2474,9 +2476,9 @@ cdef class SEAI5R(stochastic_integration):
         -------
             population
         """
-        X = data['X'] 
+        X = data['X']
         ppln = X[:, 8*self.M:9*self.M]
-        return ppln 
+        return ppln
 
 
     def R(self,  data):
@@ -2490,9 +2492,9 @@ cdef class SEAI5R(stochastic_integration):
             'R' : Recovered population time series
             R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
         """
-        X = data['X'] 
+        X = data['X']
         R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] 
+                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M]
         return R
 
 
@@ -2667,7 +2669,7 @@ cdef class SEAIRQ(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict={'X':out_arr, 't':t_arr,
-                'Ni':self.Ni, 'M':self.M,
+                'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
@@ -2716,7 +2718,7 @@ cdef class SEAIRQ(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                  'Ni':self.Ni, 'M':self.M,
+                  'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                   'alpha':self.alpha,'beta':self.beta,
                   'gIa':self.gIa,'gIs':self.gIs,
                   'gE':self.gE,'gA':self.gA,
@@ -2734,7 +2736,7 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'S' : Susceptible population time series
         """
-        X = data['X'] 
+        X = data['X']
         S = X[:, 0:self.M]
         return S
 
@@ -2749,7 +2751,7 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'E' : Exposed population time series
         """
-        X = data['X'] 
+        X = data['X']
         E = X[:, self.M:2*self.M]
         return E
 
@@ -2764,7 +2766,7 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'A' : Activated population time series
         """
-        X = data['X'] 
+        X = data['X']
         A = X[:, 2*self.M:3*self.M]
         return A
 
@@ -2779,7 +2781,7 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'Ia' : Asymptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Ia = X[:, 3*self.M:4*self.M]
         return Ia
 
@@ -2794,7 +2796,7 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'Is' : symptomatics population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Is = X[:, 4*self.M:5*self.M]
         return Is
 
@@ -2809,9 +2811,9 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'R' : Recovered population time series
         """
-        X = data['X'] 
+        X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] 
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
         return R
 
 
@@ -2826,6 +2828,6 @@ cdef class SEAIRQ(stochastic_integration):
         -------
             'Q' : Quarantined population time series
         """
-        X  = data['X'] 
+        X  = data['X']
         Is = X[:, 5*self.M:6*self.M]
         return Is
