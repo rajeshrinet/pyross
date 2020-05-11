@@ -98,4 +98,43 @@ def make_gamma_dist(means, stds):
     vars = stds**2
     scale = vars/means
     a = means/scale
-    return a, scale
+    return a, scale 
+
+
+
+def plotSIR(data, showPlot=True):
+    t = data['t']
+    X = data['X']
+    M = data['M']
+    Ni = data['Ni']
+    N = Ni.sum()
+    
+    S = X[:, 0: M]
+    Is = X[:, 2*M:3*M]
+    R = Ni - X[:, 0:M] - X[:, M:2*M] - X[:, 2*M:3*M]
+    
+    
+    sumS = S.sum(axis=1)
+    sumI = Is.sum(axis=1)
+    sumR = R.sum(axis=1)
+    
+    plt.fill_between(t, 0, sumS/N, color="#348ABD", alpha=0.3)
+    plt.plot(t, sumS/N, '-', color="#348ABD", label='$S$', lw=4)
+    
+    
+    plt.fill_between(t, 0, sumI/N, color='#A60628', alpha=0.3)
+    plt.plot(t, sumI/N, '-', color='#A60628', label='$I$', lw=4)
+    
+    plt.fill_between(t, 0, sumR/N, color="dimgrey", alpha=0.3)
+    plt.plot(t, sumR/N, '-', color="dimgrey", label='$R$', lw=4)
+    
+    plt.legend(fontsize=26); plt.grid()
+    plt.autoscale(enable=True, axis='x', tight=True)
+    
+    plt.ylabel('Fraction of compartment value')
+    plt.xlabel('Days')
+
+    if True != showPlot:
+        pass
+    else:
+        plt.show()

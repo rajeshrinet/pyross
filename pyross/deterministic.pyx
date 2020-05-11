@@ -127,7 +127,7 @@ cdef class SIR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(3*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -153,7 +153,7 @@ cdef class SIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
         
                             
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -177,7 +177,7 @@ cdef class SIR(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
             double [:] alpha= self.alpha
 
@@ -187,9 +187,9 @@ cdef class SIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                                          
             #
-            dx[i]     = -rateS - FM[i]                                           # \dot S 
-            dx[i+M]   = alpha[i]*rateS     - gIa*Ia[i] + alpha[i]    *FM[i]      # \dot Ia
-            dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i] + (1-alpha[i])*FM[i]      # \dot Is
+            dxdt[i]     = -rateS - FM[i]                                           # \dot S 
+            dxdt[i+M]   = alpha[i]*rateS     - gIa*Ia[i] + alpha[i]    *FM[i]      # \dot Ia
+            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i] + (1-alpha[i])*FM[i]      # \dot Is
         return
 
 
@@ -238,13 +238,13 @@ cdef class SIR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx 
+            return self.dxdt 
         
         x0 = np.concatenate((S0, Ia0, Is0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 
-                                'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha, 
+                        'fsa':self.fsa, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
 
 
@@ -314,6 +314,184 @@ cdef class SIR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SIkR(IntegratorsClass):
+    """
+    Susceptible, Infected, Recovered (SIkR)
+    method of k-stages of I
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gI : float
+                rate of removal from infectives.
+            kI : int
+                number of stages of infection.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.beta  = parameters['beta']                         # infection rate
+        self.gI    = parameters['gI']                           # recovery rate of I
+        self.kI    = parameters['kI']
+        self.nClass = self.kI + 1
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # right hand side
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI
+            double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
+            double [:] S    = xt[0  :M]
+            double [:] I    = xt[M  :(kI+1)*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:]   FM = self.FM
+            double [:] dxdt = self.dxdt
+
+        for i in range(M):
+            lmda=0
+            for jj in range(kI):
+                for j in range(M):
+                    lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]     = -rateS - FM[i]
+            dxdt[i+M]   = rateS - gI*I[i] + FM[i]
+
+            for j in range(kI-1):
+                dxdt[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+        return
+
+
+    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
+                 seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        I0 : np.array
+            Initial number of  infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+            self.rhs(xt, t)
+            return self.dxdt
+        
+        x0=np.concatenate((S0, I0))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI }
+        return data
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        kI = data['kI']
+        X = data['X'] 
+        I = X[:, self.M:(kI+1)*self.M]
+        return I
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        kI = data['kI']
+    
+        I0 = np.zeros(self.M)
+        for i in range(kI):
+            I0 += X[:, (i+1)*self.M : (i+2)*self.M]
+        R = self.Ni - X[:, 0:self.M] - I0 
+        return R
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEIR(IntegratorsClass):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
@@ -338,7 +516,7 @@ cdef class SEIR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(4*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -369,7 +547,7 @@ cdef class SEIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -391,7 +569,7 @@ cdef class SEIR(IntegratorsClass):
             double [:] Ni    = self.Ni
             double [:,:] CM  = self.CM
             double [:]   FM  = self.FM
-            double [:] dx    = self.dx
+            double [:] dxdt  = self.dxdt
             double [:] alpha = self.alpha
 
         for i in range(M):
@@ -400,10 +578,10 @@ cdef class SEIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                                          
             #
-            dx[i]     = -rateS - FM[i]                             # \dot S  
-            dx[i+M]   = rateS       - gE*  E[i] + FM[i]            # \dot E  
-            dx[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # \dot Ia 
-            dx[i+3*M] = ce2*E[i] - gIs*Is[i]                       # \dot Is 
+            dxdt[i]     = -rateS - FM[i]                             # \dot S  
+            dxdt[i+M]   = rateS       - gE*  E[i] + FM[i]            # \dot E  
+            dxdt[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # \dot Ia 
+            dxdt[i+3*M] = ce2*E[i] - gIs*Is[i]                       # \dot Is 
         return
 
 
@@ -454,12 +632,12 @@ cdef class SEIR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
 
         x0 = np.concatenate((S0, E0, Ia0, Is0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'fsa':self.fsa,
                          'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
     
@@ -545,6 +723,223 @@ cdef class SEIR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEkIkR(IntegratorsClass):
+    """
+    Susceptible, Infected, Recovered (SIkR)
+    method of k-stages of I
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gI : float
+                rate of removal from infected individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            kI : int
+                number of stages of infectives.
+            kE : int
+                number of stages of exposed. 
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.beta  = parameters['beta']                         # infection rate
+        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gI    = parameters['gI']                           # recovery rate of I
+        self.kI    = parameters['kI']                           # number of stages
+        self.kE    = parameters['kE']
+        self.nClass= self.kI + self.kE + 1
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt  = np.zeros( (self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
+            double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
+            double gE = self.kE * self.gE
+            double [:] S    = xt[0  :M]
+            double [:] E    = xt[M  :(kE+1)*M]
+            double [:] I    = xt[(kE+1)*M  :(kE+kI+1)*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:]   FM = self.FM
+            double [:] dxdt = self.dxdt
+
+        for i in range(M):
+            lmda=0
+            for jj in range(kI):
+                for j in range(M):
+                    lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]     = -rateS - FM[i]
+
+            if 0 != kE :
+                dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
+                for j in range(kE - 1) :
+                    dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+                dxdt[i + (kE+1)* M + 0] = gE * E[i+(kE-1)*M] - gI * I[i]
+            else :
+                dxdt[i + (kE+1)* M + 0] = rateS + FM[i] - gI * I[i]
+
+            for j in range(kI-1):
+                dxdt[i+(kE+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
+        return
+
+
+    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', 
+            seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        I0 : np.array
+            Initial number of  infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+            self.rhs(xt, t)
+            return self.dxdt
+        
+        x0=np.concatenate((S0, E0, I0))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI, 'kE':self.kE }
+        return data
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        kI = data['kI'] 
+        kE = data['kE'] 
+        X = data['X'] 
+        E = X[:, self.M:(1+self.kE)*self.M]
+        return E
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        kI = data['kI'] 
+        kE = data['kE'] 
+        X  = data['X'] 
+        Is = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        kI = data['kI'] 
+        kE = data['kE'] 
+        I0 = np.zeros(self.M)
+        E0 = np.zeros(self.M)
+        for i in range(kE):
+            E0 += X[:, (i+1)*self.M : (i+2)*self.M]
+        for i in range(kI):
+            I0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
+        R = self.Ni - X[:, 0:self.M] - I0 - E0
+        return R
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEI5R(IntegratorsClass):
     """
     Susceptible, Exposed, Infected, Recovered (SEIR)
@@ -596,7 +991,7 @@ cdef class SEI5R(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(8*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -635,7 +1030,7 @@ cdef class SEI5R(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dx    = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -700,7 +1095,7 @@ cdef class SEI5R(IntegratorsClass):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
         for i in range(M):
             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
@@ -708,14 +1103,14 @@ cdef class SEI5R(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS + sa[i]                    # \dot S   
-            dx[i+M]   = rateS  - gE*E[i]                  # \dot E   
-            dx[i+2*M] = ce1*E[i] - gIa*Ia[i]              # \dot Ia    
-            dx[i+3*M] = ce2*E[i] - gIs*Is[i]              # \dot Is  
-            dx[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih  
-            dx[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic  
-            dx[i+6*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
-            dx[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
+            dxdt[i]     = -rateS + sa[i]                    # \dot S   
+            dxdt[i+M]   = rateS  - gE*E[i]                  # \dot E   
+            dxdt[i+2*M] = ce1*E[i] - gIa*Ia[i]              # \dot Ia    
+            dxdt[i+3*M] = ce2*E[i] - gIs*Is[i]              # \dot Is  
+            dxdt[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih  
+            dxdt[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic  
+            dxdt[i+6*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
+            dxdt[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
         return
 
 
@@ -768,12 +1163,13 @@ cdef class SEI5R(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
         
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'fsa':self.fsa, 'fh':self.fh,   
                      'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
 
@@ -907,398 +1303,12 @@ cdef class SEI5R(IntegratorsClass):
         Returns
         -------
             'R' : Recovered population time series
+            R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X'] 
         R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] 
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]  
                         
-        return R
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SIkR(IntegratorsClass):
-    """
-    Susceptible, Infected, Recovered (SIkR)
-    method of k-stages of I
-    Attributes
-    ----------
-    parameters: dict
-        Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
-            beta : float
-                rate of spread of infection.
-            gI : float
-                rate of removal from infectives.
-            kI : int
-                number of stages of infection.
-    M : int
-        Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    Ni: np.array((kI + 1)*M, )
-        Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    """
-
-    def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # infection rate
-        self.gI    = parameters['gI']                           # recovery rate of I
-        self.ki    = parameters['kI']
-        self.nClass = self.ki + 1
-
-        self.N     = np.sum(Ni)
-        self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
-
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
-
-
-    cdef rhs(self, xt, tt):
-        cdef:
-            int N=self.N, M=self.M, i, j, jj, ki=self.ki
-            double beta=self.beta, gI=self.ki*self.gI, rateS, lmda
-            double [:] S    = xt[0  :M]
-            double [:] I    = xt[M  :(ki+1)*M]
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:]   FM = self.FM
-            double [:] dx   = self.dx
-
-        for i in range(M):
-            lmda=0
-            for jj in range(ki):
-                for j in range(M):
-                    lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
-            rateS = lmda*S[i]
-            #
-            dx[i]     = -rateS - FM[i]
-            dx[i+M]   = rateS - gI*I[i] + FM[i]
-
-            for j in range(ki-1):
-                dx[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
-        return
-
-
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
-                 seedRate=None, maxNumSteps=100000, **kwargs):
-        """
-        Parameters
-        ----------
-        S0 : np.array
-            Initial number of susceptables.
-        I0 : np.array
-            Initial number of  infectives.
-        contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
-             individual in class i with an individual in class j
-        Tf : float
-            Final time of integrator
-        Nf : Int
-            Number of time points to evaluate.
-        Ti : float, optional
-            Start time of integrator. The default is 0.
-        integrator : TYPE, optional
-            Integrator to use either from scipy.integrate or odespy.
-            The default is 'odeint'.
-        seedRate : python function, optional
-            Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
-            maximum number of steps the integrator can take. The default is 100000.
-        **kwargs: kwargs for integrator
-
-        Returns
-        -------
-        dict
-            'X': output path from integrator, 't': time points evaluated at,
-            'param': input param to integrator.
-
-        """
-
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
-            self.rhs(xt, t)
-            return self.dx
-        
-        x0=np.concatenate((S0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.ki }
-        return data
-    
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'S' : Susceptible population time series
-        """
-        X = data['X'] 
-        S = X[:, 0:self.M]
-        return S
-
-
-    def I(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'E' : Exposed population time series
-        """
-        X = data['X'] 
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'R' : Recovered population time series
-        """
-        X = data['X'] 
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] 
-        return R
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEkIkR(IntegratorsClass):
-    """
-    Susceptible, Infected, Recovered (SIkR)
-    method of k-stages of I
-    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    Attributes
-    ----------
-    parameters: dict
-        Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
-            beta : float
-                rate of spread of infection.
-            gI : float
-                rate of removal from infected individuals.
-            gE : float
-                rate of removal from exposed individuals.
-            ki : int
-                number of stages of infectives.
-            ke : int
-                number of stages of exposed. 
-    M : int
-        Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    Ni: np.array((kI = kE +1)*M, )
-        Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    """
-
-    def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # infection rate
-        self.gE    = parameters['gE']                           # recovery rate of E
-        self.gI    = parameters['gI']                           # recovery rate of I
-        self.ki    = parameters['kI']                           # number of stages
-        self.ke    = parameters['kE']
-        self.nClass = self.ki + self.ke + 1
-
-        self.N     = np.sum(Ni)
-        self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
-        self.Ni    = Ni
-
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
-
-
-    cdef rhs(self, xt, tt):
-        cdef:
-            int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
-            double beta=self.beta, gI=self.ki*self.gI, rateS, lmda
-            double gE = self.ke * self.gE
-            double [:] S    = xt[0  :M]
-            double [:] E    = xt[M  :(ke+1)*M]
-            double [:] I    = xt[(ke+1)*M  :(ke+ki+1)*M]
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:]   FM = self.FM
-            double [:] dx   = self.dx
-
-        for i in range(M):
-            lmda=0
-            for jj in range(ki):
-                for j in range(M):
-                    lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
-            rateS = lmda*S[i]
-            #
-            dx[i]     = -rateS - FM[i]
-
-            # If there is any E stage...
-            if 0 != ke :
-                # People removed from S are put in E[0]
-                dx[i+M+0] = rateS - gE*E[i] + FM[i]
-
-                # Propagate cases along the E stages
-                for j in range(ke - 1) :
-                    dx[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
-
-                # Transfer cases from E[-1] to I[0]
-                dx[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]
-
-            # However, if there aren't any E stages
-            else :
-                # People removed from S are put in I[0]
-                dx[i + (ke+1)* M + 0] = rateS + FM[i] - gI * I[i]
-
-            # In both cases, propagate cases along the I stages.
-            for j in range(ki-1):
-                dx[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
-        return
-
-
-    def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', 
-            seedRate=None, maxNumSteps=100000, **kwargs):
-        """
-        Parameters
-        ----------
-        S0 : np.array
-            Initial number of susceptables.
-        E0 : np.array
-            Initial number of exposeds.
-        I0 : np.array
-            Initial number of  infectives.
-        contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
-             individual in class i with an individual in class j
-        Tf : float
-            Final time of integrator
-        Nf : Int
-            Number of time points to evaluate.
-        Ti : float, optional
-            Start time of integrator. The default is 0.
-        integrator : TYPE, optional
-            Integrator to use either from scipy.integrate or odespy.
-            The default is 'odeint'.
-        seedRate : python function, optional
-            Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
-            maximum number of steps the integrator can take. The default is 100000.
-        **kwargs: kwargs for integrator
-
-        Returns
-        -------
-        dict
-            'X': output path from integrator, 't': time points evaluated at,
-            'param': input param to integrator.
-
-        """
-
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
-            self.rhs(xt, t)
-            return self.dx
-        
-        x0=np.concatenate((S0, E0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
-        return data
-    
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'S' : Susceptible population time series
-        """
-        X = data['X'] 
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'E' : Exposed population time series
-        """
-        X = data['X'] 
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def I(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'Is' : symptomatics population time series
-        """
-        X  = data['X'] 
-        Is = X[:, 3*self.M:4*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'R' : Recovered population time series
-        """
-        X = data['X'] 
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
         return R
 
 
@@ -1335,7 +1345,7 @@ cdef class SEAIR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(5*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -1366,7 +1376,7 @@ cdef class SEAIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1391,7 +1401,7 @@ cdef class SEAIR(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
             
             double [:] alpha= self.alpha
 
@@ -1401,11 +1411,11 @@ cdef class SEAIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS - FM[i]                          # \dot S  
-            dx[i+M]   =  rateS      - gE*E[i] + FM[i]           # \dot E  
-            dx[i+2*M] = gE* E[i] - gA*A[i]                      # \dot A  
-            dx[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # \dot Ia
-            dx[i+4*M] = gAS*A[i] - gIs     *Is[i]               # \dot Is
+            dxdt[i]     = -rateS - FM[i]                          # \dot S  
+            dxdt[i+M]   =  rateS      - gE*E[i] + FM[i]           # \dot E  
+            dxdt[i+2*M] = gE* E[i] - gA*A[i]                      # \dot A  
+            dxdt[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - gIs     *Is[i]               # \dot Is
         return
 
 
@@ -1458,11 +1468,11 @@ cdef class SEAIR(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'fsa':self.fsa,
                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
 
@@ -1606,10 +1616,20 @@ cdef class SEAI5R(IntegratorsClass):
                 rate of hospitalisation of infected individuals.
             gIc : float
                 rate hospitalised individuals are moved to intensive care.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+            
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(9*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -1651,7 +1671,7 @@ cdef class SEAI5R(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dx    = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1717,7 +1737,7 @@ cdef class SEAI5R(IntegratorsClass):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
 
         for i in range(M):
             lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
@@ -1725,15 +1745,15 @@ cdef class SEAI5R(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS + sa[i]                    # \dot S 
-            dx[i+M]   = rateS  - gE*E[i]                  # \dot E 
-            dx[i+2*M] = gE*E[i]  - gA*A[i]                # \dot A              
-            dx[i+3*M] = gAA*A[i] - gIa*Ia[i]              # \dot Ia
-            dx[i+4*M] = gAS*A[i] - gIs*Is[i]              # \dot Is
-            dx[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih
-            dx[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic
-            dx[i+7*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
-            dx[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
+            dxdt[i]     = -rateS + sa[i]                    # \dot S 
+            dxdt[i+M]   = rateS  - gE*E[i]                  # \dot E 
+            dxdt[i+2*M] = gE*E[i]  - gA*A[i]                # \dot A              
+            dxdt[i+3*M] = gAA*A[i] - gIa*Ia[i]              # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - gIs*Is[i]              # \dot Is
+            dxdt[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # \dot Ih
+            dxdt[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # \dot Ic
+            dxdt[i+7*M] = gIc*mm[i]*Ic[i]                   # \dot Im 
+            dxdt[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # \dot Ni
         return
 
 
@@ -1788,12 +1808,13 @@ cdef class SEAI5R(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'fsa':self.fsa, 'fh':self.fh,   
                      'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
         return data
 
@@ -1929,7 +1950,7 @@ cdef class SEAI5R(IntegratorsClass):
             population
         """
         X = data['X'] 
-        ppln  = X[:, 8*self.M:9*self.M]
+        ppln = X[:, 8*self.M:9*self.M]
         return ppln 
 
 
@@ -1942,11 +1963,11 @@ cdef class SEAI5R(IntegratorsClass):
         Returns
         -------
             'R' : Recovered population time series
+            R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
         """
         X = data['X'] 
         R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] \
-                                                    - X[:, 7*self.M:8*self.M]
+                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M] 
         return R
 
 
@@ -1992,7 +2013,7 @@ cdef class SEAIRQ(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(6*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class    
 
     Methods
@@ -2029,7 +2050,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
         
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2058,7 +2079,7 @@ cdef class SEAIRQ(IntegratorsClass):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
             
             double [:] alpha= self.alpha
 
@@ -2068,12 +2089,12 @@ cdef class SEAIRQ(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]                          
             #
-            dx[i]     = -rateS      - FM[i]                         # \dot S  
-            dx[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E  
-            dx[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A  
-            dx[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia 
-            dx[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is 
-            dx[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # \dot Q
+            dxdt[i]     = -rateS      - FM[i]                         # \dot S  
+            dxdt[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E  
+            dxdt[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A  
+            dxdt[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia 
+            dxdt[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is 
+            dxdt[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # \dot Q
         return                                                     
 
 
@@ -2128,13 +2149,14 @@ cdef class SEAIRQ(IntegratorsClass):
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
             
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) 
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,'gIa':self.gIa,
-                    'gIs':self.gIs,'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'beta':self.beta,'gIa':self.gIa, 'fsa':self.fsa, 'gIs':self.gIs,
+                     'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return data
 
 
@@ -2213,21 +2235,6 @@ cdef class SEAIRQ(IntegratorsClass):
         return Is
 
 
-    def Q(self,  data):
-        """
-        Parameters
-        ----------
-        data : data files
-
-        Returns
-        -------
-            'Q' : Quarantined population time series
-        """
-        X  = data['X'] 
-        Is = X[:, 5*self.M:6*self.M]
-        return Is
-
-
     def R(self,  data):
         """
         Parameters
@@ -2242,6 +2249,21 @@ cdef class SEAIRQ(IntegratorsClass):
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
              -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] 
         return R
+
+
+    def Q(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Q' : Quarantined population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 5*self.M:6*self.M]
+        return Is
 
 
 
@@ -2278,7 +2300,7 @@ cdef class SIRS(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(4*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -2310,7 +2332,7 @@ cdef class SIRS(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dx    = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2349,7 +2371,7 @@ cdef class SIRS(IntegratorsClass):
             double [:,:] CM = self.CM
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
-            double [:] dx   = self.dx
+            double [:] dxdt = self.dxdt
             double [:] alpha= self.alpha
 
         for i in range(M):
@@ -2358,10 +2380,10 @@ cdef class SIRS(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dx[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])    # \dot S 
-            dx[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]            # \dot Ia
-            dx[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                 # \dot Is
-            dx[i+3*M] = sa[i] + iaa[i]                                 # \dot Ni
+            dxdt[i]     = -rateS + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])    # \dot S 
+            dxdt[i+M]   = alpha[i]*rateS - gIa*Ia[i] + iaa[i]            # \dot Ia
+            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                 # \dot Is
+            dxdt[i+3*M] = sa[i] + iaa[i]                                 # \dot Ni
         return
 
 
@@ -2406,12 +2428,13 @@ cdef class SIRS(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
-            return self.dx
+            return self.dxdt
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
-        data={'X':X, 't':time_points, 'N':self.N, 'M':self.M,'alpha':self.alpha, 
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha, 
+                        'fsa':self.fsa, 'ep':self.ep,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
         return data
 

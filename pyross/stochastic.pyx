@@ -32,7 +32,7 @@ cdef class stochastic_integration:
     cdef:
         readonly int N, M, nClass
         int k_tot
-        np.ndarray RM, rp, weights, FM, CM, rp_previous
+        np.ndarray RM, xt, weights, FM, CM, xtminus1
 
     cdef calculate_total_reaction_rate(self):
         """
@@ -69,7 +69,7 @@ cdef class stochastic_integration:
                     weights[i*k_tot*k_tot + k_tot*j + k] = RM[i+j*M,i+k*M]
         return W
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         return
 
     cdef SSA_step(self,double time,
@@ -97,7 +97,7 @@ cdef class stochastic_integration:
         """
         cdef:
             double [:] weights = self.weights
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             double dt, cs, t
             int M = self.M
             int I, i, j, k,  k_tot = self.k_tot
@@ -127,12 +127,12 @@ cdef class stochastic_integration:
         k = (I - i*k_tot*k_tot)%k_tot
         if j == k:
             if j == 0:
-                rp[i + M*j] += 1 # influx of susceptibles
+                xt[i + M*j] += 1 # influx of susceptibles
             else:
-                rp[i + M*j] -= 1
+                xt[i + M*j] -= 1
         else:
-            rp[i + M*j] += 1
-            rp[i + M*k] -= 1
+            xt[i + M*j] += 1
+            xt[i + M*k] -= 1
         return t
 
     cpdef simulate_gillespie(self, contactMatrix, Tf, Nf,
@@ -176,7 +176,7 @@ cdef class stochastic_integration:
             int max_index =  k_tot*k_tot*M*M
             double t, dt, W
             double [:,:] RM = self.RM
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             double [:] weights = self.weights
             #double [:,:] CM = self.CM
 
@@ -184,22 +184,22 @@ cdef class stochastic_integration:
         if Nf <= 0:
             t_arr = [t]
             trajectory = []
-            trajectory.append((self.rp).copy())
+            trajectory.append((self.xt).copy())
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
-            trajectory[0] = rp
+            trajectory[0] = xt
             next_writeout = 1
 
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
             for i in range(M,k_tot*M):
-                W += rp[i]
+                W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
 
             if None != seedRate :
@@ -209,7 +209,7 @@ cdef class stochastic_integration:
 
             # calculate current rate matrix
             self.CM = contactMatrix(t)
-            self.rate_matrix(rp, t)
+            self.rate_matrix(xt, t)
 
             # calculate total rate
             W = self.calculate_total_reaction_rate()
@@ -219,7 +219,7 @@ cdef class stochastic_integration:
             if W == 0.:
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = (self.rp).copy()
+                        trajectory[i] = (self.xt).copy()
                 break
 
             # perform SSA step
@@ -227,12 +227,12 @@ cdef class stochastic_integration:
 
             if Nf <= 0:
                 t_arr.append(t)
-                trajectory.append((self.rp).copy())
+                trajectory.append((self.xt).copy())
             else:
                 while (next_writeout < t):
                     if next_writeout > Tf:
                         break
-                    trajectory[next_writeout] = (self.rp).copy()
+                    trajectory[next_writeout] = (self.xt).copy()
                     next_writeout += 1
 
         out_arr = np.array(trajectory,dtype=long)
@@ -247,14 +247,14 @@ cdef class stochastic_integration:
         """
 
         cdef:
-            long [:] rp = self.rp
-            long [:] rp_previous = self.rp_previous
+            long [:] xt = self.xt
+            long [:] xtminus1 = self.xtminus1
             double f, f_p, direction
             int i, index_event
 
         for i,index_event in enumerate(list_of_available_events):
-            f = events[index_event](t,rp)
-            f_p = events[index_event](t_previous,rp_previous)
+            f = events[index_event](t,xt)
+            f_p = events[index_event](t_previous,xtminus1)
             # if the current event has a direction, include it
             try:
                 direction = events[index_event].direction
@@ -288,8 +288,8 @@ cdef class stochastic_integration:
             int max_index =  k_tot*k_tot*M*M
             double t, dt, W, t_previous
             double [:,:] RM = self.RM
-            long [:] rp = self.rp
-            long [:] rp_previous = self.rp_previous
+            long [:] xt = self.xt
+            long [:] xtminus1 = self.xtminus1
             double [:] weights = self.weights
             #
             list list_of_available_events, events_out
@@ -300,11 +300,11 @@ cdef class stochastic_integration:
         if Nf <= 0:
             t_arr = [t]
             trajectory = []
-            trajectory.append( (self.rp).copy()  )
+            trajectory.append( (self.xt).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
-            trajectory[0] = rp
+            trajectory[0] = xt
             next_writeout = 1
 
 
@@ -330,11 +330,11 @@ cdef class stochastic_integration:
             # stop if nobody is infected
             W = 0 # number of infected people
             for i in range(M,k_tot*M):
-                W += rp[i]
+                W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
 
             if None != seedRate :
@@ -343,7 +343,7 @@ cdef class stochastic_integration:
                 self.FM = np.zeros( self.M, dtype = DTYPE)
 
             # calculate current rate matrix
-            self.rate_matrix(rp, t)
+            self.rate_matrix(xt, t)
 
             # calculate total rate
             W = self.calculate_total_reaction_rate()
@@ -352,13 +352,13 @@ cdef class stochastic_integration:
             if W == 0.:
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
 
             # save current state, which will become the previous state once
             # we perform the SSA step
             for i in range(k_tot*M):
-                rp_previous[i] = rp[i]
+                xtminus1[i] = xt[i]
 
             # perform SSA step
             t_previous = t
@@ -393,12 +393,12 @@ cdef class stochastic_integration:
 
             if Nf <= 0:
                 t_arr.append(t)
-                trajectory.append((self.rp).copy())
+                trajectory.append((self.xt).copy())
             else:
                 while (next_writeout < t):
                     if next_writeout > Tf:
                         break
-                    trajectory[next_writeout] = rp
+                    trajectory[next_writeout] = xt
                     next_writeout += 1
 
         out_arr = np.array(trajectory,dtype=long)
@@ -411,12 +411,12 @@ cdef class stochastic_integration:
         Tau leaping timestep
         This is based on Eqs. (32), (33) of
         https://doi.org/10.1063/1.2159468   (Ref. 1)
-        
+
         Note that a single index in the above cited paper corresponds
         to a tuple here. In the paper, possible reactions are enumerated
         with a single index, we enumerate the reactions as elements of the
         matrix RM.
-        
+
         Parameters
         ----------
         epsilon : float, optional
@@ -431,9 +431,9 @@ cdef class stochastic_integration:
             int M=self.M, k_tot = self.k_tot
             int i, j, k
             double [:,:] RM = self.RM
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             double cur_tau, cur_mu, cur_sig_sq
-        # 
+        #
         #
         # evaluate Eqs. (32), (33) of Ref. 1
         cur_tau = INFINITY
@@ -459,7 +459,7 @@ cdef class stochastic_integration:
                         cur_sig_sq += RM[i + k*M, i + j*M]
                 cur_mu = abs(cur_mu)
                 #
-                factor = epsilon*rp[i+j*M]/2.
+                factor = epsilon*xt[i+j*M]/2.
                 if factor < 1:
                     factor = 1.
                 #
@@ -485,7 +485,7 @@ cdef class stochastic_integration:
             int M=self.M, k_tot = self.k_tot
             int i, j, k
             double [:,:] RM = self.RM
-            long [:] rp = self.rp
+            long [:] xt = self.xt
         # Draw reactions
         for i in range(M):
             for j in range(k_tot):
@@ -495,14 +495,14 @@ cdef class stochastic_integration:
                         K_events = np.random.poisson(RM[i+j*M,i+k*M] * cur_tau )
                         if j == k:
                             if j == 0:
-                                rp[i + M*j] += K_events # influx of susceptibles
+                                xt[i + M*j] += K_events # influx of susceptibles
                             else:
-                                rp[i + M*j] -= K_events
+                                xt[i + M*j] -= K_events
                         else:
-                            rp[i + M*j] += K_events
-                            rp[i + M*k] -= K_events
+                            xt[i + M*j] += K_events
+                            xt[i + M*k] -= K_events
         for i in range(M*k_tot):
-            if rp[i] < 0:
+            if xt[i] < 0:
                 raise RuntimeError("Tau leaping led to negative population. " + \
                                   "Try increasing threshold by increasing the " + \
                                   "argument 'nc'")
@@ -520,7 +520,7 @@ cdef class stochastic_integration:
         2. Timestep \tau chosen such that \Delta r_i < epsilon \Sum r_i
         3. Number of reactions that occur in channel i ~Poisson(r_i \tau)
         4. Update state by this amount
-        
+
         Parameters
         ----------
         contactMatrix : python function(t)
@@ -552,7 +552,7 @@ cdef class stochastic_integration:
             int i, j, k,  I, K_events, k_tot = self.k_tot
             double t, dt, W
             double [:,:] RM = self.RM
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             double [:] weights = self.weights
             double factor, cur_f
             double cur_tau
@@ -565,21 +565,21 @@ cdef class stochastic_integration:
         if Nf <= 0:
             t_arr = [t]
             trajectory = []
-            trajectory.append( (self.rp).copy()  )
+            trajectory.append( (self.xt).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
-            trajectory[0] = rp
+            trajectory[0] = xt
             next_writeout = 1
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
             for i in range(M,k_tot*M):
-                W += rp[i]
+                W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
             if None != seedRate :
                 self.FM = seedRate(t)
@@ -587,7 +587,7 @@ cdef class stochastic_integration:
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             # calculate current rate matrix
             self.CM = contactMatrix(t)
-            self.rate_matrix(rp, t)
+            self.rate_matrix(xt, t)
 
             # Calculate total rate
             W = self.calculate_total_reaction_rate()
@@ -596,14 +596,14 @@ cdef class stochastic_integration:
             if W == 0.:
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
 
             if SSA_steps_left < 0.5:
                 # check if we are below threshold
                 for i in range(k_tot*M):
-                    if rp[i] > 0:
-                        if rp[i] < nc:
+                    if xt[i] > 0:
+                        if xt[i] < nc:
                             SSA_steps_left = 100
                 # if we are below threshold, run while-loop again
                 # and switch to direct SSA algorithm
@@ -636,12 +636,12 @@ cdef class stochastic_integration:
 
             if Nf <= 0:
                 t_arr.append(t)
-                trajectory.append( (self.rp).copy()  )
+                trajectory.append( (self.xt).copy()  )
             else:
                 while (next_writeout < t):
                     if next_writeout > Tf:
                         break
-                    trajectory[next_writeout] = rp
+                    trajectory[next_writeout] = xt
                     next_writeout += 1
 
         out_arr = np.array(trajectory,dtype=long)
@@ -660,7 +660,7 @@ cdef class stochastic_integration:
             int i, j, k,  I, K_events, k_tot = self.k_tot
             double t, dt, W, t_previous
             double [:,:] RM = self.RM
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             double [:] weights = self.weights
             double factor, cur_f
             double cur_tau
@@ -668,7 +668,7 @@ cdef class stochastic_integration:
             int steps_until_tau_update = 0
             double verbose = 1.
             # needed for event-driven simulation:
-            long [:] rp_previous = self.rp_previous
+            long [:] xtminus1 = self.xtminus1
             list list_of_available_events, events_out
             int N_events, current_protocol_index
 
@@ -676,11 +676,11 @@ cdef class stochastic_integration:
         if Nf <= 0:
             t_arr = [t]
             trajectory = []
-            trajectory.append( (self.rp).copy()  )
+            trajectory.append( (self.xt).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
             trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
-            trajectory[0] = rp
+            trajectory[0] = xt
             next_writeout = 1
 
         # create a list of all events that are available
@@ -704,11 +704,11 @@ cdef class stochastic_integration:
             # stop if nobody is infected
             W = 0 # number of infected people
             for i in range(M,k_tot*M):
-                W += rp[i]
+                W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
 
             if None != seedRate :
@@ -717,7 +717,7 @@ cdef class stochastic_integration:
                 self.FM = np.zeros( self.M, dtype = DTYPE)
 
             # calculate current rate matrix
-            self.rate_matrix(rp, t)
+            self.rate_matrix(xt, t)
 
             # Calculate total rate
             W = self.calculate_total_reaction_rate()
@@ -726,21 +726,21 @@ cdef class stochastic_integration:
             if W == 0.:
                 if Nf > 0:
                     for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = rp
+                        trajectory[i] = xt
                 break
 
             # save current state, which will become the previous state once
             # we perform either an SSA or a tau-leaping step
             for i in range(k_tot*M):
-                rp_previous[i] = rp[i]
+                xtminus1[i] = xt[i]
             t_previous = t
 
             # either perform tau-leaping or SSA step:
             if SSA_steps_left < 0.5:
                 # check if we are below threshold for tau-leaping
                 for i in range(k_tot*M):
-                    if rp[i] > 0:
-                        if rp[i] < nc:
+                    if xt[i] > 0:
+                        if xt[i] < nc:
                             SSA_steps_left = 100
                 # if we are below threshold, run while-loop again
                 # and switch to direct SSA algorithm
@@ -798,12 +798,12 @@ cdef class stochastic_integration:
 
             if Nf <= 0:
                 t_arr.append(t)
-                trajectory.append( (self.rp).copy()  )
+                trajectory.append( (self.xt).copy()  )
             else:
                 while (next_writeout < t):
                     if next_writeout > Tf:
                         break
-                    trajectory[next_writeout] = rp
+                    trajectory[next_writeout] = xt
                     next_writeout += 1
 
         out_arr = np.array(trajectory,dtype=long)
@@ -848,7 +848,7 @@ cdef class SIR(stochastic_integration):
     """
     cdef:
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CC
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 3
@@ -868,19 +868,19 @@ cdef class SIR(stochastic_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M, self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # previous state
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # previous state
         # (for event-driven simulations)
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, gIa=self.gIa, rateS, lmda
             double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
-            long [:] S    = rp[0  :M]
-            long [:] Ia   = rp[M  :2*M]
-            long [:] Is   = rp[2*M:3*M]
+            long [:] S    = xt[0  :M]
+            long [:] Ia   = xt[M  :2*M]
+            long [:] Is   = xt[2*M:3*M]
             double [:] Ni   = self.Ni
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
@@ -944,13 +944,13 @@ cdef class SIR(stochastic_integration):
 
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = Ia0[i]
-            rp[i+2*M] = Is0[i]
+            xt[i] = S0[i]
+            xt[i+M] = Ia0[i]
+            xt[i+2*M] = Is0[i]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix=contactMatrix,
@@ -965,7 +965,8 @@ cdef class SIR(stochastic_integration):
                                   seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
+                     'fsa':self.fsa,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
@@ -982,15 +983,15 @@ cdef class SIR(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = Ia0[i]
-            rp[i+2*M] = Is0[i]
+            xt[i] = S0[i]
+            xt[i+M] = Ia0[i]
+            xt[i+2*M] = Is0[i]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
@@ -1011,10 +1012,73 @@ cdef class SIR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                     'N':self.N, 'M':self.M,
+                     'Ni':self.Ni, 'M':self.M,
+                     'fsa':self.fsa,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, self.M:2*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 2*self.M:3*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
+        return R
+
+
 
 
 cdef class SIkR(stochastic_integration):
@@ -1052,7 +1116,7 @@ cdef class SIkR(stochastic_integration):
     cdef:
         readonly int kk
         readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray rp0, Ni, drpdt, lld, CC, gIvec, gI
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
         self.kk = parameters['kI']
@@ -1081,16 +1145,16 @@ cdef class SIkR(stochastic_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kk=self.kk
             double beta=self.beta, rateS, lmda
-            long [:] S    = rp[0  :M]
-            long [:] I    = rp[M  :(kk+1)*M]
+            long [:] S    = xt[0  :M]
+            long [:] I    = xt[M  :(kk+1)*M]
             double [:] gI = self.gI
             double [:] Ni   = self.Ni
             double [:] ld   = self.lld
@@ -1120,13 +1184,13 @@ cdef class SIkR(stochastic_integration):
         cdef:
             int M = self.M, i, j
             int kk = self.kk
-            long [:] rp = self.rp
+            long [:] xt = self.xt
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
+            xt[i] = S0[i]
             for j in range(kk):
-              rp[i+(j+1)*M] = I0[j]
+              xt[i+(j+1)*M] = I0[j]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
@@ -1139,7 +1203,7 @@ cdef class SIkR(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gI':self.gI, 'kI':self.kk }
         return out_dict
@@ -1155,15 +1219,15 @@ cdef class SIkR(stochastic_integration):
         cdef:
             int M = self.M, i, j
             int kk = self.kk
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
+            xt[i] = S0[i]
             for j in range(kk):
-              rp[i+(j+1)*M] = I0[j]
+              xt[i+(j+1)*M] = I0[j]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
@@ -1184,10 +1248,58 @@ cdef class SIkR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gI':self.gI, 'kI':self.kk }
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M]
+        return R
+
+
+
 
 cdef class SEIR(stochastic_integration):
     """
@@ -1225,7 +1337,7 @@ cdef class SEIR(stochastic_integration):
     """
     cdef:
         readonly double alpha, beta, fsa, gIa, gIs, gE
-        readonly np.ndarray rp0, Ni, drpdt, lld, CC
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 4
@@ -1246,21 +1358,21 @@ cdef class SEIR(stochastic_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double gIa=self.gIa, gIs=self.gIs
             double gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
             double beta=self.beta, rateS, lmda
             double fsa = self.fsa
-            long [:] S    = rp[0  :  M]
-            long [:] E    = rp[  M:2*M]
-            long [:] Ia   = rp[2*M:3*M]
-            long [:] Is   = rp[3*M:4*M]
+            long [:] S    = xt[0  :  M]
+            long [:] E    = xt[  M:2*M]
+            long [:] Ia   = xt[2*M:3*M]
+            long [:] Is   = xt[3*M:4*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
@@ -1287,14 +1399,14 @@ cdef class SEIR(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = E0[i]
-            rp[i+2*M] = Ia0[i]
-            rp[i+3*M] = Is0[i]
+            xt[i] = S0[i]
+            xt[i+M] = E0[i]
+            xt[i+2*M] = Ia0[i]
+            xt[i+3*M] = Is0[i]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
@@ -1307,9 +1419,9 @@ cdef class SEIR(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
-                      'gIa':self.gIa,'gIs':self.gIs,
+                      'gIa':self.gIa,'gIs':self.gIs,'fsa':self.fsa,
                       'gE':self.gE}
         return out_dict
 
@@ -1323,16 +1435,16 @@ cdef class SEIR(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = E0[i]
-            rp[i+2*M] = Ia0[i]
-            rp[i+3*M] = Is0[i]
+            xt[i] = S0[i]
+            xt[i+M] = E0[i]
+            xt[i+2*M] = Ia0[i]
+            xt[i+3*M] = Is0[i]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
@@ -1353,11 +1465,89 @@ cdef class SEIR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
-                    'gIa':self.gIa,'gIs':self.gIs,
+                    'gIa':self.gIa,'gIs':self.gIs,'fsa':self.fsa,
                     'gE':self.gE}
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
+        return R
+
+
+
 
 cdef class SEI5R(stochastic_integration):
     """
@@ -1422,7 +1612,7 @@ cdef class SEI5R(stochastic_integration):
     """
     cdef:
         readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CC, sa, iaa, hh, cc, mm
+        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 7
@@ -1461,8 +1651,8 @@ cdef class SEI5R(stochastic_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
 
@@ -1507,7 +1697,7 @@ cdef class SEI5R(stochastic_integration):
             print('iaa can be a number or an array of size M')
 
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, rateS, lmda
@@ -1515,14 +1705,14 @@ cdef class SEI5R(stochastic_integration):
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
             #
-            long [:] S    = rp[0  :M]
-            long [:] E    = rp[M  :2*M]
-            long [:] Ia   = rp[2*M:3*M]
-            long [:] Is   = rp[3*M:4*M]
-            long [:] Ih   = rp[4*M:5*M]
-            long [:] Ic   = rp[5*M:6*M]
-            long [:] Im   = rp[6*M:7*M]
-            long [:] R    = rp[7*M:8*M]
+            long [:] S    = xt[0  :M]
+            long [:] E    = xt[M  :2*M]
+            long [:] Ia   = xt[2*M:3*M]
+            long [:] Is   = xt[3*M:4*M]
+            long [:] Ih   = xt[4*M:5*M]
+            long [:] Ic   = xt[5*M:6*M]
+            long [:] Im   = xt[6*M:7*M]
+            long [:] R    = xt[7*M:8*M]
             #
             long [:] Ni    = self.Ni
             #
@@ -1575,26 +1765,26 @@ cdef class SEI5R(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = E0[i]
-            rp[i+2*M] = Ia0[i]
-            rp[i+3*M] = Is0[i]
-            rp[i+4*M] = Ih0[i]
-            rp[i+5*M] = Ic0[i]
-            rp[i+6*M] = Im0[i]
-            rp[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i] \
+            xt[i] = S0[i]
+            xt[i+M] = E0[i]
+            xt[i+2*M] = Ia0[i]
+            xt[i+3*M] = Is0[i]
+            xt[i+4*M] = Ih0[i]
+            xt[i+5*M] = Ic0[i]
+            xt[i+6*M] = Im0[i]
+            xt[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i] \
                                    - Ih0[i] - Ic0[i] - Im0[i]
-            if rp[i+7*M] < 0:
-                rp[i+7*M] = 0
+            if xt[i+7*M] < 0:
+                xt[i+7*M] = 0
                 # It is probably better to have the error message below,
                 # to warn the user if their input numbers do not match?
                 #raise RuntimeError("Sum of provided initial populations for class" + \
                 #    " {0} exceeds total initial population for that class\n".format(i) + \
-                #    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
+                #    " {0} > {1}".format(xt[i+7*M],self.Ni[i]))
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
@@ -1610,11 +1800,11 @@ cdef class SEI5R(stochastic_integration):
         # equivalent to knowing the recovered population).
         for i in range(M):
             out_arr[:,i+7*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
-            out_arr[:,i+7*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+            out_arr[:,i+7*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+0*M]
 
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gIh':self.gIh,'gIc':self.gIc,
@@ -1637,28 +1827,28 @@ cdef class SEI5R(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = E0[i]
-            rp[i+2*M] = Ia0[i]
-            rp[i+3*M] = Is0[i]
-            rp[i+4*M] = Ih0[i]
-            rp[i+5*M] = Ic0[i]
-            rp[i+6*M] = Im0[i]
-            rp[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i]
-            rp[i+7*M] -= Ih0[i] + Ic0[i] + Im0[i]
-            if rp[i+7*M] < 0:
-                rp[i+7*M] = 0
+            xt[i] = S0[i]
+            xt[i+M] = E0[i]
+            xt[i+2*M] = Ia0[i]
+            xt[i+3*M] = Is0[i]
+            xt[i+4*M] = Ih0[i]
+            xt[i+5*M] = Ic0[i]
+            xt[i+6*M] = Im0[i]
+            xt[i+7*M] = self.Ni[i] - S0[i] - E0[i] - Ia0[i] - Is0[i]
+            xt[i+7*M] -= Ih0[i] + Ic0[i] + Im0[i]
+            if xt[i+7*M] < 0:
+                xt[i+7*M] = 0
                 # It is probably better to have the error message below,
                 # to warn the user if their input numbers do not match?
                 #raise RuntimeError("Sum of provided initial populations for class" + \
                 #    " {0} exceeds total initial population for that class\n".format(i) + \
-                #    " {0} > {1}".format(rp[i+7*M],self.Ni[i]))
+                #    " {0} > {1}".format(xt[i+7*M],self.Ni[i]))
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
@@ -1679,7 +1869,7 @@ cdef class SEI5R(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gIh':self.gIh,'gIc':self.gIc,
@@ -1690,6 +1880,147 @@ cdef class SEI5R(stochastic_integration):
                     'iaa':self.iaa,
                     }
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X']
+        Ih = X[:, 4*self.M:5*self.M]
+        return Ih
+
+
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X']
+        Ic = X[:, 5*self.M:6*self.M]
+        return Ic
+
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X']
+        Im = X[:, 6*self.M:7*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X']
+        ppln  = X[:,7*self.M:8*self.M]
+        return ppln
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + Ia + Is + Ih + Ic)
+        """
+        X = data['X']
+        R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+
+        return R
+
+
+
 
 cdef class SEAI5R(stochastic_integration):
     """
@@ -1744,7 +2075,7 @@ cdef class SEAI5R(stochastic_integration):
     """
     cdef:
         readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray rp0, Ni, drpdt, CC, sa, hh, cc, mm
+        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 8
@@ -1785,8 +2116,8 @@ cdef class SEAI5R(stochastic_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
@@ -1822,7 +2153,7 @@ cdef class SEAI5R(stochastic_integration):
             print('mm can be a number or an array of size M')
 
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double alpha=self.alpha, beta=self.beta, rateS, lmda
@@ -1830,15 +2161,15 @@ cdef class SEAI5R(stochastic_integration):
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double ce1=self.gA*self.alpha, ce2=self.gA*(1-self.alpha)
             #
-            long [:] S    = rp[0  :  M]
-            long [:] E    = rp[M  :2*M]
-            long [:] A    = rp[2*M:3*M]
-            long [:] Ia   = rp[3*M:4*M]
-            long [:] Is   = rp[4*M:5*M]
-            long [:] Ih   = rp[5*M:6*M]
-            long [:] Ic   = rp[6*M:7*M]
-            long [:] Im   = rp[7*M:8*M]
-            long [:] R    = rp[8*M:9*M]
+            long [:] S    = xt[0  :  M]
+            long [:] E    = xt[M  :2*M]
+            long [:] A    = xt[2*M:3*M]
+            long [:] Ia   = xt[3*M:4*M]
+            long [:] Is   = xt[4*M:5*M]
+            long [:] Ih   = xt[5*M:6*M]
+            long [:] Ic   = xt[6*M:7*M]
+            long [:] Im   = xt[7*M:8*M]
+            long [:] R    = xt[8*M:9*M]
             #
             long [:] Ni    = self.Ni
             #
@@ -1894,25 +2225,24 @@ cdef class SEAI5R(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
-
-        # write initial condition to rp
+            long [:] xt = self.xt
+        R_0 = self.Ni-(S0+E0+A0+Ia0+Is0+Ih0+Ic0)
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = E0[i]
-            rp[i+2*M] = A0[i]
-            rp[i+3*M] = Ia0[i]
-            rp[i+4*M] = Is0[i]
-            rp[i+5*M] = Ih0[i]
-            rp[i+6*M] = Ic0[i]
-            rp[i+7*M] = Im0[i]
-            rp[i+8*M] = self.Ni[i] - S0[i] - E0[i] - A0[i] - Ia0[i] - Is0[i]
-            rp[i+8*M] -= Ih0[i] + Ic0[i] + Im0[i]
-            #print(rp[i+7*M])
-            if rp[i+8*M] < 0:
+            xt[i] = S0[i]
+            xt[i+M] = E0[i]
+            xt[i+2*M] = A0[i]
+            xt[i+3*M] = Ia0[i]
+            xt[i+4*M] = Is0[i]
+            xt[i+5*M] = Ih0[i]
+            xt[i+6*M] = Ic0[i]
+            xt[i+7*M] = Im0[i]
+            xt[i+8*M] = R_0[i]
+            #print(xt[i+7*M])
+            if xt[i+8*M] < 0:
                 raise RuntimeError("Sum of provided initial populations for class" + \
                     " {0} exceeds total initial population for that class\n".format(i) + \
-                    " {0} > {1}".format(rp[i+8*M],self.Ni[i]))
+                    " {0} > {1}".format(xt[i+8*M],self.Ni[i]))
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
                                     seedRate=seedRate)
@@ -1928,10 +2258,10 @@ cdef class SEAI5R(stochastic_integration):
         for i in range(M):
             out_arr[:,i+8*M] += out_arr[:,i+6*M]
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
-            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i]
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'N':self.N, 'M':self.M,
+                      'Ni':self.Ni, 'M':self.M,
                       'alpha':self.alpha, 'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,
                       'gIh':self.gIh,'gIc':self.gIc,
@@ -1955,27 +2285,27 @@ cdef class SEAI5R(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i] = S0[i]
-            rp[i+M] = E0[i]
-            rp[i+2*M] = A0[i]
-            rp[i+3*M] = Ia0[i]
-            rp[i+4*M] = Is0[i]
-            rp[i+5*M] = Ih0[i]
-            rp[i+6*M] = Ic0[i]
-            rp[i+7*M] = Im0[i]
-            rp[i+8*M] = self.Ni[i] - S0[i] - E0[i] - A0[i] - Ia0[i] - Is0[i]
-            rp[i+8*M] -= Ih0[i] + Ic0[i] + Im0[i]
-            #print(rp[i+7*M])
-            if rp[i+8*M] < 0:
+            xt[i] = S0[i]
+            xt[i+M] = E0[i]
+            xt[i+2*M] = A0[i]
+            xt[i+3*M] = Ia0[i]
+            xt[i+4*M] = Is0[i]
+            xt[i+5*M] = Ih0[i]
+            xt[i+6*M] = Ic0[i]
+            xt[i+7*M] = Im0[i]
+            xt[i+8*M] = self.Ni[i] - S0[i] - E0[i] - A0[i] - Ia0[i] - Is0[i]
+            xt[i+8*M] -= Ih0[i] + Ic0[i] + Im0[i]
+            #print(xt[i+7*M])
+            if xt[i+8*M] < 0:
                 raise RuntimeError("Sum of provided initial populations for class" + \
                     " {0} exceeds total initial population for that class\n".format(i) + \
-                    " {0} > {1}".format(rp[i+8*M],self.Ni[i]))
+                    " {0} > {1}".format(xt[i+8*M],self.Ni[i]))
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
@@ -2000,10 +2330,10 @@ cdef class SEAI5R(stochastic_integration):
         for i in range(M):
             out_arr[:,i+8*M] += out_arr[:,i+6*M]
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
-            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+  M]
+            out_arr[:,i+8*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+0*M]
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'N':self.N, 'M':self.M,
+                    'Ni':self.Ni, 'M':self.M,
                     'alpha':self.alpha, 'beta':self.beta,
                     'gIa':self.gIa,'gIs':self.gIs,
                     'gIh':self.gIh,'gIc':self.gIc,
@@ -2014,6 +2344,165 @@ cdef class SEAI5R(stochastic_integration):
                     #'iaa':self.iaa,
                     }
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activated population time series
+        """
+        X = data['X']
+        A = X[:, 2*self.M:3*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X']
+        Ih = X[:, 5*self.M:6*self.M]
+        return Ih
+
+
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X']
+        Ic = X[:, 6*self.M:7*self.M]
+        return Ic
+
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X']
+        Im = X[:, 7*self.M:8*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X']
+        ppln = X[:, 8*self.M:9*self.M]
+        return ppln
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
+        """
+        X = data['X']
+        R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M]
+        return R
+
+
+
+
+
+
+
 
 cdef class SEAIRQ(stochastic_integration):
     """
@@ -2064,7 +2553,7 @@ cdef class SEAIRQ(stochastic_integration):
     cdef:
         readonly double alpha, beta, gIa, gIs, gE, gA, fsa
         readonly double tE, tA, tIa, tIs #, tS
-        readonly np.ndarray rp0, Ni, drpdt, CC
+        readonly np.ndarray xt0, Ni, dxtdt, CC
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 6
@@ -2099,11 +2588,11 @@ cdef class SEAIRQ(stochastic_integration):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.rp = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.rp_previous = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
-    cdef rate_matrix(self, rp, tt):
+    cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -2112,12 +2601,12 @@ cdef class SEAIRQ(stochastic_integration):
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
             double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
 
-            long [:] S    = rp[0*M:M]
-            long [:] E    = rp[1*M:2*M]
-            long [:] A    = rp[2*M:3*M]
-            long [:] Ia   = rp[3*M:4*M]
-            long [:] Is   = rp[4*M:5*M]
-            long [:] Q    = rp[5*M:6*M]
+            long [:] S    = xt[0*M:M]
+            long [:] E    = xt[1*M:2*M]
+            long [:] A    = xt[2*M:3*M]
+            long [:] Ia   = xt[3*M:4*M]
+            long [:] Is   = xt[4*M:5*M]
+            long [:] Q    = xt[5*M:6*M]
 
             double [:] Ni   = self.Ni
             #
@@ -2158,16 +2647,16 @@ cdef class SEAIRQ(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i]     = S0[i]
-            rp[i+M]   = E0[i]
-            rp[i+2*M] = A0[i]
-            rp[i+3*M] = Ia0[i]
-            rp[i+4*M] = Is0[i]
-            rp[i+5*M] = Q0[i]
+            xt[i]     = S0[i]
+            xt[i+M]   = E0[i]
+            xt[i+2*M] = A0[i]
+            xt[i+3*M] = Ia0[i]
+            xt[i+4*M] = Is0[i]
+            xt[i+5*M] = Q0[i]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
@@ -2180,7 +2669,7 @@ cdef class SEAIRQ(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict={'X':out_arr, 't':t_arr,
-                'N':self.N, 'M':self.M,
+                'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                 'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,
                 'gE':self.gE,'gA':self.gA,
@@ -2197,18 +2686,18 @@ cdef class SEAIRQ(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i
-            long [:] rp = self.rp
+            long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
 
-        # write initial condition to rp
+        # write initial condition to xt
         for i in range(M):
-            rp[i]     = S0[i]
-            rp[i+M]   = E0[i]
-            rp[i+2*M] = A0[i]
-            rp[i+3*M] = Ia0[i]
-            rp[i+4*M] = Is0[i]
-            rp[i+5*M] = Q0[i]
+            xt[i]     = S0[i]
+            xt[i+M]   = E0[i]
+            xt[i+2*M] = A0[i]
+            xt[i+3*M] = Ia0[i]
+            xt[i+4*M] = Is0[i]
+            xt[i+5*M] = Q0[i]
 
         if method.lower() == 'gillespie':
             t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
@@ -2229,9 +2718,116 @@ cdef class SEAIRQ(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                  'N':self.N, 'M':self.M,
+                  'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
                   'alpha':self.alpha,'beta':self.beta,
                   'gIa':self.gIa,'gIs':self.gIs,
                   'gE':self.gE,'gA':self.gA,
                   'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activated population time series
+        """
+        X = data['X']
+        A = X[:, 2*self.M:3*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+        return R
+
+
+
+    def Q(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Q' : Quarantined population time series
+        """
+        X  = data['X']
+        Is = X[:, 5*self.M:6*self.M]
+        return Is

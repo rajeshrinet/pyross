@@ -12,7 +12,7 @@ cdef class control_integration:
     """
     Integrator class to implement control through changing the contact matrix
     as a function of the current state.
-    
+
     Methods
     -------
     simulate_deteministic : Performs a deterministic simulation.
@@ -32,7 +32,7 @@ cdef class control_integration:
                          events_subsequent=True): # only relevant of repeat_events = False
         """
         Performs detemrinistic numerical integration
-        
+
         Parameters
         ----------
         y0 : np.array
@@ -122,7 +122,7 @@ cdef class control_integration:
                           t_span=[cur_t_eval[0], cur_t_eval[-1]],
                           y0=cur_y0,
                          t_eval=cur_t_eval,
-                         method='RK23', # RK45 is standard, but doesn't seem to work properly
+                         method='RK45',  #'RK23', # RK45 is standard, but doesn't seem to work properly
                          events=cur_list
                          )
             # Find current event
@@ -302,7 +302,7 @@ cdef class SIR(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                      'N':self.N, 'M':self.M,'alpha':self.alpha,
+                      'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
         else:
@@ -371,6 +371,8 @@ cdef class SIRS(control_integration):
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
         self.gIs   = parameters['gIs']                      # recovery rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+
+        self.k_tot = 4
 
         self.ep    = parameters['ep']                       # fraction of recovered who is susceptible
         sa         = parameters['sa']                       # daily arrival of new susceptibles
@@ -458,7 +460,7 @@ cdef class SIRS(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                      'N':self.N, 'M':self.M,'alpha':self.alpha,
+                      'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
         else:
@@ -527,6 +529,8 @@ cdef class SEIR(control_integration):
         self.gE    = parameters['gE']                       # recovery rate of E
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
+        self.k_tot = 4
+
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -592,7 +596,7 @@ cdef class SEIR(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                'N':self.N, 'M':self.M,'alpha':self.alpha,
+                'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
         else:
@@ -629,7 +633,7 @@ cdef class SEI5R(control_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    
+
     Attributes
     ----------
     parameters: dict
@@ -686,6 +690,8 @@ cdef class SEI5R(control_integration):
         self.gIc   = parameters['gIc']                      # recovery rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
+
+        self.k_tot = 8
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -802,7 +808,7 @@ cdef class SEI5R(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                  'N':self.N, 'M':self.M,'alpha':self.alpha,
+                  'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                   'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
         else:
@@ -861,7 +867,9 @@ cdef class SIkR(control_integration):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
         self.gI    = parameters['gI']                       # recovery rate of I
-        self.ki    = parameters['k']                        # number of stages
+        self.ki    = parameters['kI']                        # number of stages
+
+        self.k_tot = self.ki+1
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -919,7 +927,7 @@ cdef class SIkR(control_integration):
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-              'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+              'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             return data
         else:
             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
@@ -961,7 +969,7 @@ cdef class SEkIkR(control_integration):
             ki : int
                 number of stages of infectives.
             ke : int
-                number of stages of exposed. 
+                number of stages of exposed.
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -985,6 +993,8 @@ cdef class SEkIkR(control_integration):
         self.ki    = parameters['kI']                       # number of stages
         self.ke    = parameters['kE']
 
+        self.k_tot = self.ki + self.ke + 1
+
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -992,7 +1002,7 @@ cdef class SEkIkR(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( (self.ki + self.ke + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, rp, tt):
@@ -1064,7 +1074,7 @@ cdef class SEkIkR(control_integration):
             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")
 
         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-            'N':self.N, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
+            'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
 
 
@@ -1122,6 +1132,8 @@ cdef class SEAIR(control_integration):
         self.gA    = parameters['gA']                       # rate to go from A to Ia, Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
+        self.k_tot = 5
+
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -1129,7 +1141,7 @@ cdef class SEAIR(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -1196,8 +1208,8 @@ cdef class SEAIR(control_integration):
         else:
             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")
 
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
-              'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
+        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,'fsa':self.fsa,
+              'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
 
@@ -1396,7 +1408,7 @@ cdef class SEAI5R(control_integration):
                                   events_repeat=events_repeat,seedRate=seedRate,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                          'N':self.N, 'M':self.M,
+                          'Ni':self.Ni, 'M':self.M,
                           'alpha':self.alpha, 'beta':self.beta,
                           'gIa':self.gIa,'gIs':self.gIs,
                           'gIh':self.gIh,'gIc':self.gIc,
@@ -1431,12 +1443,12 @@ cdef class SEAIRQ(control_integration):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious 
+    A : Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
-        Contains the following keys:   
+        Contains the following keys:
             alpha : float
                 fraction of infected who are asymptomatic.
             beta : float
@@ -1463,11 +1475,11 @@ cdef class SEAIRQ(control_integration):
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(6*M, )
-        Initial number in each compartment and class    
+        Initial number in each compartment and class
 
     Methods
     -------
-    simulate 
+    simulate
     """
     cdef:
         double beta, gIa, gIs, gE, gA, fsa
@@ -1490,6 +1502,8 @@ cdef class SEAIRQ(control_integration):
         self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia
         self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is
 
+        self.k_tot = 6
+
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
@@ -1497,7 +1511,7 @@ cdef class SEAIRQ(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -1566,7 +1580,8 @@ cdef class SEAIRQ(control_integration):
                                   events_repeat=events_repeat,seedRate=seedRate,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
-                    'N':self.N, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
+                    'fsa':self.fsa,
+                    'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
                       'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
             return data
