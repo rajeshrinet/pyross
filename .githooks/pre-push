@@ -22,5 +22,9 @@ do
         then
             echo "pyross/control changed, running tests..."
             python -m unittest pyross.test.ControlTest
+    elif [[ $item =~ pyross/inference ]];
+        then
+            echo "pyross/inference changed, running tests..."
+            python -m unittest pyross.test.InferenceTest
     fi
 done;

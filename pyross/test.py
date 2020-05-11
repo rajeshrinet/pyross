@@ -277,6 +277,29 @@ class ControlTest(unittest.TestCase):
             if name.startswith('S'):
                 params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                 m = model(params, M, N)
+
+class InferenceTest(unittest.TestCase):
+    """testing inference.pyx"""
+    
+    def __init__(self, *args, **kwargs):
+        super(InferenceTest, self).__init__(*args, **kwargs)
+        self.parameters = DeterministicTest.parameters
+        self.control_models = dict(inspect.getmembers(pyross.inference,
+                                                       inspect.isclass))
+        
+    def contactMatrix(self, t): return np.identity(self.parameters['M'])
+
+    def test_init_models(self):
+        """Initializes all inference models"""
+        for name, model in self.control_models.items():
+            if name.startswith('S') and not "SIR_type":
+                params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
+                N = int(np.sum(Ni))
+                fi = Ni/N
+                steps = 1
+                m = model(params, M, fi, N, steps)
+        
+    
     
     
 
