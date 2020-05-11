@@ -10,11 +10,11 @@ ctypedef np.float_t DTYPE_t
 
 cdef class IntegratorsClass:
     """
-    List of all integrator used by various deterministic models listed below
+    List of all integrator used by various deterministic models listed below.
     
     Methods
     -------
-    simulateRHS : Performs numerical integration
+    simulateRHS : Performs numerical integration.
     """
 
     def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):

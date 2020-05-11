@@ -3,6 +3,7 @@
 # Hook file that automatically runs unit tests before a push
 
 CHANGED=$(git diff --name-only HEAD^ HEAD)
+make
 cd ~
 for item in $CHANGED
 do
@@ -26,5 +27,10 @@ do
         then
             echo "pyross/inference changed, running tests..."
             python -m unittest pyross.test.InferenceTest
+    elif [[ $item =~ pyross/forecast ]];
+        then
+            echo "pyross/forecast changed, running tests..."
+            python -m unittest pyross.test.ForecastTest
+    
     fi
 done;
