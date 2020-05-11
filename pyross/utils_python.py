@@ -15,7 +15,7 @@ except ImportError:
 
 def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10., 
                  enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None, 
-                 verbose=True, args_dict={}):
+                 cma_random_seed=None, verbose=True, args_dict={}):
     """ Compute the global minimum of the objective function.
     
     This function computes the global minimum of `objective_fct` using a combination of a global minimisation step 
@@ -50,6 +50,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
         Initial standard deviation of the spread of the population for each parameter in the CMA algorithm. Ideally, 
         one should have the optimum within 3*sigma of the guessed initial value. If not specified, these values are
         chosen such that 3*sigma reaches one of the boundaries for each parameters.
+    cma_random_seed: int (between 0 and 2**32-1)
+        Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
     verbose: bool
         Enable output.
     args_dict: dict
@@ -93,8 +95,11 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
             # Standard scale: 3*sigma reaches from the guess to the closest boundary for each parameter.
             cma_stds = np.amin([bounds[:, 1] - guess, guess -  bounds[:, 0]], axis=0)
             cma_stds *= 1.0/3.0
-            
         options['CMA_stds'] = cma_stds
+
+        if cma_random_seed is None:
+            cma_random_seed = np.random.randint(2**32-2)
+        options['seed'] = cma_random_seed
 
         global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
         iteration = 0
