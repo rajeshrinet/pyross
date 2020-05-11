@@ -123,6 +123,8 @@ cdef class SIR_type:
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """
+        DEPRECATED. Use infer_parameters instead
+
         Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
         assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
@@ -163,7 +165,6 @@ cdef class SIR_type:
         if bounds is None:
             bounds = np.array([[eps, g*5] for g in guess])
             bounds[0][1] = min(bounds[0][1], 1-2*eps)
-        assert bounds[0][1] < 1-eps # the upper bound of alpha must be less than 1-eps
         bounds = np.array(bounds)
         guess[1] *= beta_rescale
         bounds[1] *= beta_rescale
@@ -184,6 +185,74 @@ cdef class SIR_type:
         estimates = res[0]
         estimates[1] /= beta_rescale
         return estimates
+
+    def _infer_parameters_to_minimize(self, params, grad=0, keys=None, bounds=None, eps=None, x=None, Tf=None, Nf=None,
+                               contactMatrix=None, a=None, scale=None):
+        """Objective function for minimization call in infer_parameters."""
+        parameters = self.fill_params_dict(keys, params)
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        return minus_logp
+
+    def infer_parameters(self, keys, np.ndarray guess, np.ndarray stds, np.ndarray bounds, np.ndarray x,
+                        double Tf, double Nf, contactMatrix, verbose=False,
+                        ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                        enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
+        '''
+        Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
+        assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
+
+        Parameters
+        ----------
+        keys: list
+            A list of names for parameters to be inferred
+        guess: numpy.array
+            Prior expectation (and initial guess) for the parameter values.
+        stds: numpy.array
+            Standard deviations for the Gamma prior of the parameters
+        bounds: 2d numpy.array
+            Bounds for the parameters (number of parameters x 2)
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimizer.
+        ftol: double
+            Relative tolerance of logp
+        eps: double
+            Disallow parameters closer than `eps` to the boundary (to avoid numerical instabilities).
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
+              cma_population, cma_stds:
+        Parameters of `minimization` function in `utils_python.py` which are documented there. If not
+        specified, `cma_stds` is set to `stds`.
+
+        Returns
+        -------
+        estimates : numpy.array
+        the MAP parameter estimate
+        '''
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            cma_stds = stds
+
+        minimize_args={'keys':keys, 'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf,
+                         'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
+        res = minimization(self._infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+        estimates = res[0]
+        return estimates
+
 
     def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
                                    a=None, scale=None):
@@ -259,6 +328,9 @@ cdef class SIR_type:
         return res[0]
 
     def hessian(self, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
+        '''
+        DEPRECATED. Use compute_hessian instead.
+        '''
         maps[1] *= beta_rescale
         cdef:
             Py_ssize_t k=maps.shape[0], i, j
@@ -284,22 +356,71 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def error_bars(self, maps, prior_mean, prior_stds,
+    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
+        '''
+        Computes the Hessian of the MAP estimatesself.
+
+        Parameters
+        ----------
+        keys: list
+            A list of parameter names that are inferred
+        maps: numpy.array
+            MAP estimates
+        prior_mean: numpy.array
+            The mean of the prior (should be the same as "guess" for infer_parameters)
+        prior_stds: numpy.array
+            The standard deviations of the prior (same as "stds" for infer_parameters)
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        eps: float, optional
+            The step size of the Hessian calculation, default=1e-3
+
+        Returns
+        -------
+        hess : 2d numpy.array
+            The Hessian
+        '''
+        cdef:
+            Py_ssize_t k=maps.shape[0], i, j
+            double xx0
+            np.ndarray g1, g2, a, scale, hess = np.empty((k, k))
+        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+        def minuslogP(y):
+            parameters = self.fill_params_dict(keys, y)
+            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+            minuslogp -= np.sum(gamma.logpdf(y, a, scale=scale))
+            return minuslogp
+        g1 = approx_fprime(maps, minuslogP, eps)
+        for j in range(k):
+            xx0 = maps[j]
+            maps[j] += eps
+            g2 = approx_fprime(maps, minuslogP, eps)
+            hess[:,j] = (g2 - g1)/eps
+            maps[j] = xx0
+        return hess
+
+    def error_bars(self, keys, maps, prior_mean, prior_stds,
                         x, Tf, Nf, contactMatrix, eps=1.e-3):
-        hessian = self.hessian(maps, prior_mean, prior_stds,
+        hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds,
                                 x,Tf,Nf,contactMatrix,eps)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
-    def log_G_evidence(self, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
+    def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
         # M variate process, M=3 for SIIR model
         cdef double logP_MAPs
         cdef Py_ssize_t k
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
-        parameters = self.make_params_dict(maps)
+        parameters = self.fill_params_dict(keys, maps)
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
         logP_MAPs += np.sum(gamma.logpdf(maps, a, scale=scale))
         k = maps.shape[0]
-        A = self.hessian(maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
+        A = self.hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix):
@@ -615,6 +736,12 @@ cdef class SIR_type:
 
     def make_params_dict(self, params=None):
         pass # to be implemented in subclass
+
+    def fill_params_dict(self, keys, params):
+        full_parameters = self.make_params_dict()
+        for (i, k) in enumerate(keys):
+            full_parameters[k] = params[i]
+        return full_parameters
 
     def set_params(self, parameters):
         self.alpha = parameters['alpha']
