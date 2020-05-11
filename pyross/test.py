@@ -320,7 +320,6 @@ class ForecastTest(unittest.TestCase):
             if name.startswith('S') and name != "SIR_type":
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
-                print(name)
                 fi = Ni/N
                 steps = 1
                 m = model(params, M, Ni)
