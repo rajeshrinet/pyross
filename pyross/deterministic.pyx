@@ -1615,6 +1615,16 @@ cdef class SEAI5R(IntegratorsClass):
                 rate of hospitalisation of infected individuals.
             gIc : float
                 rate hospitalised individuals are moved to intensive care.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+            
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
