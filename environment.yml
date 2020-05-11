@@ -8,9 +8,6 @@ dependencies:
   - matplotlib
   - scipy 
   - nlopt
-  - cma
-  - pandas
-  - xlrd
   - pathos
   - pip
   - pip:
