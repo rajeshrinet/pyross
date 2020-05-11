@@ -744,9 +744,8 @@ cdef class SIR(SIR_type):
         Fraction of total population in each compartment and class
     N : int
         Total number in population (Ni = N * fi)
-    steps : np.array
-        Time steps for numerical integrator evaluation.
-
+    steps : int
+        Number of ime steps for numerical integrator evaluation.
 
     Methods
     -------
@@ -831,8 +830,8 @@ cdef class SIR(SIR_type):
             Initial time of integrator
         t2 : float
             Final time of integrator
-        steps : np.array
-            Time steps for integrator evaluation
+        steps : int
+            Number of time steps for numerical integrator evaluation.
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
@@ -884,8 +883,8 @@ cdef class SEIR(SIR_type):
         Fraction of total population in each compartment and class
     N : int
         Total number in population (Ni = N * fi)
-    steps : np.array
-        Time steps for numerical integrator evaluation.
+    steps : int
+        Number of ime steps for numerical integrator evaluation.
 
     Methods
     -------
@@ -983,8 +982,8 @@ cdef class SEIR(SIR_type):
             Initial time of integrator
         t2 : float
             Final time of integrator
-        steps : np.array
-            Time steps for integrator evaluation
+        steps : int
+            Number of ime steps for numerical integrator evaluation.
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
@@ -1056,9 +1055,8 @@ cdef class SEAI5R(SIR_type):
         Fraction of total population in each compartment and class
     N : int
         Total number in population (Ni = N * fi)
-    steps : np.array
-        Time steps for numerical integrator evaluation.
-
+    steps : int
+        Number of ime steps for numerical integrator evaluation.
     Methods
     -------
     make_det_model : returns deterministic model
@@ -1240,8 +1238,8 @@ cdef class SEAI5R(SIR_type):
             Initial time of integrator
         t2 : float
             Final time of integrator
-        steps : np.array
-            Time steps for integrator evaluation
+        steps : int
+            Number of ime steps for numerical integrator evaluation.
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
@@ -1312,8 +1310,8 @@ cdef class SEAIRQ(SIR_type):
         Fraction of total population in each compartment and class
     N : int
         Total number in population (Ni = N * fi)
-    steps : np.array
-        Time steps for numerical integrator evaluation.
+    steps : int
+        Number of ime steps for numerical integrator evaluation.
 
 
     Methods
@@ -1549,8 +1547,8 @@ cdef class SEAIRQ(SIR_type):
             Initial time of integrator
         t2 : float
             Final time of integrator
-        steps : np.array
-            Time steps for integrator evaluation
+        steps : int
+            Number of ime steps for numerical integrator evaluation.
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
