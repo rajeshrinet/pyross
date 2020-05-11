@@ -506,6 +506,14 @@ cdef class SIR_type:
             A function that returns the contact matrix at time t (input).
         eps: float, optional
             Step size in the calculation of the Hessian
+
+        Returns
+        hess_params: numpy.array
+            The Hessian over parameters
+        hess_init: numpy.array
+            The Hessian over initial conditions
+        -------
+
         '''
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
@@ -575,6 +583,27 @@ cdef class SIR_type:
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix):
+        '''
+        Computes -logp for a latent trajectory
+
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary of parameter values, different for each subclass
+        x0: numpy.array
+            Initial conditions
+        obs: numpy.array
+            The observed trajectory without the initial datapoint
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            The total time of the trajectory
+        Nf: int
+            The total number of datapoints
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        '''
         cdef double minus_log_p
         self.set_params(parameters)
         model = self.make_det_model(parameters)
@@ -747,7 +776,31 @@ cdef class SIR_type:
         self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        pass # to be implemented
+        """
+        Parameters
+        ----------
+        x0 : np.array
+            Initial state of the given model
+        t1 : float
+            Initial time of integrator
+        t2 : float
+            Final time of integrator
+        steps : int
+            Number of time steps for numerical integrator evaluation.
+        model : pyross model
+            Model to integrate (pyross.deterministic.SIR etc)
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
+             individual in class i with an individual in class j
+
+        Returns
+        -------
+        sol : np.array
+            The state of the system evaulated at the time point specified.
+
+        """
+        pass # to be implemented in subclass
 
 cdef class SIR(SIR_type):
     """
@@ -759,33 +812,34 @@ cdef class SIR(SIR_type):
 
     Attributes
     ----------
-    parameters: dict
-        Contains the following keys:
-            alpha : float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta : float
-                rate of spread of infection.
-            gIa : float
-                rate of removal from asymptomatic individuals.
-            gIs : float
-                rate of removal from symptomatic individuals.
-            fsa : float
-                fraction by which symptomatic individuals self isolate.
-    M : int
-          Number of compartments of individual for each class.
-          I.e len(contactMatrix)
-    fi: np.array(4*M, )
-        Fraction of total population in each compartment and class
     N : int
-        Total number in population (Ni = N * fi)
+        Total popuation.
+    M : int
+        Number of compartments of individual for each class.
     steps : int
-        Number of ime steps for numerical integrator evaluation.
+        Number of internal integration points used for interpolation.
+    dim : int
+        3 * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    fsa : float
+        Fraction by which symptomatic individuals self isolate.
+
 
     Methods
     -------
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+    All methods of the superclass SIR_Type.
+    make_det_model : returns deterministic model.
+    make_params_dict : returns a dictionary of the input parameters.
+    integrate : returns numerical integration of the chosen model.
     """
 
     def __init__(self, parameters, M, fi, N, steps):
@@ -855,30 +909,6 @@ cdef class SIR(SIR_type):
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        """
-        Parameters
-        ----------
-        x0 : np.array
-            Initial state of the given model
-        t1 : float
-            Initial time of integrator
-        t2 : float
-            Final time of integrator
-        steps : int
-            Number of time steps for numerical integrator evaluation.
-        model : pyross model
-            Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
-
-        Returns
-        -------
-        sol : np.array
-            The state of the system evaulated at the time point specified.
-
-        """
         cdef:
             double [:] S0, Ia0, Is0
             double [:, :] sol
@@ -896,32 +926,32 @@ cdef class SEIR(SIR_type):
     Is: symptomatic
     Attributes
     ----------
-    parameters: dict
-        Contains the following keys:
-            alpha : float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta : float
-                rate of spread of infection.
-            gIa : float
-                rate of removal from asymptomatic individuals.
-            gIs : float
-                rate of removal from symptomatic individuals.
-            fsa : float
-                fraction by which symptomatic individuals self isolate.
-            gE : float
-                rate of removal from exposed individuals.
+    N : int
+        Total popuation.
     M : int
         Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    fi: np.array(4*M, )
-        Fraction of total population in each compartment and class
-    N : int
-        Total number in population (Ni = N * fi)
     steps : int
-        Number of ime steps for numerical integrator evaluation.
+        Number of internal integration points used for interpolation.
+    dim : int
+        4 * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    fsa : float
+        Fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of removal from exposed individuals.
 
     Methods
     -------
+    All methods of the superclass SIR_type
     make_det_model : returns deterministic model
     make_params_dict : returns a dictionary of the input parameters
     integrate : returns numerical integration of the chosen model
@@ -1007,30 +1037,6 @@ cdef class SEIR(SIR_type):
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        """
-        Parameters
-        ----------
-        x0 : np.array
-            Initial state of the given model
-        t1 : float
-            Initial time of integrator
-        t2 : float
-            Final time of integrator
-        steps : int
-            Number of ime steps for numerical integrator evaluation.
-        model : pyross model
-            Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
-
-        Returns
-        -------
-        sol : np.array
-            The state of the system evaulated at the time point specified.
-
-        """
         cdef:
             double [:] s, e, Ia, Is
             double [:, :] sol
@@ -1062,37 +1068,45 @@ cdef class SEAI5R(SIR_type):
     Ic ---> Im, R
     Attributes
     ----------
-    parameters: dict
-        Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
-            beta : float
-                rate of spread of infection.
-            gIa : float
-                rate of removal from asymptomatic individuals.
-            gIs : float
-                rate of removal from symptomatic individuals.
-            fsa : float
-                fraction by which symptomatic individuals self isolate.
-            gE : float
-                rate of removal from exposeds individuals.
-            gA : float
-                rate of removal from activated individuals.
-            gIh : float
-                rate of hospitalisation of infected individuals.
-            gIc : float
-                rate hospitalised individuals are moved to intensive care.
+
+    N : int
+        Total popuation.
     M : int
         Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    fi: np.array(4*M, )
-        Fraction of total population in each compartment and class
-    N : int
-        Total number in population (Ni = N * fi)
     steps : int
-        Number of ime steps for numerical integrator evaluation.
+        Number of internal integration points used for interpolation.
+    dim : int
+        8 * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    fsa : float
+        Fraction by which symptomatic individuals self isolate.
+    gE : float
+        rate of removal from exposeds individuals.
+    gA : float
+        rate of removal from activated individuals.
+    gIh : float
+        rate of hospitalisation of infected individuals.
+    gIc : float
+        rate hospitalised individuals are moved to intensive care.
+    hh : np.array (M,)
+        fraction hospitalised from Is
+    cc : np.array (M,)
+        fraction sent to intensive care from hospitalised.
+    mm : np.array (M,)
+        mortality rate in intensive care
+
     Methods
     -------
+    All methods of the superclass SIR_type
     make_det_model : returns deterministic model
     make_params_dict : returns a dictionary of the input parameters
     integrate : returns numerical integration of the chosen model
@@ -1263,30 +1277,6 @@ cdef class SEAI5R(SIR_type):
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        """
-        Parameters
-        ----------
-        x0 : np.array
-            Initial state of the given model
-        t1 : float
-            Initial time of integrator
-        t2 : float
-            Final time of integrator
-        steps : int
-            Number of ime steps for numerical integrator evaluation.
-        model : pyross model
-            Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
-
-        Returns
-        -------
-        sol : np.array
-            The state of the system evaulated at the time point specified.
-
-        """
         cdef:
             double [:] s, e, a, Ia, Is, Ih, Ic, Im
             double [:, :] sol
@@ -1313,43 +1303,43 @@ cdef class SEAIRQ(SIR_type):
 
     Attributes
     ----------
-    parameters: dict
-        Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
-            beta : float
-                rate of spread of infection.
-            gIa : float
-                rate of removal from asymptomatic individuals.
-            gIs : float
-                rate of removal from symptomatic individuals.
-            gE : float
-                rate of removal from exposed individuals.
-            gA : float
-                rate of removal from activated individuals.
-            fsa : float
-                fraction by which symptomatic individuals self isolate.
-            tE  : float
-                testing rate and contact tracing of exposeds
-            tA  : float
-                testing rate and contact tracing of activateds
-            tIa : float
-                testing rate and contact tracing of asymptomatics
-            tIs : float
-                testing rate and contact tracing of symptomatics
-    M : int
-          Number of compartments of individual for each class.
-          I.e len(contactMatrix)
-    fi: np.array(4*M, )
-        Fraction of total population in each compartment and class
-    N : int
-        Total number in population (Ni = N * fi)
-    steps : int
-        Number of ime steps for numerical integrator evaluation.
 
+    N : int
+        Total popuation.
+    M : int
+        Number of compartments of individual for each class.
+    steps : int
+        Number of internal integration points used for interpolation.
+    dim : int
+        6 * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    gE : float
+        rate of removal from exposed individuals.
+    gA : float
+        rate of removal from activated individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    tE  : float
+        testing rate and contact tracing of exposeds
+    tA  : float
+        testing rate and contact tracing of activateds
+    tIa : float
+        testing rate and contact tracing of asymptomatics
+    tIs : float
+        testing rate and contact tracing of symptomatics
 
     Methods
     -------
+    All methods of the superclass SIR_type
     make_det_model : returns deterministic model
     make_params_dict : returns a dictionary of the input parameters
     integrate : returns numerical integration of the chosen model
@@ -1572,30 +1562,6 @@ cdef class SEAIRQ(SIR_type):
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        """
-        Parameters
-        ----------
-        x0 : np.array
-            Initial state of the given model
-        t1 : float
-            Initial time of integrator
-        t2 : float
-            Final time of integrator
-        steps : int
-            Number of ime steps for numerical integrator evaluation.
-        model : pyross model
-            Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
-
-        Returns
-        -------
-        sol : np.array
-            The state of the system evaulated at the time point specified.
-
-        """
         cdef:
             double [:] s, e, a, Ia, Is, q
             double [:, :] sol
