@@ -127,7 +127,7 @@ cdef class SIR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(3*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -333,7 +333,7 @@ cdef class SIkR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array((kI + 1)*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -516,7 +516,7 @@ cdef class SEIR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(4*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -747,7 +747,7 @@ cdef class SEkIkR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array((kI = kE +1)*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -991,7 +991,7 @@ cdef class SEI5R(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(8*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -1345,7 +1345,7 @@ cdef class SEAIR(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(5*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -1629,7 +1629,7 @@ cdef class SEAI5R(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(9*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
@@ -2013,7 +2013,7 @@ cdef class SEAIRQ(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(6*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class    
 
     Methods
@@ -2300,7 +2300,7 @@ cdef class SIRS(IntegratorsClass):
     M : int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
-    Ni: np.array(4*M, )
+    Ni: np.array(M, )
         Initial number in each compartment and class
 
     Methods
