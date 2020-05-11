@@ -761,7 +761,7 @@ cdef class SEkIkR(IntegratorsClass):
         self.gI    = parameters['gI']                           # recovery rate of I
         self.kI    = parameters['kI']                           # number of stages
         self.kE    = parameters['kE']
-        self.nClass = self.kI + self.kE + 1
+        self.nClass= self.kI + self.kE + 1
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -797,12 +797,9 @@ cdef class SEkIkR(IntegratorsClass):
 
             if 0 != kE :
                 dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
-
                 for j in range(kE - 1) :
                     dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
-
                 dxdt[i + (kE+1)* M + 0] = gE * E[i+(kE-1)*M] - gI * I[i]
-
             else :
                 dxdt[i + (kE+1)* M + 0] = rateS + FM[i] - gI * I[i]
 
