@@ -767,6 +767,11 @@ cdef class SEkIkR(IntegratorsClass):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( (self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
+        
+        if self.kE==0:
+            raise Exception('number of E stages should be greater than zero, kE>0')
+        elif self.kI==0:
+            raise Exception('number of I stages should be greater than zero, kI>0')
 
 
     cdef rhs(self, xt, tt):
@@ -790,15 +795,14 @@ cdef class SEkIkR(IntegratorsClass):
             rateS = lmda*S[i]
             #
             dxdt[i]     = -rateS - FM[i]
-
-            if kE!=0:
-                dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
-                for j in range(kE - 1) :
-                    dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
-                dxdt[i + (kE+1)* M + 0] = gE * E[i+(kE-1)*M] - gI * I[i]
-            else :
-                dxdt[i + (kE+1)* M + 0] = rateS + FM[i] - gI * I[i]
-
+           
+            #Exposed class 
+            dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
+            for j in range(kE-1) :
+                dxdt[i+M+(j+1)*M] = gE * E[i+j*M] - gE*E[i+(j+1)*M]
+            
+            #Infected
+            dxdt[i + (kE+1)*M + 0] = gE*E[i+(kE-1)*M] - gI*I[i]
             for j in range(kI-1):
                 dxdt[i+(kE+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
         return
@@ -975,7 +979,8 @@ cdef class SEkIkIkR(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters['beta']                         # infection rate
         self.gE    = parameters['gE']                           # recovery rate of E
-        self.gI    = parameters['gI']                           # recovery rate of I
+        self.gIa   = parameters['gIa']                           # recovery rate of Ia
+        self.gIs   = parameters['gIs']                           # recovery rate of Is
         self.kI    = parameters['kI']                           # number of stages
         self.fsa   = parameters['fsa']                          # the self-isolation parameter 
         self.kE    = parameters['kE']
@@ -1039,9 +1044,9 @@ cdef class SEkIkIkR(IntegratorsClass):
                 dxdt[i+(kE+1)*M + (j+1)*M ]  = gIa*Ia[i+j*M] - gIa*Ia[i+(j+1)*M]
             
             #Symptomatics class
-            dxdt[i + (kE+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]
+            dxdt[i + (kE+kI+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]
             for j in range(kI-1):
-                dxdt[i+(kE+1)*M + (j+1)*M ]  = gIs*Is[i+j*M] - gIs*Is[i+(j+1)*M]
+                dxdt[i+(kE+kI+1)*M + (j+1)*M ]  = gIs*Is[i+j*M] - gIs*Is[i+(j+1)*M]
         return
 
 
@@ -1158,8 +1163,8 @@ cdef class SEkIkIkR(IntegratorsClass):
         kI = data['kI'] 
         kE = data['kE'] 
         X  = data['X'] 
-        Ia = X[:, (1+self.kE+self.KIa)*self.M:(1+self.kE+self.kI+self.kI)*self.M]
-        return Ia
+        Is = X[:, (1+self.kE+self.kI)*self.M:(1+self.kE+self.kI+self.kI)*self.M]
+        return Is
 
 
     def R(self,  data):

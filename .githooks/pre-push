@@ -31,6 +31,9 @@ do
         then
             echo "pyross/forecast changed, running tests..."
             python -m unittest pyross.test.ForecastTest
-    
+    elif [[ $item =~ pyross/utils_python ]];
+        then
+            echo "pyross/utils_python changed, running tests..."
+            python -m unittest pyross.test.UtilsPythonTest
     fi
 done;

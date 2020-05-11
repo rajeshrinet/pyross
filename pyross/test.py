@@ -320,11 +320,47 @@ class ForecastTest(unittest.TestCase):
             if name.startswith('S') and name != "SIR_type":
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
-                print(name)
                 fi = Ni/N
                 steps = 1
                 m = model(params, M, Ni)
 
+
+class UtilsPythonTest(unittest.TestCase):
+    """Testing the minimization function in utils_python.py"""
+
+    def __init__(self, *args, **kwargs):
+        super(UtilsPythonTest, self).__init__(*args, **kwargs)
+
+    def test_minimization(self):
+        """Test the minimization(...) function in utils_python.py with a few simple examples"""
+
+        # A simple example
+        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**2  
+        # A multi-modal example
+        f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**2 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
+
+        # Test global optimisation
+        guess = np.array([1.0, 1.0])
+        bounds = np.array([[-2.0, 2.0], [-2.0, 2.0]])
+        x, y = pyross.utils_python.minimization(f1, guess, bounds, enable_global=True, enable_local=False,
+                                                ftol=1e-4, cma_random_seed=1, verbose=False)
+        self.assertTrue(np.abs(y - 1.0) < 1e-3)
+
+        x, y = pyross.utils_python.minimization(f2, guess, bounds, enable_global=True, enable_local=False,
+                                                ftol=1e-4, verbose=False, cma_random_seed=2)
+        self.assertTrue(np.abs(y - 1.0) < 1e-3)
+
+        # Test local optimisation
+        guess = np.array([2.0, 2.0])
+        bounds = np.array([[-5.0, 5.0], [-5.0, 5.0]])
+        x, y = pyross.utils_python.minimization(f1, guess, bounds, enable_global=False, enable_local=True,
+                                                ftol=1e-5, verbose=False)
+        self.assertTrue(np.abs(y - 1.0) < 1e-4)
+
+        # And now combined
+        x, y = pyross.utils_python.minimization(f2, guess, bounds, enable_global=True, enable_local=True,
+                                        ftol=1e-5, global_ftol_factor=100, verbose=False, cma_random_seed=4)
+        self.assertTrue(np.abs(y - 1.0) < 1e-4)
 
 
 if __name__ == '__main__':
