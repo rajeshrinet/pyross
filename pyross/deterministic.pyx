@@ -322,8 +322,6 @@ cdef class SIkR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
             beta : float
                 rate of spread of infection.
             gI : float
@@ -536,7 +534,7 @@ cdef class SEIR(IntegratorsClass):
         self.gIa   = parameters['gIa']                          # recovery rate of Ia
         self.gIs   = parameters['gIs']                          # recovery rate of Is
         self.gE    = parameters['gE']                           # recovery rate of E
-        self.fsa   = parameters['fsa']                          # the self-isolation parameter
+        self.fsa   = parameters['fsa']                          # the self-isolation parameter 
         alpha      = parameters['alpha']                        # fraction of asymptomatics 
 
 
@@ -725,15 +723,13 @@ cdef class SEIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkR(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered (SIkR)
-    method of k-stages of I
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    method of k-stages of I and E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
             beta : float
                 rate of spread of infection.
             gI : float
@@ -795,7 +791,7 @@ cdef class SEkIkR(IntegratorsClass):
             #
             dxdt[i]     = -rateS - FM[i]
 
-            if 0 != kE :
+            if kE!=0:
                 dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
                 for j in range(kE - 1) :
                     dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
@@ -931,6 +927,264 @@ cdef class SEkIkR(IntegratorsClass):
         for i in range(kI):
             I0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
         R = self.Ni - X[:, 0:self.M] - I0 - E0
+        return R
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEkIkIkR(IntegratorsClass):
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    method of k-stages of Ia, Is, E
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa: float
+                rate of removal from asymptomatic infected individuals.
+            gIs: float
+                rate of removal from symptomatic infected individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            kI: int
+                number of stages of asymptomatic infectives.
+            kI: int
+                number of stages of symptomatic infectives.
+            kE : int
+                number of stages of exposed. 
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.beta  = parameters['beta']                         # infection rate
+        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gI    = parameters['gI']                           # recovery rate of I
+        self.kI    = parameters['kI']                           # number of stages
+        self.fsa   = parameters['fsa']                          # the self-isolation parameter 
+        self.kE    = parameters['kE']
+        self.nClass= self.kI + self.kI + self.kE + 1
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
+        
+        if self.kE==0:
+            raise Exception('number of E stages should be greater than zero, kE>0')
+        elif self.kI==0:
+            raise Exception('number of I stages should be greater than zero, kI>0')
+        
+        alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha = alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
+            double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2
+            double gE=self.kE*self.gE, gIs=self.kI*self.gIs, fsa=self.fsa
+            double [:] S    = xt[0  :M]
+            double [:] E    = xt[M  :(kE+1)*M]
+            double [:] Ia   = xt[(kE+1)*M   :(kE+kI+1)*M]
+            double [:] Is   = xt[(kE+kI+1)*M:(kE+kI+kI+1)*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:] dxdt = self.dxdt
+            double [:] alpha = self.alpha
+
+        for i in range(M):
+            lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
+            for jj in range(kI):
+                for j in range(M):
+                    lmda += beta*CM[i,j]*(Is[j+jj*M]*fsa + Ia[j+jj*M])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]     = -rateS
+            
+            #Exposed class
+            dxdt[i+M+0] = rateS - gE*E[i] 
+            for j in range(kE - 1) :
+                dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+            
+            #Asymptomatics class
+            dxdt[i + (kE+1)*M + 0] = ce1*E[i+(kE-1)*M] - gIa*Ia[i]
+            for j in range(kI-1):
+                dxdt[i+(kE+1)*M + (j+1)*M ]  = gIa*Ia[i+j*M] - gIa*Ia[i+(j+1)*M]
+            
+            #Symptomatics class
+            dxdt[i + (kE+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]
+            for j in range(kI-1):
+                dxdt[i+(kE+1)*M + (j+1)*M ]  = gIs*Is[i+j*M] - gIs*Is[i+(j+1)*M]
+        return
+
+
+    def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', 
+            maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        Ia0: np.array
+            Initial number of asymptomatic infectives.
+        Is0: np.array
+            Initial number of symptomatic infectives.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+        
+        x0=np.concatenate((S0, E0, Ia0, Is0))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 
+            'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE }
+
+        return data
+    
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        kE = data['kE'] 
+        X = data['X'] 
+        E = X[:, self.M:(1+self.kE)*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        kI = data['kI'] 
+        kE = data['kE'] 
+        X  = data['X'] 
+        Ia = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        kI = data['kI'] 
+        kE = data['kE'] 
+        X  = data['X'] 
+        Ia = X[:, (1+self.kE+self.KIa)*self.M:(1+self.kE+self.kI+self.kI)*self.M]
+        return Ia
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X'] 
+        kI = data['kI'] 
+        kE = data['kE'] 
+        Ia0= np.zeros(self.M)
+        Is0= np.zeros(self.M)
+        E0 = np.zeros(self.M)
+        for i in range(kE):
+            E0 += X[:, (i+1)*self.M : (i+2)*self.M]
+        for i in range(kI):
+            Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
+        for i in range(kI):
+            Is0 += X[:, (kE+kI+1)*self.M : (kE+1+2*kI)*self.M]
+        R = self.Ni - X[:, 0:self.M] - Ia0 - Is0 - E0
         return R
 
 
