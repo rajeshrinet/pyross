@@ -204,7 +204,7 @@ class StochasticTest(unittest.TestCase):
                 # print(name, np.sum(absdiff[:,:-1]))
                 self.assertTrue(np.sum(absdiff[:,:-1])<0.01, 
                                 msg=f"{name} model disagreement")
-        
+
     def test_stochastic_mean_tau(self):
         """Runs stochastic models a few times and compares mean to 
             deterministic using tau leaping"""
@@ -231,7 +231,7 @@ class StochasticTest(unittest.TestCase):
                 # print(name, np.sum(absdiff[:,:-1]))
                 self.assertTrue(np.sum(absdiff[:,:-1])<0.01, 
                                 msg=f"{name} model disagreement")
-                
+
     def test_stochastic_integrators(self):
         """Compare tau leaping to Gillespie.
             This will fail because there is a problem with SIkR
@@ -260,6 +260,7 @@ class StochasticTest(unittest.TestCase):
                 # print(name, np.sum(absdiff), np.shape(gmean), np.shape(taumean))
                 self.assertTrue(np.sum(absdiff)<.1, msg=f"{name} model disagreement")
 
+
 class ControlTest(unittest.TestCase):
     """testing control.pyx"""
     
@@ -278,6 +279,7 @@ class ControlTest(unittest.TestCase):
                 params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                 m = model(params, M, N)
 
+
 class InferenceTest(unittest.TestCase):
     """testing inference.pyx"""
     
@@ -292,16 +294,37 @@ class InferenceTest(unittest.TestCase):
     def test_init_models(self):
         """Initializes all inference models"""
         for name, model in self.control_models.items():
-            if name.startswith('S') and not "SIR_type":
+            if name.startswith('S') and name != "SIR_type":
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
                 fi = Ni/N
                 steps = 1
                 m = model(params, M, fi, N, steps)
+
+
+class ForecastTest(unittest.TestCase):
+    """testing forcast.pyx"""
+    
+    def __init__(self, *args, **kwargs):
+        super(ForecastTest, self).__init__(*args, **kwargs)
+        self.parameters = DeterministicTest.parameters
+        self.control_models = dict(inspect.getmembers(pyross.forecast,
+                                                       inspect.isclass))
+        self.parameters['cov'] = np.identity(2)
         
-    
-    
-    
+    def contactMatrix(self, t): return np.identity(self.parameters['M'])
+
+    def test_init_models(self):
+        """Initializes all forcast models"""
+        for name, model in self.control_models.items():
+            if name.startswith('S') and name != "SIR_type":
+                params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
+                N = int(np.sum(Ni))
+                print(name)
+                fi = Ni/N
+                steps = 1
+                m = model(params, M, Ni)
+
 
 
 if __name__ == '__main__':
