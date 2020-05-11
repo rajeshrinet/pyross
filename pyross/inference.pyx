@@ -24,19 +24,53 @@ ctypedef np.uint8_t BOOL_t
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR_type:
-    """
-    Base class that implements inference for age-structured SIR type models which needs to be subclassed for specific models.
+    '''
+    Parent class for inference for all SIR-type classes listed below
 
-    Model-specific methods
-    ----------------------
-    set_params
-    make_det_model
-    make_params_dict
-    lyapunov_fun
-    jacobian
-    noise_correlation
-    integrate
-    """
+    Attributes:
+    ----------
+    nClass : int
+        Number of classes (set in subclasses).
+    N : int
+        Total popuation.
+    M : int
+        Number of compartments of individual for each class.
+    steps : int
+        Number of internal integration points used for interpolation.
+    dim : int
+        nClass * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    fsa : float
+        Fraction by which symptomatic individuals self isolate.
+
+    Methods:
+    -------
+    inference : Infers epidemiological parameters given all information.
+    infer_control : Infers control parameters given all information.
+    hessian : Computes the hessian of -log(p) around the maximum a posteriori estimates.
+    obtain_minus_log_p : Computes -log(p) of a fully observed trajectory for
+                         given epidemiological parameters.
+    error_bars : Computes the errors of the maximum a posteriori estimates
+                 using the hessian (under maintenance).
+    log_G_evidence : Computes the log G evidence of the model (under maintenance).
+    latent_inference : Infers epidemiological parametesr and initial conditions
+                       given partial information.
+    latent_infer_control : Infers control parameters given partial information.
+    hessian_latent : Computes the hessian of -logp around the maximum a posteriori
+                     estimates for both parameters and initial conditions.
+    minus_logp_red : Computes -log(p) of a partially observed trajectory for
+                     given epidemiological parameters and initial conditions.
+    integrate : A wrapper around simulate methods in pyross.deterministic
+    '''
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly double alpha, beta, gIa, gIs, fsa
@@ -173,7 +207,7 @@ cdef class SIR_type:
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown. The lockdown is modelled by scaling the contact matrices for contact at work, school, and other
-        (but not home) uniformly in all age groups. This function infers the scaling parameters assuming that full data 
+        (but not home) uniformly in all age groups. This function infers the scaling parameters assuming that full data
         on all classes is available (with latent variables, use SIR_type.latent_infer_control).
 
         Parameters
@@ -299,7 +333,7 @@ cdef class SIR_type:
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         """
-        Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model 
+        Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
 
         Parameters
@@ -309,7 +343,7 @@ cdef class SIR_type:
         stds: numpy.array
             Standard deviations for the Gamma prior of the parameters
         obs: 2d numpy.array
-            The observed trajectories with reduced number of variables 
+            The observed trajectories with reduced number of variables
             (number of data points x (age groups * observed model classes))
         fltr: boolean sequence or array
             True for observed and False for unobserved classes.
@@ -321,7 +355,7 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
         bounds: 2d numpy.array
-            Bounds for the parameters + initial conditions 
+            Bounds for the parameters + initial conditions
             ((number of parameters + number of initial conditions) x 2).
             Better bounds makes it easier to find the true global minimum.
         verbose: bool, optional
@@ -390,7 +424,7 @@ cdef class SIR_type:
                             cma_processes=0, cma_population=16, cma_stds=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
-        lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown 
+        lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown
         is modelled by scaling the contact matrices for contact at work, school, and other (but not home) uniformly in
         all age groups. This function infers the scaling parameters.
 
@@ -835,10 +869,10 @@ cdef class SIR(SIR_type):
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
              individual in class i with an individual in class j
-             
+
         Returns
         -------
         sol : np.array
@@ -987,10 +1021,10 @@ cdef class SEIR(SIR_type):
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
              individual in class i with an individual in class j
-             
+
         Returns
         -------
         sol : np.array
@@ -1243,10 +1277,10 @@ cdef class SEAI5R(SIR_type):
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
              individual in class i with an individual in class j
-             
+
         Returns
         -------
         sol : np.array
@@ -1275,12 +1309,12 @@ cdef class SEAIRQ(SIR_type):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious 
+    A : Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
-        Contains the following keys:   
+        Contains the following keys:
             alpha : float
                 fraction of infected who are asymptomatic.
             beta : float
@@ -1552,10 +1586,10 @@ cdef class SEAIRQ(SIR_type):
         model : pyross model
             Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the 
-             average number of contacts made per day by an 
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
              individual in class i with an individual in class j
-             
+
         Returns
         -------
         sol : np.array
