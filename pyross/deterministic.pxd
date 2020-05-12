@@ -6,7 +6,7 @@ cdef class IntegratorsClass:
     cdef:
         readonly int N, M, kI, kE, nClass
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh, ep, gI
-        readonly double tS, tE, tA, tIa, tIs
+        readonly double tS, tE, tA, tIa, tIs, gIsp, gIcp, gIhp
         readonly np.ndarray rp0, Ni, dxdt, CM, FM, sa, iaa, hh, cc, mm, alpha
 
 
@@ -79,6 +79,33 @@ cdef class SEI5R(IntegratorsClass):
     Ic ---> Im, R
     """
     cdef rhs(self, rp, tt)
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEI8R(IntegratorsClass):
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    S  ---> E
+    E  ---> Ia, Is
+    Ia ---> R
+    Is ---> Is',Ih, R
+    Ih ---> Ih',Ic, R
+    Ic ---> Ic',Im, R
+    """
+    cdef rhs(self, rp, tt)
+
 
 
 

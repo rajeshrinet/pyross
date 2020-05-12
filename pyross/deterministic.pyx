@@ -1577,6 +1577,401 @@ cdef class SEI5R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEI8R(IntegratorsClass):
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    S  ---> E
+    E  ---> Ia, Is
+    Ia ---> R
+    Is ---> Is' -> Ih, R
+    Ih ---> Ih' -> Ic, R
+    Ic ---> Ic' -> Im, R
+    
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gE : float
+                rate of removal from exposeds individuals.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gIsp: float
+                rate of removal from symptomatic individuals towards buffer.
+            gIh : float
+                rate of recovery for hospitalised individuals.
+            gIhp: float
+                rate of removal from hospitalised individuals towards buffer.
+            gIc : float
+                rate of recovery for idividuals in intensive care.
+            gIcp: float
+                rate of removal from ICU individuals towards buffer.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            fh  : float
+                fraction by which hospitalised individuals are isolated.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    S
+    E
+    Ia
+    Is
+    Ih
+    Ic
+    Im
+    population
+    R
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.nClass= 10  # only 7 input classes
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIsp  = parameters['gIsp']                     # recovery rate of Isp
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIhp  = parameters['gIsp']                     # recovery rate of Ihp
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gIcp  = parameters['gIsp']                     # recovery rate of Ixp
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha']                    # fraction of asymptomatics
+        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
+        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
+        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']                       # mortality fraction from ICU
+            
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.dxdt  = np.zeros( 11*self.M, dtype=DTYPE)           # right hand side
+
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+        self.sa    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(sa)==1:
+            self.sa = sa*np.ones(M)
+        elif np.size(sa)==M:
+            self.sa= sa
+        else:
+            raise Exception('sa can be a number or an array of size M')
+
+        self.hh    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(hh)==1:
+            self.hh = hh*np.ones(M)
+        elif np.size(hh)==M:
+            self.hh= hh
+        else:
+            raise Exception('hh can be a number or an array of size M')
+
+        self.cc    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(cc)==1:
+            self.cc = cc*np.ones(M)
+        elif np.size(cc)==M:
+            self.cc= cc
+        else:
+            raise Exception('cc can be a number or an array of size M')
+
+        self.mm    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(mm)==1:
+            self.mm = mm*np.ones(M)
+        elif np.size(mm)==M:
+            self.mm= mm
+        else:
+            raise Exception('mm can be a number or an array of size M')
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double beta=self.beta, rateS, lmda
+            double fsa=self.fsa, fh=self.fh, gE=self.gE
+            double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
+            double gIsp=self.gIsp, gIhp=self.gIhp, gIcp=self.gIcp
+            double ce1, ce2
+            double [:] S    = xt[0  :M]
+            double [:] E    = xt[M  :2*M]
+            double [:] Ia   = xt[2*M:3*M]
+            double [:] Is   = xt[3*M:4*M]
+            double [:] Isp  = xt[4*M:5*M]
+            double [:] Ih   = xt[5*M:6*M]
+            double [:] Ihp  = xt[6*M:7*M]
+            double [:] Ic   = xt[7*M:8*M]
+            double [:] Icp  = xt[8*M:9*M]
+            double [:] Im   = xt[9*M:10*M]
+            double [:] Ni   = xt[10*M:11*M]
+            double [:,:] CM = self.CM
+            
+            double [:] alpha= self.alpha
+            double [:] sa   = self.sa       
+            double [:] hh   = self.hh
+            double [:] cc   = self.cc
+            double [:] mm   = self.mm
+            double [:] dxdt = self.dxdt
+
+        for i in range(M):
+            lmda=0;   
+            for j in range(M):
+                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]     = -rateS + sa[i]                            # \dot S   
+            dxdt[i+M]   = rateS  - gE*E[i]                          # \dot E   
+            dxdt[i+2*M] = gE*alpha[i]    *E[i]  - gIa*Ia[i]         # \dot Ia    
+            dxdt[i+3*M] = gE*(1-alpha[i])*E[i]  - gIs*Is[i]         # \dot Is  
+            dxdt[i+4*M] = gIs*(1-hh[i])  *Is[i] - gIsp*Isp[i]       # \dot Isp  
+            dxdt[i+5*M] = gIs*hh[i]      *Is[i] - gIh*Ih[i]         # \dot Ih  
+            dxdt[i+6*M] = gIh*(1-cc[i])  *Ih[i] - gIhp*Ihp[i]       # \dot Ihp  
+            dxdt[i+6*M] = gIh*cc[i]      *Ih[i] - gIc*Ic[i]         # \dot Ic  
+            dxdt[i+6*M] = gIc*(1-mm[i])  *Ic[i] - gIcp*Icp[i]       # \dot Icp  
+            dxdt[i+6*M] = gIc*mm[i]*Ic[i]                           # \dot Im
+            dxdt[i+7*M] = sa[i] - gIc*mm[i]*Im[i]                   # \dot Ni
+        return
+
+
+    def simulate(self, S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0, 
+                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Ih0 : np.array
+            Initial number of hospitalized infectives.
+        Ic0 : np.array
+            Initial number of ICU infectives.
+        Im0 : np.array
+            Initial number of mortality.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+        
+        x0=np.concatenate((S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'fsa':self.fsa, 'fh':self.fh,   
+                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        return data
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X'] 
+        Ih = X[:, 5*self.M:6*self.M]
+        return Ih
+
+    
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X'] 
+        Ic = X[:, 7*self.M:8*self.M]
+        return Ic
+    
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X'] 
+        Im = X[:, 9*self.M:10*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X'] 
+        ppln  = X[:,11*self.M:11*self.M]
+        return ppln 
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + Ia + Is + Ih + Ic)
+        """
+        X = data['X'] 
+        R =  X[:, 11*self.M:12*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:,6*self.M:7*self.M] \
+                                                       - X[:,7*self.M:8*self.M] - X[:,8*self.M:9*self.M] 
+                        
+        return R
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
