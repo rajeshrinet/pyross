@@ -12,17 +12,15 @@ The library uses **Gaussian process regression**, on both the epidemiological ma
 
 Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
 
-The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) are  **SIR**, **SEIR**, **SEI5R**, **SIkR**, **SEkIkR**, **SEAIR**, **SEAI5R**, **SEAIRQ**, and **SIRS**.
-
+The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include multiple non-infectious (exposed, asymptomatic etc) and infectious (symptomatic, asymptomatic etc) classes. Each model can include **stages** to allow for non-exponentially distributed compartmental residence times. 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
+[PyRossGeo](https://github.com/lukastk/PyRossGeo) is sister library that supports **spatially resolved compartment models** with explicit **commuting networks**. 
 
 The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, [we](https://github.com/rajeshrinet/pyross/graphs/contributors) are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Patrick Pietzonka](https://github.com/ppietzonka), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
 
-Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Issues can be shared with others with similar queries and you help the user community by communicating through issues. Thank you!
-
-- **Coming soon**: PyRossGeo, an extension of PyRoss that is spatially resolved and explicitly models commuting networks.
+Please read the [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw)  for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) loads.
