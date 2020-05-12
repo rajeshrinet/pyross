@@ -185,6 +185,33 @@ cdef class SEAI5R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEAI8R(IntegratorsClass):
+    """
+    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    S  ---> E
+    E  ---> A
+    A  ---> Ia, Is
+    Ia ---> R
+    Is ---> Ih, Is', R
+    Ih ---> Ic, Ih', R
+    Ic ---> Im, Ic', R
+    """
+    cdef rhs(self, rp, tt)
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
