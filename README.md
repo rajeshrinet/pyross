@@ -16,7 +16,7 @@ The library is designed to be model-agnostic. Currently implemented [models](htt
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
-[PyRossGeo](https://github.com/lukastk/PyRossGeo) is sister library that supports **spatially resolved compartment models** with explicit **commuting networks**. 
+[PyRossGeo](https://github.com/lukastk/PyRossGeo) is a companion library that supports **spatially resolved compartment models** with explicit **commuting networks**. 
 
 The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, [we](https://github.com/rajeshrinet/pyross/graphs/contributors) are: [Ronojoy Adhikari](https://github.com/ronojoy), [Austen Bolitho](https://github.com/TakodaS), [Tim Ekeh](https://github.com/tekeh), [Julian Kappler](https://github.com/juliankappler), [Irene Li](https://github.com/Irene-Li), [Patrick Pietzonka](https://github.com/ppietzonka), [Benjamin Remez](https://github.com/BenjaminRemez), [Paul Rohrbach](https://github.com/prohrbach), and [Rajesh Singh](https://github.com/rajeshrinet).
 
