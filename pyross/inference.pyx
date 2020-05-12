@@ -454,6 +454,7 @@ cdef class SIR_type:
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         """
+        DEPRECATED. Use latent_infer_parameters instead.
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
 
@@ -522,6 +523,88 @@ cdef class SIR_type:
         params[param_dim:] /= rescale_factor
         params[1] /= beta_rescale
         return params
+
+    def _latent_infer_parameters_to_minimize(self, params, grad = 0, keys=None, bounds=None, param_dim=None,
+                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, a=None, scale=None):
+        """Objective function for minimization call in laten_inference."""
+        x0 =  params[param_dim:]
+        parameters = self.fill_params_dict(keys, params[:param_dim])
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0.copy(), obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        return minus_logp
+
+
+    def latent_infer_parameters(self, keys, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
+                            verbose=False, double ftol=1e-5,
+                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                            enable_global=True, enable_local=True, cma_processes=0,
+                            cma_population=16, cma_stds=None):
+        """
+        Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
+        when the classes are only partially observed. Unobserved classes are treated as latent variables.
+
+        Parameters
+        ----------
+        keys: list
+            A list of parameters to be inferred.
+        guess: numpy.array
+            Prior expectation for the parameter values listed, and prior for initial conditions.
+            Expect of length len(keys)+ nClass*M
+        stds: numpy.array
+            Standard deviations for the Gamma prior of the parameters
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
+        Tf: float
+            Total time of the trajectory
+        Nf: int
+            Total number of data points along the trajectory
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        bounds: 2d numpy.array
+            Bounds for the parameters + initial conditions
+            ((number of parameters + number of initial conditions) x 2).
+            Better bounds makes it easier to find the true global minimum.
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimizer.
+        ftol: float, optional
+            Relative tolerance
+        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
+                    cma_population, cma_stds:
+            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
+            specified, `cma_stds` is set to `stds`.
+
+        Returns
+        -------
+        params: numpy.array
+            MAP estimate of paramters and initial values of the classes.
+        """
+        cdef:
+            Py_ssize_t param_dim = len(keys)
+        assert param_dim == guess.shape[0]-self.dim, 'len(guess) must equal len(keys) + total number of variables'
+        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            cma_stds = stds
+
+        minimize_args = {'keys':keys, 'bounds':bounds, 'param_dim':param_dim,
+                         'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
+                         'a':a, 'scale':scale}
+        res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+
+        params = res[0]
+        return params
+
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
                                           obs=None, fltr=None, Tf=None, Nf=None, a=None, scale=None):
@@ -605,9 +688,61 @@ cdef class SIR_type:
         return res[0]
 
 
+    def compute_hessian_latent(self, keys, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
+                                    beta_rescale=1, eps=1.e-3):
+        '''
+        Compute the Hessian over the parameters and initial conditions.
+
+        Parameters
+        ----------
+        maps: numpy.array
+            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
+        obs: numpy.array
+            The observed data without the initial datapoint
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            Total time of the trajectory
+        Nf: int
+            Total number of data points along the trajectory
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        eps: float, optional
+            Step size in the calculation of the Hessian
+
+        Returns
+        hess_params: numpy.array
+            The Hessian over parameters
+        hess_init: numpy.array
+            The Hessian over initial conditions
+        -------
+
+        '''
+        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+        dim = maps.shape[0]
+        param_dim = dim - self.dim
+        map_params = maps[:param_dim]
+        map_x0 = maps[param_dim:]
+        a_params = a[:param_dim]
+        a_x0 = a[param_dim:]
+        scale_params = scale[:param_dim]
+        scale_x0 = scale[param_dim:]
+        hess_params = self.latent_hess_selected_params(keys, map_params, map_x0, a_params, scale_params,
+                                                obs, fltr, Tf, Nf, contactMatrix,
+                                                beta_rescale=beta_rescale, eps=eps)
+        hess_init = self.latent_hess_init(map_x0, map_params, a_x0, scale_x0,
+                                                obs, fltr, Tf, Nf, contactMatrix,
+                                                eps=0.5/self.N)
+        return hess_params, hess_init
+
+
+
     def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
         '''
+        DEPRECATED. Use compute_hessian_latent instead.
+
         Compute the Hessian over the parameters and initial conditions.
 
         Parameters
@@ -679,6 +814,34 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
+    def latent_hess_selected_params(self, keys, map_params, x0, a_params, scale_params,
+                                    obs, fltr, Tf, Nf, contactMatrix,
+                                    beta_rescale=1, eps=1e-3):
+        cdef Py_ssize_t j
+        dim = map_params.shape[0]
+        hess = np.empty((dim, dim))
+        map_params[1] *= beta_rescale
+        def minuslogP(y):
+            y[1] /= beta_rescale
+            parameters = self.fill_params_dict(keys, y)
+            minuslogp = self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
+            minuslogp -= np.sum(gamma.logpdf(y, a_params, scale=scale_params))
+            y[1] *= beta_rescale
+            return minuslogp
+        g1 = approx_fprime(map_params, minuslogP, eps)
+        for j in range(dim):
+            temp = map_params[j]
+            map_params[j] += eps
+            g2 = approx_fprime(map_params, minuslogP, eps)
+            hess[:,j] = (g2 - g1)/eps
+            map_params[j] = temp
+        map_params[1] /= beta_rescale
+        hess[1, :] *= beta_rescale
+        hess[:, 1] *= beta_rescale
+        return hess
+
+
+
     def latent_hess_init(self, map_x0, params, a_x0, scale_x0,
                             obs, fltr, Tf, Nf, contactMatrix,
                                     eps=1e-6):
@@ -724,11 +887,21 @@ cdef class SIR_type:
             The total number of datapoints
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
+
+        returns
+        -------
+        minus_logp: float
+            -log(p) for the observed trajectory with the given parameters and initial conditions
         '''
         cdef double minus_log_p
         self.set_params(parameters)
         model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj_red(x0, obs, fltr, Tf, Nf, model, contactMatrix)
+        if fltr.ndim == 1:
+            print('Vector filter is deprecated. Use matrix filter instead.')
+            minus_logp = self.obtain_log_p_for_traj_red(x0, obs, fltr, Tf, Nf, model, contactMatrix)
+        else:
+            assert fltr.ndim == 2
+            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix)
         return minus_logp
 
     def make_det_model(self, parameters):
@@ -779,6 +952,26 @@ cdef class SIR_type:
         cov_red = full_cov[full_fltr][:, full_fltr]
         obs_flattened = np.ravel(obs)
         xm_red = np.ravel(np.compress(fltr, xm, axis=1))
+        dev=np.subtract(obs_flattened, xm_red)
+        cov_red_inv=np.linalg.inv(cov_red)
+        log_p= - (dev@cov_red_inv@dev)*(self.N/2)
+        sign,ldet=np.linalg.slogdet(cov_red)
+        if sign <0:
+            raise ValueError('Cov has negative determinant')
+        log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
+        return -log_p
+
+    cdef double obtain_log_p_for_traj_matrix_fltr(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
+                                            double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            Py_ssize_t reduced_dim=(Nf-1)*fltr.shape[0]
+            double [:, :] xm
+            double [:] xm_red, dev, obs_flattened
+        xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
+        full_fltr = sparse.block_diag([fltr,]*(Nf-1))
+        cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+        obs_flattened = np.ravel(obs)
+        xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv=np.linalg.inv(cov_red)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
