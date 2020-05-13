@@ -21,4 +21,8 @@ env:
 
 test:
 	@echo testing pyross...
-	cd ~ && python -m unittest pyross.test
+	cd tests && python quick_test.py
+
+nbtest:
+	@echo testing example notebooks...
+	cd tests && python notebook_test.py

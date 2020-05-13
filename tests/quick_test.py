@@ -128,7 +128,7 @@ class DeterministicTest(unittest.TestCase):
         deterministic_models = dict(inspect.getmembers(pyross.deterministic,
                                                        inspect.isclass))
         for name, model in deterministic_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not 'Spp':
                 m = model(self.parameters, self.M, self.N)
 
     def test_run_models(self):
@@ -137,7 +137,7 @@ class DeterministicTest(unittest.TestCase):
                                                        inspect.isclass))
         traj_dict={}
         for name, model in deterministic_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not 'Spp':
                 m = model(self.parameters, self.M, self.N)
                 x0 = np.array([*self.N, *np.ones(self.M),
                                *np.zeros(m.nClass -2)], dtype=np.float64).reshape((m.nClass,1))
