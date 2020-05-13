@@ -847,12 +847,12 @@ cdef class SIR(stochastic_integration):
         Performs stochastic numerical integration.
     """
     cdef:
-        readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray xt0, Ni, dxtdt, lld, CC
+        readonly double beta, gIa, gIs, fsa
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 3
-        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
         self.gIs   = parameters['gIa']                      # recovery rate of Is
@@ -873,11 +873,19 @@ cdef class SIR(stochastic_integration):
         # (for event-driven simulations)
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha = alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
     cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, gIa=self.gIa, rateS, lmda
-            double fsa=self.fsa, alphab=1-self.alpha,gIs=self.gIs
+            double  beta=self.beta, gIa=self.gIa, rateS, lmda
+            double fsa=self.fsa, gIs=self.gIs
             long [:] S    = xt[0  :M]
             long [:] Ia   = xt[M  :2*M]
             long [:] Is   = xt[2*M:3*M]
@@ -886,6 +894,7 @@ cdef class SIR(stochastic_integration):
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
             double [:]   FM = self.FM
+            double [:] alpha= self.alpha
 
         for i in range(M): #, nogil=False):
             lmda=0
@@ -893,8 +902,8 @@ cdef class SIR(stochastic_integration):
                  lmda += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M,i] = alpha *rateS + FM[i] # rate S -> Ia
-            RM[i+2*M,i] = alphab *rateS # rate S -> Is
+            RM[i+M,i] = alpha[i] *rateS + FM[i] # rate S -> Ia
+            RM[i+2*M,i] = (1-alpha[i]) *rateS # rate S -> Is
             RM[i+M,i+M] = gIa*Ia[i] # rate Ia -> R
             RM[i+2*M,i+2*M] = gIs*Is[i] # rate Is -> R
         return
@@ -1089,8 +1098,6 @@ cdef class SIkR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
-                fraction of infected who are asymptomatic.
             beta : float
                 rate of spread of infection.
             gI : float
@@ -1115,15 +1122,13 @@ cdef class SIkR(stochastic_integration):
     """
     cdef:
         readonly int kk
-        readonly double alpha, beta, gIa, gIs, fsa
+        readonly double beta
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
         self.kk = parameters['kI']
         self.nClass = 1 + self.kk
-        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         gI    = parameters['gI']                     # recovery rate of I
         self.gI    = np.zeros( self.M, dtype = DTYPE)
@@ -1203,8 +1208,8 @@ cdef class SIkR(stochastic_integration):
                                       seedRate=seedRate)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                      'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
-                      'alpha':self.alpha, 'beta':self.beta,
+                      'Ni':self.Ni, 'M':self.M,
+                       'beta':self.beta,
                       'gI':self.gI, 'kI':self.kk }
         return out_dict
 
@@ -1248,8 +1253,8 @@ cdef class SIkR(stochastic_integration):
                                   events_subsequent=events_subsequent)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
-                    'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
-                    'alpha':self.alpha, 'beta':self.beta,
+                    'Ni':self.Ni, 'M':self.M,
+                     'beta':self.beta,
                     'gI':self.gI, 'kI':self.kk }
         return out_dict
 
@@ -1336,12 +1341,12 @@ cdef class SEIR(stochastic_integration):
         Performs stochastic numerical integration.
     """
     cdef:
-        readonly double alpha, beta, fsa, gIa, gIs, gE
-        readonly np.ndarray xt0, Ni, dxtdt, lld, CC
+        readonly double beta, fsa, gIa, gIs, gE
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 4
-        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
         self.gIs   = parameters['gIs']                      # recovery rate of Is
@@ -1362,11 +1367,19 @@ cdef class SEIR(stochastic_integration):
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
     cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double gIa=self.gIa, gIs=self.gIs
-            double gE=self.gE, ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
+            double gE=self.gE, ce1, ce2
             double beta=self.beta, rateS, lmda
             double fsa = self.fsa
             long [:] S    = xt[0  :  M]
@@ -1377,9 +1390,10 @@ cdef class SEIR(stochastic_integration):
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
             double [:]   FM = self.FM
+            double [:] alpha = self.alpha
 
         for i in range(M): #, nogil=False):
-            lmda=0
+            lmda=0;  ce1=gE*alpha[i];  ce2=gE-ce1
             for j in range(M):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
@@ -1611,12 +1625,12 @@ cdef class SEI5R(stochastic_integration):
         Performs stochastic numerical integration.
     """
     cdef:
-        readonly double alpha, beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm
+        readonly double beta, gE, gIa, gIs, gIh, gIc, fsa, fh
+        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm, alpha
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 7
-        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # recovery rate of E class
         self.gIa   = parameters['gIa']                      # recovery rate of Ia
@@ -1655,6 +1669,13 @@ cdef class SEI5R(stochastic_integration):
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
 
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
@@ -1700,10 +1721,10 @@ cdef class SEI5R(stochastic_integration):
     cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, rateS, lmda
-            double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE
+            double beta=self.beta, rateS, lmda
+            double fsa=self.fsa, fh=self.fh,  gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
-            double ce1=self.gE*self.alpha, ce2=self.gE*(1-self.alpha)
+            double ce1, ce2
             #
             long [:] S    = xt[0  :M]
             long [:] E    = xt[M  :2*M]
@@ -1716,6 +1737,7 @@ cdef class SEI5R(stochastic_integration):
             #
             long [:] Ni    = self.Ni
             #
+            double [:] alpha= self.alpha
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
             double [:] hh   = self.hh
@@ -1730,7 +1752,7 @@ cdef class SEI5R(stochastic_integration):
             Ni[i] = S[i] + E[i] + Ia[i] + Is[i] + Ih[i] + Ic[i] + R[i]
 
         for i in range(M):
-            lmda=0
+            lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
             for j in range(M):
                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
@@ -2042,7 +2064,7 @@ cdef class SEAI5R(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha : float, np.array (M,)
                 fraction of infected who are asymptomatic.
             beta : float
                 rate of spread of infection.
@@ -2074,12 +2096,12 @@ cdef class SEAI5R(stochastic_integration):
         Performs stochastic numerical integration.
     """
     cdef:
-        readonly double alpha, beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm
+        readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
+        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm, alpha
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 8
-        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate of E class
         self.gA    = parameters['gA']                       # progression rate of A class
@@ -2120,6 +2142,14 @@ cdef class SEAI5R(stochastic_integration):
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
+        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
         self.sa    = np.zeros( self.M, dtype = DTYPE)
         if np.size(sa)==1:
             self.sa = sa*np.ones(M)
@@ -2156,10 +2186,10 @@ cdef class SEAI5R(stochastic_integration):
     cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double alpha=self.alpha, beta=self.beta, rateS, lmda
-            double fsa=self.fsa, fh=self.fh, alphab=1-self.alpha, gE=self.gE,  gA=self.gA
+            double beta=self.beta, rateS, lmda
+            double fsa=self.fsa, fh=self.fh, gE=self.gE,  gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
-            double ce1=self.gA*self.alpha, ce2=self.gA*(1-self.alpha)
+            double gAA, gAS
             #
             long [:] S    = xt[0  :  M]
             long [:] E    = xt[M  :2*M]
@@ -2173,6 +2203,7 @@ cdef class SEAI5R(stochastic_integration):
             #
             long [:] Ni    = self.Ni
             #
+            double [:] alpha= self.alpha
             double [:] sa   = self.sa
             double [:] hh   = self.hh
             double [:] cc   = self.cc
@@ -2186,7 +2217,7 @@ cdef class SEAI5R(stochastic_integration):
             Ni[i] = S[i] + E[i] + A[i] + Ia[i] + Is[i] + Ih[i] + Ic[i] + R[i]
 
         for i in range(M):
-            lmda=0
+            lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
             for j in range(M):
                 lmda += beta*CM[i,j]*(A[j] + Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
@@ -2199,8 +2230,8 @@ cdef class SEAI5R(stochastic_integration):
             # rates from E
             RM[i+2*M, i+M]   = gE * E[i] # rate E -> A
             # rates from A
-            RM[i+3*M, i+2*M]  = ce1 * A[i] # rate A -> Ia
-            RM[i+4*M, i+2*M]  = ce2 * A[i] # rate A -> Is
+            RM[i+3*M, i+2*M]  = gAA * A[i] # rate A -> Ia
+            RM[i+4*M, i+2*M]  = gAS * A[i] # rate A -> Is
             # rates from Ia
             RM[i+8*M, i+3*M] = gIa * Ia[i] # rate Ia -> R
             # rates from Is
@@ -2515,7 +2546,7 @@ cdef class SEAIRQ(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha : float, np.array(M,)
                 fraction of infected who are asymptomatic.
             beta : float
                 rate of spread of infection.
@@ -2551,13 +2582,13 @@ cdef class SEAIRQ(stochastic_integration):
         Performs stochastic numerical integration.
     """
     cdef:
-        readonly double alpha, beta, gIa, gIs, gE, gA, fsa
+        readonly double beta, gIa, gIs, gE, gA, fsa
         readonly double tE, tA, tIa, tIs #, tS
-        readonly np.ndarray xt0, Ni, dxtdt, CC
+        readonly np.ndarray xt0, Ni, dxtdt, CC, alpha
 
     def __init__(self, parameters, M, Ni):
         self.nClass = 6
-        self.alpha = parameters['alpha']                    # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate from E
         self.gA   = parameters['gA']                      # rate to go from A to I
@@ -2592,6 +2623,14 @@ cdef class SEAIRQ(stochastic_integration):
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
+        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
     cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
@@ -2599,7 +2638,8 @@ cdef class SEAIRQ(stochastic_integration):
             #double tS=self.tS,
             double tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
-            double gAA=self.gA*self.alpha, gAS=self.gA*(1-self.alpha)
+            double gA=self.gA
+            double gAA, gAS
 
             long [:] S    = xt[0*M:M]
             long [:] E    = xt[1*M:2*M]
@@ -2613,9 +2653,10 @@ cdef class SEAIRQ(stochastic_integration):
             double [:]   FM = self.FM
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
+            double [:] alpha= self.alpha
 
         for i in range(M):
-            lmda=0
+            lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
             for j in range(M):
                 lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
