@@ -1740,11 +1740,11 @@ cdef class SEI8R(IntegratorsClass):
             double [:] Ni   = xt[10*M:11*M]
             double [:,:] CM = self.CM
             
-            double [:] alpha= self.alpha
-            double [:] sa   = self.sa       
-            double [:] hh   = self.hh
-            double [:] cc   = self.cc
-            double [:] mm   = self.mm
+            double [:] alpha= self.alpha, balpha=1-self.alpha
+            double [:] sa   = self.sa   , bsa   =1-self.sa
+            double [:] hh   = self.hh   , bhh   =1-self.hh
+            double [:] cc   = self.cc   , bcc   =1-self.cc
+            double [:] mm   = self.mm   , bmm   =1-self.mm
             double [:] dxdt = self.dxdt
 
         for i in range(M):
@@ -1753,17 +1753,17 @@ cdef class SEI8R(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS + sa[i]                            # \dot S   
-            dxdt[i+M]   = rateS  - gE*E[i]                          # \dot E   
-            dxdt[i+2*M] = gE*alpha[i]    *E[i]  - gIa*Ia[i]         # \dot Ia    
-            dxdt[i+3*M] = gE*(1-alpha[i])*E[i]  - gIs*Is[i]         # \dot Is  
-            dxdt[i+4*M] = gIs*(1-hh[i])  *Is[i] - gIsp*Isp[i]       # \dot Isp  
-            dxdt[i+5*M] = gIs*hh[i]      *Is[i] - gIh*Ih[i]         # \dot Ih  
-            dxdt[i+6*M] = gIh*(1-cc[i])  *Ih[i] - gIhp*Ihp[i]       # \dot Ihp  
-            dxdt[i+7*M] = gIh*cc[i]      *Ih[i] - gIc*Ic[i]         # \dot Ic  
-            dxdt[i+8*M] = gIc*(1-mm[i])  *Ic[i] - gIcp*Icp[i]       # \dot Icp  
-            dxdt[i+9*M] = gIc*mm[i]*Ic[i]                           # \dot Im
-            dxdt[i+10*M]= sa[i] - gIc*mm[i]*Im[i]                   # \dot Ni
+            dxdt[i]     = -rateS + sa[i]                         # \dot S   
+            dxdt[i+M]   = rateS  - gE*E[i]                       # \dot E   
+            dxdt[i+2*M] = gE*alpha[i] *E[i]  - gIa*Ia[i]         # \dot Ia    
+            dxdt[i+3*M] = gE*balpha[i]*E[i]  - gIs*Is[i]         # \dot Is  
+            dxdt[i+4*M] = gIs*bhh[i]  *Is[i] - gIsp*Isp[i]       # \dot Isp  
+            dxdt[i+5*M] = gIs*hh[i]   *Is[i] - gIh*Ih[i]         # \dot Ih  
+            dxdt[i+6*M] = gIh*bcc[i]  *Ih[i] - gIhp*Ihp[i]       # \dot Ihp  
+            dxdt[i+7*M] = gIh*cc[i]   *Ih[i] - gIc*Ic[i]         # \dot Ic  
+            dxdt[i+8*M] = gIc*bmm[i]  *Ic[i] - gIcp*Icp[i]       # \dot Icp  
+            dxdt[i+9*M] = gIc*mm[i]   *Ic[i]                     # \dot Im
+            dxdt[i+10*M]= sa[i] - gIc*mm[i]*Im[i]                # \dot Ni
         return
 
 
@@ -2797,11 +2797,11 @@ cdef class SEAI8R(IntegratorsClass):
             double [:] Ni   = xt[11*M:12*M]
             double [:,:] CM = self.CM
             
-            double [:] alpha= self.alpha
-            double [:] sa   = self.sa       
-            double [:] hh   = self.hh
-            double [:] cc   = self.cc
-            double [:] mm   = self.mm
+            double [:] alpha= self.alpha, balpha=1-self.alpha
+            double [:] sa   = self.sa   , bsa   =1-self.sa
+            double [:] hh   = self.hh   , bhh   =1-self.hh
+            double [:] cc   = self.cc   , bcc   =1-self.cc
+            double [:] mm   = self.mm   , bmm   =1-self.mm
             double [:] dxdt = self.dxdt
 
         for i in range(M):
@@ -2813,15 +2813,15 @@ cdef class SEAI8R(IntegratorsClass):
             dxdt[i]      = -rateS  + sa[i]                           # \dot S   
             dxdt[i+M]    = rateS   - gE*E[i]                         # \dot E   
             dxdt[i+2*M]  = gE*E[i] - gA*A[i]                         # \dot A   
-            dxdt[i+3*M]  = gA*alpha[i]    *A[i]  - gIa*Ia[i]         # \dot Ia    
-            dxdt[i+4*M]  = gA*(1-alpha[i])*A[i]  - gIs*Is[i]         # \dot Is  
-            dxdt[i+5*M]  = gIs*(1-hh[i])  *Is[i] - gIsp*Isp[i]       # \dot Isp  
-            dxdt[i+6*M]  = gIs*hh[i]      *Is[i] - gIh*Ih[i]         # \dot Ih  
-            dxdt[i+7*M]  = gIh*(1-cc[i])  *Ih[i] - gIhp*Ihp[i]       # \dot Ihp  
-            dxdt[i+8*M]  = gIh*cc[i]      *Ih[i] - gIc*Ic[i]         # \dot Ic  
-            dxdt[i+9*M]  = gIc*(1-mm[i])  *Ic[i] - gIcp*Icp[i]       # \dot Icp  
-            dxdt[i+10*M] = gIc*mm[i]*Ic[i]                           # \dot Im
-            dxdt[i+11*M] = sa[i] - gIc*mm[i]*Im[i]                   # \dot Ni
+            dxdt[i+3*M]  = gA*alpha[i] *A[i]  - gIa *Ia[i]           # \dot Ia    
+            dxdt[i+4*M]  = gA*balpha[i]*A[i]  - gIs *Is[i]           # \dot Is  
+            dxdt[i+5*M]  = gIs*bhh[i]  *Is[i] - gIsp*Isp[i]          # \dot Isp  
+            dxdt[i+6*M]  = gIs*hh[i]   *Is[i] - gIh *Ih[i]           # \dot Ih  
+            dxdt[i+7*M]  = gIh*bcc[i]  *Ih[i] - gIhp*Ihp[i]          # \dot Ihp  
+            dxdt[i+8*M]  = gIh*cc[i]   *Ih[i] - gIc *Ic[i]           # \dot Ic  
+            dxdt[i+9*M]  = gIc*bmm[i]  *Ic[i] - gIcp*Icp[i]          # \dot Icp  
+            dxdt[i+10*M] = gIc*mm[i]   *Ic[i]                        # \dot Im
+            dxdt[i+11*M] = sa[i]-gIc*mm[i]*Im[i]                     # \dot Ni
         return
 
 
