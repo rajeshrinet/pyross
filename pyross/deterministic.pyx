@@ -3623,6 +3623,12 @@ cdef class Spp(IntegratorsClass):
 
         # Map model class names to their indices
 
+        if not 'classes' in model_spec:
+            raise Exception("Must specify 'classes' in the model specification.")
+
+        if 'R' in model_spec:
+            raise Exception("R cannot be specified in the model specification.")
+
         model_class_name_to_class_index = {}
         model_class_index_to_class_name = {}
         for i in range(len(model_spec['classes'])):
@@ -3745,6 +3751,7 @@ cdef class Spp(IntegratorsClass):
             self.linear_terms[i].oi_coupling = model_linear_terms[i]['oi_coupling']
             self.linear_terms[i].oi_pos = model_linear_terms[i]['oi_pos']
             self.linear_terms[i].oi_neg = model_linear_terms[i]['oi_neg']
+            self.linear_terms[i].infection_index = -1
             if 'param' in model_linear_terms[i]:
                 self.linear_terms[i].param = model_linear_terms[i]['param']
             else:
@@ -3762,18 +3769,19 @@ cdef class Spp(IntegratorsClass):
 
         # Check if RHS adds up to 0
 
-        for i in range(len(model_linear_terms)):
-            if self.linear_terms[i].oi_pos == -1 or self.linear_terms[i].oi_neg == -1:
-                raise Exception("Linear terms do not add up to zero.")
-        for i in range(len(model_infection_terms)):
-            if self.infection_terms[i].oi_pos == -1 or self.infection_terms[i].oi_neg == -1:
-                raise Exception("Infection terms do not add up to zero.")
+        #for i in range(len(model_linear_terms)):
+        #    if self.linear_terms[i].oi_pos == -1 or self.linear_terms[i].oi_neg == -1:
+        #        raise Exception("Linear terms do not add up to zero.")
+        #for i in range(len(model_infection_terms)):
+        #    if self.infection_terms[i].oi_pos == -1 or self.infection_terms[i].oi_neg == -1:
+        #        raise Exception("Infection terms do not add up to zero.")
 
         # Misc
 
         self.model_class_name_to_class_index = model_class_name_to_class_index
-        self.nClass = len(model_spec['classes'])
-        self.model_classes = model_spec['classes']
+        self.nClass = len(model_spec['classes']) # We do not count R
+        self.model_classes = list(model_spec['classes'])
+        self.model_classes.append('R')
 
         self.N = np.sum(Ni)
         self.M = M
@@ -3834,14 +3842,14 @@ cdef class Spp(IntegratorsClass):
             for j in range(linear_terms_num):
                 mt = linear_terms[j]
                 term = mt.param * xt[i + M*mt.oi_coupling]
-                dxdt[i + M*mt.oi_pos] += term
-                dxdt[i + M*mt.oi_neg] -= term
+                if mt.oi_pos != -1: dxdt[i + M*mt.oi_pos] += term
+                if mt.oi_neg != -1: dxdt[i + M*mt.oi_neg] -= term
 
             for j in range(infection_terms_num):
                 mt = infection_terms[j]
                 term = mt.param * lambdas[mt.infection_index][i] * xt[i] # xt[i] is Si
-                dxdt[i + M*mt.oi_pos] += term
-                dxdt[i + M*mt.oi_neg] -= term                                           
+                if mt.oi_pos != -1: dxdt[i + M*mt.oi_pos] += term
+                if mt.oi_neg != -1: dxdt[i + M*mt.oi_neg] -= term                                           
 
     def simulate(self, x0, contactMatrix, Tf, Nf, Ti=0,
                      integrator='odeint', maxNumSteps=100000, **kwargs):
@@ -3883,30 +3891,29 @@ cdef class Spp(IntegratorsClass):
         """
 
         if type(x0) == np.ndarray:
-            if x0.size != (self.nClass-1)*self.M:
+            if x0.size != self.nClass*self.M:
                 raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
-                    % ( (self.nClass-1)*self.M) )
-            R0 = np.array([ self.Ni[i] - np.sum(x0[i::self.M]) for i in range(self.M) ])
-            x0 = np.concatenate([x0, R0])
+                    % ( self.nClass*self.M) )
         elif type(x0) == dict:
             # Check if any classes are not included in x0
 
             skipped_classes = []
-            for O in self.model_classes: # Skip R
+            for O in self.model_classes: 
                 if not O in x0:
                     skipped_classes.append(O)
 
             if len(skipped_classes) > 1:
-                raise Exception("Missing several classes in initial conditions: '%s'" % skipped_classes)
+                raise Exception("Missing more than one class in initial conditions: %s" % skipped_classes)
             elif len(skipped_classes) == 1:
                 skipped_class = skipped_classes[0]
                 x0[skipped_class] = self.Ni - np.sum([ x0[O] for O in x0 ], axis=0)
 
-            # Construct initial condition array
+            # Construct initial condition array (without R)
             
             x0_arr = np.zeros(0)
-            for O in self.model_classes: # Skip R
-                x0_arr = np.concatenate( [x0_arr, x0[O]] )
+            for O in self.model_classes: 
+                if O != 'R':
+                    x0_arr = np.concatenate( [x0_arr, x0[O]] )
             x0 = x0_arr
         
         def rhs0(xt, t):
@@ -3932,6 +3939,9 @@ cdef class Spp(IntegratorsClass):
             The population of class `model_class_key` as a time series
         """
         X = data['X']
-        oi = self.model_class_name_to_class_index[model_class_key]
-        Os = X[:, oi*self.M:(oi+1)*self.M]
+        if model_class_key != 'R':
+            oi = self.model_class_name_to_class_index[model_class_key]
+            Os = X[:, oi*self.M:(oi+1)*self.M]
+        else:
+            Os = np.array([ self.Ni[i] - np.sum(X[:,i::self.M], axis=1) for i in range(self.M) ]).T
         return Os

@@ -258,3 +258,12 @@ cdef struct model_term:
     int oi_coupling # Which model class that couples
     int infection_index # Class infection index (only used if infection term)
     DTYPE_t param
+
+    # Implement at some point in the future:
+    #int* add_to # Which model classes to add to
+    #int add_to_len
+    #int* subtract_from # Which model classes to subtract from
+    #int subtract_from_len
+    #int coupling # Which model class that couples
+    #int infection_index # Class infection index (only used if infection term)
+    #DTYPE_t param
