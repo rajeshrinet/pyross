@@ -5,6 +5,7 @@ import subprocess
 import sys
 import unittest
 import argparse
+import time
 for i in sys.path:
     if 'pyross' in i or i == '':
         sys.path.remove(i)
@@ -44,23 +45,28 @@ def list_notebooks(root, recursive=True, ignore_list=None, notebooks=None):
         notebooks = []
     if ignore_list is None:
         ignore_list = []
-    for filename in os.listdir(root):
-        path = os.path.join(root, filename)
-        cwd = os.path.dirname(path)
-        if path in ignore_list:
-            print('Skipping ignored notebook: ' + path)
-            continue
-
-        # Add notebooks
-        if os.path.splitext(path)[1] == '.ipynb':
-            notebooks.append((path,cwd))
-
-        # Recurse into subdirectories
-        elif recursive and os.path.isdir(path):
-            # Ignore hidden directories
-            if filename[:1] == '.':
+    try:
+        for filename in os.listdir(root):
+            path = os.path.join(root, filename)
+            cwd = os.path.dirname(path)
+            if path in ignore_list:
+                print('Skipping ignored notebook: ' + path)
                 continue
-            list_notebooks(path, recursive, ignore_list, notebooks)
+    
+            # Add notebooks
+            if os.path.splitext(path)[1] == '.ipynb':
+                notebooks.append((path,cwd))
+    
+            # Recurse into subdirectories
+            elif recursive and os.path.isdir(path):
+                # Ignore hidden directories
+                if filename[:1] == '.':
+                    continue
+                list_notebooks(path, recursive, ignore_list, notebooks)
+    except NotADirectoryError:
+        path = root
+        cwd = os.path.dirname(path)
+        return [(path,cwd)]
 
     return notebooks
 
@@ -90,6 +96,7 @@ def test_notebook(path):
     env['MPLBACKEND'] = 'Template'
 
     # Run in subprocess
+    start = time.time()
     cmd = [sys.executable, '-c', code]
     try:
         p = subprocess.Popen(
@@ -112,11 +119,13 @@ def test_notebook(path):
             return False
     except KeyboardInterrupt:
         p.terminate()
-        print('ABORTED')
+        stop = time.time()
+        print('ABORTED after', round(stop-start,4), "s")
         sys.exit(1)
 
     # Successfully run
-    print('ok')
+    stop = time.time()
+    print('ok. Run took ', round(stop-start,4), "s")
     return True
 
 
