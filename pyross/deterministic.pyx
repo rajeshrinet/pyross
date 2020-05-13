@@ -1,9 +1,9 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
+from libc.stdlib cimport malloc, free
 
 DTYPE   = np.float
-ctypedef np.float_t DTYPE_t
 
 
 
@@ -1577,6 +1577,401 @@ cdef class SEI5R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEI8R(IntegratorsClass):
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    S  ---> E
+    E  ---> Ia, Is
+    Ia ---> R
+    Is ---> Is' -> Ih, R
+    Ih ---> Ih' -> Ic, R
+    Ic ---> Ic' -> Im, R
+    
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gE : float
+                rate of removal from exposeds individuals.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gIsp: float
+                rate of removal from symptomatic individuals towards buffer.
+            gIh : float
+                rate of recovery for hospitalised individuals.
+            gIhp: float
+                rate of removal from hospitalised individuals towards buffer.
+            gIc : float
+                rate of recovery for idividuals in intensive care.
+            gIcp: float
+                rate of removal from ICU individuals towards buffer.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            fh  : float
+                fraction by which hospitalised individuals are isolated.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    S
+    E
+    Ia
+    Is
+    Ih
+    Ic
+    Im
+    population
+    R
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.nClass= 10  # only 7 input classes
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIsp  = parameters['gIsp']                     # recovery rate of Isp
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIhp  = parameters['gIsp']                     # recovery rate of Ihp
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gIcp  = parameters['gIsp']                     # recovery rate of Ixp
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha']                    # fraction of asymptomatics
+        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
+        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
+        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']                       # mortality fraction from ICU
+            
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.dxdt  = np.zeros( 11*self.M, dtype=DTYPE)           # right hand side
+
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+        self.sa    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(sa)==1:
+            self.sa = sa*np.ones(M)
+        elif np.size(sa)==M:
+            self.sa= sa
+        else:
+            raise Exception('sa can be a number or an array of size M')
+
+        self.hh    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(hh)==1:
+            self.hh = hh*np.ones(M)
+        elif np.size(hh)==M:
+            self.hh= hh
+        else:
+            raise Exception('hh can be a number or an array of size M')
+
+        self.cc    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(cc)==1:
+            self.cc = cc*np.ones(M)
+        elif np.size(cc)==M:
+            self.cc= cc
+        else:
+            raise Exception('cc can be a number or an array of size M')
+
+        self.mm    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(mm)==1:
+            self.mm = mm*np.ones(M)
+        elif np.size(mm)==M:
+            self.mm= mm
+        else:
+            raise Exception('mm can be a number or an array of size M')
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double beta=self.beta, rateS, lmda
+            double fsa=self.fsa, fh=self.fh, gE=self.gE
+            double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
+            double gIsp=self.gIsp, gIhp=self.gIhp, gIcp=self.gIcp
+            double ce1, ce2
+            double [:] S    = xt[0  :M]
+            double [:] E    = xt[M  :2*M]
+            double [:] Ia   = xt[2*M:3*M]
+            double [:] Is   = xt[3*M:4*M]
+            double [:] Isp  = xt[4*M:5*M]
+            double [:] Ih   = xt[5*M:6*M]
+            double [:] Ihp  = xt[6*M:7*M]
+            double [:] Ic   = xt[7*M:8*M]
+            double [:] Icp  = xt[8*M:9*M]
+            double [:] Im   = xt[9*M:10*M]
+            double [:] Ni   = xt[10*M:11*M]
+            double [:,:] CM = self.CM
+            
+            double [:] alpha= self.alpha
+            double [:] sa   = self.sa       
+            double [:] hh   = self.hh
+            double [:] cc   = self.cc
+            double [:] mm   = self.mm
+            double [:] dxdt = self.dxdt
+
+        for i in range(M):
+            lmda=0;   
+            for j in range(M):
+                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]     = -rateS + sa[i]                            # \dot S   
+            dxdt[i+M]   = rateS  - gE*E[i]                          # \dot E   
+            dxdt[i+2*M] = gE*alpha[i]    *E[i]  - gIa*Ia[i]         # \dot Ia    
+            dxdt[i+3*M] = gE*(1-alpha[i])*E[i]  - gIs*Is[i]         # \dot Is  
+            dxdt[i+4*M] = gIs*(1-hh[i])  *Is[i] - gIsp*Isp[i]       # \dot Isp  
+            dxdt[i+5*M] = gIs*hh[i]      *Is[i] - gIh*Ih[i]         # \dot Ih  
+            dxdt[i+6*M] = gIh*(1-cc[i])  *Ih[i] - gIhp*Ihp[i]       # \dot Ihp  
+            dxdt[i+7*M] = gIh*cc[i]      *Ih[i] - gIc*Ic[i]         # \dot Ic  
+            dxdt[i+8*M] = gIc*(1-mm[i])  *Ic[i] - gIcp*Icp[i]       # \dot Icp  
+            dxdt[i+9*M] = gIc*mm[i]*Ic[i]                           # \dot Im
+            dxdt[i+10*M]= sa[i] - gIc*mm[i]*Im[i]                   # \dot Ni
+        return
+
+
+    def simulate(self, S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0, 
+                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Ih0 : np.array
+            Initial number of hospitalized infectives.
+        Ic0 : np.array
+            Initial number of ICU infectives.
+        Im0 : np.array
+            Initial number of mortality.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+        
+        x0=np.concatenate((S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'fsa':self.fsa, 'fh':self.fh,   
+                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        return data
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 2*self.M:3*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 3*self.M:4*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X'] 
+        Ih = X[:, 5*self.M:6*self.M]
+        return Ih
+
+    
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X'] 
+        Ic = X[:, 7*self.M:8*self.M]
+        return Ic
+    
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X'] 
+        Im = X[:, 9*self.M:10*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X'] 
+        ppln  = X[:,11*self.M:11*self.M]
+        return ppln 
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + Ia + Is + Ih + Ic)
+        """
+        X = data['X'] 
+        R =  X[:, 11*self.M:12*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:,6*self.M:7*self.M] \
+                                                       - X[:,7*self.M:8*self.M] - X[:,8*self.M:9*self.M] - X[:,9*self.M:10*self.M] 
+                        
+        return R
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
@@ -2236,6 +2631,425 @@ cdef class SEAI5R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEAI8R(IntegratorsClass):
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    S  ---> E
+    E  ---> A
+    A  ---> Ia, Is
+    Ia ---> R
+    Is ---> Is' -> Ih, R
+    Ih ---> Ih' -> Ic, R
+    Ic ---> Ic' -> Im, R
+    
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gE : float
+                rate of removal from exposeds individuals.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gIsp: float
+                rate of removal from symptomatic individuals towards buffer.
+            gIh : float
+                rate of recovery for hospitalised individuals.
+            gIhp: float
+                rate of removal from hospitalised individuals towards buffer.
+            gIc : float
+                rate of recovery for idividuals in intensive care.
+            gIcp: float
+                rate of removal from ICU individuals towards buffer.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            fh  : float
+                fraction by which hospitalised individuals are isolated.
+            sa : float, np.array (M,)
+                daily arrival of new susceptables.
+                sa is rate of additional/removal of population by birth etc
+            hh : float, np.array (M,)
+                fraction hospitalised from Is
+            cc : float, np.array (M,)
+                fraction sent to intensive care from hospitalised.
+            mm : float, np.array (M,)
+                mortality rate in intensive care
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    S
+    E
+    Ia
+    Is
+    Ih
+    Ic
+    Im
+    population
+    R
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.nClass= 11
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # recovery rate of E class
+        self.gA    = parameters['gA']                       # recovery rate of A class
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIsp  = parameters['gIsp']                     # recovery rate of Isp
+        self.gIh   = parameters['gIh']                      # recovery rate of Is
+        self.gIhp  = parameters['gIsp']                     # recovery rate of Ihp
+        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gIcp  = parameters['gIsp']                     # recovery rate of Ixp
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha']                    # fraction of asymptomatics
+        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
+        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
+        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']                       # mortality fraction from ICU
+            
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.dxdt  = np.zeros( 12*self.M, dtype=DTYPE)           # right hand side
+
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+        self.sa    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(sa)==1:
+            self.sa = sa*np.ones(M)
+        elif np.size(sa)==M:
+            self.sa= sa
+        else:
+            raise Exception('sa can be a number or an array of size M')
+
+        self.hh    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(hh)==1:
+            self.hh = hh*np.ones(M)
+        elif np.size(hh)==M:
+            self.hh= hh
+        else:
+            raise Exception('hh can be a number or an array of size M')
+
+        self.cc    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(cc)==1:
+            self.cc = cc*np.ones(M)
+        elif np.size(cc)==M:
+            self.cc= cc
+        else:
+            raise Exception('cc can be a number or an array of size M')
+
+        self.mm    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(mm)==1:
+            self.mm = mm*np.ones(M)
+        elif np.size(mm)==M:
+            self.mm= mm
+        else:
+            raise Exception('mm can be a number or an array of size M')
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double beta=self.beta, rateS, lmda
+            double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA
+            double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
+            double gIsp=self.gIsp, gIhp=self.gIhp, gIcp=self.gIcp
+            double ce1, ce2
+            double [:] S    = xt[0  :M]
+            double [:] E    = xt[M  :2*M]
+            double [:] A    = xt[2*M:3*M]
+            double [:] Ia   = xt[3*M:4*M]
+            double [:] Is   = xt[4*M:5*M]
+            double [:] Isp  = xt[5*M:6*M]
+            double [:] Ih   = xt[6*M:7*M]
+            double [:] Ihp  = xt[7*M:8*M]
+            double [:] Ic   = xt[8*M:9*M]
+            double [:] Icp  = xt[9*M:10*M]
+            double [:] Im   = xt[10*M:11*M]
+            double [:] Ni   = xt[11*M:12*M]
+            double [:,:] CM = self.CM
+            
+            double [:] alpha= self.alpha
+            double [:] sa   = self.sa       
+            double [:] hh   = self.hh
+            double [:] cc   = self.cc
+            double [:] mm   = self.mm
+            double [:] dxdt = self.dxdt
+
+        for i in range(M):
+            lmda=0;   
+            for j in range(M):
+                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]      = -rateS  + sa[i]                           # \dot S   
+            dxdt[i+M]    = rateS   - gE*E[i]                         # \dot E   
+            dxdt[i+2*M]  = gE*E[i] - gA*A[i]                         # \dot A   
+            dxdt[i+3*M]  = gA*alpha[i]    *A[i]  - gIa*Ia[i]         # \dot Ia    
+            dxdt[i+4*M]  = gA*(1-alpha[i])*A[i]  - gIs*Is[i]         # \dot Is  
+            dxdt[i+5*M]  = gIs*(1-hh[i])  *Is[i] - gIsp*Isp[i]       # \dot Isp  
+            dxdt[i+6*M]  = gIs*hh[i]      *Is[i] - gIh*Ih[i]         # \dot Ih  
+            dxdt[i+7*M]  = gIh*(1-cc[i])  *Ih[i] - gIhp*Ihp[i]       # \dot Ihp  
+            dxdt[i+8*M]  = gIh*cc[i]      *Ih[i] - gIc*Ic[i]         # \dot Ic  
+            dxdt[i+9*M]  = gIc*(1-mm[i])  *Ic[i] - gIcp*Icp[i]       # \dot Icp  
+            dxdt[i+10*M] = gIc*mm[i]*Ic[i]                           # \dot Im
+            dxdt[i+11*M] = sa[i] - gIc*mm[i]*Im[i]                   # \dot Ni
+        return
+
+
+    def simulate(self, S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0, 
+                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Ih0 : np.array
+            Initial number of hospitalized infectives.
+        Ic0 : np.array
+            Initial number of ICU infectives.
+        Im0 : np.array
+            Initial number of mortality.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+        
+        x0=np.concatenate((S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'fsa':self.fsa, 'fh':self.fh,   
+                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        return data
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X'] 
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X'] 
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activates population time series
+        """
+        X = data['X'] 
+        E = X[:, 2*self.M:3*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X'] 
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X'] 
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : hospitalized population time series
+        """
+        X  = data['X'] 
+        Ih = X[:, 6*self.M:7*self.M]
+        return Ih
+
+    
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : ICU hospitalized population time series
+        """
+        X  = data['X'] 
+        Ic = X[:, 8*self.M:9*self.M]
+        return Ic
+    
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ic' : mortality time series
+        """
+        X  = data['X'] 
+        Im = X[:, 10*self.M:11*self.M]
+        return Im
+
+
+    def population(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            population
+        """
+        X = data['X'] 
+        ppln  = X[:,12*self.M:13*self.M]
+        return ppln 
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+            R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)
+        """
+        X = data['X'] 
+        R =  X[:, 12*self.M:13*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:,6*self.M:7*self.M] \
+                                                       - X[:,7*self.M:8*self.M] - X[:,8*self.M:9*self.M] - X[:,9*self.M:10*self.M] \
+                                                       - X[:,10*self.M:11*self.M]
+                        
+        return R
+
+
+
+
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
@@ -2777,5 +3591,347 @@ cdef class SIRS(IntegratorsClass):
 
 
 
+#@cython.wraparound(False)
+#@cython.boundscheck(False)
+#@cython.cdivision(True)
+#@cython.nonecheck(False)
+@cython.wraparound(False)
+@cython.boundscheck(True)
+@cython.cdivision(False)
+@cython.nonecheck(True)
+cdef class Spp(IntegratorsClass):
+    """
+    Given a model specification, the 
 
+    Attributes
+    ----------
+    parameters: dict
+        Contains the values for the parameters given in the model specification.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class    
 
+    Methods
+    -------
+    simulate 
+    S
+    """
+
+    def __init__(self, model_spec, parameters, M, Ni):
+
+        # Map model class names to their indices
+
+        model_class_name_to_class_index = {}
+        model_class_index_to_class_name = {}
+        for i in range(len(model_spec['classes'])):
+            oclass = model_spec['classes'][i]
+            model_class_name_to_class_index[oclass] = i
+            model_class_index_to_class_name[i] = oclass
+
+        # Construct internal representation of model
+
+        model_linear_terms = []
+        model_infection_terms = []
+
+        infection_model_param_to_model_term = {}
+        linear_model_param_to_model_term = {}
+
+        used_params = set() # Used to check if there are duplicates of parameters
+
+        for class_name in model_spec:
+            if class_name == 'classes':
+                continue
+
+            if not class_name in model_class_name_to_class_index:
+                raise Exception("Class %s not listed in 'classes'" % class_name)
+
+            for coupling_class, model_param in model_spec[class_name]['linear']:
+                if model_param in used_params:
+                    raise Exception("Duplicate parameter: %s." % model_param)
+                else:
+                    used_params.add(model_param)
+
+                if not coupling_class in model_class_name_to_class_index:
+                    raise Exception("Class %s not listed in 'classes'" % coupling_class)
+
+                if model_param[0] == '-':
+                    is_neg = True
+                    model_param = model_param[1:]
+                else:
+                    is_neg = False
+
+                if not model_param in linear_model_param_to_model_term:
+                    mt = {}
+                    mt['model_param'] = model_param
+                    mt['oi_pos'] = -1
+                    mt['oi_neg'] = -1
+                    linear_model_param_to_model_term[model_param] = mt
+                    model_linear_terms.append(mt)
+                mt = linear_model_param_to_model_term[model_param]
+
+                if is_neg:
+                    mt['oi_neg'] = model_class_name_to_class_index[class_name]
+                else:
+                    mt['oi_pos'] = model_class_name_to_class_index[class_name]
+
+                mt['oi_coupling'] = model_class_name_to_class_index[coupling_class]
+
+            for coupling_class, model_param in model_spec[class_name]['infection']: 
+                if model_param in used_params:
+                    raise Exception("Duplicate parameter: %s." % model_param)
+                else:
+                    used_params.add(model_param)
+
+                if not coupling_class in model_class_name_to_class_index:
+                    raise Exception("Class %s not listed in 'classes'" % coupling_class)
+
+                if model_param[0] == '-':
+                    is_neg = True
+                    model_param = model_param[1:]
+                else:
+                    is_neg = False
+
+                if model_param in linear_model_param_to_model_term:
+                    raise Exception("Parameter '%s' appears in both linear and infection terms.")
+
+                if not model_param in infection_model_param_to_model_term:
+                    mt = {}
+                    mt['model_param'] = model_param
+                    mt['oi_pos'] = -1
+                    mt['oi_neg'] = -1
+                    mt['infection_index'] = -1
+                    infection_model_param_to_model_term[model_param] = mt
+                    model_infection_terms.append(mt)
+                mt = infection_model_param_to_model_term[model_param]
+
+                if is_neg:
+                    mt['oi_neg'] = model_class_name_to_class_index[class_name]
+                else:
+                    mt['oi_pos'] = model_class_name_to_class_index[class_name]
+                mt['oi_coupling'] = model_class_name_to_class_index[coupling_class]
+
+        # Insert the parameter values into model
+
+        for param_key in parameters:
+            param_val = parameters[param_key]
+            if param_key in linear_model_param_to_model_term:
+                linear_model_param_to_model_term[param_key]['param'] = param_val
+            elif param_key in infection_model_param_to_model_term:
+                infection_model_param_to_model_term[param_key]['param'] = param_val
+            else:
+                raise Exception("Parameter %s is not in model." % param_key)
+
+        # Find all infection classes, and assign model_term.infection_index
+        
+        _infection_classes_indices = []
+
+        for model_param in infection_model_param_to_model_term:
+            mt = infection_model_param_to_model_term[model_param]
+
+            if not mt['oi_coupling'] in infection_model_param_to_model_term:
+                _infection_classes_indices.append(mt['oi_coupling'])
+
+            mt['infection_index'] = _infection_classes_indices.index(mt['oi_coupling'])
+
+        self.infection_classes_indices = np.array(_infection_classes_indices, dtype=np.dtype('i'))
+        self.linear_terms_len = len(model_linear_terms)
+        self.linear_terms =  <model_term *> malloc(self.linear_terms_len * sizeof(model_term))
+        self.infection_terms_len = len(model_infection_terms)
+        self.infection_terms =  <model_term *> malloc(len(model_infection_terms) * sizeof(model_term))
+
+        for i in range(len(model_linear_terms)):
+            self.linear_terms[i].oi_coupling = model_linear_terms[i]['oi_coupling']
+            self.linear_terms[i].oi_pos = model_linear_terms[i]['oi_pos']
+            self.linear_terms[i].oi_neg = model_linear_terms[i]['oi_neg']
+            if 'param' in model_linear_terms[i]:
+                self.linear_terms[i].param = model_linear_terms[i]['param']
+            else:
+                raise Exception("Missing parameters.")
+
+        for i in range(len(model_infection_terms)):
+            self.infection_terms[i].oi_coupling = model_infection_terms[i]['oi_coupling']
+            self.infection_terms[i].oi_pos = model_infection_terms[i]['oi_pos']
+            self.infection_terms[i].oi_neg = model_infection_terms[i]['oi_neg']
+            self.infection_terms[i].infection_index = model_infection_terms[i]['infection_index']
+            if 'param' in model_infection_terms[i]:
+                self.infection_terms[i].param = model_infection_terms[i]['param']
+            else:
+                raise Exception("Missing parameters.")
+
+        # Check if RHS adds up to 0
+
+        for i in range(len(model_linear_terms)):
+            if self.linear_terms[i].oi_pos == -1 or self.linear_terms[i].oi_neg == -1:
+                raise Exception("Linear terms do not add up to zero.")
+        for i in range(len(model_infection_terms)):
+            if self.infection_terms[i].oi_pos == -1 or self.infection_terms[i].oi_neg == -1:
+                raise Exception("Infection terms do not add up to zero.")
+
+        # Misc
+
+        self.model_class_name_to_class_index = model_class_name_to_class_index
+        self.nClass = len(model_spec['classes'])
+        self.model_classes = model_spec['classes']
+
+        self.N = np.sum(Ni)
+        self.M = M
+        self.Ni = Ni
+
+        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        #self.FM = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE) 
+
+        self._lambdas = np.zeros( (self.infection_classes_indices.size, M) )
+
+        self.parameters = parameters
+
+    def __dealloc__(self):
+        free(self.linear_terms)
+        free(self.infection_terms)
+
+    cdef rhs(self, xt_arr, tt):
+        cdef:
+            int N = self.N, M = self.M
+            int nClass = self.nClass
+            int i, j, inf_i
+            DTYPE_t term
+            cdef model_term mt
+            
+            int linear_terms_num = self.linear_terms_len
+            int infection_terms_num = self.infection_terms_len
+            model_term* linear_terms = self.linear_terms
+            model_term* infection_terms = self.infection_terms
+
+            int[:] infection_classes_indices = self.infection_classes_indices
+            int infection_classes_num=self.infection_classes_indices.size
+
+            double [:] xt = xt_arr
+            double [:] dxdt = self.dxdt
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            #double [:]   FM = self.FM
+            double [:,:] lambdas = self._lambdas
+
+        # Compute lambda
+
+        for inf_i in range(infection_classes_num):
+            for i in range(M):
+                lambdas[inf_i][i] = 0
+                for j in range(M):
+                    lambdas[inf_i][i] += CM[i,j] * xt[j + M*infection_classes_indices[inf_i]] / Ni[j]
+
+        # Reset dxdt
+
+        for i in range(nClass*M):
+            dxdt[i] = 0
+
+        # Compute rhs
+
+        for i in range(M):
+
+            for j in range(linear_terms_num):
+                mt = linear_terms[j]
+                term = mt.param * xt[i + M*mt.oi_coupling]
+                dxdt[i + M*mt.oi_pos] += term
+                dxdt[i + M*mt.oi_neg] -= term
+
+            for j in range(infection_terms_num):
+                mt = infection_terms[j]
+                term = mt.param * lambdas[mt.infection_index][i] * xt[i] # xt[i] is Si
+                dxdt[i + M*mt.oi_pos] += term
+                dxdt[i + M*mt.oi_neg] -= term                                           
+
+    def simulate(self, x0, contactMatrix, Tf, Nf, Ti=0,
+                     integrator='odeint', maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        x0 : np.array or dict
+            Initial conditions. If it is an array it should have length
+            M*(model_dimension-1), where x0[i + j*M] should be the initial
+            value of model class i of age group j. The recovered R class
+            must be left out. If it is a dict then
+            it should have a key corresponding to each model class,
+            with a 1D array containing the initial condition for each
+            age group as value. One of the classes may be left out,
+            in which case its initial values will be inferred from the
+            others.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+        """
+
+        if type(x0) == np.ndarray:
+            if x0.size != (self.nClass-1)*self.M:
+                raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
+                    % ( (self.nClass-1)*self.M) )
+            R0 = np.array([ self.Ni[i] - np.sum(x0[i::self.M]) for i in range(self.M) ])
+            x0 = np.concatenate([x0, R0])
+        elif type(x0) == dict:
+            # Check if any classes are not included in x0
+
+            skipped_classes = []
+            for O in self.model_classes: # Skip R
+                if not O in x0:
+                    skipped_classes.append(O)
+
+            if len(skipped_classes) > 1:
+                raise Exception("Missing several classes in initial conditions: '%s'" % skipped_classes)
+            elif len(skipped_classes) == 1:
+                skipped_class = skipped_classes[0]
+                x0[skipped_class] = self.Ni - np.sum([ x0[O] for O in x0 ], axis=0)
+
+            # Construct initial condition array
+            
+            x0_arr = np.zeros(0)
+            for O in self.model_classes: # Skip R
+                x0_arr = np.concatenate( [x0_arr, x0[O]] )
+            x0 = x0_arr
+        
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+            
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M }
+        data.update(self.parameters)
+
+        return data
+
+    def model_class_data(self, model_class_key, data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            The population of class `model_class_key` as a time series
+        """
+        X = data['X']
+        oi = self.model_class_name_to_class_index[model_class_key]
+        Os = X[:, oi*self.M:(oi+1)*self.M]
+        return Os

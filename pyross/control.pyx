@@ -19,8 +19,9 @@ cdef class control_integration:
     """
     cdef:
         readonly int N, M
-        int k_tot
-        np.ndarray FM, Ni, CM, drpdt
+        int nClass
+        double beta
+        np.ndarray FM, Ni, CM, dxdt
 
     cdef rhs(self, rp, tt):
         return
@@ -82,7 +83,7 @@ cdef class control_integration:
             else :
                 self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
-            return self.drpdt
+            return self.dxdt
 
         # create a list of all events that are available
         # at the beginning  of the simulation
@@ -99,7 +100,7 @@ cdef class control_integration:
 
 
         t_eval = np.linspace(Ti,Tf,endpoint=True,num=Nf)
-        y_eval = np.zeros([len(t_eval),self.k_tot*self.M],dtype=float)
+        y_eval = np.zeros([len(t_eval),self.nClass*self.M],dtype=float)
 
         cur_t_f = 0 # final time of current iteration
         cur_t_eval = t_eval # time interval for current iteration
@@ -221,7 +222,7 @@ cdef class SIR(control_integration):
     simulate
     """
     cdef:
-        double beta, gIa, gIs, fsa
+        double gIa, gIs, fsa
         np.ndarray alpha
         dict params
 
@@ -238,11 +239,11 @@ cdef class SIR(control_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
-        self.k_tot = 3             # total number of degrees of freedom we explicitly track
+        self.nClass = 3             # total number of degrees of freedom we explicitly track
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -266,7 +267,7 @@ cdef class SIR(control_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
             double [:] alpha= self.alpha
 
 
@@ -325,6 +326,259 @@ cdef class SIR(control_integration):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEkIkIkR(control_integration):
+    """
+    Susceptible, Exposed, Infected, Recovered (SEIR)
+    method of k-stages of Ia, Is, E
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa: float
+                rate of removal from asymptomatic infected individuals.
+            gIs: float
+                rate of removal from symptomatic infected individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            kI: int
+                number of stages of asymptomatic infectives.
+            kI: int
+                number of stages of symptomatic infectives.
+            kE : int
+                number of stages of exposed.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    """
+    cdef:
+        double gE, gIa, gIs, fsa
+        int kI, kE
+        np.ndarray alpha
+        dict params
+
+    def __init__(self, parameters, M, Ni):
+        self.beta  = parameters['beta']                         # infection rate
+        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gIa   = parameters['gIa']                           # recovery rate of Ia
+        self.gIs   = parameters['gIs']                           # recovery rate of Is
+        self.kI    = parameters['kI']                           # number of stages
+        self.fsa   = parameters['fsa']                          # the self-isolation parameter
+        self.kE    = parameters['kE']
+        self.nClass= self.kI + self.kI + self.kE + 1
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
+
+        if self.kE==0:
+            raise Exception('number of E stages should be greater than zero, kE>0')
+        elif self.kI==0:
+            raise Exception('number of I stages should be greater than zero, kI>0')
+
+        alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha = alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
+            double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2
+            double gE=self.kE*self.gE, gIs=self.kI*self.gIs, fsa=self.fsa
+            double [:] S    = xt[0  :M]
+            double [:] E    = xt[M  :(kE+1)*M]
+            double [:] Ia   = xt[(kE+1)*M   :(kE+kI+1)*M]
+            double [:] Is   = xt[(kE+kI+1)*M:(kE+kI+kI+1)*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:] dxdt = self.dxdt
+            double [:] alpha = self.alpha
+
+        for i in range(M):
+            lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
+            for jj in range(kI):
+                for j in range(M):
+                    lmda += beta*CM[i,j]*(Is[j+jj*M]*fsa + Ia[j+jj*M])/Ni[j]
+            rateS = lmda*S[i]
+            #
+            dxdt[i]     = -rateS
+
+            #Exposed class
+            dxdt[i+M+0] = rateS - gE*E[i]
+            for j in range(kE - 1) :
+                dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]
+
+            #Asymptomatics class
+            dxdt[i + (kE+1)*M + 0] = ce1*E[i+(kE-1)*M] - gIa*Ia[i]
+            for j in range(kI-1):
+                dxdt[i+(kE+1)*M + (j+1)*M ]  = gIa*Ia[i+j*M] - gIa*Ia[i+(j+1)*M]
+
+            #Symptomatics class
+            dxdt[i + (kE+kI+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]
+            for j in range(kI-1):
+                dxdt[i+(kE+kI+1)*M + (j+1)*M ]  = gIs*Is[i+j*M] - gIs*Is[i+(j+1)*M]
+        return
+
+
+
+    def simulate(self, S0, E0, Ia0, Is0,
+                events, contactMatrices,
+                         Tf, Nf, Ti=0,seedRate=None,
+                         method='deterministic',
+                         events_repeat=False,
+                         events_subsequent=True,
+                         int nc=30, double epsilon = 0.03,
+                        int tau_update_frequency = 1):
+        cdef:
+            np.ndarray y_eval, t_eval, y0
+            dict data
+
+
+        if method.lower()=='deterministic':
+            y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
+            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+                                  events=events,contactMatrices=contactMatrices,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+                      'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                      'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE ,
+                        'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+            return data
+        else:
+            raise RuntimeError("Stochastic control not yet implemented for SEkIkIkR model.")
+            #model = pyross.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
+            #return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
+            #                    events=events,contactMatrices=contactMatrices,
+            #                    Tf=Tf, Nf=Nf,
+            #                    method=method,
+            #                    nc=nc,epsilon = epsilon,
+            #                    tau_update_frequency = tau_update_frequency,
+            #                      events_repeat=events_repeat,
+            #                      events_subsequent=events_subsequent,
+            #                    seedRate=seedRate)
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        kE = data['kE']
+        X = data['X']
+        E = X[:, self.M:(1+self.kE)*self.M]
+        return E
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        kI = data['kI']
+        kE = data['kE']
+        X  = data['X']
+        Ia = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        kI = data['kI']
+        kE = data['kE']
+        X  = data['X']
+        Is = X[:, (1+self.kE+self.kI)*self.M:(1+self.kE+self.kI+self.kI)*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        kI = data['kI']
+        kE = data['kE']
+        Ia0= np.zeros(self.M)
+        Is0= np.zeros(self.M)
+        E0 = np.zeros(self.M)
+        for i in range(kE):
+            E0 += X[:, (i+1)*self.M : (i+2)*self.M]
+        for i in range(kI):
+            Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
+        for i in range(kI):
+            Is0 += X[:, (kE+kI+1)*self.M : (kE+1+2*kI)*self.M]
+        R = self.Ni - X[:, 0:self.M] - Ia0 - Is0 - E0
+        return R
+
+
+
+
+
+#@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SIRS(control_integration):
     """
     Susceptible, Infected, Recovered, Susceptible (SIRS)
@@ -361,7 +615,7 @@ cdef class SIRS(control_integration):
     simulate
     """
     cdef:
-        double beta, gIa, gIs, fsa, ep
+        double gIa, gIs, fsa, ep
         np.ndarray alpha, sa, iaa
         dict params
 
@@ -372,7 +626,7 @@ cdef class SIRS(control_integration):
         self.gIs   = parameters['gIs']                      # recovery rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
 
-        self.k_tot = 4
+        self.nClass = 4
 
         self.ep    = parameters['ep']                       # fraction of recovered who is susceptible
         sa         = parameters['sa']                       # daily arrival of new susceptibles
@@ -385,7 +639,7 @@ cdef class SIRS(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -425,7 +679,7 @@ cdef class SIRS(control_integration):
             double [:,:] CM = self.CM
             double [:] sa   = self.sa
             double [:] iaa  = self.iaa
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
             double [:] alpha= self.alpha
 
         for i in range(M):
@@ -481,6 +735,9 @@ cdef class SIRS(control_integration):
 
 
 
+
+
+
 #@cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -517,7 +774,7 @@ cdef class SEIR(control_integration):
     simulate
     """
     cdef:
-        double beta, gIa, gIs, gE, fsa
+        double gIa, gIs, gE, fsa
         np.ndarray alpha
         dict params
 
@@ -529,7 +786,7 @@ cdef class SEIR(control_integration):
         self.gE    = parameters['gE']                       # recovery rate of E
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
-        self.k_tot = 4
+        self.nClass = 4
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -538,7 +795,7 @@ cdef class SEIR(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -561,7 +818,7 @@ cdef class SEIR(control_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
             double [:] alpha= self.alpha
 
         for i in range(M):
@@ -676,7 +933,7 @@ cdef class SEI5R(control_integration):
     simulate
     """
     cdef:
-        double beta, gIa, gIs, gIh, gIc, fsa, fh, gE
+        double gIa, gIs, gIh, gIc, fsa, fh, gE
         np.ndarray alpha, sa, hh, cc, mm
         dict params
 
@@ -691,7 +948,7 @@ cdef class SEI5R(control_integration):
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
-        self.k_tot = 8
+        self.nClass = 8
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -699,7 +956,7 @@ cdef class SEI5R(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.drpdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -769,7 +1026,7 @@ cdef class SEI5R(control_integration):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
 
         for i in range(M):
             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1
@@ -859,7 +1116,7 @@ cdef class SIkR(control_integration):
     simulate
     """
     cdef:
-        double beta, gI
+        double  gI
         int ki
         dict params
 
@@ -869,7 +1126,7 @@ cdef class SIkR(control_integration):
         self.gI    = parameters['gI']                       # recovery rate of I
         self.ki    = parameters['kI']                        # number of stages
 
-        self.k_tot = self.ki+1
+        self.nClass = self.ki+1
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -878,7 +1135,7 @@ cdef class SIkR(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
+        self.dxdt = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
 
 
     cdef rhs(self, rp, tt):
@@ -890,7 +1147,7 @@ cdef class SIkR(control_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
 
         for i in range(M):
             bb=0
@@ -981,7 +1238,7 @@ cdef class SEkIkR(control_integration):
     simulate
     """
     cdef:
-        double beta, gE, gI, fsa
+        double gE, gI, fsa
         int ki, ke
         dict params
 
@@ -993,7 +1250,7 @@ cdef class SEkIkR(control_integration):
         self.ki    = parameters['kI']                       # number of stages
         self.ke    = parameters['kE']
 
-        self.k_tot = self.ki + self.ke + 1
+        self.nClass = self.ki + self.ke + 1
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1002,7 +1259,7 @@ cdef class SEkIkR(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
 
     cdef rhs(self, rp, tt):
@@ -1016,7 +1273,7 @@ cdef class SEkIkR(control_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
 
         for i in range(M):
             bb=0
@@ -1119,7 +1376,7 @@ cdef class SEAIR(control_integration):
     simulate
     """
     cdef:
-        double beta, gE, gA, gIa, gIs, fsa, gIh, gIc
+        double gE, gA, gIa, gIs, fsa, gIh, gIc
         np.ndarray alpha
         dict params
 
@@ -1132,7 +1389,7 @@ cdef class SEAIR(control_integration):
         self.gA    = parameters['gA']                       # rate to go from A to Ia, Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
-        self.k_tot = 5
+        self.nClass = 5
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1141,7 +1398,7 @@ cdef class SEAIR(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -1167,7 +1424,7 @@ cdef class SEAIR(control_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
 
             double [:] alpha= self.alpha
 
@@ -1273,7 +1530,7 @@ cdef class SEAI5R(control_integration):
     simulate
     """
     cdef:
-        double beta, gE, gA, gIa, gIs, fsa, gIh, gIc, fh
+        double gE, gA, gIa, gIs, fsa, gIh, gIc, fh
         np.ndarray alpha, sa, hh, cc, mm
         dict params
 
@@ -1300,11 +1557,11 @@ cdef class SEAI5R(control_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni.copy()
 
-        self.k_tot = 9
+        self.nClass = 9
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1370,7 +1627,7 @@ cdef class SEAI5R(control_integration):
             double [:] hh   = self.hh
             double [:] cc   = self.cc
             double [:] mm   = self.mm
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
 
         for i in range(M):
             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
@@ -1482,7 +1739,7 @@ cdef class SEAIRQ(control_integration):
     simulate
     """
     cdef:
-        double beta, gIa, gIs, gE, gA, fsa
+        double gIa, gIs, gE, gA, fsa
         double tE, tA, tIa, tIs
         np.ndarray alpha
         dict params
@@ -1502,7 +1759,7 @@ cdef class SEAIRQ(control_integration):
         self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia
         self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is
 
-        self.k_tot = 6
+        self.nClass = 6
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1511,7 +1768,7 @@ cdef class SEAIRQ(control_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.drpdt = np.zeros( self.k_tot*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -1541,7 +1798,7 @@ cdef class SEAIRQ(control_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:]   FM = self.FM
-            double [:] X    = self.drpdt
+            double [:] X    = self.dxdt
 
             double [:] alpha= self.alpha
 

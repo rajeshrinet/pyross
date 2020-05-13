@@ -24,6 +24,9 @@ class DeterministicTest(unittest.TestCase):
     gI = 0.008
     gE = 0.007
     gIc = 0.1
+    gIhp= 0.1
+    gIsp= 0.1
+    gIcp= 0.1
     gIh = 0.1
     gA = 0
     tE = 0
@@ -48,6 +51,7 @@ class DeterministicTest(unittest.TestCase):
     ep = 0
     parameters = {'N': N, 'M': M, 'alpha': alpha,
                           'beta': beta, 'gIa': gIa, 'gIs': gIs,
+                          'gIsp':gIsp,'gIhp':gIhp,'gIcp':gIcp,
                           'gI': gI, 'iaa': iaa,
                           'gE': gE, 'gA': gA, 'tE': tE,
                           'gIc': gIc, 'gIh': gIh, 'fh': fh,

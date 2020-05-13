@@ -1,7 +1,17 @@
 
-The file for India has four columns: days since the first case, recovered cases and mortality, date, the cumulative number of infected individuals to date. 
-
-The files for China and Italy has two columns: date and number of infected individuals. 
+The columns in the files are:
 
 
-Denmark: first row is date, second is new case, third is total cases, 4th is total death and 5th is recovery 
+* india.txt: days, recovered cases and mortality, date, the cumulative number of infected individuals to date. 
+
+* italy.txt: date and number of infected individuals. 
+
+* china.txt: date and number of infected individuals. 
+
+* denmark.txt: date, new cases, total cases, total death, recovery 
+
+* london.txt: date and cumulative number of infected individuals to date. 
+
+* uk.txt: date and cumulative number of infected individuals to date. 
+
+* denmark_cases_by_age.csv: age-structured denmark data
