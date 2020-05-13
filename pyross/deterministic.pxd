@@ -257,7 +257,7 @@ cdef struct model_term:
     int oi_neg # Which model class to subtract from
     int oi_coupling # Which model class that couples
     int infection_index # Class infection index (only used if infection term)
-    DTYPE_t param
+    DTYPE_t* param
 
     # Implement at some point in the future:
     #int* add_to # Which model classes to add to

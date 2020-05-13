@@ -3722,6 +3722,16 @@ cdef class Spp(IntegratorsClass):
 
         for param_key in parameters:
             param_val = parameters[param_key]
+
+            if type(param_val) == list:
+                param_val = np.array(param_val)
+
+            if type(param_val) == np.ndarray:
+                if param_val.size != M:
+                    raise Exception("Parameter array size must be equal to M.")
+            else:
+                param_val = np.full(M, param_val)
+
             if param_key in linear_model_param_to_model_term:
                 linear_model_param_to_model_term[param_key]['param'] = param_val
             elif param_key in infection_model_param_to_model_term:
@@ -3746,6 +3756,11 @@ cdef class Spp(IntegratorsClass):
         self.linear_terms =  <model_term *> malloc(self.linear_terms_len * sizeof(model_term))
         self.infection_terms_len = len(model_infection_terms)
         self.infection_terms =  <model_term *> malloc(len(model_infection_terms) * sizeof(model_term))
+        
+        for i in range(len(model_linear_terms)): # Assign model_term.param to avoid segmentation faults
+            self.linear_terms[i].param = <DTYPE_t *> malloc(M * sizeof(DTYPE_t))
+        for i in range(len(model_infection_terms)):
+            self.infection_terms[i].param = <DTYPE_t *> malloc(M * sizeof(DTYPE_t))
 
         for i in range(len(model_linear_terms)):
             self.linear_terms[i].oi_coupling = model_linear_terms[i]['oi_coupling']
@@ -3753,20 +3768,22 @@ cdef class Spp(IntegratorsClass):
             self.linear_terms[i].oi_neg = model_linear_terms[i]['oi_neg']
             self.linear_terms[i].infection_index = -1
             if 'param' in model_linear_terms[i]:
-                self.linear_terms[i].param = model_linear_terms[i]['param']
+                for j in range(M): 
+                    self.linear_terms[i].param[j] = model_linear_terms[i]['param'][j]
             else:
                 raise Exception("Missing parameters.")
-
+        
         for i in range(len(model_infection_terms)):
             self.infection_terms[i].oi_coupling = model_infection_terms[i]['oi_coupling']
             self.infection_terms[i].oi_pos = model_infection_terms[i]['oi_pos']
             self.infection_terms[i].oi_neg = model_infection_terms[i]['oi_neg']
             self.infection_terms[i].infection_index = model_infection_terms[i]['infection_index']
             if 'param' in model_infection_terms[i]:
-                self.infection_terms[i].param = model_infection_terms[i]['param']
+                for j in range(M):
+                    self.infection_terms[i].param[j] = model_infection_terms[i]['param'][j]
             else:
                 raise Exception("Missing parameters.")
-
+       
         # Check if RHS adds up to 0
 
         #for i in range(len(model_linear_terms)):
@@ -3796,7 +3813,12 @@ cdef class Spp(IntegratorsClass):
         self.parameters = parameters
 
     def __dealloc__(self):
+        for i in range(self.linear_terms_len):
+            free(self.linear_terms[i].param)
         free(self.linear_terms)
+
+        for i in range(self.infection_terms_len):
+            free(self.infection_terms[i].param)
         free(self.infection_terms)
 
     cdef rhs(self, xt_arr, tt):
@@ -3807,8 +3829,8 @@ cdef class Spp(IntegratorsClass):
             DTYPE_t term
             cdef model_term mt
             
-            int linear_terms_num = self.linear_terms_len
-            int infection_terms_num = self.infection_terms_len
+            int linear_terms_len = self.linear_terms_len
+            int infection_terms_len = self.infection_terms_len
             model_term* linear_terms = self.linear_terms
             model_term* infection_terms = self.infection_terms
 
@@ -3823,7 +3845,7 @@ cdef class Spp(IntegratorsClass):
             double [:,:] lambdas = self._lambdas
 
         # Compute lambda
-
+        
         for inf_i in range(infection_classes_num):
             for i in range(M):
                 lambdas[inf_i][i] = 0
@@ -3839,15 +3861,15 @@ cdef class Spp(IntegratorsClass):
 
         for i in range(M):
 
-            for j in range(linear_terms_num):
+            for j in range(linear_terms_len):
                 mt = linear_terms[j]
-                term = mt.param * xt[i + M*mt.oi_coupling]
+                term = mt.param[i] * xt[i + M*mt.oi_coupling]
                 if mt.oi_pos != -1: dxdt[i + M*mt.oi_pos] += term
                 if mt.oi_neg != -1: dxdt[i + M*mt.oi_neg] -= term
 
-            for j in range(infection_terms_num):
+            for j in range(infection_terms_len):
                 mt = infection_terms[j]
-                term = mt.param * lambdas[mt.infection_index][i] * xt[i] # xt[i] is Si
+                term = mt.param[i] * lambdas[mt.infection_index][i] * xt[i] # xt[i] is Si
                 if mt.oi_pos != -1: dxdt[i + M*mt.oi_pos] += term
                 if mt.oi_neg != -1: dxdt[i + M*mt.oi_neg] -= term                                           
 
@@ -3889,6 +3911,9 @@ cdef class Spp(IntegratorsClass):
             'X': output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
         """
+
+        if type(x0) == list:
+            x0 = np.array(x0)
 
         if type(x0) == np.ndarray:
             if x0.size != self.nClass*self.M:
