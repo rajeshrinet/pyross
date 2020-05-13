@@ -56,8 +56,15 @@ pip install -e git+https://github.com/rajeshrinet/pyross.git#egg=pyross
 
 
 #### Testing
+Short test of initialisation and running
 ```
 make test
+```
+
+Long test of all example notebooks. Optionally can specify path to test a certain subset of
+notebooks.
+```
+make (path=examples/deteministic) nbtest
 ```
 
 **Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website

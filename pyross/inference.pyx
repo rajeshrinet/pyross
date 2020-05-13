@@ -41,8 +41,8 @@ cdef class SIR_type:
         nClass * M.
     fi : np.array(M)
         Age group size as a fraction of total population
-    alpha : float
-        Fraction of infected who are asymptomatic.
+    alpha : float or np.array(M)
+        Fraction of infected who are asymptomatic (possibly age-dependent).
     beta : float
         Rate of spread of infection.
     gIa : float
@@ -73,8 +73,8 @@ cdef class SIR_type:
     '''
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
-        readonly double alpha, beta, gIa, gIs, fsa
-        readonly np.ndarray fi, CM, dsigmadt, J, B, J_mat, B_vec, U
+        readonly beta, gIa, gIs, fsa
+        readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
 
 
@@ -970,7 +970,14 @@ cdef class SIR_type:
 
 
     def set_params(self, parameters):
-        self.alpha = parameters['alpha']
+        self.alpha = np.zeros( self.M, dtype = DTYPE)
+        if np.size(parameters['alpha'])==1:
+            self.alpha = parameters['alpha']*np.ones(self.M)
+        elif np.size(parameters['alpha'])==self.M:
+            self.alpha = parameters['alpha']
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
         self.beta = parameters['beta']
         self.gIa = parameters['gIa']
         self.gIs = parameters['gIs']
@@ -1195,7 +1202,7 @@ cdef class SIR(SIR_type):
         3 * M.
     fi : np.array(M)
         Age group size as a fraction of total population
-    alpha : float
+    alpha : float or np.array(M)
         Fraction of infected who are asymptomatic.
     beta : float
         Rate of spread of infection.
@@ -1254,34 +1261,36 @@ cdef class SIR(SIR_type):
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa, beta=self.beta
+            double gIa=self.gIa, gIs=self.gIs, fsa=self.fsa, beta=self.beta
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
             J[0, m, 0, m] = -l[m]
-            J[1, m, 0, m] = alpha*l[m]
-            J[2, m, 0, m] = balpha*l[m]
+            J[1, m, 0, m] = alpha[m]*l[m]
+            J[2, m, 0, m] = balpha[m]*l[m]
             for n in range(M):
                 J[0, m, 1, n] = -s[m]*beta*CM[m, n]
                 J[0, m, 2, n] = -s[m]*beta*CM[m, n]*fsa
-                J[1, m, 1, n] = alpha*s[m]*beta*CM[m, n]
-                J[1, m, 2, n] = alpha*s[m]*beta*CM[m, n]*fsa
-                J[2, m, 1, n] = balpha*s[m]*beta*CM[m, n]
-                J[2, m, 2, n] = balpha*s[m]*beta*CM[m, n]*fsa
+                J[1, m, 1, n] = alpha[m]*s[m]*beta*CM[m, n]
+                J[1, m, 2, n] = alpha[m]*s[m]*beta*CM[m, n]*fsa
+                J[2, m, 1, n] = balpha[m]*s[m]*beta*CM[m, n]
+                J[2, m, 2, n] = balpha[m]*s[m]*beta*CM[m, n]*fsa
             J[1, m, 1, m] -= gIa
             J[2, m, 2, m] -= gIs
 
     cdef noise_correlation(self, double [:] s, double [:] Ia, double [:] Is, double [:] l):
         cdef:
             Py_ssize_t m, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs
+            double gIa=self.gIa, gIs=self.gIs
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] B = self.B
         for m in range(M): # only fill in the upper triangular form
             B[0, m, 0, m] = l[m]*s[m]
-            B[0, m, 1, m] =  - alpha*l[m]*s[m]
-            B[1, m, 1, m] = alpha*l[m]*s[m] + gIa*Ia[m]
-            B[0, m, 2, m] = - balpha*l[m]*s[m]
-            B[2, m, 2, m] = balpha*l[m]*s[m] + gIs*Is[m]
+            B[0, m, 1, m] =  - alpha[m]*l[m]*s[m]
+            B[1, m, 1, m] = alpha[m]*l[m]*s[m] + gIa*Ia[m]
+            B[0, m, 2, m] = - balpha[m]*l[m]*s[m]
+            B[2, m, 2, m] = balpha[m]*l[m]*s[m] + gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
@@ -1312,7 +1321,7 @@ cdef class SEIR(SIR_type):
         4 * M.
     fi : np.array(M)
         Age group size as a fraction of total population
-    alpha : float
+    alpha : float or np.array(M)
         Fraction of infected who are asymptomatic.
     beta : float
         Rate of spread of infection.
@@ -1382,17 +1391,17 @@ cdef class SEIR(SIR_type):
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs,
-            double gE=self.gE, fsa=self.fsa, beta=self.beta
+            double gIa=self.gIa, gIs=self.gIs, gE=self.gE, fsa=self.fsa, beta=self.beta
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
             J[0, m, 0, m] = -l[m]
             J[1, m, 0, m] = l[m]
             J[1, m, 1, m] = - gE
-            J[2, m, 1, m] = alpha*gE
+            J[2, m, 1, m] = alpha[m]*gE
             J[2, m, 2, m] = - gIa
-            J[3, m, 1, m] = balpha*gE
+            J[3, m, 1, m] = balpha[m]*gE
             J[3, m, 3, m] = - gIs
             for n in range(M):
                 J[0, m, 2, n] = -s[m]*beta*CM[m, n]
@@ -1403,16 +1412,17 @@ cdef class SEIR(SIR_type):
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] Ia, double [:] Is, double [:] l):
         cdef:
             Py_ssize_t m, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, gE=self.gE
+            double gIa=self.gIa, gIs=self.gIs, gE=self.gE
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] B = self.B
         for m in range(M): # only fill in the upper triangular form
             B[0, m, 0, m] = l[m]*s[m]
             B[0, m, 1, m] =  - l[m]*s[m]
             B[1, m, 1, m] = l[m]*s[m] + gE*e[m]
-            B[1, m, 2, m] = -alpha*gE*e[m]
-            B[1, m, 3, m] = -balpha*gE*e[m]
-            B[2, m, 2, m] = alpha*gE*e[m]+gIa*Ia[m]
-            B[3, m, 3, m] = balpha*gE*e[m]+gIs*Is[m]
+            B[1, m, 2, m] = -alpha[m]*gE*e[m]
+            B[1, m, 3, m] = -balpha[m]*gE*e[m]
+            B[2, m, 2, m] = alpha[m]*gE*e[m]+gIa*Ia[m]
+            B[3, m, 3, m] = balpha[m]*gE*e[m]+gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
@@ -1458,7 +1468,7 @@ cdef class SEAI5R(SIR_type):
         8 * M.
     fi : np.array(M)
         Age group size as a fraction of total population
-    alpha : float
+    alpha : float or np.array(M)
         Fraction of infected who are asymptomatic.
     beta : float
         Rate of spread of infection.
@@ -1603,8 +1613,9 @@ cdef class SEAI5R(SIR_type):
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc
+            double gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc
             double gE=self.gE, gA=self.gA, fsa=self.fsa, fh=self.fh, beta=self.beta
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:] hh=self.hh, cc=self.cc, mm=self.mm
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
@@ -1614,9 +1625,9 @@ cdef class SEAI5R(SIR_type):
             J[1, m, 1, m] = - gE
             J[2, m, 1, m] = gE
             J[2, m, 2, m] = - gA
-            J[3, m, 2, m] = alpha*gA
+            J[3, m, 2, m] = alpha[m]*gA
             J[3, m, 3, m] = - gIa
-            J[4, m, 2, m] = balpha*gA
+            J[4, m, 2, m] = balpha[m]*gA
             J[4, m, 4, m] = -gIs
             J[5, m, 4, m] = hh[m]*gIs
             J[5, m, 5, m] = -gIh
@@ -1637,7 +1648,8 @@ cdef class SEAI5R(SIR_type):
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] Ih, double [:] Ic, double [:] l):
         cdef:
             Py_ssize_t m, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc, gE=self.gE, gA=self.gA
+            double gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc, gE=self.gE, gA=self.gA
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:] mm=self.mm, cc=self.cc, hh=self.hh
             double [:, :, :, :] B = self.B
         for m in range(M): # only fill in the upper triangular form
@@ -1646,10 +1658,10 @@ cdef class SEAI5R(SIR_type):
             B[1, m, 1, m] = l[m]*s[m] + gE*e[m]
             B[1, m, 2, m] = -gE*e[m]
             B[2, m, 2, m] = gE*e[m]+gA*a[m]
-            B[2, m, 3, m] = -alpha*gA*a[m]
-            B[2, m, 4, m] = -balpha*gA*a[m]
-            B[3, m, 3, m] = alpha*gA*a[m]+gIa*Ia[m]
-            B[4, m, 4, m] = balpha*gA*a[m] + gIs*Is[m]
+            B[2, m, 3, m] = -alpha[m]*gA*a[m]
+            B[2, m, 4, m] = -balpha[m]*gA*a[m]
+            B[3, m, 3, m] = alpha[m]*gA*a[m]+gIa*Ia[m]
+            B[4, m, 4, m] = balpha[m]*gA*a[m] + gIs*Is[m]
             B[4, m, 5, m] = -hh[m]*gIs*Is[m]
             B[5, m, 5, m] = hh[m]*gIs*Is[m] + gIh*Ih[m]
             B[5, m, 6, m] = -cc[m]*gIh*Ih[m]
@@ -1696,7 +1708,7 @@ cdef class SEAIRQ(SIR_type):
         6 * M.
     fi : np.array(M)
         Age group size as a fraction of total population
-    alpha : float
+    alpha : float or np.array(M)
         Fraction of infected who are asymptomatic.
     beta : float
         Rate of spread of infection.
@@ -1895,9 +1907,9 @@ cdef class SEAIRQ(SIR_type):
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, beta=self.beta
             double gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
-            double tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs
+            double tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs, beta=self.beta
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
@@ -1906,9 +1918,9 @@ cdef class SEAIRQ(SIR_type):
             J[1, m, 1, m] = - gE - tE
             J[2, m, 1, m] = gE
             J[2, m, 2, m] = - gA - tE
-            J[3, m, 2, m] = alpha*gA
+            J[3, m, 2, m] = alpha[m]*gA
             J[3, m, 3, m] = - gIa - tIa
-            J[4, m, 2, m] = balpha*gA
+            J[4, m, 2, m] = balpha[m]*gA
             J[4, m, 4, m] = -gIs - tIs
             J[5, m, 1, m] = tE
             J[5, m, 2, m] = tA
@@ -1925,9 +1937,9 @@ cdef class SEAIRQ(SIR_type):
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l):
         cdef:
             Py_ssize_t m, M=self.M
-            double alpha=self.alpha, balpha=1-self.alpha, beta=self.beta
-            double gIa=self.gIa, gIs=self.gIs, gE=self.gE, gA=self.gA
+            double beta=self.beta, gIa=self.gIa, gIs=self.gIs, gE=self.gE, gA=self.gA
             double tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs
+            double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] B = self.B
         for m in range(M): # only fill in the upper triangular form
             B[0, m, 0, m] = l[m]*s[m]
@@ -1935,10 +1947,10 @@ cdef class SEAIRQ(SIR_type):
             B[1, m, 1, m] = l[m]*s[m] + (gE+tE)*e[m]
             B[1, m, 2, m] = -gE*e[m]
             B[2, m, 2, m] = gE*e[m]+(gA+tA)*a[m]
-            B[2, m, 3, m] = -alpha*gA*a[m]
-            B[2, m, 4, m] = -balpha*gA*a[m]
-            B[3, m, 3, m] = alpha*gA*a[m]+(gIa+tIa)*Ia[m]
-            B[4, m, 4, m] = balpha*gA*a[m] + (gIs+tIs)*Is[m]
+            B[2, m, 3, m] = -alpha[m]*gA*a[m]
+            B[2, m, 4, m] = -balpha[m]*gA*a[m]
+            B[3, m, 3, m] = alpha[m]*gA*a[m]+(gIa+tIa)*Ia[m]
+            B[4, m, 4, m] = balpha[m]*gA*a[m] + (gIs+tIs)*Is[m]
             B[1, m, 5, m] = -tE*e[m]
             B[2, m, 5, m] = -tA*a[m]
             B[3, m, 5, m] = -tIa*Ia[m]
