@@ -1,9 +1,9 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
+from libc.stdlib cimport malloc, free
 
 DTYPE   = np.float
-ctypedef np.float_t DTYPE_t
 
 
 
@@ -3591,5 +3591,347 @@ cdef class SIRS(IntegratorsClass):
 
 
 
+#@cython.wraparound(False)
+#@cython.boundscheck(False)
+#@cython.cdivision(True)
+#@cython.nonecheck(False)
+@cython.wraparound(False)
+@cython.boundscheck(True)
+@cython.cdivision(False)
+@cython.nonecheck(True)
+cdef class Spp(IntegratorsClass):
+    """
+    Given a model specification, the 
 
+    Attributes
+    ----------
+    parameters: dict
+        Contains the values for the parameters given in the model specification.
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class    
 
+    Methods
+    -------
+    simulate 
+    S
+    """
+
+    def __init__(self, model_spec, parameters, M, Ni):
+
+        # Map model class names to their indices
+
+        model_class_name_to_class_index = {}
+        model_class_index_to_class_name = {}
+        for i in range(len(model_spec['classes'])):
+            oclass = model_spec['classes'][i]
+            model_class_name_to_class_index[oclass] = i
+            model_class_index_to_class_name[i] = oclass
+
+        # Construct internal representation of model
+
+        model_linear_terms = []
+        model_infection_terms = []
+
+        infection_model_param_to_model_term = {}
+        linear_model_param_to_model_term = {}
+
+        used_params = set() # Used to check if there are duplicates of parameters
+
+        for class_name in model_spec:
+            if class_name == 'classes':
+                continue
+
+            if not class_name in model_class_name_to_class_index:
+                raise Exception("Class %s not listed in 'classes'" % class_name)
+
+            for coupling_class, model_param in model_spec[class_name]['linear']:
+                if model_param in used_params:
+                    raise Exception("Duplicate parameter: %s." % model_param)
+                else:
+                    used_params.add(model_param)
+
+                if not coupling_class in model_class_name_to_class_index:
+                    raise Exception("Class %s not listed in 'classes'" % coupling_class)
+
+                if model_param[0] == '-':
+                    is_neg = True
+                    model_param = model_param[1:]
+                else:
+                    is_neg = False
+
+                if not model_param in linear_model_param_to_model_term:
+                    mt = {}
+                    mt['model_param'] = model_param
+                    mt['oi_pos'] = -1
+                    mt['oi_neg'] = -1
+                    linear_model_param_to_model_term[model_param] = mt
+                    model_linear_terms.append(mt)
+                mt = linear_model_param_to_model_term[model_param]
+
+                if is_neg:
+                    mt['oi_neg'] = model_class_name_to_class_index[class_name]
+                else:
+                    mt['oi_pos'] = model_class_name_to_class_index[class_name]
+
+                mt['oi_coupling'] = model_class_name_to_class_index[coupling_class]
+
+            for coupling_class, model_param in model_spec[class_name]['infection']: 
+                if model_param in used_params:
+                    raise Exception("Duplicate parameter: %s." % model_param)
+                else:
+                    used_params.add(model_param)
+
+                if not coupling_class in model_class_name_to_class_index:
+                    raise Exception("Class %s not listed in 'classes'" % coupling_class)
+
+                if model_param[0] == '-':
+                    is_neg = True
+                    model_param = model_param[1:]
+                else:
+                    is_neg = False
+
+                if model_param in linear_model_param_to_model_term:
+                    raise Exception("Parameter '%s' appears in both linear and infection terms.")
+
+                if not model_param in infection_model_param_to_model_term:
+                    mt = {}
+                    mt['model_param'] = model_param
+                    mt['oi_pos'] = -1
+                    mt['oi_neg'] = -1
+                    mt['infection_index'] = -1
+                    infection_model_param_to_model_term[model_param] = mt
+                    model_infection_terms.append(mt)
+                mt = infection_model_param_to_model_term[model_param]
+
+                if is_neg:
+                    mt['oi_neg'] = model_class_name_to_class_index[class_name]
+                else:
+                    mt['oi_pos'] = model_class_name_to_class_index[class_name]
+                mt['oi_coupling'] = model_class_name_to_class_index[coupling_class]
+
+        # Insert the parameter values into model
+
+        for param_key in parameters:
+            param_val = parameters[param_key]
+            if param_key in linear_model_param_to_model_term:
+                linear_model_param_to_model_term[param_key]['param'] = param_val
+            elif param_key in infection_model_param_to_model_term:
+                infection_model_param_to_model_term[param_key]['param'] = param_val
+            else:
+                raise Exception("Parameter %s is not in model." % param_key)
+
+        # Find all infection classes, and assign model_term.infection_index
+        
+        _infection_classes_indices = []
+
+        for model_param in infection_model_param_to_model_term:
+            mt = infection_model_param_to_model_term[model_param]
+
+            if not mt['oi_coupling'] in infection_model_param_to_model_term:
+                _infection_classes_indices.append(mt['oi_coupling'])
+
+            mt['infection_index'] = _infection_classes_indices.index(mt['oi_coupling'])
+
+        self.infection_classes_indices = np.array(_infection_classes_indices, dtype=np.dtype('i'))
+        self.linear_terms_len = len(model_linear_terms)
+        self.linear_terms =  <model_term *> malloc(self.linear_terms_len * sizeof(model_term))
+        self.infection_terms_len = len(model_infection_terms)
+        self.infection_terms =  <model_term *> malloc(len(model_infection_terms) * sizeof(model_term))
+
+        for i in range(len(model_linear_terms)):
+            self.linear_terms[i].oi_coupling = model_linear_terms[i]['oi_coupling']
+            self.linear_terms[i].oi_pos = model_linear_terms[i]['oi_pos']
+            self.linear_terms[i].oi_neg = model_linear_terms[i]['oi_neg']
+            if 'param' in model_linear_terms[i]:
+                self.linear_terms[i].param = model_linear_terms[i]['param']
+            else:
+                raise Exception("Missing parameters.")
+
+        for i in range(len(model_infection_terms)):
+            self.infection_terms[i].oi_coupling = model_infection_terms[i]['oi_coupling']
+            self.infection_terms[i].oi_pos = model_infection_terms[i]['oi_pos']
+            self.infection_terms[i].oi_neg = model_infection_terms[i]['oi_neg']
+            self.infection_terms[i].infection_index = model_infection_terms[i]['infection_index']
+            if 'param' in model_infection_terms[i]:
+                self.infection_terms[i].param = model_infection_terms[i]['param']
+            else:
+                raise Exception("Missing parameters.")
+
+        # Check if RHS adds up to 0
+
+        for i in range(len(model_linear_terms)):
+            if self.linear_terms[i].oi_pos == -1 or self.linear_terms[i].oi_neg == -1:
+                raise Exception("Linear terms do not add up to zero.")
+        for i in range(len(model_infection_terms)):
+            if self.infection_terms[i].oi_pos == -1 or self.infection_terms[i].oi_neg == -1:
+                raise Exception("Infection terms do not add up to zero.")
+
+        # Misc
+
+        self.model_class_name_to_class_index = model_class_name_to_class_index
+        self.nClass = len(model_spec['classes'])
+        self.model_classes = model_spec['classes']
+
+        self.N = np.sum(Ni)
+        self.M = M
+        self.Ni = Ni
+
+        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        #self.FM = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE) 
+
+        self._lambdas = np.zeros( (self.infection_classes_indices.size, M) )
+
+        self.parameters = parameters
+
+    def __dealloc__(self):
+        free(self.linear_terms)
+        free(self.infection_terms)
+
+    cdef rhs(self, xt_arr, tt):
+        cdef:
+            int N = self.N, M = self.M
+            int nClass = self.nClass
+            int i, j, inf_i
+            DTYPE_t term
+            cdef model_term mt
+            
+            int linear_terms_num = self.linear_terms_len
+            int infection_terms_num = self.infection_terms_len
+            model_term* linear_terms = self.linear_terms
+            model_term* infection_terms = self.infection_terms
+
+            int[:] infection_classes_indices = self.infection_classes_indices
+            int infection_classes_num=self.infection_classes_indices.size
+
+            double [:] xt = xt_arr
+            double [:] dxdt = self.dxdt
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            #double [:]   FM = self.FM
+            double [:,:] lambdas = self._lambdas
+
+        # Compute lambda
+
+        for inf_i in range(infection_classes_num):
+            for i in range(M):
+                lambdas[inf_i][i] = 0
+                for j in range(M):
+                    lambdas[inf_i][i] += CM[i,j] * xt[j + M*infection_classes_indices[inf_i]] / Ni[j]
+
+        # Reset dxdt
+
+        for i in range(nClass*M):
+            dxdt[i] = 0
+
+        # Compute rhs
+
+        for i in range(M):
+
+            for j in range(linear_terms_num):
+                mt = linear_terms[j]
+                term = mt.param * xt[i + M*mt.oi_coupling]
+                dxdt[i + M*mt.oi_pos] += term
+                dxdt[i + M*mt.oi_neg] -= term
+
+            for j in range(infection_terms_num):
+                mt = infection_terms[j]
+                term = mt.param * lambdas[mt.infection_index][i] * xt[i] # xt[i] is Si
+                dxdt[i + M*mt.oi_pos] += term
+                dxdt[i + M*mt.oi_neg] -= term                                           
+
+    def simulate(self, x0, contactMatrix, Tf, Nf, Ti=0,
+                     integrator='odeint', maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        x0 : np.array or dict
+            Initial conditions. If it is an array it should have length
+            M*(model_dimension-1), where x0[i + j*M] should be the initial
+            value of model class i of age group j. The recovered R class
+            must be left out. If it is a dict then
+            it should have a key corresponding to each model class,
+            with a 1D array containing the initial condition for each
+            age group as value. One of the classes may be left out,
+            in which case its initial values will be inferred from the
+            others.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the 
+             average number of contacts made per day by an 
+             individual in class i with an individual in class j
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+        """
+
+        if type(x0) == np.ndarray:
+            if x0.size != (self.nClass-1)*self.M:
+                raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
+                    % ( (self.nClass-1)*self.M) )
+            R0 = np.array([ self.Ni[i] - np.sum(x0[i::self.M]) for i in range(self.M) ])
+            x0 = np.concatenate([x0, R0])
+        elif type(x0) == dict:
+            # Check if any classes are not included in x0
+
+            skipped_classes = []
+            for O in self.model_classes: # Skip R
+                if not O in x0:
+                    skipped_classes.append(O)
+
+            if len(skipped_classes) > 1:
+                raise Exception("Missing several classes in initial conditions: '%s'" % skipped_classes)
+            elif len(skipped_classes) == 1:
+                skipped_class = skipped_classes[0]
+                x0[skipped_class] = self.Ni - np.sum([ x0[O] for O in x0 ], axis=0)
+
+            # Construct initial condition array
+            
+            x0_arr = np.zeros(0)
+            for O in self.model_classes: # Skip R
+                x0_arr = np.concatenate( [x0_arr, x0[O]] )
+            x0 = x0_arr
+        
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+            
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M }
+        data.update(self.parameters)
+
+        return data
+
+    def model_class_data(self, model_class_key, data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            The population of class `model_class_key` as a time series
+        """
+        X = data['X']
+        oi = self.model_class_name_to_class_index[model_class_key]
+        Os = X[:, oi*self.M:(oi+1)*self.M]
+        return Os
