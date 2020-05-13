@@ -25,4 +25,8 @@ test:
 
 nbtest:
 	@echo testing example notebooks...
-	cd tests && python notebook_test.py
+ifdef path
+	cd tests && python notebook_test.py --path $(path)
+else
+	cd tests && python notebook_test.py --path examples
+endif

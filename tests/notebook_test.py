@@ -4,17 +4,18 @@ import re
 import subprocess
 import sys
 import unittest
-# for i in sys.path:
-#     if 'pyross' in i or i == '':
-#         sys.path.remove(i)
+import argparse
+for i in sys.path:
+    if 'pyross' in i or i == '':
+        sys.path.remove(i)
 
 
-def run_notebook_tests():
+def run_notebook_tests(path):
     """
     Runs Jupyter notebook tests. Exits if they fail.
     """
     basepath = os.path.dirname(__file__)
-    nbpath = os.path.abspath(os.path.join(basepath, "..", "examples"))
+    nbpath = os.path.abspath(os.path.join(basepath, "..", path))
     # Ignore books with deliberate errors, but check they still exist
     ignore_list = []
 
@@ -25,9 +26,10 @@ def run_notebook_tests():
     # Scan and run
     print('Testing notebooks')
     ok = True
-    for notebook in list_notebooks(nbpath, True, ignore_list):
+    for notebook, cwd in list_notebooks(nbpath, True, ignore_list):
+        os.chdir(cwd) # necessary for relative imports in notebooks
         ok &= test_notebook(notebook)
-        # print(notebook)
+        # print(notebook, cwd, sys.path)
     if not ok:
         print('\nErrors encountered in notebooks')
         sys.exit(1)
@@ -44,13 +46,14 @@ def list_notebooks(root, recursive=True, ignore_list=None, notebooks=None):
         ignore_list = []
     for filename in os.listdir(root):
         path = os.path.join(root, filename)
+        cwd = os.path.dirname(path)
         if path in ignore_list:
             print('Skipping ignored notebook: ' + path)
             continue
 
         # Add notebooks
         if os.path.splitext(path)[1] == '.ipynb':
-            notebooks.append(path)
+            notebooks.append((path,cwd))
 
         # Recurse into subdirectories
         elif recursive and os.path.isdir(path):
@@ -75,7 +78,11 @@ def test_notebook(path):
     code, __ = e.from_filename(path)
 
     # Remove coding statement, if present
-    code = '\n'.join([x for x in code.splitlines() if "ipython" not in x])
+    ipylines = ['ipython', 'show(']
+    code = '\n'.join([x for x in code.splitlines() if not 'ipython' in x])
+    for x in code.splitlines():
+        if not any(s in ipylines for s in x):
+            code += '\n'.join([x])
     # print(code)
 
     # Tell matplotlib not to produce any figures
@@ -93,10 +100,10 @@ def test_notebook(path):
         if p.returncode != 0:
             # Show failing code, output and errors before returning
             print('ERROR')
-            print('-- script ' + '-' * (79 - 10))
-            for i, line in enumerate(code.splitlines()):
-                j = str(1 + i)
-                print(j + ' ' * (5 - len(j)) + line)
+            # print('-- script ' + '-' * (79 - 10))
+            # for i, line in enumerate(code.splitlines()):
+            #     j = str(1 + i)
+            #     print(j + ' ' * (5 - len(j)) + line)
             print('-- stdout ' + '-' * (79 - 10))
             print(stdout)
             print('-- stderr ' + '-' * (79 - 10))
@@ -140,4 +147,16 @@ def export_notebook(ipath, opath):
 
 
 if __name__ == '__main__':
-    run_notebook_tests()
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(
+        description='Run notebook unit tests for PyRoss.',
+    )
+    # Unit tests
+    parser.add_argument(
+        '--path', default = '.',
+        help='Run specific notebook or folder containing notebooks',)
+
+    # Parse!
+    args = parser.parse_args()
+    print(args.path)
+    run_notebook_tests(args.path)
