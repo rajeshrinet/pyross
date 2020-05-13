@@ -3621,6 +3621,15 @@ cdef class Spp(IntegratorsClass):
 
     def __init__(self, model_spec, parameters, M, Ni):
 
+        self.N = np.sum(Ni)
+        self.M = M
+        self.Ni = Ni
+        self.nClass = len(model_spec['classes']) # We do not count R
+
+        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        #self.FM = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE) 
+
         # Map model class names to their indices
 
         if not 'classes' in model_spec:
@@ -3641,10 +3650,10 @@ cdef class Spp(IntegratorsClass):
         model_linear_terms = []
         model_infection_terms = []
 
-        infection_model_param_to_model_term = {}
-        linear_model_param_to_model_term = {}
+        infection_model_term_lookup = {}
+        linear_model_term_lookup = {}
 
-        used_params = set() # Used to check if there are duplicates of parameters
+        used_terms = set() # Used to check if there are duplicates of parameters
 
         for class_name in model_spec:
             if class_name == 'classes':
@@ -3654,10 +3663,10 @@ cdef class Spp(IntegratorsClass):
                 raise Exception("Class %s not listed in 'classes'" % class_name)
 
             for coupling_class, model_param in model_spec[class_name]['linear']:
-                if model_param in used_params:
-                    raise Exception("Duplicate parameter: %s." % model_param)
+                if (coupling_class, model_param) in used_terms:
+                    raise Exception("Duplicate term: %s*%s." % (model_param, coupling_class))
                 else:
-                    used_params.add(model_param)
+                    used_terms.add( (coupling_class, model_param) )
 
                 if not coupling_class in model_class_name_to_class_index:
                     raise Exception("Class %s not listed in 'classes'" % coupling_class)
@@ -3668,14 +3677,14 @@ cdef class Spp(IntegratorsClass):
                 else:
                     is_neg = False
 
-                if not model_param in linear_model_param_to_model_term:
+                if not (coupling_class, model_param) in linear_model_term_lookup:
                     mt = {}
                     mt['model_param'] = model_param
                     mt['oi_pos'] = -1
                     mt['oi_neg'] = -1
-                    linear_model_param_to_model_term[model_param] = mt
+                    linear_model_term_lookup[(coupling_class, model_param)] = mt
                     model_linear_terms.append(mt)
-                mt = linear_model_param_to_model_term[model_param]
+                mt = linear_model_term_lookup[(coupling_class, model_param)]
 
                 if is_neg:
                     mt['oi_neg'] = model_class_name_to_class_index[class_name]
@@ -3685,10 +3694,10 @@ cdef class Spp(IntegratorsClass):
                 mt['oi_coupling'] = model_class_name_to_class_index[coupling_class]
 
             for coupling_class, model_param in model_spec[class_name]['infection']: 
-                if model_param in used_params:
-                    raise Exception("Duplicate parameter: %s." % model_param)
+                if (coupling_class, model_param) in used_terms:
+                    raise Exception("Duplicate term: %s*%s." % (model_param, coupling_class))
                 else:
-                    used_params.add(model_param)
+                    used_terms.add( (coupling_class, model_param) )
 
                 if not coupling_class in model_class_name_to_class_index:
                     raise Exception("Class %s not listed in 'classes'" % coupling_class)
@@ -3699,18 +3708,18 @@ cdef class Spp(IntegratorsClass):
                 else:
                     is_neg = False
 
-                if model_param in linear_model_param_to_model_term:
-                    raise Exception("Parameter '%s' appears in both linear and infection terms.")
+                #if model_param in linear_model_term_lookup:
+                #    raise Exception("Parameter '%s' appears in both linear and infection terms.")
 
-                if not model_param in infection_model_param_to_model_term:
+                if not (coupling_class, model_param) in infection_model_term_lookup:
                     mt = {}
                     mt['model_param'] = model_param
                     mt['oi_pos'] = -1
                     mt['oi_neg'] = -1
                     mt['infection_index'] = -1
-                    infection_model_param_to_model_term[model_param] = mt
+                    infection_model_term_lookup[(coupling_class, model_param)] = mt
                     model_infection_terms.append(mt)
-                mt = infection_model_param_to_model_term[model_param]
+                mt = infection_model_term_lookup[(coupling_class, model_param)]
 
                 if is_neg:
                     mt['oi_neg'] = model_class_name_to_class_index[class_name]
@@ -3718,38 +3727,39 @@ cdef class Spp(IntegratorsClass):
                     mt['oi_pos'] = model_class_name_to_class_index[class_name]
                 mt['oi_coupling'] = model_class_name_to_class_index[coupling_class]
 
+        # Create lookup dict from parameter to model terms
+
+        self.param_to_model_term = {}
+
+        for coupling_class, model_param in linear_model_term_lookup:
+            if not model_param in self.param_to_model_term:
+                self.param_to_model_term[model_param] = []
+            mt = linear_model_term_lookup[coupling_class, model_param]
+            self.param_to_model_term[model_param].append( mt )
+
+        for coupling_class, model_param in infection_model_term_lookup:
+            if not model_param in self.param_to_model_term:
+                self.param_to_model_term[model_param] = []
+            mt = infection_model_term_lookup[coupling_class, model_param]
+            self.param_to_model_term[model_param].append( mt )
+
         # Insert the parameter values into model
 
-        for param_key in parameters:
-            param_val = parameters[param_key]
-
-            if type(param_val) == list:
-                param_val = np.array(param_val)
-
-            if type(param_val) == np.ndarray:
-                if param_val.size != M:
-                    raise Exception("Parameter array size must be equal to M.")
-            else:
-                param_val = np.full(M, param_val)
-
-            if param_key in linear_model_param_to_model_term:
-                linear_model_param_to_model_term[param_key]['param'] = param_val
-            elif param_key in infection_model_param_to_model_term:
-                infection_model_param_to_model_term[param_key]['param'] = param_val
-            else:
-                raise Exception("Parameter %s is not in model." % param_key)
+        self.update_model_parameters(parameters)
 
         # Find all infection classes, and assign model_term.infection_index
         
         _infection_classes_indices = []
 
-        for model_param in infection_model_param_to_model_term:
-            mt = infection_model_param_to_model_term[model_param]
+        for model_param in infection_model_term_lookup:
+            mt = infection_model_term_lookup[model_param]
 
-            if not mt['oi_coupling'] in infection_model_param_to_model_term:
+            if not mt['oi_coupling'] in infection_model_term_lookup:
                 _infection_classes_indices.append(mt['oi_coupling'])
 
             mt['infection_index'] = _infection_classes_indices.index(mt['oi_coupling'])
+
+        # Create model_term structs
 
         self.infection_classes_indices = np.array(_infection_classes_indices, dtype=np.dtype('i'))
         self.linear_terms_len = len(model_linear_terms)
@@ -3768,7 +3778,7 @@ cdef class Spp(IntegratorsClass):
             self.linear_terms[i].oi_neg = model_linear_terms[i]['oi_neg']
             self.linear_terms[i].infection_index = -1
             if 'param' in model_linear_terms[i]:
-                for j in range(M): 
+                for j in range(M):
                     self.linear_terms[i].param[j] = model_linear_terms[i]['param'][j]
             else:
                 raise Exception("Missing parameters.")
@@ -3796,21 +3806,31 @@ cdef class Spp(IntegratorsClass):
         # Misc
 
         self.model_class_name_to_class_index = model_class_name_to_class_index
-        self.nClass = len(model_spec['classes']) # We do not count R
         self.model_classes = list(model_spec['classes'])
         self.model_classes.append('R')
 
-        self.N = np.sum(Ni)
-        self.M = M
-        self.Ni = Ni
-
-        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        #self.FM = np.zeros( self.M, dtype = DTYPE)           # seed function F
-        self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE) 
-
         self._lambdas = np.zeros( (self.infection_classes_indices.size, M) )
 
-        self.parameters = parameters
+    def update_model_parameters(self, parameters):
+        self.parameters = dict(parameters)
+
+        for param_key in parameters:
+            param_val = parameters[param_key]
+
+            if not param_key in self.param_to_model_term:
+                raise Exception("Parameter %s is not in model." % param_key)
+
+            for mt in self.param_to_model_term[param_key]:
+                if type(param_val) == list:
+                    param_val = np.array(param_val)
+
+                if type(param_val) == np.ndarray:
+                    if param_val.size != self.M:
+                        raise Exception("Parameter array size must be equal to M.")
+                else:
+                    param_val = np.full(self.M, param_val)
+
+                mt['param'] = param_val
 
     def __dealloc__(self):
         for i in range(self.linear_terms_len):
