@@ -3729,23 +3729,60 @@ cdef class Spp(IntegratorsClass):
 
         # Create lookup dict from parameter to model terms
 
-        self.param_to_model_term = {}
+        self.linear_param_to_model_term = {}
+        self.infection_param_to_model_term = {}
 
         for coupling_class, model_param in linear_model_term_lookup:
-            if not model_param in self.param_to_model_term:
-                self.param_to_model_term[model_param] = []
+            if not model_param in self.linear_param_to_model_term:
+                self.linear_param_to_model_term[model_param] = []
             mt = linear_model_term_lookup[coupling_class, model_param]
-            self.param_to_model_term[model_param].append( mt )
+            self.linear_param_to_model_term[model_param].append( model_linear_terms.index(mt) )
 
         for coupling_class, model_param in infection_model_term_lookup:
-            if not model_param in self.param_to_model_term:
-                self.param_to_model_term[model_param] = []
+            if not model_param in self.infection_param_to_model_term:
+                self.infection_param_to_model_term[model_param] = []
             mt = infection_model_term_lookup[coupling_class, model_param]
-            self.param_to_model_term[model_param].append( mt )
+            self.infection_param_to_model_term[model_param].append( model_infection_terms.index(mt) )
 
         # Insert the parameter values into model
 
-        self.update_model_parameters(parameters)
+        self.parameters = dict(parameters)
+        for param_key in parameters:
+            param_val = parameters[param_key]
+
+            if not param_key in self.linear_param_to_model_term and not param_key in self.infection_param_to_model_term:
+                raise Exception("Parameter %s is not in model." % param_key)
+            if param_key in self.linear_param_to_model_term and param_key in self.infection_param_to_model_term:
+                raise Exception("Parameter %s is both infection and linear parameter." % param_key)
+
+            if param_key in self.linear_param_to_model_term:
+                for mt_i in self.linear_param_to_model_term[param_key]:
+                    mt = model_linear_terms[mt_i]
+
+                    if type(param_val) == list:
+                        param_val = np.array(param_val)
+
+                    if type(param_val) == np.ndarray:
+                        if param_val.size != self.M:
+                            raise Exception("Parameter array size must be equal to M.")
+                    else:
+                        param_val = np.full(self.M, param_val)
+
+                    mt['param'] = param_val
+            elif param_key in self.infection_param_to_model_term:
+                for mt_i in self.infection_param_to_model_term[param_key]:
+                    mt = model_infection_terms[mt_i]
+
+                    if type(param_val) == list:
+                        param_val = np.array(param_val)
+
+                    if type(param_val) == np.ndarray:
+                        if param_val.size != self.M:
+                            raise Exception("Parameter array size must be equal to M.")
+                    else:
+                        param_val = np.full(self.M, param_val)
+
+                    mt['param'] = param_val
 
         # Find all infection classes, and assign model_term.infection_index
 
@@ -3816,20 +3853,37 @@ cdef class Spp(IntegratorsClass):
         for param_key in parameters:
             param_val = parameters[param_key]
 
-            if not param_key in self.param_to_model_term:
+            if not param_key in self.linear_param_to_model_term and not param_key in self.infection_param_to_model_term:
                 raise Exception("Parameter %s is not in model." % param_key)
+            if param_key in self.linear_param_to_model_term and param_key in self.infection_param_to_model_term:
+                raise Exception("Parameter %s is both infection and linear parameter." % param_key)
 
-            for mt in self.param_to_model_term[param_key]:
-                if type(param_val) == list:
-                    param_val = np.array(param_val)
+            if param_key in self.linear_param_to_model_term:
+                for mt_i in self.linear_param_to_model_term[param_key]:
+                    if type(param_val) == list:
+                        param_val = np.array(param_val)
 
-                if type(param_val) == np.ndarray:
-                    if param_val.size != self.M:
-                        raise Exception("Parameter array size must be equal to M.")
-                else:
-                    param_val = np.full(self.M, param_val)
+                    if type(param_val) == np.ndarray:
+                        if param_val.size != self.M:
+                            raise Exception("Parameter array size must be equal to M.")
+                    else:
+                        param_val = np.full(self.M, param_val)
+                    
+                    for  j in range(self.M):
+                        self.linear_terms[mt_i].param[j] = param_val[j]
+            elif param_key in self.infection_param_to_model_term:
+                for mt_i in self.infection_param_to_model_term[param_key]:
+                    if type(param_val) == list:
+                        param_val = np.array(param_val)
 
-                mt['param'] = param_val
+                    if type(param_val) == np.ndarray:
+                        if param_val.size != self.M:
+                            raise Exception("Parameter array size must be equal to M.")
+                    else:
+                        param_val = np.full(self.M, param_val)
+
+                    for  j in range(self.M):
+                        self.infection_terms[mt_i].param[j] = param_val[j]
 
     def __dealloc__(self):
         for i in range(self.linear_terms_len):
@@ -3856,12 +3910,12 @@ cdef class Spp(IntegratorsClass):
             int[:] infection_classes_indices = self.infection_classes_indices
             int infection_classes_num=self.infection_classes_indices.size
 
-            double [:] xt = xt_arr
-            double [:] dxdt = self.dxdt
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
+            DTYPE_t [:] xt = xt_arr
+            DTYPE_t [:] dxdt = self.dxdt
+            DTYPE_t [:] Ni   = self.Ni
+            DTYPE_t [:,:] CM = self.CM
             #double [:]   FM = self.FM
-            double [:,:] lambdas = self._lambdas
+            DTYPE_t [:,:] lambdas = self._lambdas
 
         # Compute lambda
 
