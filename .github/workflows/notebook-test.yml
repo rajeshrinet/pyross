@@ -20,7 +20,9 @@ jobs:
          activate-environment: pyross
          environment-file: environment.yml
          # python-version: 3.5
-      - run: |
+      - name: Conda info
+        shell: bash -l {0}
+        run: |
           conda activate pyross
           conda list
           # echo "done"
