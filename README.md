@@ -4,6 +4,15 @@
 
 ![Imagel](examples/banner.png)
 
+## Public event announcement:
+
+We have two lecture-demonstration events coming up:
+
+- **Introduction to [*PyRoss*](https://github.com/rajeshrinet/pyross/) for Bayesian inference and latent variable estimation** - 11-12 AM on Friday (15 May)
+- **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM on Monday (18 May)
+
+Both meetings will be using Google Meet, in the following room: https://meet.google.com/amv-qevr-fjp
+
 ## About
 
 [PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctuations.
