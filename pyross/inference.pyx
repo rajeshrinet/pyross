@@ -11,7 +11,6 @@ cimport cython
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
-from pyross.utils import BoundedSteps
 from pyross.utils_python import minimization
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
@@ -216,9 +215,9 @@ cdef class SIR_type:
         Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
         assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
-        IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess 
+        IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
         to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
-        If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead 
+        If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
         by setting infer_scale_parameter to True for each age-dependent parameter where this is wanted. Note that
         computing hessians for age-dependent rates is not yet supported. This functionality might be changed in the
         future without warning.
@@ -227,7 +226,7 @@ cdef class SIR_type:
         ----------
         keys: list
             A list of names for parameters to be inferred
-        guess: numpy.array 
+        guess: numpy.array
             Prior expectation (and initial guess) for the parameter values. For parameters that support it, age-dependent
             rates can be inferred by supplying a guess that is an array instead a single float.
         stds: numpy.array
@@ -243,7 +242,7 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
         infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
-            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter 
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
             for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
             age-dependent parameter individually
         verbose: bool, optional
@@ -276,7 +275,7 @@ cdef class SIR_type:
             if age_dependent[j]:
                 is_scale_parameter[j] = infer_scale_parameter[k]
                 k += 1
-                    
+
         n_scaled_age_dep = np.sum(infer_scale_parameter)
         flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
 
@@ -292,7 +291,7 @@ cdef class SIR_type:
                 flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
                 flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
                 flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
-                scaled_guesses.append(guess[j]) 
+                scaled_guesses.append(guess[j])
                 flat_guess_range.append(i)
                 i += 1
             elif age_dependent[j]:
@@ -2055,5 +2054,149 @@ cdef class SEAIRQ(SIR_type):
         Is = x0[4*M:5*M]
         q = x0[5*M:]
         data = model.simulate(s, e, a, Ia, Is, q, contactMatrix, t2, steps, Ti=t1)
+        sol = data['X']
+        return sol
+
+cdef class Spp(SIR_type):
+    cdef:
+        int [:, :] linear_terms
+        int [:, :] infection_terms
+        double [:, :] parameters
+        readonly list param_keys
+        readonly dict class_index_dict
+        Py_ssize_t nParams
+        pyross.deterministic.Spp det_model
+
+
+    def __init__(self, model_spec, parameters, M, fi, N, steps):
+        self.param_keys = list(parameters.keys())
+        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
+        self.nClass = res[0]
+        self.class_index_dict = res[1]
+        self.linear_terms = res[2]
+        self.infection_terms = res[3]
+        super().__init__(parameters, self.nClass, M, fi, N, steps)
+        self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi)
+
+
+    def set_params(self, parameters):
+        cdef double [:] param_array
+        nParams = len(parameters)
+        self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        for (i, param) in enumerate(parameters.values()):
+            if type(param) == list:
+                param = np.array(param)
+
+            if type(param) == np.ndarray:
+                if param.size != self.M:
+                    raise Exception("Parameter array size must be equal to M.")
+            else:
+                param = np.full(self.M, param)
+            param_array = param
+            self.parameters[i] = param_array
+
+    def make_det_model(self, parameters):
+        # small hack to make this class work with SIR_type
+        self.det_model.update_model_parameters(parameters)
+        return self.det_model
+
+
+    def make_params_dict(self, params=None):
+        param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
+        return param_dict
+
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        cdef:
+            double [:] x
+            double [:, :] CM=self.CM
+            int [:, :] infection_terms=self.infection_terms
+            double infection_rate
+            Py_ssize_t m, n, i, infective_index, index, M=self.M, num_of_infection_terms=infection_terms.shape[0]
+        x = chebval(t, cheb_coef)
+        cdef double [:, :] l=np.zeros((num_of_infection_terms, M), dtype=DTYPE)
+        self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+        self.J = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+
+        for i in range(num_of_infection_terms):
+            infective_index = infection_terms[i, 1]
+            for m in range(M):
+                for n in range(M):
+                    index = n + M*infective_index
+                    l[i, m] += CM[m,n]*x[index]
+        self.jacobian(x, l)
+        self.noise_correlation(x, l)
+        self.flatten_lyaponuv()
+        self.compute_dsigdt(sig)
+
+    cpdef jacobian(self, double [:] x, double [:, :] l):
+        cdef:
+            Py_ssize_t i, m, n, M=self.M
+            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            double [:, :, :, :] J = self.J
+            double [:, :] CM=self.CM
+            double [:, :] parameters=self.parameters
+            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
+        # infection terms
+        for i in range(infection_terms.shape[0]):
+            product_index = infection_terms[i, 2]
+            infective_index = infection_terms[i, 1]
+            rate_index = infection_terms[i, 0]
+            rate = parameters[rate_index]
+            for m in range(M):
+                J[S_index, m, S_index, m] -= rate[m]*l[i, m]
+                if product_index>-1:
+                    J[product_index, m, S_index, m] += rate[m]*l[i, m]
+                for n in range(M):
+                    J[S_index, m, infective_index, n] += -x[S_index*M+m]*rate[m]*CM[m, n]
+                    if product_index>-1:
+                        J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]
+        for i in range(linear_terms.shape[0]):
+            product_index = linear_terms[i, 2]
+            reagent_index = linear_terms[i, 1]
+            rate_index = infection_terms[i, 0]
+            rate = parameters[rate_index]
+            J[reagent_index, m, reagent_index, m] -= rate[m]
+            if product_index>-1:
+                J[product_index, m, reagent_index, m] += rate[m]
+
+    cpdef noise_correlation(self, double [:] x, double [:, :] l):
+        cdef:
+            Py_ssize_t i, m, n, M=self.M
+            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            double [:, :, :, :] B=self.B
+            double [:, :] CM=self.CM
+            double [:, :] parameters=self.parameters
+            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
+            double [:] s, reagent
+        s = x[S_index*M:(S_index+1)*M]
+        for i in range(infection_terms.shape[0]):
+            product_index = infection_terms[i, 2]
+            infective_index = infection_terms[i, 1]
+            rate_index = infection_terms[i, 0]
+            rate = parameters[rate_index]
+            for m in range(M):
+                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
+                if product_index>-1:
+                    B[S_index, m, product_index, m] +=  - rate[m]*l[i, m]*s[m]
+                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
+                    B[product_index, m, S_index, m] +=  - rate[m]*l[i, m]*s[m]
+        for i in range(linear_terms.shape[0]):
+            product_index = linear_terms[i, 2]
+            reagent_index = linear_terms[i, 1]
+            reagent = x[reagent_index*M:(reagent_index+1)*M]
+            rate_index = infection_terms[i, 0]
+            rate = parameters[rate_index]
+            for m in range(M): # only fill in the upper triangular form
+                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
+                if product_index>-1:
+                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
+                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
+                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+        cdef:
+            double [:, :] sol
+        data = model.simulate(np.array(x0), contactMatrix, t2, steps, Ti=t1)
         sol = data['X']
         return sol

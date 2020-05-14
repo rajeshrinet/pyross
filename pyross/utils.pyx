@@ -77,29 +77,87 @@ class GPR:
         self.calcMuSigma()
         self.plotResults()
 
-class BoundedSteps(object):
-    """random displacement with bounds:  see: https://stackoverflow.com/a/21967888/2320035
-    Modified! (dropped acceptance-rejection sampling for a more specialized approach)
-    """
-    def __init__(self, bounds, stepsize=1e-1):
-        self.bounds = np.array(bounds)
-        self.stepsize = stepsize
 
-    def __call__(self, x):
-        """take a random step but ensure the new position is within the bounds """
-        min_step = np.maximum(self.bounds[:, 0]-x, -self.stepsize)
-        max_step = np.minimum(self.bounds[:, 1]-x, self.stepsize)
-        random_step = np.random.uniform(low=min_step, high=max_step, size=x.shape)
-        xnew = x + random_step
-        return xnew
+def parse_model_spec(model_spec, param_keys):
 
+    # First, extract the classes
+    class_list = model_spec['classes']
+    nClass = len(class_list) # total number of classes
+
+    # Make dictionaries for class and parameter index look-up
+    class_index_dict = {class_name:i for (i, class_name) in enumerate(class_list)}
+    params_index_dict = {param: i for (i, param) in enumerate(param_keys)}
+
+    try:
+        # dictionaries of all linear terms and all infection terms
+        linear_dict = {class_name: model_spec[class_name]['linear'] for class_name in class_list }
+        infection_dict = {class_name: model_spec[class_name]['infection'] for class_name in class_list }
+
+        # parse the linear terms into a list of [rate_index, reagent_index] and a dictionary for the product
+        linear_terms_set = set() # used to check for duplicates
+        linear_terms_list = [] # collect all linear terms
+        linear_terms_destination_dict = {} # a dictionary for the product
+        for (k, val) in linear_dict.items():
+            for (reagent, rate) in val:
+                if (reagent, rate) in linear_terms_set:
+                    raise Exception('Duplicates linear terms: {}, {}'.format(reagent, rate))
+                else:
+                    linear_terms_set.add((reagent, rate))
+                    reagent_index = class_index_dict[reagent]
+                    if rate.startswith('-'):
+                        rate = rate[1:]
+                        rate_index = params_index_dict[rate]
+                        linear_terms_list.append([rate_index, reagent_index, -1])
+                    else:
+                        rate_index = params_index_dict[rate]
+                        linear_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+
+        # parse the infection terms into a list of [rate_index, reagent_index] and a dictionary for the product
+        infection_terms_set = set() # used to check to duplicates
+        infection_terms_list = [] # collect all infection terms
+        infection_terms_destination_dict = {} # a dictionary for the product
+        for (k, val) in infection_dict.items():
+            for (reagent, rate) in val:
+                if (reagent, rate) in infection_terms_set:
+                    raise Exception('Duplicates infection terms: {}, {}'.format(reagent, rate))
+                else:
+                    infection_terms_set.add((reagent, rate))
+                    reagent_index = class_index_dict[reagent]
+                    if rate.startswith('-'):
+                        rate = rate[1:]
+                        if k != 'S':
+                            raise Exception('A susceptible group that is not S: {}'.format(k))
+                        else:
+                            rate_index = params_index_dict[rate]
+                            infection_terms_list.append([rate_index, reagent_index, -1])
+                    else:
+                        rate_index = params_index_dict[rate]
+                        infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+
+    except KeyError:
+        raise Exception('No reactions for some classses. Please check model_spec again')
+
+    # set the product index
+    set_destination(linear_terms_list, linear_terms_destination_dict)
+    set_destination(infection_terms_list, infection_terms_destination_dict)
+    return nClass, class_index_dict, np.array(linear_terms_list, dtype=np.intc), np.array(infection_terms_list, dtype=np.intc)
+
+def set_destination(term_list, destination_dict):
+    '''
+    A function used by parse_model_spec that sets the product_index
+    '''
+    for term in term_list:
+        rate_index = term[0]
+        reagent_index = term[1]
+        if (rate_index, reagent_index) in destination_dict.keys():
+            product_index = destination_dict[(rate_index, reagent_index)]
+            term[2] = product_index
 
 def make_gamma_dist(means, stds):
     vars = stds**2
     scale = vars/means
     a = means/scale
-    return a, scale 
-
+    return a, scale
 
 
 def plotSIR(data, showPlot=True):
@@ -108,29 +166,29 @@ def plotSIR(data, showPlot=True):
     M = data['M']
     Ni = data['Ni']
     N = Ni.sum()
-    
+
     S = X[:, 0: M]
     Is = X[:, 2*M:3*M]
     R = Ni - X[:, 0:M] - X[:, M:2*M] - X[:, 2*M:3*M]
-    
-    
+
+
     sumS = S.sum(axis=1)
     sumI = Is.sum(axis=1)
     sumR = R.sum(axis=1)
-    
+
     plt.fill_between(t, 0, sumS/N, color="#348ABD", alpha=0.3)
     plt.plot(t, sumS/N, '-', color="#348ABD", label='$S$', lw=4)
-    
-    
+
+
     plt.fill_between(t, 0, sumI/N, color='#A60628', alpha=0.3)
     plt.plot(t, sumI/N, '-', color='#A60628', label='$I$', lw=4)
-    
+
     plt.fill_between(t, 0, sumR/N, color="dimgrey", alpha=0.3)
     plt.plot(t, sumR/N, '-', color="dimgrey", label='$R$', lw=4)
-    
+
     plt.legend(fontsize=26); plt.grid()
     plt.autoscale(enable=True, axis='x', tight=True)
-    
+
     plt.ylabel('Fraction of compartment value')
     plt.xlabel('Days')
 
