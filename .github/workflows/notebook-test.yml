@@ -1,9 +1,9 @@
 name: Notebooks
 
-on: push
-  # schedule:
-  #   # 4am daily
-  #   - cron:  '0 4 * * *'
+on:
+   schedule:
+     # 4am daily
+     - cron:  '0 4 * * *'
 
 jobs:
 
@@ -19,12 +19,12 @@ jobs:
         with:
          activate-environment: pyross
          environment-file: environment.yml
-         # python-version: 3.5
-      - name: Conda info
+      - name: make-pyross
         shell: bash -l {0}
         run: |
           conda activate pyross
-          conda list
+          make
+          make test
           # echo "done"
 
                 # make nbtest
