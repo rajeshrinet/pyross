@@ -29,6 +29,5 @@ jobs:
        # - name: quick-test
        #   shell: bash -l {0}
        #   run: |
-           make test
 
                 # make nbtest
