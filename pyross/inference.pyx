@@ -2147,17 +2147,18 @@ cdef class Spp(SIR_type):
                 if product_index>-1:
                     J[product_index, m, S_index, m] += rate[m]*l[i, m]
                 for n in range(M):
-                    J[S_index, m, infective_index, n] += -x[S_index*M+m]*rate[m]*CM[m, n]
+                    J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]
                     if product_index>-1:
                         J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
             reagent_index = linear_terms[i, 1]
-            rate_index = infection_terms[i, 0]
+            rate_index = linear_terms[i, 0]
             rate = parameters[rate_index]
-            J[reagent_index, m, reagent_index, m] -= rate[m]
-            if product_index>-1:
-                J[product_index, m, reagent_index, m] += rate[m]
+            for m in range(M):
+                J[reagent_index, m, reagent_index, m] -= rate[m]
+                if product_index>-1:
+                    J[product_index, m, reagent_index, m] += rate[m]
 
     cpdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
@@ -2177,14 +2178,15 @@ cdef class Spp(SIR_type):
             for m in range(M):
                 B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
                 if product_index>-1:
-                    B[S_index, m, product_index, m] +=  - rate[m]*l[i, m]*s[m]
+                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
                     B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] +=  - rate[m]*l[i, m]*s[m]
+                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
+
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
             reagent_index = linear_terms[i, 1]
             reagent = x[reagent_index*M:(reagent_index+1)*M]
-            rate_index = infection_terms[i, 0]
+            rate_index = linear_terms[i, 0]
             rate = parameters[rate_index]
             for m in range(M): # only fill in the upper triangular form
                 B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
