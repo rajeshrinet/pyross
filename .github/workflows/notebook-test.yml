@@ -19,12 +19,15 @@ jobs:
         with:
          activate-environment: pyross
          environment-file: environment.yml
+         # auto-activate-base: true
       - name: make-pyross
         shell: bash -l {0}
         run: |
           conda activate pyross
-          make
-          make test
+          which python
+          # make
+          
+          # make test
           # echo "done"
 
                 # make nbtest
