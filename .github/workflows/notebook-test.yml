@@ -23,5 +23,6 @@ jobs:
       - run:
           conda info
           conda list
+          echo "done"
 
                 # make nbtest
