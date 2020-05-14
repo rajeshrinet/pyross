@@ -238,8 +238,9 @@ cdef class Spp(IntegratorsClass):
     cdef int linear_terms_len
     cdef int infection_terms_len
     cdef np.ndarray infection_classes_indices
-    cdef object model_class_name_to_class_index
-    cdef object parameters
+    cdef dict model_class_name_to_class_index
+    cdef dict parameters
+    cdef dict param_to_model_term
     cdef list model_classes
     cdef np.ndarray _lambdas
 
