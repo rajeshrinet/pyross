@@ -24,10 +24,8 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate pyross
-          which python
-          # make
-          
-          # make test
+           make
+           make test
           # echo "done"
 
                 # make nbtest
