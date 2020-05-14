@@ -3621,9 +3621,9 @@ cdef class Spp(IntegratorsClass):
 
     def __init__(self, model_spec, parameters, M, Ni):
 
-        self.N = np.sum(Ni)
-        self.M = M
-        self.Ni = Ni
+        self.N = DTYPE(np.sum(Ni))
+        self.M = DTYPE(M)
+        self.Ni = np.array(Ni, dtype=DTYPE)
         self.nClass = len(model_spec['classes']) # We do not count R
 
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -4013,6 +4013,8 @@ cdef class Spp(IntegratorsClass):
                 if O != 'R':
                     x0_arr = np.concatenate( [x0_arr, x0[O]] )
             x0 = x0_arr
+
+        x0 = np.array(x0, dtype=DTYPE)
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
