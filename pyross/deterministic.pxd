@@ -238,8 +238,9 @@ cdef class Spp(IntegratorsClass):
     cdef int linear_terms_len
     cdef int infection_terms_len
     cdef np.ndarray infection_classes_indices
-    cdef object model_class_name_to_class_index
-    cdef object parameters
+    cdef dict model_class_name_to_class_index
+    cdef dict parameters
+    cdef dict param_to_model_term
     cdef list model_classes
     cdef np.ndarray _lambdas
 
@@ -257,4 +258,13 @@ cdef struct model_term:
     int oi_neg # Which model class to subtract from
     int oi_coupling # Which model class that couples
     int infection_index # Class infection index (only used if infection term)
-    DTYPE_t param
+    DTYPE_t* param
+
+    # Implement at some point in the future:
+    #int* add_to # Which model classes to add to
+    #int add_to_len
+    #int* subtract_from # Which model classes to subtract from
+    #int subtract_from_len
+    #int coupling # Which model class that couples
+    #int infection_index # Class infection index (only used if infection term)
+    #DTYPE_t param

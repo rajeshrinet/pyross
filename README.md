@@ -76,7 +76,7 @@ make (path=examples/deteministic) nbtest
 
 ## Examples
 
-PyRoss has a formulation-agnostic and  intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can performed through the same interface. The example below shows how to set up a deterministic SIR simulation. See the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for more Jupyter notebook examples.
+PyRoss has a formulation-agnostic and  intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can performed through the same interface. The example below shows how to set up a deterministic SIR simulation. [PyRoss Documentation](https://github.com/rajeshrinet/pyross/tree/master/docs) contains links for more examples.
 
 ```Python
 # Ex1: M=1, SIR
