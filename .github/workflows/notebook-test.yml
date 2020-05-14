@@ -12,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      uses: actions/checkout@v2
 
-        name: Setup Miniconda
-        uses: goanpeca/setup-miniconda@v1.2.0
-        with:
-         activate-environment: pyross
-         environment-file: environment.yml
-         python-version: 3.5
-         - shell: bash -l {0}
-        run: |
-          conda info
-          conda list
+      name: Setup Miniconda
+      uses: goanpeca/setup-miniconda@v1.2.0
+      with:
+       activate-environment: pyross
+       environment-file: environment.yml
+       python-version: 3.5
+       shell: bash -l {0}
+    run:
+      conda info
+      conda list
 
                 # make nbtest
