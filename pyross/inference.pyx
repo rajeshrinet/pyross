@@ -1,3 +1,4 @@
+from itertools import compress
 from scipy import sparse
 from scipy.integrate import odeint
 from scipy.optimize import minimize, approx_fprime
@@ -186,30 +187,49 @@ cdef class SIR_type:
         estimates[1] /= beta_rescale
         return estimates
 
-    def _infer_parameters_to_minimize(self, params, grad=0, keys=None, bounds=None, eps=None, x=None, Tf=None, Nf=None,
+    def _infer_parameters_to_minimize(self, params, grad=0, keys=None, is_scale_parameter=None, scaled_guesses=None,
+                               flat_guess_range=None, eps=None, x=None, Tf=None, Nf=None,
                                contactMatrix=None, a=None, scale=None):
         """Objective function for minimization call in infer_parameters."""
-        parameters = self.fill_params_dict(keys, params)
+        # Restore parameters from flattened parameters
+        orig_params = []
+        k=0
+        for j in range(len(flat_guess_range)):
+            if is_scale_parameter[j]:
+                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
+                k += 1
+            else:
+                orig_params.append(params[flat_guess_range[j]])
+
+        parameters = self.fill_params_dict(keys, orig_params)
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
         return minus_logp
 
-    def infer_parameters(self, keys, np.ndarray guess, np.ndarray stds, np.ndarray bounds, np.ndarray x,
-                        double Tf, double Nf, contactMatrix, verbose=False,
+    def infer_parameters(self, keys, guess, stds, bounds, np.ndarray x,
+                        double Tf, double Nf, contactMatrix, infer_scale_parameter=False, verbose=False,
                         ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                         enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''
         Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
         assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
+        IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess 
+        to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
+        If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead 
+        by setting infer_scale_parameter to True for each age-dependent parameter where this is wanted. Note that
+        computing hessians for age-dependent rates is not yet supported. This functionality might be changed in the
+        future without warning.
+
         Parameters
         ----------
         keys: list
             A list of names for parameters to be inferred
-        guess: numpy.array
-            Prior expectation (and initial guess) for the parameter values.
+        guess: numpy.array 
+            Prior expectation (and initial guess) for the parameter values. For parameters that support it, age-dependent
+            rates can be inferred by supplying a guess that is an array instead a single float.
         stds: numpy.array
             Standard deviations for the Gamma prior of the parameters
         bounds: 2d numpy.array
@@ -222,6 +242,10 @@ cdef class SIR_type:
             Number of data points along the trajectory
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter 
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: double
@@ -238,20 +262,81 @@ cdef class SIR_type:
         estimates : numpy.array
         the MAP parameter estimate
         '''
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
+        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
+        # (infer_scale_parameter is True).
+        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
+        n_age_dep = np.sum(age_dependent)
+        if not hasattr(infer_scale_parameter, "__len__"):
+            # infer_scale_parameter can be either set for all age-dependent parameters or individually
+            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
+        is_scale_parameter = np.zeros(len(guess), dtype=np.bool)
+        k = 0
+        for j in range(len(guess)):
+            if age_dependent[j]:
+                is_scale_parameter[j] = infer_scale_parameter[k]
+                k += 1
+                    
+        n_scaled_age_dep = np.sum(infer_scale_parameter)
+        flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
+
+        # Define a new flat guess and a list of slices that correspond to the intitial guess
+        flat_guess       = np.zeros(flat_guess_size)
+        flat_stds        = np.zeros(flat_guess_size)
+        flat_bounds      = np.zeros((flat_guess_size, 2))
+        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
+        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
+        i = 0; j = 0
+        while i < flat_guess_size:
+            if age_dependent[j] and is_scale_parameter[j]:
+                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
+                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
+                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
+                scaled_guesses.append(guess[j]) 
+                flat_guess_range.append(i)
+                i += 1
+            elif age_dependent[j]:
+                flat_guess[i:i+self.M]    = guess[j]
+                flat_stds[i:i+self.M]     = stds[j]
+                flat_bounds[i:i+self.M,:] = bounds[j,:]
+                flat_guess_range.append(list(range(i, i+self.M)))
+                i += self.M
+            else:
+                flat_guess[i]    = guess[j]
+                flat_stds[i]     = stds[j]
+                flat_bounds[i,:] = bounds[j,:]
+                flat_guess_range.append(i)
+                i += 1
+            j += 1
+
+        a, scale = pyross.utils.make_gamma_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
-            cma_stds = stds
+            flat_cma_stds = flat_stds
+        else:
+            flat_cma_stds = np.zeros(flat_guess_size)
+            for i in range(len(guess)):
+                flat_cma_stds[flat_guess_range[i]] = cma_stds[i]
 
-        minimize_args={'keys':keys, 'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf,
-                         'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
-        res = minimization(self._infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
+        minimize_args={'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
+                       'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
+        res = minimization(self._infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
-        estimates = res[0]
-        return estimates
+                           cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
+        params = res[0]
+        # Restore parameters from flattened parameters
+        orig_params = []
+        k=0
+        for j in range(len(flat_guess_range)):
+            if is_scale_parameter[j]:
+                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
+                k += 1
+            else:
+                orig_params.append(params[flat_guess_range[j]])
+
+        return np.array(orig_params)
 
 
     def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
