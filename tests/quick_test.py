@@ -2,9 +2,9 @@
 """Unittesting for the pyross module. Run as python -m unittest pyross.test."""
 import sys
 #remove pwd from path that tries to import .pyx files
-for i in sys.path:
-    if 'pyross' in i or i == '':
-        sys.path.remove(i)
+# for i in sys.path:
+#     if 'pyross' in i or i == '':
+#         sys.path.remove(i)
 # print(sys.path)
 import pyross
 import unittest

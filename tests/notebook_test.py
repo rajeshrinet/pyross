@@ -6,9 +6,9 @@ import sys
 import unittest
 import argparse
 import time
-for i in sys.path:
-    if 'pyross' in i or i == '':
-        sys.path.remove(i)
+# for i in sys.path:
+#     if 'pyross' in i or i == '':
+#         sys.path.remove(i)
 
 
 def run_notebook_tests(path):
