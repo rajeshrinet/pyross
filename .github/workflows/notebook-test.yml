@@ -1,9 +1,9 @@
 name: Notebooks
 
-on:
-  schedule:
-    # 4am daily
-    - cron:  '0 4 * * *'
+# on:
+#   schedule:
+#     # 4am daily
+#     - cron:  '0 4 * * *'
 
 jobs:
 
@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
     
-        name: Setup Miniconda
+      - name: Setup Miniconda
         uses: goanpeca/setup-miniconda@v1.2.0
         with:
          activate-environment: pyross
          environment-file: environment.yml
          python-version: 3.5
-        run:
+      - run:
           conda info
           conda list
 
