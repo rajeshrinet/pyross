@@ -1,9 +1,9 @@
 name: Notebooks
 
-on: push
-   # schedule:
-   #   # 4am daily
-   #   - cron:  '0 4 * * *'
+on:
+    schedule:
+      # 4am daily
+      - cron:  '0 4 * * *'
 
 jobs:
 
@@ -25,7 +25,7 @@ jobs:
         run: |
           conda activate pyross
           make
-          make test
+          make nbtest
        # - name: quick-test
        #   shell: bash -l {0}
        #   run: |
