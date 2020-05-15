@@ -3006,11 +3006,11 @@ cdef class SEAIRQ_testing(stochastic_integration):
             
 
         for i in range(M):
-            t0 = TR[i]/(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
-            tE = ars*kapE*t0
-            tA= ars*t0
-            tIa = ars*t0
-            tIs = t0
+            t0 = 1./(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
+            tE = TR[i]*ars*kapE*t0
+            tA= TR[i]*ars*t0
+            tIa = TR[i]*ars*t0
+            tIs = TR[i]*t0
             
             lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
             for j in range(M):

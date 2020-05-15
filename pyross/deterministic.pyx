@@ -3455,11 +3455,11 @@ cdef class SEAIRQ_testing(IntegratorsClass):
             rateS = lmda*S[i]
             
             
-            t0 = TR[i]/(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
-            tE = ars*kapE*t0
-            tA= ars*t0
-            tIa = ars*t0
-            tIs = t0
+            t0 = 1./(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
+            tE = TR[i]*ars*kapE*t0
+            tA= TR[i]*ars*t0
+            tIa = TR[i]*ars*t0
+            tIs = TR[i]*t0
             
             
             dxdt[i]     = -rateS      - FM[i]                         # \dot S
