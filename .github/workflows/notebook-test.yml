@@ -26,8 +26,30 @@ jobs:
           conda activate pyross
           make
           make nbtest
-       # - name: quick-test
-       #   shell: bash -l {0}
-       #   run: |
+      - name: testing-deterministic
+        shell: bash -l {0}
+        run: |
+          make path="/examples/deterministic" nbtest
+      - name: testing-stochastic
+        shell: bash -l {0}
+        run: |
+          make path="/examples/stochastic" nbtest
+      - name: testing-stochastic
+        shell: bash -l {0}
+        run: |
+          make path="/examples/stochastic" nbtest
+      - name: testing-hybrid
+        shell: bash -l {0}
+        run: |
+          make path="/examples/hybrid" nbtest
+      - name: testing-contactMatrix
+        shell: bash -l {0}
+        run: |
+          make path="/examples/contactMatrix" nbtest
+      - name: end
+        shell: bash -l {0}
+        run: |
+          echo "skipped inference and forcast"
+    
 
                 # make nbtest
