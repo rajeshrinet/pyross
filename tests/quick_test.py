@@ -12,6 +12,7 @@ import inspect
 import numpy as np
 import scipy as sp
 
+skip = ["Spp", "SEAIRQ_testing", "SIR_type"]
 
 class DeterministicTest(unittest.TestCase):
     """testing deterministic.pyx."""
@@ -128,7 +129,7 @@ class DeterministicTest(unittest.TestCase):
         deterministic_models = dict(inspect.getmembers(pyross.deterministic,
                                                        inspect.isclass))
         for name, model in deterministic_models.items():
-            if name.startswith('S') and not 'Spp':
+            if name.startswith('S') and not name in skip:
                 m = model(self.parameters, self.M, self.N)
 
     def test_run_models(self):
@@ -137,7 +138,7 @@ class DeterministicTest(unittest.TestCase):
                                                        inspect.isclass))
         traj_dict={}
         for name, model in deterministic_models.items():
-            if name.startswith('S') and not 'Spp':
+            if name.startswith('S') and not name in skip:
                 m = model(self.parameters, self.M, self.N)
                 x0 = np.array([*self.N, *np.ones(self.M),
                                *np.zeros(m.nClass -2)], dtype=np.float64).reshape((m.nClass,1))
@@ -162,7 +163,7 @@ class StochasticTest(unittest.TestCase):
         """Initializes all stochastic models"""
         traj_dict={}
         for name, model in self.stochastic_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not name in skip:
                 params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                 m = model(params, M, N)
                 # x0 = np.array([*self.N, *np.ones(self.M),
@@ -174,7 +175,7 @@ class StochasticTest(unittest.TestCase):
        traj_dict={}
        for name, model in self.stochastic_models.items():
            
-           if name.startswith('S'):
+           if name.startswith('S') and not name in skip:
                params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                m = model(params, M, N + M*10)
                x0 = np.array([*self.parameters['N'],
@@ -190,7 +191,7 @@ class StochasticTest(unittest.TestCase):
                                                         inspect.isclass))
         params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
         for name, model in self.stochastic_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not name in skip:
                 mS = model(params, M, N + M*self.iinfec)
                 # print(mS.kk)
                 mD = deterministic_models[name](params, M, N + M*self.iinfec)
@@ -216,7 +217,7 @@ class StochasticTest(unittest.TestCase):
                                                         inspect.isclass))
         params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
         for name, model in self.stochastic_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not name in skip:
                 mS = model(params, M, N + M*self.iinfec)
                 # print(mS.kk)
                 mD = deterministic_models[name](params, M, N + M*self.iinfec)
@@ -245,7 +246,7 @@ class StochasticTest(unittest.TestCase):
         self.nloops=10
         params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
         for name, model in self.stochastic_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not name in skip:
                 mS = model(params, M, N + M*self.iinfec)
                 x0 = np.array([*self.parameters['N'],
                               *np.ones(self.parameters['M'])*self.iinfec,
@@ -279,7 +280,7 @@ class ControlTest(unittest.TestCase):
     def test_init_models(self):
         """Initializes all control models"""
         for name, model in self.control_models.items():
-            if name.startswith('S'):
+            if name.startswith('S') and not name in skip:
                 params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                 m = model(params, M, N)
 
@@ -298,7 +299,7 @@ class InferenceTest(unittest.TestCase):
     def test_init_models(self):
         """Initializes all inference models"""
         for name, model in self.control_models.items():
-            if name.startswith('S') and name != "SIR_type":
+            if name.startswith('S') and not name in skip:
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
                 fi = Ni/N
@@ -321,7 +322,7 @@ class ForecastTest(unittest.TestCase):
     def test_init_models(self):
         """Initializes all forcast models"""
         for name, model in self.control_models.items():
-            if name.startswith('S') and name != "SIR_type":
+            if name.startswith('S') and not name in skip:
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
                 fi = Ni/N
