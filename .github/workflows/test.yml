@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Installation
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -26,17 +26,7 @@ jobs:
         run: |
           conda activate pyross
           make
-          # make nbtest
-      - name: testing-deterministic
-        shell: bash -l {0}
-        run: |
-          pwd
-          ls
-          make path="examples/deterministic/" nbtest
-      - name: testing-stochastic
-        shell: bash -l {0}
-        run: |
-          echo "skipped non-deterministic notebooks as test"
+          make test
     
 
                 # make nbtest
