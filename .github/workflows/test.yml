@@ -30,7 +30,9 @@ jobs:
       - name: testing-deterministic
         shell: bash -l {0}
         run: |
-          make path="/examples/deterministic" nbtest
+          pwd
+          ls
+          make path="/examples/deterministic/" nbtest
       - name: testing-stochastic
         shell: bash -l {0}
         run: |
