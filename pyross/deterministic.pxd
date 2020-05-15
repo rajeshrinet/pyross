@@ -8,8 +8,8 @@ cdef class IntegratorsClass:
     cdef:
         readonly int N, M, kI, kE, nClass
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh, ep, gI
-        readonly double tS, tE, tA, tIa, tIs, gIsp, gIcp, gIhp
-        readonly np.ndarray rp0, Ni, dxdt, CM, FM, sa, iaa, hh, cc, mm, alpha
+        readonly double tS, tE, tA, tIa, tIs, gIsp, gIcp, gIhp, ars, kapE
+        readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR, sa, iaa, hh, cc, mm, alpha
 
 
 
@@ -223,6 +223,18 @@ cdef class SEAIRQ(IntegratorsClass):
     """
     cdef rhs(self, rp, tt)
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEAIRQ_testing(IntegratorsClass):
+    """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Ia: asymptomatic
+    Is: symptomatic
+    A : Asymptomatic and infectious
+    """
+    cdef rhs(self, rp, tt)
 
 #@cython.wraparound(False)
 #@cython.boundscheck(False)

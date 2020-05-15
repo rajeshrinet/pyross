@@ -2872,3 +2872,363 @@ cdef class SEAIRQ(stochastic_integration):
         X  = data['X']
         Is = X[:, 5*self.M:6*self.M]
         return Is
+
+    
+    
+cdef class SEAIRQ_testing(stochastic_integration):
+    """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Ia: asymptomatic
+    Is: symptomatic
+    A : Asymptomatic and infectious
+
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float, np.array(M,)
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            gA : float
+                rate of removal from activated individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            ars : float
+                fraction of population admissible for random and symptomatic tests
+            kapE : float
+                fraction of positive tests for exposed individuals
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(6*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    rate_matrix:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
+    """
+    
+    
+    cdef:
+        readonly double beta, gIa, gIs, gE, gA, fsa
+        readonly double ars, kapE
+        readonly np.ndarray xt0, Ni, dxtdt, CC, alpha
+        readonly object testRate
+
+
+    def __init__(self, parameters, M, Ni):
+        self.nClass = 6
+        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
+        self.beta  = parameters['beta']                     # infection rate
+        self.gE    = parameters['gE']                       # progression rate from E
+        self.gA    = parameters['gA']                      # rate to go from A to I
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
+
+        self.ars    = parameters['ars']                     # fraction of population admissible for testing
+        self.kapE   = parameters['kapE']                    # fraction of positive tests for exposed
+        
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+        
+        self.testRate=None
+
+        self.k_tot = 6 # total number of explicit states per age group
+        # here:
+        # 1. S    Susceptible
+        # 2. E    Exposed
+        # 3. A    Asymptomatic and infective
+        # 4. Ia   Infective, asymptomatic
+        # 5. Is   Infective, symptomatic
+        # 6. Q    Quarantined
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
+        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+
+        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+    cdef rate_matrix(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double beta=self.beta, rateS, lmda
+            #double tS=self.tS,
+            double t0, tE, tA, tIa, tIs
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs
+            double ars=self.ars, kapE=self.kapE
+            double gA=self.gA
+            double gAA, gAS
+            
+
+            long [:] S    = xt[0*M:M]
+            long [:] E    = xt[1*M:2*M]
+            long [:] A    = xt[2*M:3*M]
+            long [:] Ia   = xt[3*M:4*M]
+            long [:] Is   = xt[4*M:5*M]
+            long [:] Q    = xt[5*M:6*M]
+
+            double [:] Ni   = self.Ni
+            #
+            double [:]   FM = self.FM
+            double [:,:] CM = self.CM
+            double [:,:] RM = self.RM
+            double [:] alpha= self.alpha
+            
+            double [:] TR
+            
+        if None != self.testRate :
+            TR = self.testRate(tt)
+        else :
+            TR = np.zeros(M)
+            
+
+        for i in range(M):
+            t0 = TR[i]/(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
+            tE = ars*kapE*t0
+            tA= ars*t0
+            tIa = ars*t0
+            tIs = t0
+            
+            lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
+            for j in range(M):
+                lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
+            rateS = lmda*S[i]
+            # rates away from S
+            RM[i+M  , i]     = rateS  # rate S -> E
+            #RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
+            # rates away from E
+            RM[i+2*M, i+M]   = gE  * E[i] # rate E -> A
+            RM[i+5*M, i+M]   = tE  * E[i] # rate E -> Q
+            # rates away from A
+            RM[i+3*M, i+2*M] = gAA * A[i] # rate A -> Ia
+            RM[i+4*M, i+2*M] = gAS * A[i] # rate A -> Is
+            RM[i+5*M, i+2*M] = tA  * A[i] # rate A -> Q
+            # rates away from Ia
+            RM[i+3*M, i+3*M] = gIa * Ia[i] # rate Ia -> R
+            RM[i+5*M, i+3*M] = tIa * Ia[i] # rate Ia -> Q
+            # rates away from Is
+            RM[i+4*M, i+4*M] = gIs * Is[i] # rate Is -> R
+            RM[i+5*M, i+4*M] = tIs * Is[i] # rate Is -> Q
+            #
+        return
+
+    cpdef simulate(self, S0, E0, A0, Ia0, Is0, Q0,
+                  contactMatrix, testRate, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] xt = self.xt
+
+        self.testRate=testRate
+        
+        # write initial condition to xt
+        for i in range(M):
+            xt[i]     = S0[i]
+            xt[i+M]   = E0[i]
+            xt[i+2*M] = A0[i]
+            xt[i+3*M] = Ia0[i]
+            xt[i+4*M] = Is0[i]
+            xt[i+5*M] = Q0[i]
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                      seedRate=seedRate)
+
+        out_dict={'X':out_arr, 't':t_arr,
+                'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
+                'alpha':self.alpha,'beta':self.beta,
+                'gIa':self.gIa,'gIs':self.gIs,
+                'gE':self.gE,'gA':self.gA,
+                'ars':self.ars,'kapE':self.kapE}
+        return out_dict
+
+    cpdef simulate_events(self, S0, E0, A0, Ia0, Is0, Q0,
+                events, contactMatrices, testRate, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                  events_repeat=False,events_subsequent=True,
+                seedRate=None
+                ):
+        cdef:
+            int M = self.M, i
+            long [:] xt = self.xt
+            list events_out
+            np.ndarray out_arr, t_arr
+
+        self.testRate=testRate    
+        
+        # write initial condition to xt
+        for i in range(M):
+            xt[i]     = S0[i]
+            xt[i+M]   = E0[i]
+            xt[i+2*M] = A0[i]
+            xt[i+3*M] = Ia0[i]
+            xt[i+4*M] = Is0[i]
+            xt[i+5*M] = Q0[i]
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr, events_out =  self.simulate_gillespie_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent,
+                                    seedRate=seedRate)
+        else:
+            t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
+                                  contactMatrices=contactMatrices,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency,
+                                  seedRate=seedRate,
+                                  events_repeat=events_repeat,
+                                  events_subsequent=events_subsequent)
+
+        out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
+                  'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
+                  'alpha':self.alpha,'beta':self.beta,
+                  'gIa':self.gIa,'gIs':self.gIs,
+                  'gE':self.gE,'gA':self.gA,
+                  'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        return out_dict
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activated population time series
+        """
+        X = data['X']
+        A = X[:, 2*self.M:3*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+        return R
+
+
+
+    def Q(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Q' : Quarantined population time series
+        """
+        X  = data['X']
+        Is = X[:, 5*self.M:6*self.M]
+        return Is

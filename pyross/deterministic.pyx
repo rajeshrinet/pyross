@@ -3340,6 +3340,309 @@ cdef class SEAIRQ(IntegratorsClass):
 
 
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEAIRQ_testing(IntegratorsClass):
+    """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Ia: asymptomatic
+    Is: symptomatic
+    A : Asymptomatic and infectious
+
+    Attributes
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha : float
+                fraction of infected who are asymptomatic.
+            beta : float
+                rate of spread of infection.
+            gIa : float
+                rate of removal from asymptomatic individuals.
+            gIs : float
+                rate of removal from symptomatic individuals.
+            gE : float
+                rate of removal from exposed individuals.
+            gA : float
+                rate of removal from activated individuals.
+            fsa : float
+                fraction by which symptomatic individuals self isolate.
+            ars : float
+                fraction of population admissible for random and symptomatic tests
+            kapE : float
+                fraction of positive tests for exposed individuals
+    M : int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    simulate
+    S
+    E
+    A
+    Ia
+    Is
+    R
+    Q
+    """
+
+    def __init__(self, parameters, M, Ni):
+        self.nClass= 6
+        self.beta  = parameters['beta']                     # infection rate
+        self.gIa   = parameters['gIa']                      # recovery rate of Ia
+        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
+        self.fsa   = parameters['fsa']                      # the self-isolation parameter
+
+        self.ars    = parameters['ars']                     # fraction of population admissible for testing
+        self.kapE    = parameters['kapE']                   # fraction of positive tests for exposed
+
+        alpha      = parameters['alpha']
+
+        self.N     = np.sum(Ni)
+        self.M     = M
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = Ni
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix 
+        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
+        self.TR    = np.zeros( self.M, dtype = DTYPE)           # test rate
+        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+
+        self.alpha    = np.zeros( self.M, dtype = DTYPE)
+        if np.size(alpha)==1:
+            self.alpha = alpha*np.ones(M)
+        elif np.size(alpha)==M:
+            self.alpha= alpha
+        else:
+            raise Exception('alpha can be a number or an array of size M')
+
+
+
+    cdef rhs(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, i, j
+            double beta=self.beta, rateS, lmda, t0, tE, tA, tIa, tIs
+            double ars=self.ars, kapE=self.kapE
+            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
+            double gAA, gAS
+
+            
+            double [:] S    = xt[0*M:M]
+            double [:] E    = xt[1*M:2*M]
+            double [:] A    = xt[2*M:3*M]
+            double [:] Ia   = xt[3*M:4*M]
+            double [:] Is   = xt[4*M:5*M]
+            double [:] Q    = xt[5*M:6*M]
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:]   FM = self.FM
+            double [:]   TR = self.TR
+            double [:] dxdt = self.dxdt
+
+            double [:] alpha= self.alpha
+
+        for i in range(M):
+            lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
+            for j in range(M):
+                 lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
+            rateS = lmda*S[i]
+            
+            
+            t0 = TR[i]/(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
+            tE = ars*kapE*t0
+            tA= ars*t0
+            tIa = ars*t0
+            tIs = t0
+            
+            
+            dxdt[i]     = -rateS      - FM[i]                         # \dot S
+            dxdt[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E
+            dxdt[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A
+            dxdt[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is
+            dxdt[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # \dot Q
+            
+        return
+
+
+    def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, testRate, Tf, Nf, Ti=0,
+                     integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        S0 : np.array
+            Initial number of susceptables.
+        E0 : np.array
+            Initial number of exposeds.
+        A0 : np.array
+            Initial number of activateds.
+        Ia0 : np.array
+            Initial number of asymptomatic infectives.
+        Is0 : np.array
+            Initial number of symptomatic infectives.
+        Q0 : np.array
+            Initial number of quarantineds.
+        contactMatrix : python function(t)
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
+             individual in class i with an individual in class j
+        testRate : python function(t)
+             Rate at which symptomatic and random individuals get tested
+        Tf : float
+            Final time of integrator
+        Nf : Int
+            Number of time points to evaluate.
+        Ti : float, optional
+            Start time of integrator. The default is 0.
+        integrator : TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        seedRate : python function, optional
+            Seeding of infectives. The default is None.
+        maxNumSteps : int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.TR = testRate(t)
+            if None != seedRate :
+                self.FM = seedRate(t)
+            else :
+                self.FM = np.zeros( self.M, dtype = DTYPE)
+            self.rhs(xt, t)
+            return self.dxdt
+
+        x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
+                     'beta':self.beta,'gIa':self.gIa, 'fsa':self.fsa, 'gIs':self.gIs,
+                     'gE':self.gE,'gA':self.gA,'ars':self.ars,'kapE':self.kapE}
+        return data
+
+
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'S' : Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'E' : Exposed population time series
+        """
+        X = data['X']
+        E = X[:, self.M:2*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'A' : Activated population time series
+        """
+        X = data['X']
+        A = X[:, 2*self.M:3*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Ia' : Asymptomatics population time series
+        """
+        X  = data['X']
+        Ia = X[:, 3*self.M:4*self.M]
+        return Ia
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Is' : symptomatics population time series
+        """
+        X  = data['X']
+        Is = X[:, 4*self.M:5*self.M]
+        return Is
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'R' : Recovered population time series
+        """
+        X = data['X']
+        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
+             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+        return R
+
+
+    def Q(self,  data):
+        """
+        Parameters
+        ----------
+        data : data files
+
+        Returns
+        -------
+            'Q' : Quarantined population time series
+        """
+        X  = data['X']
+        Is = X[:, 5*self.M:6*self.M]
+        return Is
+    
+    
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
