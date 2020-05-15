@@ -32,6 +32,16 @@ cd docs/sphinx
 sphinx-build -b markdown . ../API
 ```
 
+## Clean local build
+
+Please then clean your local build to avoid future conflict errors by
+navigating to pyross and cleaning the local build.
+
+```bash
+cd ../..
+make clean-local
+```
+
 Add a table of contents in VSCode by first installing *Markdown All in One*
 and then using the command `Markdown: Create Table of Contents`.
 
