@@ -48,6 +48,7 @@ def list_notebooks(root, recursive=True, ignore_list=None, notebooks=None):
     try:
         for filename in os.listdir(root):
             path = os.path.join(root, filename)
+            print("looking for notebooks under ", root)
             cwd = os.path.dirname(path)
             if path in ignore_list:
                 print('Skipping ignored notebook: ' + path)
@@ -64,6 +65,7 @@ def list_notebooks(root, recursive=True, ignore_list=None, notebooks=None):
                     continue
                 list_notebooks(path, recursive, ignore_list, notebooks)
     except NotADirectoryError:
+        print(root, " is not a valid folder, checking if it is a file")
         path = root
         cwd = os.path.dirname(path)
         return [(path,cwd)]
