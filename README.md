@@ -12,7 +12,7 @@ We have a lecture-demonstration events coming up:
 
 - **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM (GMT+1) on Monday (18 May)
 
-Both meetings will be using Google Meet, in the following room: https://meet.google.com/amv-qevr-fjp
+The meetings will be using Google Meet in the following room: https://meet.google.com/amv-qevr-fjp
 
 ## About
 
@@ -74,7 +74,7 @@ make test
 Long test of all example notebooks. Optionally can specify path to test a certain subset of
 notebooks.
 ```
-make (path=examples/deteministic) nbtest
+make path=examples/deteministic nbtest
 ```
 
 **Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website
