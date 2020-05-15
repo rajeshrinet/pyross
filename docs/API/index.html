@@ -3985,41 +3985,32 @@ I.e len(contactMatrix)</p>
 <dl class="method">
 <dt id="pyross.stochastic.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Performs the Stochastic Simulation Algorithm (SSA)</p>
-<dl class="simple">
-<dt>S0<span class="classifier">np.array</span></dt><dd><p>Initial number of susceptables.</p>
-</dd>
-<dt>Ia0<span class="classifier">np.array</span></dt><dd><p>Initial number of asymptomatic infectives.</p>
-</dd>
-<dt>Is0<span class="classifier">np.array</span></dt><dd><p>Initial number of symptomatic infectives.</p>
-</dd>
-<dt>contactMatrix<span class="classifier">python function(t)</span></dt><dd><p>The social contact matrix C_{ij} denotes the
+<dd><p>Performs the Stochastic Simulation Algorithm (SSA)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
 average number of contacts made per day by an
-individual in class i with an individual in class j</p>
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – SSA to use, either ‘gillespie’ or ‘tau_leaping’.
+The default is ‘gillespie’.</p></li>
+<li><p><strong>nc</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
+</ul>
 </dd>
-<dt>Tf<span class="classifier">float</span></dt><dd><p>Final time of integrator</p>
-</dd>
-<dt>Nf<span class="classifier">Int</span></dt><dd><p>Number of time points to evaluate.</p>
-</dd>
-<dt>method<span class="classifier">str, optional</span></dt><dd><p>SSA to use, either ‘gillespie’ or ‘tau_leaping’.
-The default is ‘gillespie’.</p>
-</dd>
-</dl>
-<p>nc : TYPE, optional
-epsilon: TYPE, optional
-tau_update_frequency: TYPE, optional
-seedRate: python function, optional</p>
-<blockquote>
-<div><p>Seeding of infectives. The default is None.</p>
-</div></blockquote>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns</dt><dd><dl class="simple">
-<dt>dict</dt><dd><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
 ‘event_occured’ , ‘param’: input param to integrator.</p>
 </dd>
-</dl>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4187,23 +4178,13 @@ Gillespie algorithm</p>
 <code class="sig-name descname">simulate_gillespie</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.simulate_gillespie" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs the stochastic simulation using the Gillespie algorithm.
 1. Rates for each reaction channel r_i calculated from current state.
-2. The timestep tau is chosen randomly from an</p>
-<blockquote>
-<div><p>exponential distribution P ~ e^-W   au.</p>
-</div></blockquote>
-<ol class="arabic simple" start="3">
-<li><dl class="simple">
-<dt>A single reaction occurs with probablity proportional to its fractional</dt><dd><p>rate constant r_i/W.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>The state is updated to reflect this reaction occuring and time is</dt><dd><p>propagated forward by       au</p>
-</dd>
-</dl>
-</li>
-</ol>
-<p>Stops if population becomes too small.</p>
+2. The timestep tau is chosen randomly from an
+exponential distribution P ~ e^-W       au.
+3. A single reaction occurs with probablity proportional to its fractional
+rate constant r_i/W.
+4. The state is updated to reflect this reaction occuring and time is
+propagated forward by   au
+Stops if population becomes too small.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
