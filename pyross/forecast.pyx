@@ -17,7 +17,7 @@ import time
 
 cdef class SIR:
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
 
@@ -57,8 +57,8 @@ cdef class SIR:
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
         self.cov = parameters.get('cov')
@@ -223,7 +223,7 @@ cdef class SIR:
 
 cdef class SIR_latent:
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
     
@@ -273,8 +273,8 @@ cdef class SIR_latent:
     def __init__(self, parameters, M, Ni):
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
         self.cov_params = parameters.get('cov_params')
@@ -445,7 +445,7 @@ cdef class SIR_latent:
 
 cdef class SEIR:
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -487,8 +487,8 @@ cdef class SEIR:
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE   = parameters.get('gE')                      # progression rate of E
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
         #
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
@@ -659,7 +659,7 @@ cdef class SEIR:
 
 cdef class SEIR_latent:
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     
@@ -715,8 +715,8 @@ cdef class SEIR_latent:
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE   = parameters.get('gE')                      # progression rate of E
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
         #
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         #
@@ -896,7 +896,7 @@ cdef class SEIR_latent:
 
 cdef class SEAIRQ():
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious 
@@ -949,8 +949,8 @@ cdef class SEAIRQ():
         # these are the parameters we consider stochastic
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
         self.gE    = parameters.get('gE')                       # progression rate from E
         self.gA   = parameters.get('gA')                        # rate to go from A to Ia
         #
@@ -1141,7 +1141,7 @@ cdef class SEAIRQ():
 
 cdef class SEAIRQ_latent():
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious 
@@ -1211,8 +1211,8 @@ cdef class SEAIRQ_latent():
         # these are the parameters we consider stochastic
         self.alpha = parameters.get('alpha')                    # fraction of asymptomatic infectives
         self.beta  = parameters.get('beta')                     # infection rate
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
         self.gE    = parameters.get('gE')                       # progression rate from E
         self.gA   = parameters.get('gA')                        # rate to go from A to Ia
         #
@@ -1412,7 +1412,7 @@ cdef class SEAIRQ_latent():
 
 cdef class SEAI5R():
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1481,14 +1481,14 @@ cdef class SEAI5R():
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # progression rate of E class
         self.gA    = parameters.get('gA')                       # progression rate of A class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
 
         # the following parameters we consider to be exact
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Ih
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ic
+        self.gIh   = parameters.get('gIh')                      # removal rate of Ih
+        self.gIc   = parameters.get('gIc')                      # removal rate of Ic
         #
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         hh         = parameters.get('hh')                       # hospital
@@ -1717,7 +1717,7 @@ cdef class SEAI5R():
 
 cdef class SEAI5R_latent():
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1791,14 +1791,14 @@ cdef class SEAI5R_latent():
         self.beta  = parameters.get('beta')                     # infection rate
         self.gE    = parameters.get('gE')                       # progression rate of E class
         self.gA    = parameters.get('gA')                       # progression rate of A class
-        self.gIa   = parameters.get('gIa')                      # recovery rate of Ia
-        self.gIs   = parameters.get('gIs')                      # recovery rate of Is
+        self.gIa   = parameters.get('gIa')                      # removal rate of Ia
+        self.gIs   = parameters.get('gIs')                      # removal rate of Is
 
         # the following parameters we consider to be exact
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Ih
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ic
+        self.gIh   = parameters.get('gIh')                      # removal rate of Ih
+        self.gIc   = parameters.get('gIc')                      # removal rate of Ic
         #
         sa         = parameters.get('sa')                       # daily arrival of new susceptibles
         hh         = parameters.get('hh')                       # hospital

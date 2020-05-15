@@ -191,7 +191,7 @@ cdef class control_integration:
 @cython.nonecheck(False)
 cdef class SIR(control_integration):
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
 
@@ -230,8 +230,8 @@ cdef class SIR(control_integration):
         self.params = parameters
 
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
@@ -328,7 +328,7 @@ cdef class SIR(control_integration):
 @cython.nonecheck(False)
 cdef class SEkIkIkR(control_integration):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     method of k-stages of Ia, Is, E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Attributes
@@ -369,9 +369,9 @@ cdef class SEkIkIkR(control_integration):
 
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters['beta']                         # infection rate
-        self.gE    = parameters['gE']                           # recovery rate of E
-        self.gIa   = parameters['gIa']                           # recovery rate of Ia
-        self.gIs   = parameters['gIs']                           # recovery rate of Is
+        self.gE    = parameters['gE']                           # removal rate of E
+        self.gIa   = parameters['gIa']                           # removal rate of Ia
+        self.gIs   = parameters['gIs']                           # removal rate of Is
         self.kI    = parameters['kI']                           # number of stages
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         self.kE    = parameters['kE']
@@ -554,7 +554,7 @@ cdef class SEkIkIkR(control_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -581,7 +581,7 @@ cdef class SEkIkIkR(control_integration):
 @cython.nonecheck(False)
 cdef class SIRS(control_integration):
     """
-    Susceptible, Infected, Recovered, Susceptible (SIRS)
+    Susceptible, Infected, Removed, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -599,7 +599,7 @@ cdef class SIRS(control_integration):
             fsa : float
                 fraction by which symptomatic individuals self isolate.
             ep  : float
-                fraction of recovered who become susceptable again
+                fraction of removed who become susceptable again
             sa  : float, np.array (M,)
                 daily arrival of new susceptables
             iaa : float, np.array (M,)
@@ -622,13 +622,13 @@ cdef class SIRS(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
 
         self.nClass = 4
 
-        self.ep    = parameters['ep']                       # fraction of recovered who is susceptible
+        self.ep    = parameters['ep']                       # fraction of removed who is susceptible
         sa         = parameters['sa']                       # daily arrival of new susceptibles
         iaa        = parameters['iaa']                      # daily arrival of new asymptomatics
 
@@ -744,7 +744,7 @@ cdef class SIRS(control_integration):
 @cython.nonecheck(False)
 cdef class SEIR(control_integration):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -781,9 +781,9 @@ cdef class SEIR(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.nClass = 4
@@ -876,7 +876,7 @@ cdef class SEIR(control_integration):
 @cython.nonecheck(False)
 cdef class SEI5R(control_integration):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -906,9 +906,9 @@ cdef class SEI5R(control_integration):
             gIs : float
                 rate of removal from symptomatic individuals.
             gIh : float
-                rate of recovery for hospitalised individuals.
+                rate of removal for hospitalised individuals.
             gIc : float
-                rate of recovery for idividuals in intensive care.
+                rate of removal for idividuals in intensive care.
             fsa : float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
@@ -940,11 +940,11 @@ cdef class SEI5R(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIc   = parameters['gIc']                      # removal rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
@@ -1091,7 +1091,7 @@ cdef class SEI5R(control_integration):
 @cython.nonecheck(False)
 cdef class SIkR(control_integration):
     """
-    Susceptible, Infected, Recovered (SIkR)
+    Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     Attributes
     ----------
@@ -1123,7 +1123,7 @@ cdef class SIkR(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gI    = parameters['gI']                       # recovery rate of I
+        self.gI    = parameters['gI']                       # removal rate of I
         self.ki    = parameters['kI']                        # number of stages
 
         self.nClass = self.ki+1
@@ -1208,7 +1208,7 @@ cdef class SIkR(control_integration):
 @cython.nonecheck(False)
 cdef class SEkIkR(control_integration):
     """
-    Susceptible, Infected, Recovered (SIkR)
+    Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Attributes
@@ -1245,8 +1245,8 @@ cdef class SEkIkR(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E
-        self.gI    = parameters['gI']                       # recovery rate of I
+        self.gE    = parameters['gE']                       # removal rate of E
+        self.gI    = parameters['gI']                       # removal rate of I
         self.ki    = parameters['kI']                       # number of stages
         self.ke    = parameters['kE']
 
@@ -1343,7 +1343,7 @@ cdef class SEkIkR(control_integration):
 @cython.nonecheck(False)
 cdef class SEAIR(control_integration):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -1383,9 +1383,9 @@ cdef class SEAIR(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E
         self.gA    = parameters['gA']                       # rate to go from A to Ia, Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
@@ -1483,7 +1483,7 @@ cdef class SEAIR(control_integration):
 @cython.nonecheck(False)
 cdef class SEAI5R(control_integration):
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1537,12 +1537,12 @@ cdef class SEAI5R(control_integration):
     def __init__(self, parameters, M, Ni):
         self.params = parameters
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gA    = parameters['gA']                       # recovery rate of A class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gA    = parameters['gA']                       # removal rate of A class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIc   = parameters['gIc']                      # removal rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
@@ -1697,7 +1697,7 @@ cdef class SEAI5R(control_integration):
 @cython.nonecheck(False)
 cdef class SEAIRQ(control_integration):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -1748,9 +1748,9 @@ cdef class SEAIRQ(control_integration):
         self.params = parameters
 
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E
         self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 

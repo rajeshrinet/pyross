@@ -119,8 +119,8 @@ cdef class SIR(ContactMatrixFunction):
         # matrix for linearised dynamics
         alpha = data['alpha']                         # infection rate
         beta  = data['beta']                         # infection rate
-        gIa   = data['gIa']                          # recovery rate of Ia
-        gIs   = data['gIs']                          # recovery rate of Is
+        gIa   = data['gIa']                          # removal rate of Ia
+        gIs   = data['gIs']                          # removal rate of Is
         fsa   = data['fsa']                          # the self-isolation parameters
         M     = data['M']
         Ni    = data['Ni']

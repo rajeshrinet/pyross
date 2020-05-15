@@ -1268,7 +1268,7 @@ cdef class SIR_type:
 
 cdef class SIR(SIR_type):
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
 
@@ -1390,7 +1390,7 @@ cdef class SIR(SIR_type):
 
 cdef class SEIR(SIR_type):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -1525,7 +1525,7 @@ cdef class SEIR(SIR_type):
 
 cdef class SEAI5R(SIR_type):
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1593,10 +1593,10 @@ cdef class SEAI5R(SIR_type):
 
     def set_params(self, parameters):
         super().set_params(parameters)
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gA    = parameters.get('gA')                       # recovery rate of A class
-        self.gIh   = parameters.get('gIh')                      # recovery rate of Is
-        self.gIc   = parameters.get('gIc')                      # recovery rate of Ih
+        self.gE    = parameters.get('gE')                       # removal rate of E class
+        self.gA    = parameters.get('gA')                       # removal rate of A class
+        self.gIh   = parameters.get('gIh')                      # removal rate of Is
+        self.gIc   = parameters.get('gIc')                      # removal rate of Ih
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         self.fh    = parameters.get('fh')                       # the self-isolation parameter of hospitalizeds
 
@@ -1774,7 +1774,7 @@ cdef class SEAI5R(SIR_type):
 
 cdef class SEAIRQ(SIR_type):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -1923,8 +1923,8 @@ cdef class SEAIRQ(SIR_type):
 
     def set_params(self, parameters):
         super().set_params(parameters)
-        self.gE    = parameters.get('gE')                       # recovery rate of E class
-        self.gA    = parameters.get('gA')                       # recovery rate of A class
+        self.gE    = parameters.get('gE')                       # removal rate of E class
+        self.gA    = parameters.get('gA')                       # removal rate of A class
         self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
         # testing rate, note that we do not account for false positive here (no tau_S)
         self.tE    = parameters.get('tE')                       # testing rate in E

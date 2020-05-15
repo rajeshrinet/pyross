@@ -20,7 +20,7 @@ cdef class IntegratorsClass:
 @cython.nonecheck(False)
 cdef class SIR(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
     """
@@ -35,7 +35,7 @@ cdef class SIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIRS(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered, Susceptible (SIRS)
+    Susceptible, Infected, Removed, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
     """
@@ -50,7 +50,7 @@ cdef class SIRS(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEIR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     """
@@ -65,7 +65,7 @@ cdef class SEIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEI5R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -91,7 +91,7 @@ cdef class SEI5R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEI8R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -118,7 +118,7 @@ cdef class SEI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIkR(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered (SIkR)
+    Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     """
     cdef rhs(self, rp, tt)
@@ -132,7 +132,7 @@ cdef class SIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkR(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered (SIkR)
+    Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
@@ -147,7 +147,7 @@ cdef class SEkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -163,7 +163,7 @@ cdef class SEAIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAI5R(IntegratorsClass):
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -189,7 +189,7 @@ cdef class SEAI5R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAI8R(IntegratorsClass):
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -216,7 +216,7 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -229,7 +229,7 @@ cdef class SEAIRQ(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ_testing(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -258,7 +258,7 @@ cdef class Spp(IntegratorsClass):
     cdef np.ndarray _lambdas
 
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious

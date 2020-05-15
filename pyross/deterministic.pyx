@@ -104,7 +104,7 @@ cdef class IntegratorsClass:
 @cython.nonecheck(False)
 cdef class SIR(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
 
@@ -141,8 +141,8 @@ cdef class SIR(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 3
         self.beta  = parameters['beta']                         # infection rate
-        self.gIa   = parameters['gIa']                          # recovery rate of Ia
-        self.gIs   = parameters['gIs']                          # recovery rate of Is
+        self.gIa   = parameters['gIa']                          # removal rate of Ia
+        self.gIs   = parameters['gIs']                          # removal rate of Is
         self.fsa   = parameters['fsa']                          # fraction of self-isolation of symptomatics
         alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
 
@@ -301,7 +301,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
@@ -316,7 +316,7 @@ cdef class SIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIkR(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered (SIkR)
+    Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     Attributes
     ----------
@@ -341,7 +341,7 @@ cdef class SIkR(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters['beta']                         # infection rate
-        self.gI    = parameters['gI']                           # recovery rate of I
+        self.gI    = parameters['gI']                           # removal rate of I
         self.kI    = parameters['kI']
         self.nClass = self.kI + 1
 
@@ -472,7 +472,7 @@ cdef class SIkR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -492,7 +492,7 @@ cdef class SIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEIR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -531,9 +531,9 @@ cdef class SEIR(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 4
         self.beta  = parameters['beta']                         # infection rate
-        self.gIa   = parameters['gIa']                          # recovery rate of Ia
-        self.gIs   = parameters['gIs']                          # recovery rate of Is
-        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gIa   = parameters['gIa']                          # removal rate of Ia
+        self.gIs   = parameters['gIs']                          # removal rate of Is
+        self.gE    = parameters['gE']                           # removal rate of E
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha']                        # fraction of asymptomatics
 
@@ -708,7 +708,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
@@ -723,7 +723,7 @@ cdef class SEIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     method of k-stages of I and E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Attributes
@@ -753,8 +753,8 @@ cdef class SEkIkR(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters['beta']                         # infection rate
-        self.gE    = parameters['gE']                           # recovery rate of E
-        self.gI    = parameters['gI']                           # recovery rate of I
+        self.gE    = parameters['gE']                           # removal rate of E
+        self.gI    = parameters['gI']                           # removal rate of I
         self.kI    = parameters['kI']                           # number of stages
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kE + 1
@@ -919,7 +919,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -942,7 +942,7 @@ cdef class SEkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkIkR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     method of k-stages of Ia, Is, E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Attributes
@@ -978,9 +978,9 @@ cdef class SEkIkIkR(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.beta  = parameters['beta']                         # infection rate
-        self.gE    = parameters['gE']                           # recovery rate of E
-        self.gIa   = parameters['gIa']                           # recovery rate of Ia
-        self.gIs   = parameters['gIs']                           # recovery rate of Is
+        self.gE    = parameters['gE']                           # removal rate of E
+        self.gIa   = parameters['gIa']                           # removal rate of Ia
+        self.gIs   = parameters['gIs']                           # removal rate of Is
         self.kI    = parameters['kI']                           # number of stages
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         self.kE    = parameters['kE']
@@ -1175,7 +1175,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -1201,7 +1201,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEI5R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1231,9 +1231,9 @@ cdef class SEI5R(IntegratorsClass):
             gIs : float
                 rate of removal from symptomatic individuals.
             gIh : float
-                rate of recovery for hospitalised individuals.
+                rate of removal for hospitalised individuals.
             gIc : float
-                rate of recovery for idividuals in intensive care.
+                rate of removal for idividuals in intensive care.
             fsa : float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
@@ -1270,11 +1270,11 @@ cdef class SEI5R(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 8 -1  # only 7 input classes
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIc   = parameters['gIc']                      # removal rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
         alpha      = parameters['alpha']                    # fraction of asymptomatics
@@ -1561,7 +1561,7 @@ cdef class SEI5R(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -1579,7 +1579,7 @@ cdef class SEI5R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEI8R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1611,11 +1611,11 @@ cdef class SEI8R(IntegratorsClass):
             gIsp: float
                 rate of removal from symptomatic individuals towards buffer.
             gIh : float
-                rate of recovery for hospitalised individuals.
+                rate of removal for hospitalised individuals.
             gIhp: float
                 rate of removal from hospitalised individuals towards buffer.
             gIc : float
-                rate of recovery for idividuals in intensive care.
+                rate of removal for idividuals in intensive care.
             gIcp: float
                 rate of removal from ICU individuals towards buffer.
             fsa : float
@@ -1654,14 +1654,14 @@ cdef class SEI8R(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 10  # only 7 input classes
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIsp  = parameters['gIsp']                     # recovery rate of Isp
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIhp  = parameters['gIhp']                     # recovery rate of Ihp
-        self.gIc   = parameters['gIc']                      # recovery rate of Ih
-        self.gIcp  = parameters['gIcp']                     # recovery rate of Ixp
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIsp  = parameters['gIsp']                     # removal rate of Isp
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIhp  = parameters['gIhp']                     # removal rate of Ihp
+        self.gIc   = parameters['gIc']                      # removal rate of Ih
+        self.gIcp  = parameters['gIcp']                     # removal rate of Ixp
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
         alpha      = parameters['alpha']                    # fraction of asymptomatics
@@ -1955,7 +1955,7 @@ cdef class SEI8R(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -1974,7 +1974,7 @@ cdef class SEI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -2016,9 +2016,9 @@ cdef class SEAIR(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 5
         self.beta  = parameters['beta']                         # infection rate
-        self.gIa   = parameters['gIa']                          # recovery rate of Ia
-        self.gIs   = parameters['gIs']                          # recovery rate of Is
-        self.gE    = parameters['gE']                           # recovery rate of E
+        self.gIa   = parameters['gIa']                          # removal rate of Ia
+        self.gIs   = parameters['gIs']                          # removal rate of Is
+        self.gE    = parameters['gE']                           # removal rate of E
         self.gA    = parameters['gA']                           # rate to go from A to Ia, Is
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha']
@@ -2214,7 +2214,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -2234,7 +2234,7 @@ cdef class SEAIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAI5R(IntegratorsClass):
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -2304,12 +2304,12 @@ cdef class SEAI5R(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 9 - 1#only 8 input classes
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gA    = parameters['gA']                       # recovery rate of A class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIc   = parameters['gIc']                      # recovery rate of Ih
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gA    = parameters['gA']                       # removal rate of A class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIc   = parameters['gIc']                      # removal rate of Ih
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
@@ -2616,7 +2616,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
             R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -2633,7 +2633,7 @@ cdef class SEAI5R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAI8R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -2666,11 +2666,11 @@ cdef class SEAI8R(IntegratorsClass):
             gIsp: float
                 rate of removal from symptomatic individuals towards buffer.
             gIh : float
-                rate of recovery for hospitalised individuals.
+                rate of removal for hospitalised individuals.
             gIhp: float
                 rate of removal from hospitalised individuals towards buffer.
             gIc : float
-                rate of recovery for idividuals in intensive care.
+                rate of removal for idividuals in intensive care.
             gIcp: float
                 rate of removal from ICU individuals towards buffer.
             fsa : float
@@ -2709,15 +2709,15 @@ cdef class SEAI8R(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 11
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gA    = parameters['gA']                       # recovery rate of A class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIsp  = parameters['gIsp']                     # recovery rate of Isp
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIhp  = parameters['gIhp']                     # recovery rate of Ihp
-        self.gIc   = parameters['gIc']                      # recovery rate of Ih
-        self.gIcp  = parameters['gIcp']                     # recovery rate of Ixp
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gA    = parameters['gA']                       # removal rate of A class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIsp  = parameters['gIsp']                     # removal rate of Isp
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIhp  = parameters['gIhp']                     # removal rate of Ihp
+        self.gIc   = parameters['gIc']                      # removal rate of Ih
+        self.gIcp  = parameters['gIcp']                     # removal rate of Ixp
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
         alpha      = parameters['alpha']                    # fraction of asymptomatics
@@ -3028,7 +3028,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
             R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -3052,7 +3052,7 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -3104,9 +3104,9 @@ cdef class SEAIRQ(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 6
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E
         self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
@@ -3316,7 +3316,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -3346,7 +3346,7 @@ cdef class SEAIRQ(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ_testing(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -3394,9 +3394,9 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 6
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E
         self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
@@ -3620,7 +3620,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -3650,7 +3650,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIRS(IntegratorsClass):
     """
-    Susceptible, Infected, Recovered, Susceptible (SIRS)
+    Susceptible, Infected, Removed, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -3668,7 +3668,7 @@ cdef class SIRS(IntegratorsClass):
             fsa : float
                 fraction by which symptomatic individuals self isolate.
             ep  : float
-                fraction of recovered who become susceptable again
+                fraction of removed who become susceptable again
             sa  : float, np.array (M,)
                 daily arrival of new susceptables
             iaa : float, np.array (M,)
@@ -3693,11 +3693,11 @@ cdef class SIRS(IntegratorsClass):
     def __init__(self, parameters, M, Ni):
         self.nClass= 3
         self.beta  = parameters['beta']                         # infection rate
-        self.gIa   = parameters['gIa']                          # recovery rate of Ia
-        self.gIs   = parameters['gIs']                          # recovery rate of Is
+        self.gIa   = parameters['gIa']                          # removal rate of Ia
+        self.gIs   = parameters['gIs']                          # removal rate of Is
         self.fsa   = parameters['fsa']                          # the self-isolation parameter of symptomatics
         alpha      = parameters['alpha']
-        self.ep    = parameters['ep']                           # fraction of recovered who is susceptible
+        self.ep    = parameters['ep']                           # fraction of removed who is susceptible
         sa         = parameters['sa']                           # daily arrival of new susceptibles
         iaa        = parameters['iaa']                          # daily arrival of new asymptomatics
 
@@ -3868,7 +3868,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R =  X[:, 3*self.M:4*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
@@ -4257,7 +4257,7 @@ cdef class Spp(IntegratorsClass):
         x0 : np.array or dict
             Initial conditions. If it is an array it should have length
             M*(model_dimension-1), where x0[i + j*M] should be the initial
-            value of model class i of age group j. The recovered R class
+            value of model class i of age group j. The removed R class
             must be left out. If it is a dict then
             it should have a key corresponding to each model class,
             with a 1D array containing the initial condition for each

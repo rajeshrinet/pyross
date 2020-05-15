@@ -813,7 +813,7 @@ cdef class stochastic_integration:
 
 cdef class SIR(stochastic_integration):
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
 
@@ -854,8 +854,8 @@ cdef class SIR(stochastic_integration):
         self.nClass = 3
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIa']                      # recovery rate of Is
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIa']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
@@ -1081,7 +1081,7 @@ cdef class SIR(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
@@ -1092,7 +1092,7 @@ cdef class SIR(stochastic_integration):
 
 cdef class SIkR(stochastic_integration):
     """
-    Susceptible, Infected, Recovered (SIkR)
+    Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     Attributes
     ----------
@@ -1130,7 +1130,7 @@ cdef class SIkR(stochastic_integration):
         self.nClass = 1 + self.kk
         self.beta  = parameters['beta']                     # infection rate
 
-        gI    = parameters['gI']                     # recovery rate of I
+        gI    = parameters['gI']                     # removal rate of I
         self.gI    = np.zeros( self.M, dtype = DTYPE)
         if np.size(gI)==1:
             self.gI = gI*np.ones(self.kk)
@@ -1297,7 +1297,7 @@ cdef class SIkR(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M]
@@ -1308,7 +1308,7 @@ cdef class SIkR(stochastic_integration):
 
 cdef class SEIR(stochastic_integration):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
     Attributes
@@ -1348,9 +1348,9 @@ cdef class SEIR(stochastic_integration):
         self.nClass = 4
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gE    = parameters['gE']                       # recovery rate of E
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)
@@ -1554,7 +1554,7 @@ cdef class SEIR(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
@@ -1565,7 +1565,7 @@ cdef class SEIR(stochastic_integration):
 
 cdef class SEI5R(stochastic_integration):
     """
-    Susceptible, Exposed, Infected, Recovered (SEIR)
+    Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1595,9 +1595,9 @@ cdef class SEI5R(stochastic_integration):
             gIs : float
                 rate of removal from symptomatic individuals.
             gIh : float
-                rate of recovery for hospitalised individuals.
+                rate of removal for hospitalised individuals.
             gIc : float
-                rate of recovery for idividuals in intensive care.
+                rate of removal for idividuals in intensive care.
             fsa : float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
@@ -1632,11 +1632,11 @@ cdef class SEI5R(stochastic_integration):
         self.nClass = 7
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # recovery rate of E class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIh   = parameters['gIh']                      # recovery rate of Is
-        self.gIc   = parameters['gIc']                      # recovery rate of Is
+        self.gE    = parameters['gE']                       # removal rate of E class
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIh   = parameters['gIh']                      # removal rate of Is
+        self.gIc   = parameters['gIc']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
@@ -1660,7 +1660,7 @@ cdef class SEI5R(stochastic_integration):
         # 5. Ih   infectives, hospitalised
         # 6. Ic   infectives, in ICU
         # 7. Im   infectives, deceased
-        # 8. R    recovered
+        # 8. R    Removed
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
@@ -1817,9 +1817,9 @@ cdef class SEI5R(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                       seedRate=seedRate)
-        # Instead of the recovered population, which is stored in the last compartment,
+        # Instead of the removed population, which is stored in the last compartment,
         # we want to output the total alive population (whose knowledge is mathematically
-        # equivalent to knowing the recovered population).
+        # equivalent to knowing the removed population).
         for i in range(M):
             out_arr[:,i+7*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
             out_arr[:,i+7*M] += out_arr[:,i+2*M] + out_arr[:,i+1*M] + out_arr[:,i+0*M]
@@ -2032,7 +2032,7 @@ cdef class SEI5R(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -2046,7 +2046,7 @@ cdef class SEI5R(stochastic_integration):
 
 cdef class SEAI5R(stochastic_integration):
     """
-    Susceptible, Exposed, Activates, Infected, Recovered (SEAIR)
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -2105,10 +2105,10 @@ cdef class SEAI5R(stochastic_integration):
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate of E class
         self.gA    = parameters['gA']                       # progression rate of A class
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
-        self.gIh   = parameters['gIh']                      # recovery rate of Ih
-        self.gIc   = parameters['gIc']                      # recovery rate of Ic
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
+        self.gIh   = parameters['gIh']                      # removal rate of Ih
+        self.gIc   = parameters['gIc']                      # removal rate of Ic
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
@@ -2133,7 +2133,7 @@ cdef class SEAI5R(stochastic_integration):
         # 6. Ih   infectives, hospitalised
         # 7. Ic   infectives, in ICU
         # 8. Im   infectives, deceased
-        # 9. R    recovered
+        # 9. R    removed
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
@@ -2283,9 +2283,9 @@ cdef class SEAI5R(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                       seedRate=seedRate)
-        # Instead of the recovered population, which is stored in the last compartment,
+        # Instead of the removed population, which is stored in the last compartment,
         # we want to output the total alive population (whose knowledge is mathematically
-        # equivalent to knowing the recovered population).
+        # equivalent to knowing the removed population).
         for i in range(M):
             out_arr[:,i+8*M] += out_arr[:,i+6*M]
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
@@ -2355,9 +2355,9 @@ cdef class SEAI5R(stochastic_integration):
                                   seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
-        # Instead of the recovered population, which is stored in the last compartment,
+        # Instead of the removed population, which is stored in the last compartment,
         # we want to output the total alive population (whose knowledge is mathematically
-        # equivalent to knowing the recovered population).
+        # equivalent to knowing the removed population).
         for i in range(M):
             out_arr[:,i+8*M] += out_arr[:,i+6*M]
             out_arr[:,i+8*M] += out_arr[:,i+5*M] + out_arr[:,i+4*M] + out_arr[:,i+3*M]
@@ -2520,7 +2520,7 @@ cdef class SEAI5R(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
             R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -2537,7 +2537,7 @@ cdef class SEAI5R(stochastic_integration):
 
 cdef class SEAIRQ(stochastic_integration):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -2592,8 +2592,8 @@ cdef class SEAIRQ(stochastic_integration):
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate from E
         self.gA   = parameters['gA']                      # rate to go from A to I
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         #self.tS    = parameters['tS')                       # testing rate in S
@@ -2850,7 +2850,7 @@ cdef class SEAIRQ(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -2877,7 +2877,7 @@ cdef class SEAIRQ(stochastic_integration):
     
 cdef class SEAIRQ_testing(stochastic_integration):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Recovered, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
     A : Asymptomatic and infectious
@@ -2932,8 +2932,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate from E
         self.gA    = parameters['gA']                      # rate to go from A to I
-        self.gIa   = parameters['gIa']                      # recovery rate of Ia
-        self.gIs   = parameters['gIs']                      # recovery rate of Is
+        self.gIa   = parameters['gIa']                      # removal rate of Ia
+        self.gIs   = parameters['gIs']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.ars    = parameters['ars']                     # fraction of population admissible for testing
@@ -3210,7 +3210,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
         Returns
         -------
-            'R' : Recovered population time series
+            'R' : Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \

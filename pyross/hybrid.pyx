@@ -10,7 +10,7 @@ import pyross.deterministic as deterministic
 
 cdef class SIR:
     """
-    Susceptible, Infected, Recovered (SIR)
+    Susceptible, Infected, Removed (SIR)
     Ia: asymptomatic
     Is: symptomatic
 
