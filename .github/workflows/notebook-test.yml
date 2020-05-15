@@ -25,7 +25,7 @@ jobs:
         run: |
           conda activate pyross
           make
-          make nbtest
+          # make nbtest
       - name: testing-deterministic
         shell: bash -l {0}
         run: |
