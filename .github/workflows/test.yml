@@ -26,7 +26,6 @@ jobs:
         run: |
           conda activate pyross
           make
-          make test
       - name: test-pyross
         shell: bash -l {0}
         run: |
