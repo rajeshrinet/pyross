@@ -252,7 +252,8 @@ cdef class Spp(IntegratorsClass):
     cdef np.ndarray infection_classes_indices
     cdef dict model_class_name_to_class_index
     cdef dict parameters
-    cdef dict param_to_model_term
+    cdef dict linear_param_to_model_term
+    cdef dict infection_param_to_model_term
     cdef list model_classes
     cdef np.ndarray _lambdas
 

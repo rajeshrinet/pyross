@@ -7,6 +7,7 @@
 * [**Example: Inference in PyRoss**](https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01_inference_SIR.ipynb)
 * [**Example: Inference with latent variables in PyRoss**](https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex05_inference_latent_SIR.ipynb)
 * [**Example: Simulate any generic compartmental model in PyRoss**](https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex16-Spp.ipynb)
+* [**Example: Inference with any generic compartment model in PyRoss**](https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex_Spp.ipynb)
 
 
 In addition please have a look at the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for more Jupyter notebook examples.

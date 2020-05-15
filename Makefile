@@ -8,6 +8,10 @@ make:
 	cp .githooks/pre-push .git/hooks/
 	chmod +x .git/hooks/pre-push
 
+clean-local:
+	@echo removing local compiled files
+	rm pyross/*.c pyross/*.html
+
 clean:
 	@echo removing all compiled files
 	${PYTHON} setup.py clean

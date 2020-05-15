@@ -141,11 +141,11 @@ cdef class stochastic_integration:
         Performs the stochastic simulation using the Gillespie algorithm.
         1. Rates for each reaction channel r_i calculated from current state.
         2. The timestep tau is chosen randomly from an
-            exponential distribution P ~ e^-W\tau.
+        exponential distribution P ~ e^-W\tau.
         3. A single reaction occurs with probablity proportional to its fractional
-            rate constant r_i/W.
+        rate constant r_i/W.
         4. The state is updated to reflect this reaction occuring and time is
-            propagated forward by \tau
+        propagated forward by \tau
         Stops if population becomes too small.
 
 
@@ -927,23 +927,23 @@ cdef class SIR(stochastic_integration):
         Is0 : np.array
             Initial number of symptomatic infectives.
         contactMatrix : python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
+            The social contact matrix C_{ij} denotes the
+            average number of contacts made per day by an
+            individual in class i with an individual in class j
         Tf : float
             Final time of integrator
         Nf : Int
             Number of time points to evaluate.
         method : str, optional
-           SSA to use, either 'gillespie' or 'tau_leaping'.
-           The default is 'gillespie'.
+            SSA to use, either 'gillespie' or 'tau_leaping'.
+            The default is 'gillespie'.
         nc : TYPE, optional
         epsilon: TYPE, optional
         tau_update_frequency: TYPE, optional
         seedRate: python function, optional
             Seeding of infectives. The default is None.
 
-       Returns
+        Returns
         -------
         dict
             'X': output path from integrator, 't': time points evaluated at,

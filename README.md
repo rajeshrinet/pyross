@@ -1,4 +1,4 @@
-## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
+## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
 
 [About](#about) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
@@ -6,10 +6,11 @@
 
 ## Public event announcement:
 
-We have two lecture-demonstration events coming up:
+We have a lecture-demonstration events coming up:
 
-- **Introduction to [*PyRoss*](https://github.com/rajeshrinet/pyross/) for Bayesian inference and latent variable estimation** - 11-12 AM on Friday (15 May)
-- **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM on Monday (18 May)
+
+
+- **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM (GMT+1) on Monday (18 May)
 
 Both meetings will be using Google Meet, in the following room: https://meet.google.com/amv-qevr-fjp
 
