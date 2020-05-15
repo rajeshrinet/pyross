@@ -14,9 +14,10 @@ First compile pyross in-place:
 python setup.py build_ext --inplace
 ```
 
-Then, in the `docs/sphinx` folder, run
+Then, navigate to the `docs/sphinx` folderand run using the commands
 
 ```bash
+cd docs/sphinx
 sphinx-build -b html . ../API
 ```
 
@@ -27,6 +28,7 @@ this creates the `docs/API` folder.
 Run this instead:
 
 ```bash
+cd docs/sphinx
 sphinx-build -b markdown . ../API
 ```
 
