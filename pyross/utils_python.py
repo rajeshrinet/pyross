@@ -126,6 +126,11 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
                 global_opt.disp()
             iteration += 1
 
+        if pathos_mp:
+            p.close()  # We need to close the pool, otherwise python does not terminate properly
+            p.join()
+            p.clear()  # If this is not set, pathos will reuse the pool we just closed, producing an error
+
         x_result = global_opt.best.x
         y_result = global_opt.best.f
         
