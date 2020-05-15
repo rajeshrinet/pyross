@@ -9,7 +9,7 @@ on: push
 jobs:
 
   build-and-test:
-    name: notebooks
+    name: Install and test
     runs-on: ubuntu-latest
 
     steps:
