@@ -8,8 +8,8 @@
 
 We have two lecture-demonstration events coming up:
 
-- **Introduction to [*PyRoss*](https://github.com/rajeshrinet/pyross/) for Bayesian inference and latent variable estimation** - 11-12 AM on Friday (15 May)
-- **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM on Monday (18 May)
+- **Introduction to [*PyRoss*](https://github.com/rajeshrinet/pyross/) for Bayesian inference and latent variable estimation** - 11-12 AM (GMT+1) on Friday (15 May)
+- **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM (GMT+1) on Monday (18 May)
 
 Both meetings will be using Google Meet, in the following room: https://meet.google.com/amv-qevr-fjp
 
