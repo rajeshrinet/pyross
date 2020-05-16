@@ -2059,13 +2059,11 @@ cdef class SEAIRQ(SIR_type):
 
 cdef class Spp(SIR_type):
     cdef:
-        int [:, :] linear_terms
-        int [:, :] infection_terms
-        double [:, :] parameters
+        readonly np.ndarray linear_terms, infection_terms
+        readonly np.ndarray parameters
         readonly list param_keys
         readonly dict class_index_dict
-        Py_ssize_t nParams
-        pyross.deterministic.Spp det_model
+        readonly pyross.deterministic.Spp det_model
 
 
     def __init__(self, model_spec, parameters, M, fi, N, steps):
@@ -2080,7 +2078,6 @@ cdef class Spp(SIR_type):
 
 
     def set_params(self, parameters):
-        cdef double [:] param_array
         nParams = len(parameters)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         for (i, param) in enumerate(parameters.values()):
@@ -2092,8 +2089,7 @@ cdef class Spp(SIR_type):
                     raise Exception("Parameter array size must be equal to M.")
             else:
                 param = np.full(self.M, param)
-            param_array = param
-            self.parameters[i] = param_array
+            self.parameters[i] = param
 
     def make_det_model(self, parameters):
         # small hack to make this class work with SIR_type
