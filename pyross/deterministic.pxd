@@ -236,26 +236,18 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     """
     cdef rhs(self, rp, tt)
 
-#@cython.wraparound(False)
-#@cython.boundscheck(False)
-#@cython.cdivision(True)
-#@cython.nonecheck(False)
-@cython.wraparound(False)
-@cython.boundscheck(True)
-@cython.cdivision(False)
-@cython.nonecheck(True)
+
+# @cython.wraparound(False)
+# @cython.boundscheck(True)
+# @cython.cdivision(False)
+# @cython.nonecheck(True)
 cdef class Spp(IntegratorsClass):
-    cdef model_term* linear_terms
-    cdef model_term* infection_terms
-    cdef int linear_terms_len
-    cdef int infection_terms_len
-    cdef np.ndarray infection_classes_indices
-    cdef dict model_class_name_to_class_index
-    cdef dict parameters
-    cdef dict linear_param_to_model_term
-    cdef dict infection_param_to_model_term
-    cdef list model_classes
-    cdef np.ndarray _lambdas
+    cdef:
+        readonly np.ndarray linear_terms, infection_terms
+        readonly np.ndarray parameters
+        readonly list param_keys
+        readonly dict class_index_dict
+        readonly np.ndarray _lambdas
 
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
@@ -264,20 +256,3 @@ cdef class Spp(IntegratorsClass):
     A : Asymptomatic and infectious
     """
     cdef rhs(self, rp, tt)
-
-cdef struct model_term:
-    # Represents a term in the model, either linear or non-linear
-    int oi_pos # Which model class to add to
-    int oi_neg # Which model class to subtract from
-    int oi_coupling # Which model class that couples
-    int infection_index # Class infection index (only used if infection term)
-    DTYPE_t* param
-
-    # Implement at some point in the future:
-    #int* add_to # Which model classes to add to
-    #int add_to_len
-    #int* subtract_from # Which model classes to subtract from
-    #int subtract_from_len
-    #int coupling # Which model class that couples
-    #int infection_index # Class infection index (only used if infection term)
-    #DTYPE_t param
