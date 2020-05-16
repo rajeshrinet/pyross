@@ -16,13 +16,16 @@ The meetings will be using Google Meet in the following room: https://meet.googl
 
 ## About
 
-[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for mathematical modelling of infectious disease in Python. The library supports **structured compartment models** formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctuations.
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for inference, prediction and non-pharmaceutical interventions in age-structured epidemiological compartment models. 
 
-The library uses **Gaussian process regression**, on both the epidemiological manifold and its tangent space, to estimate model parameters given epidemiological data. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
+The library is designed to be model-agnostic and **allows the user to define models** in a JSON format. The most common epidemiological models, and several less common ones, come pre-defined and ready to use with the library. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include multiple non-infectious (exposed, asymptomatic etc) and infectious (symptomatic, asymptomatic etc) classes. Each model can include **stages** to allow for non-exponentially distributed compartmental residence times. 
 
-Non-pharmaceutical interventions are implemented as controls on the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
+The library supports models formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctuations.
 
-The library is designed to be model-agnostic. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include multiple non-infectious (exposed, asymptomatic etc) and infectious (symptomatic, asymptomatic etc) classes. Each model can include **stages** to allow for non-exponentially distributed compartmental residence times. 
+**Inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes** on either the epidemiological manifold or its tangent space. The method allows for **latent** variable inferenc and fast computation of the **model evidence** and the **Fisher information matrix**. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
+ 
+**Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
+
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
@@ -97,7 +100,7 @@ make path=examples/deteministic nbtest
 
 ## Examples
 
-PyRoss has a formulation-agnostic and  intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can performed through the same interface. The example below shows how to set up a deterministic SIR simulation. [PyRoss Documentation](https://github.com/rajeshrinet/pyross/tree/master/docs) contains links for more examples.
+PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation. [PyRoss Documentation](https://github.com/rajeshrinet/pyross/tree/master/docs) contains links for more examples.
 
 ```Python
 # Ex1: M=1, SIR
