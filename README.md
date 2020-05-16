@@ -16,16 +16,15 @@ The meetings will be using Google Meet in the following room: https://meet.googl
 
 ## About
 
-[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for inference, prediction and non-pharmaceutical interventions in age-structured epidemiological compartment models. 
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for **inference**, **prediction** and **non-pharmaceutical interventions** in age-structured epidemiological compartment models. 
 
-The library is designed to be model-agnostic and **allows the user to define models** in a JSON format. The most common epidemiological models, and several less common ones, come pre-defined and ready to use with the library. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include multiple non-infectious (exposed, asymptomatic etc) and infectious (symptomatic, asymptomatic etc) classes. Each model can include **stages** to allow for non-exponentially distributed compartmental residence times. 
+The library is designed to be model-agnostic and **allows the user to define models** in a JSON format. The most common epidemiological models, and several less common ones, come pre-defined with the library. Currently implemented [models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include multiple non-infectious (exposed, asymptomatic etc) and infectious (symptomatic, asymptomatic etc) classes. Each model can include **stages** to allow for non-exponentially distributed compartmental residence times. 
 
 The library supports models formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctuations.
 
-**Inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes** on either the epidemiological manifold or its tangent space. The method allows for **latent** variable inferenc and fast computation of the **model evidence** and the **Fisher information matrix**. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
+**Inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes** on either the epidemiological manifold or its tangent space. This method allows for **latent** variable inferenc and fast computation of the **model evidence** and the **Fisher information matrix**. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
  
 **Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
-
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
