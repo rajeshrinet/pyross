@@ -24,7 +24,7 @@ The library supports models formulated **stochastically** (as chemical master eq
 
 **Inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes** on either the epidemiological manifold or its tangent space. This method allows for **latent** variable inference and fast computation of the **model evidence** and the **Fisher information matrix**. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
  
-**Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
+**Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimised control** of these structures, given **cost functions**, is possible. This feature is being actively developed to be better integrated with the library. 
 
 The library is named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
