@@ -22,7 +22,7 @@ The library is designed to be model-agnostic and **allows the user to define mod
 
 The library supports models formulated **stochastically** (as chemical master equations) or **deterministically** (as systems of differential equations). A **hybrid algorithm** transits smoothly between these limits depending on the magnitude of the compartmental fluctuations.
 
-**Inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes** on either the epidemiological manifold or its tangent space. This method allows for **latent** variable inferenc and fast computation of the **model evidence** and the **Fisher information matrix**. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
+**Inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes** on either the epidemiological manifold or its tangent space. This method allows for **latent** variable inference and fast computation of the **model evidence** and the **Fisher information matrix**. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide **Bayesian forecasts** of the progress of the epidemic.
  
 **Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimal control** of these structures, given **cost functions**, is currently under development.
 
