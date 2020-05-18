@@ -631,6 +631,8 @@ cdef class SIR_type:
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         x0 = self.fill_initial_conditions(inits, obs[0], init_fltr, fltr)
+        if np.any(np.sum(x0.reshape((int(self.dim/self.M), self.M)), axis=0)>self.fi):
+            return INFINITY
         minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
         return minus_logp
@@ -1044,6 +1046,9 @@ cdef class SIR_type:
             -log(p) for the observed trajectory with the given parameters and initial conditions
         '''
         cdef double minus_log_p
+        cdef Py_ssize_t nClass=int(self.dim/self.M)
+        if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
+            raise Exception("the sum over x0 is larger than fi")
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         if fltr.ndim == 1:
@@ -1300,7 +1305,7 @@ cdef class SIR(SIR_type):
     Initialisation
     --------------
     To initialise the class, call SIR(parameters, M, fi, N, steps), where
-    
+
     parameters : dict
         Including the following parameters
         alpha : float
