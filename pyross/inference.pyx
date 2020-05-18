@@ -651,7 +651,7 @@ cdef class SIR_type:
         R_dev = R_init - eps
         x0_dev = x0 - eps
         dev = - (np.sum(R_dev[R_dev<0]) + np.sum(x0_dev[x0_dev<0]))
-        return (np.exp(dev/eps)-1)
+        return (dev/eps)**2 + (dev/eps)**8
 
 
     def latent_infer_parameters(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
