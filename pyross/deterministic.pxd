@@ -237,10 +237,10 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     cdef rhs(self, rp, tt)
 
 
-# @cython.wraparound(False)
-# @cython.boundscheck(True)
-# @cython.cdivision(False)
-# @cython.nonecheck(True)
+@cython.wraparound(False)
+@cython.boundscheck(True)
+@cython.cdivision(False)
+@cython.nonecheck(True)
 cdef class Spp(IntegratorsClass):
     cdef:
         readonly np.ndarray linear_terms, infection_terms

@@ -3895,14 +3895,10 @@ cdef class SIRS(IntegratorsClass):
 
 
 
-#@cython.wraparound(False)
-#@cython.boundscheck(False)
-#@cython.cdivision(True)
-#@cython.nonecheck(False)
 @cython.wraparound(False)
-@cython.boundscheck(True)
-@cython.cdivision(False)
-@cython.nonecheck(True)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class Spp(IntegratorsClass):
     """
     Given a model specification, the
