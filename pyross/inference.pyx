@@ -630,12 +630,28 @@ cdef class SIR_type:
         parameters = self.fill_params_dict(param_keys, params[:param_dim])
         self.set_params(parameters)
         model = self.make_det_model(parameters)
+
         x0 = self.fill_initial_conditions(inits, obs[0], init_fltr, fltr)
-        if np.any(np.sum(x0.reshape((int(self.dim/self.M), self.M)), axis=0)>self.fi):
-            return INFINITY
+        penalty = self._penalty_from_negative_values(x0)
+        x0[x0<0] = 0.1/self.N # set to be small and positive
+
         minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+
+        # add penalty for being negative
+        minus_logp += penalty*Nf
+
         return minus_logp
+
+    cdef double _penalty_from_negative_values(self, np.ndarray x0):
+        cdef:
+            double eps=0.1/self.N, dev
+            np.ndarray R_init, R_dev, x0_dev
+        R_init = self.fi - np.sum(x0.reshape((int(self.dim/self.M), self.M)), axis=0)
+        R_dev = R_init - eps
+        x0_dev = x0 - eps
+        dev = - (np.sum(R_dev[R_dev<0]) + np.sum(x0_dev[x0_dev<0]))
+        return (np.exp(dev/eps)-1)
 
 
     def latent_infer_parameters(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
