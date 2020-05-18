@@ -117,7 +117,10 @@
 <li><a class="reference internal" href="#bayesian-inference">Bayesian inference</a><ul>
 <li><a class="reference internal" href="#module-pyross.inference.SIR_type">pyross.inference.SIR_type</a></li>
 <li><a class="reference internal" href="#pyross-inference-spp">pyross.inference.Spp</a></li>
-<li><a class="reference internal" href="#module-pyross.inference.SIR">pyross.inference.SIR</a></li>
+<li><a class="reference internal" href="#module-pyross.inference.SIR">pyross.inference.SIR</a><ul>
+<li><a class="reference internal" href="#initialisation">Initialisation</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-pyross.inference.SEIR">pyross.inference.SEIR</a></li>
 <li><a class="reference internal" href="#module-pyross.inference.SEAI5R">pyross.inference.SEAI5R</a></li>
 <li><a class="reference internal" href="#module-pyross.inference.SEAIRQ">pyross.inference.SEAIRQ</a></li>
@@ -293,42 +296,46 @@
 <ul>
 <li><p><a class="reference internal" href="#module-pyross.inference.SIR_type" id="id30">pyross.inference.SIR_type</a></p></li>
 <li><p><a class="reference internal" href="#pyross-inference-spp" id="id31">pyross.inference.Spp</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.inference.SIR" id="id32">pyross.inference.SIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.inference.SEIR" id="id33">pyross.inference.SEIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.inference.SEAI5R" id="id34">pyross.inference.SEAI5R</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.inference.SEAIRQ" id="id35">pyross.inference.SEAIRQ</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.inference.SIR" id="id32">pyross.inference.SIR</a></p>
+<ul>
+<li><p><a class="reference internal" href="#initialisation" id="id33">Initialisation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#control-with-non-pharmaceutical-interventions" id="id36">Control with Non-Pharmaceutical interventions</a></p>
-<ul>
-<li><p><a class="reference internal" href="#module-pyross.control.control_integration" id="id37">pyross.control.control_integration</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SIR" id="id38">pyross.control.SIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEkIkIkR" id="id39">pyross.control.SEkIkIkR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SIRS" id="id40">pyross.control.SIRS</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEIR" id="id41">pyross.control.SEIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEI5R" id="id42">pyross.control.SEI5R</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SIkR" id="id43">pyross.control.SIkR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEkIkR" id="id44">pyross.control.SEkIkR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEAIR" id="id45">pyross.control.SEAIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEAI5R" id="id46">pyross.control.SEAI5R</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.control.SEAIRQ" id="id47">pyross.control.SEAIRQ</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.inference.SEIR" id="id34">pyross.inference.SEIR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.inference.SEAI5R" id="id35">pyross.inference.SEAI5R</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.inference.SEAIRQ" id="id36">pyross.inference.SEAIRQ</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#forecasting" id="id48">Forecasting</a></p>
+<li><p><a class="reference internal" href="#control-with-non-pharmaceutical-interventions" id="id37">Control with Non-Pharmaceutical interventions</a></p>
 <ul>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SIR" id="id49">pyross.forecast.SIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SIR_latent" id="id50">pyross.forecast.SIR_latent</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SEIR" id="id51">pyross.forecast.SEIR</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SEIR_latent" id="id52">pyross.forecast.SEIR_latent</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SEAIRQ" id="id53">pyross.forecast.SEAIRQ</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SEAIRQ_latent" id="id54">pyross.forecast.SEAIRQ_latent</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SEAI5R" id="id55">pyross.forecast.SEAI5R</a></p></li>
-<li><p><a class="reference internal" href="#module-pyross.forecast.SEAI5R_latent" id="id56">pyross.forecast.SEAI5R_latent</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.control_integration" id="id38">pyross.control.control_integration</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SIR" id="id39">pyross.control.SIR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEkIkIkR" id="id40">pyross.control.SEkIkIkR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SIRS" id="id41">pyross.control.SIRS</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEIR" id="id42">pyross.control.SEIR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEI5R" id="id43">pyross.control.SEI5R</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SIkR" id="id44">pyross.control.SIkR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEkIkR" id="id45">pyross.control.SEkIkR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEAIR" id="id46">pyross.control.SEAIR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEAI5R" id="id47">pyross.control.SEAI5R</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.control.SEAIRQ" id="id48">pyross.control.SEAIRQ</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#contact-matrix-class" id="id57">Contact matrix class</a></p>
+<li><p><a class="reference internal" href="#forecasting" id="id49">Forecasting</a></p>
 <ul>
-<li><p><a class="reference internal" href="#module-pyross.contactMatrix.ContactMatrixFunction" id="id58">pyross.contactMatrix.ContactMatrixFunction</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SIR" id="id50">pyross.forecast.SIR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SIR_latent" id="id51">pyross.forecast.SIR_latent</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SEIR" id="id52">pyross.forecast.SEIR</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SEIR_latent" id="id53">pyross.forecast.SEIR_latent</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SEAIRQ" id="id54">pyross.forecast.SEAIRQ</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SEAIRQ_latent" id="id55">pyross.forecast.SEAIRQ_latent</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SEAI5R" id="id56">pyross.forecast.SEAI5R</a></p></li>
+<li><p><a class="reference internal" href="#module-pyross.forecast.SEAI5R_latent" id="id57">pyross.forecast.SEAI5R_latent</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#contact-matrix-class" id="id58">Contact matrix class</a></p>
+<ul>
+<li><p><a class="reference internal" href="#module-pyross.contactMatrix.ContactMatrixFunction" id="id59">pyross.contactMatrix.ContactMatrixFunction</a></p></li>
 </ul>
 </li>
 </ul>
@@ -5712,70 +5719,79 @@ I.e len(contactMatrix)</p>
 <p>Parent class for inference for all SIR-type classes listed below</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
+<col style="width: 28%" />
+<col style="width: 72%" />
 </colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Methods for full data</p></th>
+<th class="head"></th>
+</tr>
+</thead>
 <tbody>
-<tr class="row-odd"><td><p>Methods</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>for full data</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>infer_parameters</p></td>
+<tr class="row-even"><td><p>infer_parameters</p></td>
 <td><p>Infers epidemiological parameters given all information.</p></td>
 </tr>
-<tr class="row-even"><td><p>infer_control</p></td>
+<tr class="row-odd"><td><p>infer_control</p></td>
 <td><p>Infers control parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p>obtain_minus_log_p</p></td>
+<tr class="row-even"><td><p>obtain_minus_log_p</p></td>
 <td><p>Computes -log(p) of a fully observed trajectory.</p></td>
 </tr>
-<tr class="row-even"><td><p>compute_hessian</p></td>
+<tr class="row-odd"><td><p>compute_hessian</p></td>
 <td><p>Computes the Hessian of -log(p).</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
+<col style="width: 31%" />
+<col style="width: 69%" />
 </colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Methods for partial data</p></th>
+<th class="head"></th>
+</tr>
+</thead>
 <tbody>
-<tr class="row-odd"><td><p>Methods</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>for partial data</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>latent_infer_parameters</p></td>
+<tr class="row-even"><td><p>latent_infer_parameters</p></td>
 <td><p>Infers parameters and initial conditions.</p></td>
 </tr>
-<tr class="row-even"><td><p>latent_infer_control</p></td>
+<tr class="row-odd"><td><p>latent_infer_control</p></td>
 <td><p>Infers control parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p>minus_logp_red</p></td>
+<tr class="row-even"><td><p>minus_logp_red</p></td>
 <td><p>Computes -log(p) of a partially observed trajectory</p></td>
 </tr>
-<tr class="row-even"><td><p>compute_hessian_latent</p></td>
+<tr class="row-odd"><td><p>compute_hessian_latent</p></td>
 <td><p>Computes the Hessian of -log(p).</p></td>
 </tr>
 </tbody>
 </table>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
+<col style="width: 28%" />
+<col style="width: 72%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p>Helper function</p></td>
-<td></td>
+<thead>
+<tr class="row-odd"><th class="head"><p>Helper function</p></th>
+<th class="head"></th>
 </tr>
+</thead>
+<tbody>
 <tr class="row-even"><td><p>integrate</p></td>
 <td><p>A wrapper around ‘simulate’ in pyross.deterministic.</p></td>
 </tr>
 <tr class="row-odd"><td><p>set_params</p></td>
 <td><p>Sets parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p>make_det_model</p></td>
+<td><p>Makes a pyross.deterministic model of the same class</p></td>
+</tr>
+<tr class="row-odd"><td><p>fill_params_dict</p></td>
+<td><p>Fills and returns a parameter dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p>fill_initial_conditions</p></td>
+<td><p>Generates full initial condition with partial info.</p></td>
 </tr>
 </tbody>
 </table>
@@ -5883,9 +5899,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -5900,8 +5921,8 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SIR_type.infer_parameters">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.infer_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <p>IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
 to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
 If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
@@ -5924,19 +5945,23 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
-<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:</p></li>
-<li><p><strong>of minimization function in utils_python.py which are documented there. If not</strong> (<em>Parameters</em>) – </p></li>
-<li><p><strong>cma_stds is set to stds.</strong> (<em>specified</em><em>,</em>) – </p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>estimates</strong> (<em>numpy.array</em>)</p></li>
-<li><p><em>the MAP parameter estimate</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>estimates</strong> – The MAP parameter estimate</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -5946,7 +5971,6 @@ age-dependent parameter individually</p></li>
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>DEPRECATED. Use infer_parameters instead</p>
-<p>This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -6026,9 +6050,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6067,9 +6096,14 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6084,9 +6118,7 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SIR_type.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use latent_infer_parameters instead.
-Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dd><p>DEPRECATED. Use latent_infer_parameters instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -6105,9 +6137,14 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6149,77 +6186,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <div class="section" id="pyross-inference-spp">
 <h2><a class="toc-backref" href="#id31">pyross.inference.Spp</a><a class="headerlink" href="#pyross-inference-spp" title="Permalink to this headline">¶</a></h2>
 <p>Automatic generation of inference for SIR-type models</p>
-<span class="target" id="module-pyross.inference.Spp"></span><p>Parent class for inference for all SIR-type classes listed below</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p>Methods</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>for full data</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>infer_parameters</p></td>
-<td><p>Infers epidemiological parameters given all information.</p></td>
-</tr>
-<tr class="row-even"><td><p>infer_control</p></td>
-<td><p>Infers control parameters.</p></td>
-</tr>
-<tr class="row-odd"><td><p>obtain_minus_log_p</p></td>
-<td><p>Computes -log(p) of a fully observed trajectory.</p></td>
-</tr>
-<tr class="row-even"><td><p>compute_hessian</p></td>
-<td><p>Computes the Hessian of -log(p).</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p>Methods</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>for partial data</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p>latent_infer_parameters</p></td>
-<td><p>Infers parameters and initial conditions.</p></td>
-</tr>
-<tr class="row-even"><td><p>latent_infer_control</p></td>
-<td><p>Infers control parameters.</p></td>
-</tr>
-<tr class="row-odd"><td><p>minus_logp_red</p></td>
-<td><p>Computes -log(p) of a partially observed trajectory</p></td>
-</tr>
-<tr class="row-even"><td><p>compute_hessian_latent</p></td>
-<td><p>Computes the Hessian of -log(p).</p></td>
-</tr>
-</tbody>
-</table>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 78%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p>Helper function</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p>integrate</p></td>
-<td><p>A wrapper around ‘simulate’ in pyross.deterministic.</p></td>
-</tr>
-<tr class="row-odd"><td><p>set_params</p></td>
-<td><p>Sets parameters.</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="function">
+<span class="target" id="module-pyross.inference.Spp"></span><dl class="function">
 <dt id="pyross.inference.Spp.compute_hessian">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.compute_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the Hessian of the MAP estimatesself.</p>
@@ -6323,9 +6290,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6340,8 +6312,8 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.Spp.infer_parameters">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.infer_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <p>IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
 to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
 If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
@@ -6364,19 +6336,23 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
-<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:</p></li>
-<li><p><strong>of minimization function in utils_python.py which are documented there. If not</strong> (<em>Parameters</em>) – </p></li>
-<li><p><strong>cma_stds is set to stds.</strong> (<em>specified</em><em>,</em>) – </p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>estimates</strong> (<em>numpy.array</em>)</p></li>
-<li><p><em>the MAP parameter estimate</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>estimates</strong> – The MAP parameter estimate</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6386,7 +6362,6 @@ age-dependent parameter individually</p></li>
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>DEPRECATED. Use infer_parameters instead</p>
-<p>This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -6411,31 +6386,6 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyross.inference.Spp.integrate">
-<code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state of the given model</p></li>
-<li><p><strong>t1</strong> (<em>float</em>) – Initial time of integrator</p></li>
-<li><p><strong>t2</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – Number of time steps for numerical integrator evaluation.</p></li>
-<li><p><strong>model</strong> (<em>pyross model</em>) – Model to integrate (pyross.deterministic.SIR etc)</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6466,9 +6416,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6507,9 +6462,14 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6524,9 +6484,7 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.Spp.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use latent_infer_parameters instead.
-Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dd><p>DEPRECATED. Use latent_infer_parameters instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -6545,9 +6503,14 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6589,139 +6552,36 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <div class="section" id="module-pyross.inference.SIR">
 <span id="pyross-inference-sir"></span><h2><a class="toc-backref" href="#id32">pyross.inference.SIR</a><a class="headerlink" href="#module-pyross.inference.SIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed (SIR)
-Ia: asymptomatic
-Is: symptomatic</p>
-<p>…</p>
-<dl class="attribute">
-<dt id="pyross.inference.SIR.N">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">N</code><a class="headerlink" href="#pyross.inference.SIR.N" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total popuation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+* Ia: asymptomatic
+* Is: symptomatic</p>
+<div class="section" id="initialisation">
+<h3><a class="toc-backref" href="#id33">Initialisation</a><a class="headerlink" href="#initialisation" title="Permalink to this headline">¶</a></h3>
+<p>To initialise the class, call SIR(parameters, M, fi, N, steps), where</p>
+<dl>
+<dt>parameters<span class="classifier">dict</span></dt><dd><p>Including the following parameters
+alpha : float</p>
+<blockquote>
+<div><p>Ratio of asymptomatic carriers</p>
+</div></blockquote>
+<dl class="simple">
+<dt>beta<span class="classifier">float</span></dt><dd><p>Infection rate upon contact</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>Recovery rate for asymptomatic</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>Recovery rate for symptomatic</p>
+</dd>
+<dt>fsa<span class="classifier">flat</span></dt><dd><p>The fraction of symptomatic people who are self-isolating</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.M">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">M</code><a class="headerlink" href="#pyross.inference.SIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</dd>
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of age groups</p>
+</dd>
+<dt>fi<span class="classifier">float numpy.array</span></dt><dd><p>Fraction of each age group</p>
+</dd>
+<dt>N<span class="classifier">int</span></dt><dd><p>Total population</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.steps">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">steps</code><a class="headerlink" href="#pyross.inference.SIR.steps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of internal integration points used for interpolation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.dim">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">dim</code><a class="headerlink" href="#pyross.inference.SIR.dim" title="Permalink to this definition">¶</a></dt>
-<dd><p>3 * M.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.fi">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">fi</code><a class="headerlink" href="#pyross.inference.SIR.fi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Age group size as a fraction of total population</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.alpha">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">alpha</code><a class="headerlink" href="#pyross.inference.SIR.alpha" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fraction of infected who are asymptomatic.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float or np.array(M)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.beta">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">beta</code><a class="headerlink" href="#pyross.inference.SIR.beta" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rate of spread of infection.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.gIa">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">gIa</code><a class="headerlink" href="#pyross.inference.SIR.gIa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rate of removal from asymptomatic individuals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.gIs">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">gIs</code><a class="headerlink" href="#pyross.inference.SIR.gIs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rate of removal from symptomatic individuals.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.inference.SIR.fsa">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">fsa</code><a class="headerlink" href="#pyross.inference.SIR.fsa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fraction by which symptomatic individuals self isolate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">All methods of the superclass SIR_Type.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">make_det_model : returns deterministic model.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">make_params_dict : returns a dictionary of the input parameters.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">integrate : returns numerical integration of the chosen model.</code></dt>
-<dd></dd></dl>
-
+<p>See SIR_type for a summary table for all inference methods.</p>
 <dl class="function">
 <dt id="pyross.inference.SIR.compute_hessian">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.compute_hessian" title="Permalink to this definition">¶</a></dt>
@@ -6826,9 +6686,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -6843,8 +6708,8 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SIR.infer_parameters">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.infer_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <p>IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
 to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
 If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
@@ -6867,19 +6732,23 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
-<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:</p></li>
-<li><p><strong>of minimization function in utils_python.py which are documented there. If not</strong> (<em>Parameters</em>) – </p></li>
-<li><p><strong>cma_stds is set to stds.</strong> (<em>specified</em><em>,</em>) – </p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>estimates</strong> (<em>numpy.array</em>)</p></li>
-<li><p><em>the MAP parameter estimate</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>estimates</strong> – The MAP parameter estimate</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6889,7 +6758,6 @@ age-dependent parameter individually</p></li>
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>DEPRECATED. Use infer_parameters instead</p>
-<p>This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -6914,31 +6782,6 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyross.inference.SIR.integrate">
-<code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state of the given model</p></li>
-<li><p><strong>t1</strong> (<em>float</em>) – Initial time of integrator</p></li>
-<li><p><strong>t2</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – Number of time steps for numerical integrator evaluation.</p></li>
-<li><p><strong>model</strong> (<em>pyross model</em>) – Model to integrate (pyross.deterministic.SIR etc)</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6969,9 +6812,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7010,9 +6858,14 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7027,9 +6880,7 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SIR.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use latent_infer_parameters instead.
-Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dd><p>DEPRECATED. Use latent_infer_parameters instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -7048,9 +6899,14 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7089,8 +6945,9 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd></dl>
 
 </div>
+</div>
 <div class="section" id="module-pyross.inference.SEIR">
-<span id="pyross-inference-seir"></span><h2><a class="toc-backref" href="#id33">pyross.inference.SEIR</a><a class="headerlink" href="#module-pyross.inference.SEIR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-inference-seir"></span><h2><a class="toc-backref" href="#id34">pyross.inference.SEIR</a><a class="headerlink" href="#module-pyross.inference.SEIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
@@ -7337,9 +7194,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7354,8 +7216,8 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SEIR.infer_parameters">
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.infer_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <p>IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
 to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
 If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
@@ -7378,19 +7240,23 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
-<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:</p></li>
-<li><p><strong>of minimization function in utils_python.py which are documented there. If not</strong> (<em>Parameters</em>) – </p></li>
-<li><p><strong>cma_stds is set to stds.</strong> (<em>specified</em><em>,</em>) – </p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>estimates</strong> (<em>numpy.array</em>)</p></li>
-<li><p><em>the MAP parameter estimate</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>estimates</strong> – The MAP parameter estimate</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -7400,7 +7266,6 @@ age-dependent parameter individually</p></li>
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>DEPRECATED. Use infer_parameters instead</p>
-<p>This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -7425,31 +7290,6 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyross.inference.SEIR.integrate">
-<code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state of the given model</p></li>
-<li><p><strong>t1</strong> (<em>float</em>) – Initial time of integrator</p></li>
-<li><p><strong>t2</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – Number of time steps for numerical integrator evaluation.</p></li>
-<li><p><strong>model</strong> (<em>pyross model</em>) – Model to integrate (pyross.deterministic.SIR etc)</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -7480,9 +7320,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7521,9 +7366,14 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7538,9 +7388,7 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SEIR.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use latent_infer_parameters instead.
-Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dd><p>DEPRECATED. Use latent_infer_parameters instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -7559,9 +7407,14 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7601,7 +7454,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 
 </div>
 <div class="section" id="module-pyross.inference.SEAI5R">
-<span id="pyross-inference-seai5r"></span><h2><a class="toc-backref" href="#id34">pyross.inference.SEAI5R</a><a class="headerlink" href="#module-pyross.inference.SEAI5R" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-inference-seai5r"></span><h2><a class="toc-backref" href="#id35">pyross.inference.SEAI5R</a><a class="headerlink" href="#module-pyross.inference.SEAI5R" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)</p>
 <p>The infected class has 5 groups:
 * Ia: asymptomatic
@@ -7926,9 +7779,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -7943,8 +7801,8 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SEAI5R.infer_parameters">
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.infer_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <p>IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
 to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
 If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
@@ -7967,19 +7825,23 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
-<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:</p></li>
-<li><p><strong>of minimization function in utils_python.py which are documented there. If not</strong> (<em>Parameters</em>) – </p></li>
-<li><p><strong>cma_stds is set to stds.</strong> (<em>specified</em><em>,</em>) – </p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>estimates</strong> (<em>numpy.array</em>)</p></li>
-<li><p><em>the MAP parameter estimate</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>estimates</strong> – The MAP parameter estimate</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -7989,7 +7851,6 @@ age-dependent parameter individually</p></li>
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>DEPRECATED. Use infer_parameters instead</p>
-<p>This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -8014,31 +7875,6 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyross.inference.SEAI5R.integrate">
-<code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state of the given model</p></li>
-<li><p><strong>t1</strong> (<em>float</em>) – Initial time of integrator</p></li>
-<li><p><strong>t2</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – Number of time steps for numerical integrator evaluation.</p></li>
-<li><p><strong>model</strong> (<em>pyross model</em>) – Model to integrate (pyross.deterministic.SIR etc)</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -8069,9 +7905,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8110,9 +7951,14 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8127,9 +7973,7 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SEAI5R.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use latent_infer_parameters instead.
-Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dd><p>DEPRECATED. Use latent_infer_parameters instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -8148,9 +7992,14 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8190,7 +8039,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 
 </div>
 <div class="section" id="module-pyross.inference.SEAIRQ">
-<span id="pyross-inference-seairq"></span><h2><a class="toc-backref" href="#id35">pyross.inference.SEAIRQ</a><a class="headerlink" href="#module-pyross.inference.SEAIRQ" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-inference-seairq"></span><h2><a class="toc-backref" href="#id36">pyross.inference.SEAIRQ</a><a class="headerlink" href="#module-pyross.inference.SEAIRQ" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 Ia: asymptomatic
 Is: symptomatic
@@ -8490,9 +8339,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8507,8 +8361,8 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SEAIRQ.infer_parameters">
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.infer_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <p>IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
 to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
 If the relation of the different parameters is known, a scale factor of the initial guess can be inferred instead
@@ -8531,19 +8385,23 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
-<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:</p></li>
-<li><p><strong>of minimization function in utils_python.py which are documented there. If not</strong> (<em>Parameters</em>) – </p></li>
-<li><p><strong>cma_stds is set to stds.</strong> (<em>specified</em><em>,</em>) – </p></li>
+<li><p><strong>ftol</strong> (<em>float</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>estimates</strong> (<em>numpy.array</em>)</p></li>
-<li><p><em>the MAP parameter estimate</em></p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>estimates</strong> – The MAP parameter estimate</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -8553,7 +8411,6 @@ age-dependent parameter individually</p></li>
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>DEPRECATED. Use infer_parameters instead</p>
-<p>This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -8578,31 +8435,6 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pyross.inference.SEAIRQ.integrate">
-<code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state of the given model</p></li>
-<li><p><strong>t1</strong> (<em>float</em>) – Initial time of integrator</p></li>
-<li><p><strong>t2</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – Number of time steps for numerical integrator evaluation.</p></li>
-<li><p><strong>model</strong> (<em>pyross model</em>) – Model to integrate (pyross.deterministic.SIR etc)</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -8633,9 +8465,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8674,9 +8511,14 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8691,9 +8533,7 @@ specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <dl class="function">
 <dt id="pyross.inference.SEAIRQ.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use latent_infer_parameters instead.
-Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dd><p>DEPRECATED. Use latent_infer_parameters instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -8712,9 +8552,14 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
-<li><p><strong>local_max_iter</strong><strong>, </strong><strong>global_ftol_factor</strong><strong>, </strong><strong>enable_global</strong><strong>, </strong><strong>enable_local</strong><strong>, </strong><strong>cma_processes</strong><strong>,</strong> (<em>global_max_iter</em><em>,</em>) – cma_population, cma_stds:
-Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+<li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -8755,9 +8600,9 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </div>
 </div>
 <div class="section" id="control-with-non-pharmaceutical-interventions">
-<h1><a class="toc-backref" href="#id36">Control with Non-Pharmaceutical interventions</a><a class="headerlink" href="#control-with-non-pharmaceutical-interventions" title="Permalink to this headline">¶</a></h1>
+<h1><a class="toc-backref" href="#id37">Control with Non-Pharmaceutical interventions</a><a class="headerlink" href="#control-with-non-pharmaceutical-interventions" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pyross.control.control_integration">
-<span id="pyross-control-control-integration"></span><h2><a class="toc-backref" href="#id37">pyross.control.control_integration</a><a class="headerlink" href="#module-pyross.control.control_integration" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-control-integration"></span><h2><a class="toc-backref" href="#id38">pyross.control.control_integration</a><a class="headerlink" href="#module-pyross.control.control_integration" title="Permalink to this headline">¶</a></h2>
 <p>Integrator class to implement control through changing the contact matrix
 as a function of the current state.</p>
 <dl class="method">
@@ -8798,7 +8643,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SIR">
-<span id="pyross-control-sir"></span><h2><a class="toc-backref" href="#id38">pyross.control.SIR</a><a class="headerlink" href="#module-pyross.control.SIR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-sir"></span><h2><a class="toc-backref" href="#id39">pyross.control.SIR</a><a class="headerlink" href="#module-pyross.control.SIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed (SIR)
 Ia: asymptomatic
 Is: symptomatic</p>
@@ -8889,7 +8734,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEkIkIkR">
-<span id="pyross-control-sekikikr"></span><h2><a class="toc-backref" href="#id39">pyross.control.SEkIkIkR</a><a class="headerlink" href="#module-pyross.control.SEkIkIkR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-sekikikr"></span><h2><a class="toc-backref" href="#id40">pyross.control.SEkIkIkR</a><a class="headerlink" href="#module-pyross.control.SEkIkIkR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 method of k-stages of Ia, Is, E
 See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
@@ -9063,7 +8908,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SIRS">
-<span id="pyross-control-sirs"></span><h2><a class="toc-backref" href="#id40">pyross.control.SIRS</a><a class="headerlink" href="#module-pyross.control.SIRS" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-sirs"></span><h2><a class="toc-backref" href="#id41">pyross.control.SIRS</a><a class="headerlink" href="#module-pyross.control.SIRS" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed, Susceptible (SIRS)
 Ia: asymptomatic
 Is: symptomatic
@@ -9157,7 +9002,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEIR">
-<span id="pyross-control-seir"></span><h2><a class="toc-backref" href="#id41">pyross.control.SEIR</a><a class="headerlink" href="#module-pyross.control.SEIR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-seir"></span><h2><a class="toc-backref" href="#id42">pyross.control.SEIR</a><a class="headerlink" href="#module-pyross.control.SEIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
@@ -9247,7 +9092,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEI5R">
-<span id="pyross-control-sei5r"></span><h2><a class="toc-backref" href="#id42">pyross.control.SEI5R</a><a class="headerlink" href="#module-pyross.control.SEI5R" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-sei5r"></span><h2><a class="toc-backref" href="#id43">pyross.control.SEI5R</a><a class="headerlink" href="#module-pyross.control.SEI5R" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 The infected class has 5 groups:
 * Ia: asymptomatic
@@ -9364,7 +9209,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SIkR">
-<span id="pyross-control-sikr"></span><h2><a class="toc-backref" href="#id43">pyross.control.SIkR</a><a class="headerlink" href="#module-pyross.control.SIkR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-sikr"></span><h2><a class="toc-backref" href="#id44">pyross.control.SIkR</a><a class="headerlink" href="#module-pyross.control.SIkR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed (SIkR)
 method of k-stages of I
 .. attribute:: parameters</p>
@@ -9449,7 +9294,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEkIkR">
-<span id="pyross-control-sekikr"></span><h2><a class="toc-backref" href="#id44">pyross.control.SEkIkR</a><a class="headerlink" href="#module-pyross.control.SEkIkR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-sekikr"></span><h2><a class="toc-backref" href="#id45">pyross.control.SEkIkR</a><a class="headerlink" href="#module-pyross.control.SEkIkR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed (SIkR)
 method of k-stages of I
 See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
@@ -9539,7 +9384,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEAIR">
-<span id="pyross-control-seair"></span><h2><a class="toc-backref" href="#id45">pyross.control.SEAIR</a><a class="headerlink" href="#module-pyross.control.SEAIR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-seair"></span><h2><a class="toc-backref" href="#id46">pyross.control.SEAIR</a><a class="headerlink" href="#module-pyross.control.SEAIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
 Ia: asymptomatic
 Is: symptomatic
@@ -9632,7 +9477,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEAI5R">
-<span id="pyross-control-seai5r"></span><h2><a class="toc-backref" href="#id46">pyross.control.SEAI5R</a><a class="headerlink" href="#module-pyross.control.SEAI5R" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-seai5r"></span><h2><a class="toc-backref" href="#id47">pyross.control.SEAI5R</a><a class="headerlink" href="#module-pyross.control.SEAI5R" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
 The infected class has 5 groups:
 * Ia: asymptomatic
@@ -9738,7 +9583,7 @@ contactMatricies</p></li>
 
 </div>
 <div class="section" id="module-pyross.control.SEAIRQ">
-<span id="pyross-control-seairq"></span><h2><a class="toc-backref" href="#id47">pyross.control.SEAIRQ</a><a class="headerlink" href="#module-pyross.control.SEAIRQ" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-control-seairq"></span><h2><a class="toc-backref" href="#id48">pyross.control.SEAIRQ</a><a class="headerlink" href="#module-pyross.control.SEAIRQ" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 Ia: asymptomatic
 Is: symptomatic
@@ -9842,10 +9687,10 @@ contactMatricies</p></li>
 </div>
 </div>
 <div class="section" id="forecasting">
-<h1><a class="toc-backref" href="#id48">Forecasting</a><a class="headerlink" href="#forecasting" title="Permalink to this headline">¶</a></h1>
+<h1><a class="toc-backref" href="#id49">Forecasting</a><a class="headerlink" href="#forecasting" title="Permalink to this headline">¶</a></h1>
 <p>Forecasting with the inferred parameters, error bars and, if there are latent variables, inferred initial conditions.</p>
 <div class="section" id="module-pyross.forecast.SIR">
-<span id="pyross-forecast-sir"></span><h2><a class="toc-backref" href="#id49">pyross.forecast.SIR</a><a class="headerlink" href="#module-pyross.forecast.SIR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-sir"></span><h2><a class="toc-backref" href="#id50">pyross.forecast.SIR</a><a class="headerlink" href="#module-pyross.forecast.SIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed (SIR)
 Ia: asymptomatic
 Is: symptomatic</p>
@@ -9966,7 +9811,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SIR_latent">
-<span id="pyross-forecast-sir-latent"></span><h2><a class="toc-backref" href="#id50">pyross.forecast.SIR_latent</a><a class="headerlink" href="#module-pyross.forecast.SIR_latent" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-sir-latent"></span><h2><a class="toc-backref" href="#id51">pyross.forecast.SIR_latent</a><a class="headerlink" href="#module-pyross.forecast.SIR_latent" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Infected, Removed (SIR)
 Ia: asymptomatic
 Is: symptomatic</p>
@@ -10094,7 +9939,7 @@ sample_inits : List of initial state vectors tried.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SEIR">
-<span id="pyross-forecast-seir"></span><h2><a class="toc-backref" href="#id51">pyross.forecast.SEIR</a><a class="headerlink" href="#module-pyross.forecast.SEIR" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-seir"></span><h2><a class="toc-backref" href="#id52">pyross.forecast.SEIR</a><a class="headerlink" href="#module-pyross.forecast.SEIR" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
@@ -10215,7 +10060,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SEIR_latent">
-<span id="pyross-forecast-seir-latent"></span><h2><a class="toc-backref" href="#id52">pyross.forecast.SEIR_latent</a><a class="headerlink" href="#module-pyross.forecast.SEIR_latent" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-seir-latent"></span><h2><a class="toc-backref" href="#id53">pyross.forecast.SEIR_latent</a><a class="headerlink" href="#module-pyross.forecast.SEIR_latent" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic</p>
@@ -10346,7 +10191,7 @@ sample_inits : List of initial state vectors tried.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SEAIRQ">
-<span id="pyross-forecast-seairq"></span><h2><a class="toc-backref" href="#id53">pyross.forecast.SEAIRQ</a><a class="headerlink" href="#module-pyross.forecast.SEAIRQ" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-seairq"></span><h2><a class="toc-backref" href="#id54">pyross.forecast.SEAIRQ</a><a class="headerlink" href="#module-pyross.forecast.SEAIRQ" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
@@ -10480,7 +10325,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SEAIRQ_latent">
-<span id="pyross-forecast-seairq-latent"></span><h2><a class="toc-backref" href="#id54">pyross.forecast.SEAIRQ_latent</a><a class="headerlink" href="#module-pyross.forecast.SEAIRQ_latent" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-seairq-latent"></span><h2><a class="toc-backref" href="#id55">pyross.forecast.SEAIRQ_latent</a><a class="headerlink" href="#module-pyross.forecast.SEAIRQ_latent" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
@@ -10624,7 +10469,7 @@ sample_inits : List of initial state vectors tried.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SEAI5R">
-<span id="pyross-forecast-seai5r"></span><h2><a class="toc-backref" href="#id55">pyross.forecast.SEAI5R</a><a class="headerlink" href="#module-pyross.forecast.SEAI5R" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-seai5r"></span><h2><a class="toc-backref" href="#id56">pyross.forecast.SEAI5R</a><a class="headerlink" href="#module-pyross.forecast.SEAI5R" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
 The infected class has 5 groups:
 * Ia: asymptomatic
@@ -10774,7 +10619,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 
 </div>
 <div class="section" id="module-pyross.forecast.SEAI5R_latent">
-<span id="pyross-forecast-seai5r-latent"></span><h2><a class="toc-backref" href="#id56">pyross.forecast.SEAI5R_latent</a><a class="headerlink" href="#module-pyross.forecast.SEAI5R_latent" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-forecast-seai5r-latent"></span><h2><a class="toc-backref" href="#id57">pyross.forecast.SEAI5R_latent</a><a class="headerlink" href="#module-pyross.forecast.SEAI5R_latent" title="Permalink to this headline">¶</a></h2>
 <p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
 The infected class has 5 groups:
 * Ia: asymptomatic
@@ -10921,10 +10766,10 @@ sample_inits : List of initial state vectors tried.</p>
 </div>
 </div>
 <div class="section" id="contact-matrix-class">
-<h1><a class="toc-backref" href="#id57">Contact matrix class</a><a class="headerlink" href="#contact-matrix-class" title="Permalink to this headline">¶</a></h1>
+<h1><a class="toc-backref" href="#id58">Contact matrix class</a><a class="headerlink" href="#contact-matrix-class" title="Permalink to this headline">¶</a></h1>
 <p>Generates contact matrix for given interventions</p>
 <div class="section" id="module-pyross.contactMatrix.ContactMatrixFunction">
-<span id="pyross-contactmatrix-contactmatrixfunction"></span><h2><a class="toc-backref" href="#id58">pyross.contactMatrix.ContactMatrixFunction</a><a class="headerlink" href="#module-pyross.contactMatrix.ContactMatrixFunction" title="Permalink to this headline">¶</a></h2>
+<span id="pyross-contactmatrix-contactmatrixfunction"></span><h2><a class="toc-backref" href="#id59">pyross.contactMatrix.ContactMatrixFunction</a><a class="headerlink" href="#module-pyross.contactMatrix.ContactMatrixFunction" title="Permalink to this headline">¶</a></h2>
 <p>Computed a time dependent function of the contact matrix</p>
 <p>Takes as input
 CH:  constant matrix at home

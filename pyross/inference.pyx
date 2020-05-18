@@ -26,33 +26,33 @@ ctypedef np.uint8_t BOOL_t
 cdef class SIR_type:
     '''Parent class for inference for all SIR-type classes listed below
 
-    ======================= ==================================================================================
-    Methods
-    for full data
-    ----------------------- ----------------------------------------------------------------------------------
+    ======================= ==========================================================
+    Methods for full data
+    ======================= ==========================================================
     infer_parameters        Infers epidemiological parameters given all information.
     infer_control           Infers control parameters.
     obtain_minus_log_p      Computes -log(p) of a fully observed trajectory.
     compute_hessian         Computes the Hessian of -log(p).
-    ======================= ==================================================================================
+    ======================= ==========================================================
 
+    ========================== ===========================================================
+    Methods for partial data
+    ========================== ===========================================================
+    latent_infer_parameters    Infers parameters and initial conditions.
+    latent_infer_control       Infers control parameters.
+    minus_logp_red             Computes -log(p) of a partially observed trajectory
+    compute_hessian_latent     Computes the Hessian of -log(p).
+    ========================== ===========================================================
 
-    ======================= ==================================================================================
-    Methods
-    for partial data
-    ----------------------- ----------------------------------------------------------------------------------
-    latent_infer_parameters Infers parameters and initial conditions.
-    latent_infer_control    Infers control parameters.
-    minus_logp_red          Computes -log(p) of a partially observed trajectory
-    compute_hessian_latent  Computes the Hessian of -log(p).
-    ======================= ==================================================================================
-
-    ======================= ==================================================================================
+    ======================= ===========================================================
     Helper function
-    ----------------------- ----------------------------------------------------------------------------------
+    ======================= ===========================================================
     integrate               A wrapper around 'simulate' in pyross.deterministic.
     set_params              Sets parameters.
-    ======================= ==================================================================================
+    make_det_model          Makes a pyross.deterministic model of the same class
+    fill_params_dict        Fills and returns a parameter dictionary
+    fill_initial_conditions Generates full initial condition with partial info.
+    ======================= ===========================================================
     '''
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
@@ -108,8 +108,6 @@ cdef class SIR_type:
         """Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model
 
         DEPRECATED. Use infer_parameters instead
-
-        This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
         Parameters
         ----------
@@ -194,9 +192,8 @@ cdef class SIR_type:
                         double Tf, double Nf, contactMatrix, infer_scale_parameter=False, verbose=False,
                         ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                         enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
-        '''
-        Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-        assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
+        '''Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+        This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
         IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
         to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
@@ -230,19 +227,31 @@ cdef class SIR_type:
             age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
-        ftol: double
+        ftol: float
             Relative tolerance of logp
-        eps: double
+        eps: float
             Disallow parameters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-              cma_population, cma_stds:
-        Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-        specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
         estimates : numpy.array
-        the MAP parameter estimate
+            The MAP parameter estimate
         '''
         # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
         # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
@@ -370,10 +379,22 @@ cdef class SIR_type:
             Relative tolerance of logp
         eps: double
             Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -522,8 +543,7 @@ cdef class SIR_type:
                             cma_population=16, cma_stds=None):
         """
         DEPRECATED. Use latent_infer_parameters instead.
-        Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-        when the classes are only partially observed. Unobserved classes are treated as latent variables.
+
 
         Parameters
         ----------
@@ -553,10 +573,22 @@ cdef class SIR_type:
             Relative tolerance
         eps: float, optional
             Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -647,10 +679,22 @@ cdef class SIR_type:
             Set to True to see intermediate outputs from the optimizer.
         ftol: float, optional
             Relative tolerance
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -734,10 +778,22 @@ cdef class SIR_type:
             Relative tolerance of logp
         eps: double
             Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -962,8 +1018,7 @@ cdef class SIR_type:
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix):
-        '''
-        Computes -logp for a latent trajectory
+        '''Computes -logp for a latent trajectory
 
         Parameters
         ----------
@@ -1239,41 +1294,33 @@ cdef class SIR_type:
 cdef class SIR(SIR_type):
     """
     Susceptible, Infected, Removed (SIR)
-    Ia: asymptomatic
-    Is: symptomatic
+    * Ia: asymptomatic
+    * Is: symptomatic
 
-    ...
-
-    Attributes
-    ----------
-    N : int
-        Total popuation.
+    Initialisation
+    --------------
+    To initialise the class, call SIR(parameters, M, fi, N, steps), where
+    
+    parameters : dict
+        Including the following parameters
+        alpha : float
+            Ratio of asymptomatic carriers
+        beta : float
+            Infection rate upon contact
+        gIa : float
+            Recovery rate for asymptomatic
+        gIs : float
+            Recovery rate for symptomatic
+        fsa : flat
+            The fraction of symptomatic people who are self-isolating
     M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        3 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
+        Number of age groups
+    fi : float numpy.array
+        Fraction of each age group
+    N : int
+        Total population
 
-
-    Methods
-    -------
-    All methods of the superclass SIR_Type.
-    make_det_model : returns deterministic model.
-    make_params_dict : returns a dictionary of the input parameters.
-    integrate : returns numerical integration of the chosen model.
+    See SIR_type for a summary table for all inference methods.
     """
 
     def __init__(self, parameters, M, fi, N, steps):

@@ -190,7 +190,6 @@ Bayesian inference
 ==================================
 Inference for age structured compartment models using the diffusion approximation (via the van Kampen expansion).
 
-
 pyross.inference.SIR_type
 ----------------------------
 .. automodule:: pyross.inference.SIR_type
