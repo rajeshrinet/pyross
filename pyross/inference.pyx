@@ -24,52 +24,35 @@ ctypedef np.uint8_t BOOL_t
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR_type:
-    '''
-    Parent class for inference for all SIR-type classes listed below
+    '''Parent class for inference for all SIR-type classes listed below
 
-    Attributes:
-    ----------
-    nClass : int
-        Number of classes (set in subclasses).
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        nClass * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic (possibly age-dependent).
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
+    ======================= ==================================================================================
+    Methods
+    for full data
+    ----------------------- ----------------------------------------------------------------------------------
+    infer_parameters        Infers epidemiological parameters given all information.
+    infer_control           Infers control parameters.
+    obtain_minus_log_p      Computes -log(p) of a fully observed trajectory.
+    compute_hessian         Computes the Hessian of -log(p).
+    ======================= ==================================================================================
 
-    Methods:
-    -------
-    inference : Infers epidemiological parameters given all information.
-    infer_control : Infers control parameters given all information.
-    hessian : Computes the hessian of -log(p) around the maximum a posteriori estimates.
-    obtain_minus_log_p : Computes -log(p) of a fully observed trajectory for
-                         given epidemiological parameters.
-    error_bars : Computes the errors of the maximum a posteriori estimates
-                 using the hessian (under maintenance).
-    log_G_evidence : Computes the log G evidence of the model (under maintenance).
-    latent_inference : Infers epidemiological parametesr and initial conditions
-                       given partial information.
-    latent_infer_control : Infers control parameters given partial information.
-    hessian_latent : Computes the hessian of -logp around the maximum a posteriori
-                     estimates for both parameters and initial conditions.
-    minus_logp_red : Computes -log(p) of a partially observed trajectory for
-                     given epidemiological parameters and initial conditions.
-    integrate : A wrapper around simulate methods in pyross.deterministic
+
+    ======================= ==================================================================================
+    Methods
+    for partial data
+    ----------------------- ----------------------------------------------------------------------------------
+    latent_infer_parameters Infers parameters and initial conditions.
+    latent_infer_control    Infers control parameters.
+    minus_logp_red          Computes -log(p) of a partially observed trajectory
+    compute_hessian_latent  Computes the Hessian of -log(p).
+    ======================= ==================================================================================
+
+    ======================= ==================================================================================
+    Helper function
+    ----------------------- ----------------------------------------------------------------------------------
+    integrate               A wrapper around 'simulate' in pyross.deterministic.
+    set_params              Sets parameters.
+    ======================= ==================================================================================
     '''
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
@@ -122,11 +105,11 @@ cdef class SIR_type:
     def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, verbose=False,
                   ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
-        """
+        """Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model
+
         DEPRECATED. Use infer_parameters instead
 
-        Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-        assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
+        This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
         Parameters
         ----------
@@ -1028,19 +1011,6 @@ cdef class SIR_type:
             full_parameters[k] = params[i]
         return full_parameters
 
-    def keys_to_fltrs(self, init_keys):
-        # Currently not in use
-        init_keys_dict = self.get_init_keys_dict()
-        init_fltr = np.zeros(self.dim, dtype='bool')
-        for k in init_keys:
-            index = init_keys_dict[k]
-            init_fltr[index] = True
-        return init_fltr
-
-    def get_init_keys_dict(self):
-        # currently not used
-        pass # to be implemented in subclass
-
     def fill_initial_conditions(self, double [:] partial_inits, double [:] obs_inits,
                                         np.ndarray init_fltr, np.ndarray fltr):
         cdef:
@@ -1524,8 +1494,8 @@ cdef class SEIR(SIR_type):
 
 
 cdef class SEAI5R(SIR_type):
-    """
-    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
+    """Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
+
     The infected class has 5 groups:
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1539,6 +1509,7 @@ cdef class SEAI5R(SIR_type):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+
     Attributes
     ----------
 
@@ -1817,7 +1788,6 @@ cdef class SEAIRQ(SIR_type):
 
     Methods
     -------
-    All methods of the superclass SIR_type
     make_det_model : returns deterministic model
     make_params_dict : returns a dictionary of the input parameters
     integrate : returns numerical integration of the chosen model
@@ -1830,96 +1800,6 @@ cdef class SEAIRQ(SIR_type):
 
     def get_init_keys_dict(self):
         return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
-
-    def _infer_control_to_minimize(self, params, grad=0, x=None, Tf=None, Nf=None,
-                                    generator=None, a=None, scale=None):
-        """Objective function for minimization call in infer_control."""
-        tau_control = params
-        parameters = self.make_params_dict()
-        parameters['tE'] = tau_control[0]
-        parameters['tA'] = tau_control[1]
-        parameters['tIa'] = tau_control[2]
-        parameters['tIs'] = tau_control[3]
-        model = self.make_det_model(parameters)
-        contactMatrix = generator.constant_contactMatrix()
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(tau_control, a, scale=scale))
-        return minus_logp
-
-    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5, global_max_iter=100,
-                      local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
-                      cma_processes=0, cma_population=16, cma_stds=None):
-        '''
-        guess: numpy.array
-            initial guess for the control parameter values
-        Tf: float
-            total time of the trajectory
-        Nf: float
-            number of data points along the trajectory
-        generator: pyross.contactMatrix
-        bounds: 2d numpy.array
-            bounds for the parameters.
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        verbose: bool
-            whether to print messages
-        ftol: double
-            relative tolerance of logp
-        eps: double
-            size of steps taken by L-BFGS-B algorithm for the calculation of Hessian
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there.
-        '''
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
-
-        if cma_stds is None:
-            # Use prior standard deviations here
-            cma_stds = stds
-
-        minimize_args = {'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 'a':a, 'scale':scale}
-        res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                      local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
-                      enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                      cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
-
-        return res[0]
-
-
-
-    def _latent_infer_control_to_minimize(self, params, grad=0, generator=None, x0=None, obs=None, fltr=None,
-                                          Tf=None, Nf=None, a=None, scale=None):
-        """Objective function for minimization call in latent_infer_control."""
-        tau_control = params
-        parameters = self.make_params_dict()
-        parameters['tE'] = tau_control[0]
-        parameters['tA'] = tau_control[1]
-        parameters['tIa'] = tau_control[2]
-        parameters['tIs'] = tau_control[3]
-        model = self.make_det_model(parameters)
-        contactMatrix = generator.constant_contactMatrix()
-        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(tau_control, a, scale=scale))
-        return minus_logp
-
-    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
-                            double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
-                            verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
-                            local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
-                            cma_processes=0, cma_population=16, cma_stds=None):
-
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
-
-        if cma_stds is None:
-            # Use prior standard deviations here
-            cma_stds = stds
-        minimize_args = {'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr,
-                            'Tf':Tf, 'Nf':Nf, 'a':a, 'scale':scale}
-        res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
-
-        return res[0]
 
     def set_params(self, parameters):
         super().set_params(parameters)

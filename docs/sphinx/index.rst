@@ -12,14 +12,38 @@ Inference on pre-defined or user-defined models is performed using model-adapted
 
 Non-pharmaceutical interventions are implemented as modifications of the contact structures of the model. Optimised control of these structures, given cost functions, is possible. This feature is being actively developed to be better integrated with the library.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
 .. image:: ../../examples/banner.png
   :width: 800
   :alt: PyRoss banner
 
+Worked out examples
+==========================
+
+* `Example: Deterministic sampling in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01-SIR.ipynb>`_
+* `Example: Stochastic sampling in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex1-SIR.ipynb>`_
+* `Example: Inference in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01_inference_SIR.ipynb>`_
+* `Example: Inference with latent variables in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex05_inference_latent_SIR.ipynb>`_
+* `Example: Simulate any generic compartmental model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex16-Spp.ipynb>`_
+* `Example: Inference with any generic compartment model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex_Spp.ipynb>`_
+
+In addition please have a look at the `examples folder <https://github.com/rajeshrinet/pyross/tree/master/examples>`_ for more Jupyter notebook examples.
+
+The examples are classified as:
+
+* `contactMatrix <https://github.com/rajeshrinet/pyross/tree/master/examples/contactMatrix>`_ : shows how to use contact matrix and intervention
+* `control <https://github.com/rajeshrinet/pyross/tree/master/examples/control>`_ : shows how to compute time dependent contact matrix which depend of time and state
+* `deterministic <https://github.com/rajeshrinet/pyross/tree/master/examples/deterministic>`_ : is for integration of equations of motion in the limit of no stochastic components
+* `forecast <https://github.com/rajeshrinet/pyross/tree/master/examples/forecast>`_ : is for forecasting once the parameters are known
+* `hybrid <https://github.com/rajeshrinet/pyross/tree/master/examples/hybrid>`_ : is for integration of equations of motion which can switch from deterministic to stochastic
+* `inference <https://github.com/rajeshrinet/pyross/tree/master/examples/inference>`_ : shows how to infer parameters and select models given data
+* `stochastic <https://github.com/rajeshrinet/pyross/tree/master/examples/stochastic>`_ : is for integration of equations of motion with stochastic components
+
+
+`Models.pdf <https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf>`_ has a description of the various epidemiological models used in the examples (SIR, SIkR, SEIR, SEkIkR, SEAIR, SEAI5R, etc).
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
 .. contents::
 
@@ -30,7 +54,6 @@ Deterministic simulations with compartment models and age structure.
 
 pyross.deterministic.IntegratorsClass
 ----------------------------------------
-Parent class for all determinisitic simulations.
 
 .. automodule:: pyross.deterministic.IntegratorsClass
     :members:
@@ -113,8 +136,6 @@ Stochastic simulations with compartment models and age structure. Has Gillespie 
 
 pyross.stochastic.stochastic_integration
 --------------------------------------------
-The parent class for all stochastic integrations.
-
 .. automodule:: pyross.stochastic.stochastic_integration
     :members:
 
@@ -165,15 +186,13 @@ pyross.hybrid.SIR
     :members:
 
 
-Bayesian inference 
+Bayesian inference
 ==================================
 Inference for age structured compartment models using the diffusion approximation (via the van Kampen expansion).
 
 
 pyross.inference.SIR_type
 ----------------------------
-Parent class for inference.
-
 .. automodule:: pyross.inference.SIR_type
     :members:
 
