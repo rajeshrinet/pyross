@@ -1,6 +1,17 @@
 PyRoss API
 ==================================
 
+
+PyRoss is a numerical library for inference, prediction and non-pharmaceutical interventions in age-structured epidemiological compartment models.
+
+The library is designed to be model-agnostic and allows the user to define models in a JSON format. The most common epidemiological models, and several less common ones, come pre-defined with the library. Models can include stages to allow for non-exponentially distributed compartmental residence times. Currently, pre-defined models include ones with multiple infectious (symptomatic, asymptomatic etc) and non-infectious (exposed, asymptomatic etc) classes.
+
+The library supports models formulated stochastically (as chemical master equations) or deterministically (as systems of differential equations). A hybrid algorithm transits dynamically between these depending on the magnitude of the compartmental fluctuations.
+
+Inference on pre-defined or user-defined models is performed using model-adapted Gaussian processes on the epidemiological manifold or its tangent space. This method allows for latent variable inference and fast computation of the model evidence and the Fisher information matrix. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide Bayesian forecasts of the progress of the epidemic.
+
+Non-pharmaceutical interventions are implemented as modifications of the contact structures of the model. Optimised control of these structures, given cost functions, is possible. This feature is being actively developed to be better integrated with the library.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -12,57 +23,300 @@ PyRoss API
 
 .. contents::
 
-pyross.deterministic
+Deterministic simulations
 ==================================
 
-.. automodule:: pyross.deterministic
-    :members: 
+Deterministic simulations with compartment models and age structure.
 
-pyross.stochastic
+pyross.deterministic.IntegratorsClass
+----------------------------------------
+Parent class for all determinisitic simulations.
+
+.. automodule:: pyross.deterministic.IntegratorsClass
+    :members:
+
+pyross.deterministic.Spp
+--------------------------
+Automatic generation of all SIR-type models.
+
+.. automodule:: pyross.deterministic.Spp
+    :members:
+
+pyross.deterministic.SIR
+--------------------------
+.. automodule:: pyross.deterministic.SIR
+    :members:
+
+pyross.deterministic.SIkR
+--------------------------
+.. automodule:: pyross.deterministic.SIkR
+    :members:
+
+pyross.deterministic.SEIR
+--------------------------
+.. automodule:: pyross.deterministic.SEIR
+    :members:
+
+pyross.deterministic.SEkIkR
+-----------------------------
+.. automodule:: pyross.deterministic.SEkIkR
+    :members:
+
+pyross.deterministic.SEkIkIkR
+-------------------------------
+.. automodule:: pyross.deterministic.SEkIkIkR
+    :members:
+
+pyross.deterministic.SEI5R
+-------------------------------
+.. automodule:: pyross.deterministic.SEI5R
+    :members:
+
+
+pyross.deterministic.SEI8R
+-------------------------------
+.. automodule:: pyross.deterministic.SEI8R
+    :members:
+
+pyross.deterministic.SEAIR
+----------------------------
+.. automodule:: pyross.deterministic.SEAIR
+    :members:
+
+
+pyross.deterministic.SEAI5R
+----------------------------
+.. automodule:: pyross.deterministic.SEAI5R
+    :members:
+
+pyross.deterministic.SEAI8R
+--------------------------------
+.. automodule:: pyross.deterministic.SEAI8R
+    :members:
+
+pyross.deterministic.SEAIRQ
+------------------------------
+.. automodule:: pyross.deterministic.SEAIRQ
+    :members:
+
+pyross.deterministic.SEAIRQ_testing
+--------------------------------------
+.. automodule:: pyross.deterministic.SEAIRQ_testing
+    :members:
+
+
+
+Stochastic simulations
 ==================================
+Stochastic simulations with compartment models and age structure. Has Gillespie and tau-leaping implemented.
 
-.. automodule:: pyross.stochastic
-    :members: 
 
-pyross.hybrid
+pyross.stochastic.stochastic_integration
+--------------------------------------------
+The parent class for all stochastic integrations.
+
+.. automodule:: pyross.stochastic.stochastic_integration
+    :members:
+
+pyross.stochastic.SIR
+----------------------
+.. automodule:: pyross.stochastic.SIR
+    :members:
+
+pyross.stochastic.SIkR
+------------------------
+.. automodule:: pyross.stochastic.SIkR
+    :members:
+
+pyross.stochastic.SEIR
+-------------------------
+.. automodule:: pyross.stochastic.SEIR
+    :members:
+
+pyross.stochastic.SEI5R
+--------------------------
+.. automodule:: pyross.stochastic.SEI5R
+    :members:
+
+pyross.stochastic.SEAI5R
+----------------------------
+.. automodule:: pyross.stochastic.SEAI5R
+    :members:
+
+pyross.stochastic.SEAIRQ
+---------------------------
+.. automodule:: pyross.stochastic.SEAIRQ
+    :members:
+
+pyross.stochastic.SEAIRQ_testing
+-------------------------------------
+.. automodule:: pyross.stochastic.SEAIRQ_testing
+    :members:
+
+
+Hybrid simulations
 ==================================
+Hybrid simulation scheme using a combination of stochastic and determinisitic schemes.
 
-.. automodule:: pyross.hybrid
-    :members: 
 
-pyross.inference
+pyross.hybrid.SIR
+--------------------
+.. automodule:: pyross.hybrid.SIR
+    :members:
+
+
+Bayesian inference 
 ==================================
+Inference for age structured compartment models using the diffusion approximation (via the van Kampen expansion).
 
-.. automodule:: pyross.inference
-    :members: 
 
-pyross.control
+pyross.inference.SIR_type
+----------------------------
+Parent class for inference.
+
+.. automodule:: pyross.inference.SIR_type
+    :members:
+
+
+pyross.inference.Spp
+------------------------
+Automatic generation of inference for SIR-type models
+
+.. automodule:: pyross.inference.Spp
+    :members:
+
+pyross.inference.SIR
+------------------------
+.. automodule:: pyross.inference.SIR
+    :members:
+
+pyross.inference.SEIR
+-------------------------
+.. automodule:: pyross.inference.SEIR
+    :members:
+
+pyross.inference.SEAI5R
+--------------------------
+.. automodule:: pyross.inference.SEAI5R
+    :members:
+
+pyross.inference.SEAIRQ
+--------------------------
+.. automodule:: pyross.inference.SEAIRQ
+    :members:
+
+Control with Non-Pharmaceutical interventions
+=================================================
+
+
+pyross.control.control_integration
+------------------------------------
+.. automodule:: pyross.control.control_integration
+    :members:
+
+pyross.control.SIR
+------------------------------------
+.. automodule:: pyross.control.SIR
+    :members:
+
+pyross.control.SEkIkIkR
+------------------------------------
+.. automodule:: pyross.control.SEkIkIkR
+    :members:
+
+pyross.control.SIRS
+---------------------
+.. automodule:: pyross.control.SIRS
+    :members:
+
+pyross.control.SEIR
+---------------------
+.. automodule:: pyross.control.SEIR
+    :members:
+
+pyross.control.SEI5R
+----------------------
+.. automodule:: pyross.control.SEI5R
+    :members:
+
+pyross.control.SIkR
+----------------------
+.. automodule:: pyross.control.SIkR
+    :members:
+
+pyross.control.SEkIkR
+------------------------
+.. automodule:: pyross.control.SEkIkR
+    :members:
+
+
+pyross.control.SEAIR
+-----------------------
+.. automodule:: pyross.control.SEAIR
+    :members:
+
+pyross.control.SEAI5R
+-----------------------
+.. automodule:: pyross.control.SEAI5R
+    :members:
+
+pyross.control.SEAIRQ
+-----------------------
+.. automodule:: pyross.control.SEAIRQ
+    :members:
+
+
+Forecasting
 ==================================
+Forecasting with the inferred parameters, error bars and, if there are latent variables, inferred initial conditions.
 
-.. automodule:: pyross.control
-    :members: 
 
-pyross.forecast
+pyross.forecast.SIR
+---------------------
+.. automodule:: pyross.forecast.SIR
+    :members:
+
+pyross.forecast.SIR_latent
+------------------------------
+.. automodule:: pyross.forecast.SIR_latent
+    :members:
+
+pyross.forecast.SEIR
+---------------------
+.. automodule:: pyross.forecast.SEIR
+    :members:
+
+pyross.forecast.SEIR_latent
+--------------------------------
+.. automodule:: pyross.forecast.SEIR_latent
+    :members:
+
+pyross.forecast.SEAIRQ
+----------------------------
+.. automodule:: pyross.forecast.SEAIRQ
+    :members:
+
+pyross.forecast.SEAIRQ_latent
+------------------------------------
+.. automodule:: pyross.forecast.SEAIRQ_latent
+    :members:
+
+pyross.forecast.SEAI5R
+----------------------------
+.. automodule:: pyross.forecast.SEAI5R
+    :members:
+
+pyross.forecast.SEAI5R_latent
+----------------------------------
+.. automodule:: pyross.forecast.SEAI5R_latent
+    :members:
+
+
+Contact matrix class
 ==================================
+Generates contact matrix for given interventions
 
-.. automodule:: pyross.forecast
-    :members: 
-
-pyross.contactMatrix
-==================================
-
-.. automodule:: pyross.contactMatrix
-    :members: 
-
-pyross.utils
-==================================
-
-.. automodule:: pyross.utils
-    :members: 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+pyross.contactMatrix.ContactMatrixFunction
+----------------------------------------------
+.. automodule:: pyross.contactMatrix.ContactMatrixFunction
+    :members:
