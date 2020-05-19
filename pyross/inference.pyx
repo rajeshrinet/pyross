@@ -1210,11 +1210,9 @@ cdef class SIR(SIR_type):
     * Ia: asymptomatic
     * Is: symptomatic
 
-    To initialise the SIR class,
+    To initialise the SIR class, pass the following arguments to SIR(...),
 
-    Parameters
-    ----------
-    parameters: dict
+    * parameters: dict
         Contains the following keys:
 
         alpha: float
@@ -1225,13 +1223,13 @@ cdef class SIR(SIR_type):
             Recovery rate for asymptomatic
         gIs: float
             Recovery rate for symptomatic
-        fsa: flat
+        fsa: float
             The fraction of symptomatic people who are self-isolating
-    M: int
+    * M: int
         Number of age groups
-    fi: float numpy.array
+    * fi: float numpy.array
         Fraction of each age group
-    N: int
+    * N: int
         Total population
 
     See `SIR_type` for a summary table for all inference methods.
@@ -1326,11 +1324,9 @@ cdef class SEIR(SIR_type):
     * Ia: asymptomatic
     * Is: symptomatic
 
-    To initialise the SEIR class,
+    To initialise the SEIR class, pass the following arguments to SEIR(...)
 
-    Parameters
-    ----------
-    parameters: dict
+    * parameters: dict
         Contains the following keys:
 
         alpha: float or np.array(M)
@@ -1345,11 +1341,11 @@ cdef class SEIR(SIR_type):
             Fraction by which symptomatic individuals self isolate.
         gE: float
             rate of removal from exposed individuals.
-    M: int
+    * M: int
         Number of age groups
-    fi: float numpy.array
+    * fi: float numpy.array
         Fraction of each age group
-    N: int
+    * N: int
         Total population
 
     See `SIR_type` for a summary table for all inference methods.
@@ -1465,11 +1461,9 @@ cdef class SEAI5R(SIR_type):
     * Ic: ICU
     * Im: Mortality
 
-    To initialise the SEAI5R class,
+    To initialise the SEAI5R class, pass the following arguments to SEAI5R(...):
 
-    Parameters
-    ----------
-    parameters: dict
+    * parameters: dict
         Contains the following keys:
 
         alpha: float or np.array(M)
@@ -1496,11 +1490,11 @@ cdef class SEAI5R(SIR_type):
             fraction sent to intensive care from hospitalised.
         mm: np.array (M,)
             mortality rate in intensive care
-    M: int
+    * M: int
         Number of age groups
-    fi: float numpy.array
+    * fi: float numpy.array
         Fraction of each age group
-    N: int
+    * N: int
         Total population
 
     See `SIR_type` for a summary table for all inference methods.
@@ -1703,11 +1697,9 @@ cdef class SEAIRQ(SIR_type):
     * A: asymptomatic and infectious
     * Q: quarantined
 
-    To initialise the SEAIRQ class,
+    To initialise the SEAIRQ class, pass the following arguments to SEAIRQ(..),
 
-    Parameters
-    ----------
-    parameters: dict
+    * parameters: dict
         Contains the following keys:
 
         alpha: float or np.array(M)
@@ -1732,11 +1724,11 @@ cdef class SEAIRQ(SIR_type):
             testing rate and contact tracing of asymptomatics
         tIs: float
             testing rate and contact tracing of symptomatics
-    M: int
+    * M: int
         Number of age groups.
-    fi: float numpy.array
+    * fi: float numpy.array
         Fraction of each age group.
-    N: int
+    * N: int
         Total population.
 
     See `SIR_type` for a summary table for all inference methods.
@@ -1891,22 +1883,20 @@ cdef class Spp(SIR_type):
     """
     User-defined epidemic model.
 
-    To initialise the Spp model,
+    To initialise the Spp model, pass the following arguments to Spp(...)
 
-    Parameters
-    ----------
-    model_spec: dict
+    * model_spec: dict
         A dictionary specifying the model. See `Examples`.
-    parameters: dict
+    * parameters: dict
         A dictionary containing the model parameters.
         All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
-    M: int
+    * M: int
         Number of age groups.
-    fi: np.array(M) or list
+    * fi: np.array(M) or list
         Fraction of each age group.
-    N: int
+    * N: int
         Total population.
-    steps: int
+    * steps: int
         Number of internal steps used.
 
     See `SIR_type` for a table of all the methods
