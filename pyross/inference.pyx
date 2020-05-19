@@ -26,34 +26,9 @@ ctypedef np.uint8_t BOOL_t
 cdef class SIR_type:
     '''Parent class for inference for all SIR-type classes listed below
 
-    ======================= ==================================================================================
-    Methods
-    for full data
-    ----------------------- ----------------------------------------------------------------------------------
-    infer_parameters        Infers epidemiological parameters given all information.
-    infer_control           Infers control parameters.
-    obtain_minus_log_p      Computes -log(p) of a fully observed trajectory.
-    compute_hessian         Computes the Hessian of -log(p).
-    ======================= ==================================================================================
-
-
-    ======================= ==================================================================================
-    Methods
-    for partial data
-    ----------------------- ----------------------------------------------------------------------------------
-    latent_infer_parameters Infers parameters and initial conditions.
-    latent_infer_control    Infers control parameters.
-    minus_logp_red          Computes -log(p) of a partially observed trajectory
-    compute_hessian_latent  Computes the Hessian of -log(p).
-    ======================= ==================================================================================
-
-    ======================= ==================================================================================
-    Helper function
-    ----------------------- ----------------------------------------------------------------------------------
-    integrate               A wrapper around 'simulate' in pyross.deterministic.
-    set_params              Sets parameters.
-    ======================= ==================================================================================
+    All subclasses use the same functions to perform inference, which are documented below.
     '''
+
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly beta, gIa, gIs, fsa
@@ -107,43 +82,9 @@ cdef class SIR_type:
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model
 
-        DEPRECATED. Use infer_parameters instead
-
-        This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
-
-        Parameters
-        ----------
-        guess: numpy.array
-            Prior expectation (and initial guess) for the parameter values
-        stds: numpy.array
-            Standard deviations for the Gamma prior of the parameters
-        x: 2d numpy.array
-            Observed trajectory (number of data points x (age groups * model classes))
-        Tf: float
-            Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        bounds: 2d numpy.array
-            Bounds for the parameters (number of parameters x 2).
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the optimizer.
-        ftol: double
-            Relative tolerance of logp
-        eps: double
-            Disallow parameters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
-
-        Returns
-        -------
-        estimates : numpy.array
-            the MAP parameter estimate
+        Deprecated. Use `infer_parameters` instead.
         """
+
         # make bounds if it does not exist and rescale
         if bounds is None:
             bounds = np.array([[eps, g*5] for g in guess])
@@ -194,9 +135,8 @@ cdef class SIR_type:
                         double Tf, double Nf, contactMatrix, infer_scale_parameter=False, verbose=False,
                         ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                         enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
-        '''
-        Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model. This function
-        assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
+        '''Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
+        This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
 
         IN DEVELOPMENT: Parameters that support age-dependent values can be inferred age-dependently by setting the guess
         to a numpy.array of self.M initial values. By default, each age-dependent parameter is inferred independently.
@@ -230,19 +170,31 @@ cdef class SIR_type:
             age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
-        ftol: double
+        ftol: float
             Relative tolerance of logp
-        eps: double
+        eps: float
             Disallow parameters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-              cma_population, cma_stds:
-        Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-        specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
-        estimates : numpy.array
-        the MAP parameter estimate
+        estimates: numpy.array
+            The MAP parameter estimate
         '''
         # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
         # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
@@ -370,10 +322,22 @@ cdef class SIR_type:
             Relative tolerance of logp
         eps: double
             Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -450,7 +414,7 @@ cdef class SIR_type:
 
         Returns
         -------
-        hess : 2d numpy.array
+        hess: 2d numpy.array
             The Hessian
         '''
         cdef:
@@ -521,47 +485,7 @@ cdef class SIR_type:
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         """
-        DEPRECATED. Use latent_infer_parameters instead.
-        Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
-        when the classes are only partially observed. Unobserved classes are treated as latent variables.
-
-        Parameters
-        ----------
-        guess: numpy.array
-            Prior expectation (and initial guess) for the parameter values.
-        stds: numpy.array
-            Standard deviations for the Gamma prior of the parameters
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points x (age groups * observed model classes))
-        fltr: boolean sequence or array
-            True for observed and False for unobserved classes.
-            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
-        Tf: float
-            Total time of the trajectory
-        Nf: int
-            Total number of data points along the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        bounds: 2d numpy.array
-            Bounds for the parameters + initial conditions
-            ((number of parameters + number of initial conditions) x 2).
-            Better bounds makes it easier to find the true global minimum.
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the optimizer.
-        ftol: float, optional
-            Relative tolerance
-        eps: float, optional
-            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
-
-        Returns
-        -------
-        params: numpy.array
-            MAP estimate of paramters and initial values of the classes.
+        DEPRECATED. Use `latent_infer_parameters` instead.
         """
         cdef:
             double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
@@ -598,10 +522,28 @@ cdef class SIR_type:
         parameters = self.fill_params_dict(param_keys, params[:param_dim])
         self.set_params(parameters)
         model = self.make_det_model(parameters)
+
         x0 = self.fill_initial_conditions(inits, obs[0], init_fltr, fltr)
+        penalty = self._penalty_from_negative_values(x0)
+        x0[x0<0] = 0.1/self.N # set to be small and positive
+
         minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+
+        # add penalty for being negative
+        minus_logp += penalty*Nf
+
         return minus_logp
+
+    cdef double _penalty_from_negative_values(self, np.ndarray x0):
+        cdef:
+            double eps=0.1/self.N, dev
+            np.ndarray R_init, R_dev, x0_dev
+        R_init = self.fi - np.sum(x0.reshape((int(self.dim/self.M), self.M)), axis=0)
+        R_dev = R_init - eps
+        x0_dev = x0 - eps
+        dev = - (np.sum(R_dev[R_dev<0]) + np.sum(x0_dev[x0_dev<0]))
+        return (dev/eps)**2 + (dev/eps)**8
 
 
     def latent_infer_parameters(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
@@ -647,10 +589,22 @@ cdef class SIR_type:
             Set to True to see intermediate outputs from the optimizer.
         ftol: float, optional
             Relative tolerance
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -712,9 +666,9 @@ cdef class SIR_type:
         stds: numpy.array
             Standard deviations for the Gamma prior of the control parameters
         x0: numpy.array
-            Observed trajectory (number of data points x (age groups * observed model classes))
+            Initial conditions.
         obs:
-            ...
+            Observed trajectory (number of data points x (age groups * observed model classes)).
         fltr: boolean sequence or array
             True for observed and False for unobserved classes.
             e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
@@ -734,10 +688,22 @@ cdef class SIR_type:
             Relative tolerance of logp
         eps: double
             Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
+        global_max_iter: int, optional
+            Number of global optimisations performed.
+        local_max_iter: int, optional
+            Number of local optimisation performed.
+        global_ftol_factor: float
+            The relative tolerance for global optimisation.
+        enable_global: bool, optional
+            Set to True to enable global optimisation.
+        enable_local: bool, optional
+            Set to True to enable local optimisation.
+        cma_processes: int, optional
+            Number of parallel processes used for global optimisation.
+        cma_population: int, optional
+            The number of samples used in each step of the CMA algorithm.
+        cma_stds: int, optional
+            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
@@ -763,8 +729,7 @@ cdef class SIR_type:
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
-        '''
-        Compute the Hessian over the parameters and initial conditions.
+        '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
         ----------
@@ -774,7 +739,7 @@ cdef class SIR_type:
             The observed data with the initial datapoint
         fltr: boolean sequence or array
             True for observed and False for unobserved.
-            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
         Tf: float
             Total time of the trajectory
         Nf: int
@@ -785,13 +750,13 @@ cdef class SIR_type:
             Step size in the calculation of the Hessian
 
         Returns
+        -------
         hess_params: numpy.array
             The Hessian over parameters
         hess_init: numpy.array
             The Hessian over initial conditions
-        -------
-
         '''
+
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
@@ -814,35 +779,7 @@ cdef class SIR_type:
     def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
         '''
-        DEPRECATED. Use compute_hessian_latent instead.
-
-        Compute the Hessian over the parameters and initial conditions.
-
-        Parameters
-        ----------
-        maps: numpy.array
-            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
-        obs: numpy.array
-            The observed data without the initial datapoint
-        fltr: boolean sequence or array
-            True for observed and False for unobserved.
-            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
-        Tf: float
-            Total time of the trajectory
-        Nf: int
-            Total number of data points along the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        eps: float, optional
-            Step size in the calculation of the Hessian
-
-        Returns
-        hess_params: numpy.array
-            The Hessian over parameters
-        hess_init: numpy.array
-            The Hessian over initial conditions
-        -------
-
+        DEPRECATED. Use `compute_hessian_latent` instead.
         '''
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
@@ -936,7 +873,7 @@ cdef class SIR_type:
             map_x0[j] = temp
         return hess
 
-    def latent_hess_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
+    def latent_hess_selected_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
                             obs, fltr, Tf, Nf, contactMatrix,
                                     eps=1e-6):
         cdef Py_ssize_t j
@@ -962,13 +899,12 @@ cdef class SIR_type:
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix):
-        '''
-        Computes -logp for a latent trajectory
+        '''Computes -logp for a latent trajectory
 
         Parameters
         ----------
         parameters: dict
-            A dictionary of parameter values, different for each subclass
+            A dictionary of parameter values, same as the ones required for initialisation.
         x0: numpy.array
             Initial conditions
         obs: numpy.array
@@ -983,12 +919,16 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
 
-        returns
+        Returns
         -------
         minus_logp: float
             -log(p) for the observed trajectory with the given parameters and initial conditions
         '''
+
         cdef double minus_log_p
+        cdef Py_ssize_t nClass=int(self.dim/self.M)
+        if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
+            raise Exception("the sum over x0 is larger than fi")
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         if fltr.ndim == 1:
@@ -1000,12 +940,37 @@ cdef class SIR_type:
         return minus_logp
 
     def make_det_model(self, parameters):
+        '''Returns a determinisitic model of the same epidemiological class and same parameters
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary of parameter values, same as the ones required for initialisation.
+
+        Returns
+        -------
+        det_model: a class in pyross.deterministic
+            A determinisitic model of the same epidemiological class and same parameters
+        '''
         pass # to be implemented in subclass
 
     def make_params_dict(self, params=None):
         pass # to be implemented in subclass
 
     def fill_params_dict(self, keys, params):
+        '''Returns a full dictionary for epidemiological parameters with some changed values
+        Parameters
+        ----------
+        keys: list of String
+            A list of names of parameters to be changed.
+        params: numpy.array of list
+            An array of the same size as keys for the updated value.
+
+        Returns
+        -------
+        full_parameters: dict
+            A dictionary of epidemiological parameters.
+            For parameter names specified in `keys`, set the values to be the ones in `params`; for the others, use the values stored in the class.
+        '''
         full_parameters = self.make_params_dict()
         for (i, k) in enumerate(keys):
             full_parameters[k] = params[i]
@@ -1013,6 +978,23 @@ cdef class SIR_type:
 
     def fill_initial_conditions(self, double [:] partial_inits, double [:] obs_inits,
                                         np.ndarray init_fltr, np.ndarray fltr):
+        '''Returns the full initial condition given partial initial conditions and the observed data
+        Parameters
+        ----------
+        partial_inits: 1d np.array
+            Partial initial conditions.
+        obs_inits: 1d np.array
+            The observed initial conditions.
+        init_fltr: 1d np.array
+            A vector boolean fltr that yields the partial initis given full initial conditions.
+        fltr: 2d np.array
+            A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.
+
+        Returns
+        -------
+        x0: 1d np.array
+            The full initial condition.
+        '''
         cdef:
             np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
             double [:] z, unknown_inits
@@ -1022,8 +1004,19 @@ cdef class SIR_type:
         x0[np.invert(init_fltr)] = unknown_inits
         return x0
 
-
     def set_params(self, parameters):
+        '''Sets epidemiological parameters used for evaluating -log(p)
+
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary containing all epidemiological parameters. Same keys as the one used to initialise the class.
+
+        Notes
+        -----
+        Can use `fill_params_dict` to generate the full dictionary if only a few parameters are changed
+        '''
+
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(parameters['alpha'])==1:
             self.alpha = parameters['alpha']*np.ones(self.M)
@@ -1210,70 +1203,63 @@ cdef class SIR_type:
         self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        """
+        """A warpper around `simulate` in pyross.deterministic
+
         Parameters
         ----------
-        x0 : np.array
+        x0: np.array
             Initial state of the given model
-        t1 : float
+        t1: float
             Initial time of integrator
-        t2 : float
+        t2: float
             Final time of integrator
-        steps : int
+        steps: int
             Number of time steps for numerical integrator evaluation.
-        model : pyross model
+        model: pyross model
             Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
 
         Returns
         -------
-        sol : np.array
+        sol: np.array
             The state of the system evaulated at the time point specified.
-
         """
+
         pass # to be implemented in subclass
 
 cdef class SIR(SIR_type):
     """
     Susceptible, Infected, Removed (SIR)
-    Ia: asymptomatic
-    Is: symptomatic
 
-    ...
+    * Ia: asymptomatic
+    * Is: symptomatic
 
-    Attributes
+    To initialise the SIR class,
+
+    Parameters
     ----------
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        3 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
+    parameters: dict
+        Contains the following keys:
 
-
-    Methods
-    -------
-    All methods of the superclass SIR_Type.
-    make_det_model : returns deterministic model.
-    make_params_dict : returns a dictionary of the input parameters.
-    integrate : returns numerical integration of the chosen model.
+        alpha: float
+            Ratio of asymptomatic carriers
+        beta: float
+            Infection rate upon contact
+        gIa: float
+            Recovery rate for asymptomatic
+        gIs: float
+            Recovery rate for symptomatic
+        fsa: float
+            The fraction of symptomatic people who are self-isolating
+    M: int
+        Number of age groups
+    fi: float numpy.array
+        Fraction of each age group
+    N: int
+        Total population
     """
 
     def __init__(self, parameters, M, fi, N, steps):
@@ -1361,40 +1347,37 @@ cdef class SIR(SIR_type):
 cdef class SEIR(SIR_type):
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
-    Ia: asymptomatic
-    Is: symptomatic
-    Attributes
-    ----------
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        4 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
-    gE : float
-        rate of removal from exposed individuals.
 
-    Methods
-    -------
-    All methods of the superclass SIR_type
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+    * Ia: asymptomatic
+    * Is: symptomatic
+
+    To initialise the SEIR class,
+
+    Parameters
+    ----------
+    parameters: dict
+        Contains the following keys:
+
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        fsa: float
+            Fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposed individuals.
+    M: int
+        Number of age groups
+    fi: float numpy.array
+        Fraction of each age group
+    N: int
+        Total population
     """
+
     cdef:
         readonly double gE
 
@@ -1494,66 +1477,54 @@ cdef class SEIR(SIR_type):
 
 
 cdef class SEAI5R(SIR_type):
-    """Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
+    """
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
 
-    The infected class has 5 groups:
+    * E: exposed
+    * A: activated
     * Ia: asymptomatic
     * Is: symptomatic
     * Ih: hospitalized
     * Ic: ICU
     * Im: Mortality
 
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
+    To initialise the SEAI5R class,
 
-    Attributes
+    Parameters
     ----------
+    parameters: dict
+        Contains the following keys:
 
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        8 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
-    gE : float
-        rate of removal from exposeds individuals.
-    gA : float
-        rate of removal from activated individuals.
-    gIh : float
-        rate of hospitalisation of infected individuals.
-    gIc : float
-        rate hospitalised individuals are moved to intensive care.
-    hh : np.array (M,)
-        fraction hospitalised from Is
-    cc : np.array (M,)
-        fraction sent to intensive care from hospitalised.
-    mm : np.array (M,)
-        mortality rate in intensive care
-
-    Methods
-    -------
-    All methods of the superclass SIR_type
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        fsa: float
+            Fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposeds individuals.
+        gA: float
+            rate of removal from activated individuals.
+        gIh: float
+            rate of hospitalisation of infected individuals.
+        gIc: float
+            rate hospitalised individuals are moved to intensive care.
+        hh: np.array (M,)
+            fraction hospitalised from Is
+        cc: np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: np.array (M,)
+            mortality rate in intensive care
+    M: int
+        Number of age groups
+    fi: float numpy.array
+        Fraction of each age group
+    N: int
+        Total population
     """
     cdef:
         readonly double gE, gA, gIh, gIc, fh
@@ -1746,52 +1717,50 @@ cdef class SEAI5R(SIR_type):
 cdef class SEAIRQ(SIR_type):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A : Asymptomatic and infectious
 
-    Attributes
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+    * Q: quarantined
+
+    To initialise the SEAIRQ class,
+
+    Parameters
     ----------
+    parameters: dict
+        Contains the following keys:
 
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        6 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    gE : float
-        rate of removal from exposed individuals.
-    gA : float
-        rate of removal from activated individuals.
-    fsa : float
-        fraction by which symptomatic individuals self isolate.
-    tE  : float
-        testing rate and contact tracing of exposeds
-    tA  : float
-        testing rate and contact tracing of activateds
-    tIa : float
-        testing rate and contact tracing of asymptomatics
-    tIs : float
-        testing rate and contact tracing of symptomatics
-
-    Methods
-    -------
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        tE: float
+            testing rate and contact tracing of exposeds
+        tA: float
+            testing rate and contact tracing of activateds
+        tIa: float
+            testing rate and contact tracing of asymptomatics
+        tIs: float
+            testing rate and contact tracing of symptomatics
+    M: int
+        Number of age groups.
+    fi: float numpy.array
+        Fraction of each age group.
+    N: int
+        Total population.
     """
+
     cdef:
         readonly double gE, gA, tE, tA, tIa, tIs
 
@@ -1938,6 +1907,50 @@ cdef class SEAIRQ(SIR_type):
         return sol
 
 cdef class Spp(SIR_type):
+    """
+    User-defined epidemic model.
+
+    To initialise the Spp model,
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        A dictionary containing the model parameters.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of age groups.
+    fi: np.array(M) or list
+        Fraction of each age group.
+    N: int
+        Total population.
+    steps: int
+        Number of internal steps used.
+
+    See `SIR_type` for a table of all the methods
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class.
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "linear"    : [],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta' : 0.1,
+            'gamma' : 0.1
+        }
+    """
+
     cdef:
         readonly np.ndarray linear_terms, infection_terms
         readonly np.ndarray parameters

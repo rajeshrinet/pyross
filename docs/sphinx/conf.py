@@ -32,11 +32,12 @@ release = '1.0.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.napoleon'
+    # 'numpydoc'
 ]
 
 autodoc_member_order = 'bysource'
+autodoc_inherit_docstrings = False
 napoleon_numpy_docstring = True
 pygments_style = 'sphinx'
 

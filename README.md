@@ -1,19 +1,10 @@
 ## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg)
 
-[About](#about) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
+[About](#about) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
 ![Imagel](examples/banner.png)
 
-## Public event announcement:
-
-We have a lecture-demonstration events coming up:
-
-
-
-- **Introduction to [*PyRossGeo*](https://github.com/lukastk/PyRossGeo) for spatial epidemiological simulations** - 11-12 AM (GMT+1) on Monday (18 May)
-
-The meetings will be using Google Meet in the following room: https://meet.google.com/amv-qevr-fjp
-
+ 
 ## About
 
 [PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for **inference**, **prediction** and **non-pharmaceutical interventions** in age-structured epidemiological compartment models. 
