@@ -26,33 +26,7 @@ ctypedef np.uint8_t BOOL_t
 cdef class SIR_type:
     '''Parent class for inference for all SIR-type classes listed below
 
-    ======================= ==========================================================
-    Methods for full data
-    ======================= ==========================================================
-    infer_parameters        Infers epidemiological parameters given all information.
-    infer_control           Infers control parameters.
-    obtain_minus_log_p      Computes -log(p) of a fully observed trajectory.
-    compute_hessian         Computes the Hessian of -log(p).
-    ======================= ==========================================================
-
-    ========================== ===========================================================
-    Methods for partial data
-    ========================== ===========================================================
-    latent_infer_parameters    Infers parameters and initial conditions.
-    latent_infer_control       Infers control parameters.
-    minus_logp_red             Computes -log(p) of a partially observed trajectory
-    compute_hessian_latent     Computes the Hessian of -log(p).
-    ========================== ===========================================================
-
-    ======================= ===========================================================
-    Helper function
-    ======================= ===========================================================
-    integrate               A wrapper around 'simulate' in pyross.deterministic.
-    set_params              Sets parameters.
-    make_det_model          Makes a pyross.deterministic model of the same class
-    fill_params_dict        Fills and returns a parameter dictionary
-    fill_initial_conditions Generates full initial condition with partial info.
-    ======================= ===========================================================
+    All subclasses use the same functions to perform inference, which are documented below.
     '''
 
     cdef:
@@ -966,12 +940,37 @@ cdef class SIR_type:
         return minus_logp
 
     def make_det_model(self, parameters):
+        '''Returns a determinisitic model of the same epidemiological class and same parameters
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary of parameter values, same as the ones required for initialisation.
+
+        Returns
+        -------
+        det_model: a class in pyross.deterministic
+            A determinisitic model of the same epidemiological class and same parameters
+        '''
         pass # to be implemented in subclass
 
     def make_params_dict(self, params=None):
         pass # to be implemented in subclass
 
     def fill_params_dict(self, keys, params):
+        '''Returns a full dictionary for epidemiological parameters with some changed values
+        Parameters
+        ----------
+        keys: list of String
+            A list of names of parameters to be changed.
+        params: numpy.array of list
+            An array of the same size as keys for the updated value.
+
+        Returns
+        -------
+        full_parameters: dict
+            A dictionary of epidemiological parameters.
+            For parameter names specified in `keys`, set the values to be the ones in `params`; for the others, use the values stored in the class.
+        '''
         full_parameters = self.make_params_dict()
         for (i, k) in enumerate(keys):
             full_parameters[k] = params[i]
@@ -979,6 +978,23 @@ cdef class SIR_type:
 
     def fill_initial_conditions(self, double [:] partial_inits, double [:] obs_inits,
                                         np.ndarray init_fltr, np.ndarray fltr):
+        '''Returns the full initial condition given partial initial conditions and the observed data
+        Parameters
+        ----------
+        partial_inits: 1d np.array
+            Partial initial conditions.
+        obs_inits: 1d np.array
+            The observed initial conditions.
+        init_fltr: 1d np.array
+            A vector boolean fltr that yields the partial initis given full initial conditions.
+        fltr: 2d np.array
+            A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.
+
+        Returns
+        -------
+        x0: 1d np.array
+            The full initial condition.
+        '''
         cdef:
             np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
             double [:] z, unknown_inits
@@ -988,8 +1004,19 @@ cdef class SIR_type:
         x0[np.invert(init_fltr)] = unknown_inits
         return x0
 
-
     def set_params(self, parameters):
+        '''Sets epidemiological parameters used for evaluating -log(p)
+
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary containing all epidemiological parameters. Same keys as the one used to initialise the class.
+
+        Notes
+        -----
+        Can use `fill_params_dict` to generate the full dictionary if only a few parameters are changed
+        '''
+
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(parameters['alpha'])==1:
             self.alpha = parameters['alpha']*np.ones(self.M)
@@ -1210,9 +1237,11 @@ cdef class SIR(SIR_type):
     * Ia: asymptomatic
     * Is: symptomatic
 
-    To initialise the SIR class, pass the following arguments to SIR(...),
+    To initialise the SIR class,
 
-    * parameters: dict
+    Parameters
+    ----------
+    parameters: dict
         Contains the following keys:
 
         alpha: float
@@ -1225,14 +1254,12 @@ cdef class SIR(SIR_type):
             Recovery rate for symptomatic
         fsa: float
             The fraction of symptomatic people who are self-isolating
-    * M: int
+    M: int
         Number of age groups
-    * fi: float numpy.array
+    fi: float numpy.array
         Fraction of each age group
-    * N: int
+    N: int
         Total population
-
-    See `SIR_type` for a summary table for all inference methods.
     """
 
     def __init__(self, parameters, M, fi, N, steps):
@@ -1324,9 +1351,11 @@ cdef class SEIR(SIR_type):
     * Ia: asymptomatic
     * Is: symptomatic
 
-    To initialise the SEIR class, pass the following arguments to SEIR(...)
+    To initialise the SEIR class,
 
-    * parameters: dict
+    Parameters
+    ----------
+    parameters: dict
         Contains the following keys:
 
         alpha: float or np.array(M)
@@ -1341,14 +1370,12 @@ cdef class SEIR(SIR_type):
             Fraction by which symptomatic individuals self isolate.
         gE: float
             rate of removal from exposed individuals.
-    * M: int
+    M: int
         Number of age groups
-    * fi: float numpy.array
+    fi: float numpy.array
         Fraction of each age group
-    * N: int
+    N: int
         Total population
-
-    See `SIR_type` for a summary table for all inference methods.
     """
 
     cdef:
@@ -1461,9 +1488,11 @@ cdef class SEAI5R(SIR_type):
     * Ic: ICU
     * Im: Mortality
 
-    To initialise the SEAI5R class, pass the following arguments to SEAI5R(...):
+    To initialise the SEAI5R class,
 
-    * parameters: dict
+    Parameters
+    ----------
+    parameters: dict
         Contains the following keys:
 
         alpha: float or np.array(M)
@@ -1490,14 +1519,12 @@ cdef class SEAI5R(SIR_type):
             fraction sent to intensive care from hospitalised.
         mm: np.array (M,)
             mortality rate in intensive care
-    * M: int
+    M: int
         Number of age groups
-    * fi: float numpy.array
+    fi: float numpy.array
         Fraction of each age group
-    * N: int
+    N: int
         Total population
-
-    See `SIR_type` for a summary table for all inference methods.
     """
     cdef:
         readonly double gE, gA, gIh, gIc, fh
@@ -1697,9 +1724,11 @@ cdef class SEAIRQ(SIR_type):
     * A: asymptomatic and infectious
     * Q: quarantined
 
-    To initialise the SEAIRQ class, pass the following arguments to SEAIRQ(..),
+    To initialise the SEAIRQ class,
 
-    * parameters: dict
+    Parameters
+    ----------
+    parameters: dict
         Contains the following keys:
 
         alpha: float or np.array(M)
@@ -1724,14 +1753,12 @@ cdef class SEAIRQ(SIR_type):
             testing rate and contact tracing of asymptomatics
         tIs: float
             testing rate and contact tracing of symptomatics
-    * M: int
+    M: int
         Number of age groups.
-    * fi: float numpy.array
+    fi: float numpy.array
         Fraction of each age group.
-    * N: int
+    N: int
         Total population.
-
-    See `SIR_type` for a summary table for all inference methods.
     """
 
     cdef:
@@ -1883,20 +1910,22 @@ cdef class Spp(SIR_type):
     """
     User-defined epidemic model.
 
-    To initialise the Spp model, pass the following arguments to Spp(...)
+    To initialise the Spp model,
 
-    * model_spec: dict
+    Parameters
+    ----------
+    model_spec: dict
         A dictionary specifying the model. See `Examples`.
-    * parameters: dict
+    parameters: dict
         A dictionary containing the model parameters.
         All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
-    * M: int
+    M: int
         Number of age groups.
-    * fi: np.array(M) or list
+    fi: np.array(M) or list
         Fraction of each age group.
-    * N: int
+    N: int
         Total population.
-    * steps: int
+    steps: int
         Number of internal steps used.
 
     See `SIR_type` for a table of all the methods

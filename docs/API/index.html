@@ -115,12 +115,12 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#bayesian-inference">Bayesian inference</a><ul>
-<li><a class="reference internal" href="#pyross-inference-sir-type">pyross.inference.SIR_type</a></li>
-<li><a class="reference internal" href="#pyross-inference-spp">pyross.inference.Spp</a></li>
-<li><a class="reference internal" href="#pyross-inference-sir">pyross.inference.SIR</a></li>
-<li><a class="reference internal" href="#pyross-inference-seir">pyross.inference.SEIR</a></li>
-<li><a class="reference internal" href="#pyross-inference-seai5r">pyross.inference.SEAI5R</a></li>
-<li><a class="reference internal" href="#pyross-inference-seairq">pyross.inference.SEAIRQ</a></li>
+<li><a class="reference internal" href="#sir-type">SIR_type</a></li>
+<li><a class="reference internal" href="#spp">Spp</a></li>
+<li><a class="reference internal" href="#sir">SIR</a></li>
+<li><a class="reference internal" href="#seir">SEIR</a></li>
+<li><a class="reference internal" href="#seai5r">SEAI5R</a></li>
+<li><a class="reference internal" href="#seairq">SEAIRQ</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#control-with-non-pharmaceutical-interventions">Control with Non-Pharmaceutical interventions</a><ul>
@@ -4818,12 +4818,6 @@ I.e len(contactMatrix)</p>
 <div class="section" id="bayesian-inference">
 <h1>Bayesian inference<a class="headerlink" href="#bayesian-inference" title="Permalink to this headline">¶</a></h1>
 <p>Inference for age structured compartment models using the diffusion approximation (via the van Kampen expansion).</p>
-<div class="section" id="pyross-inference-sir-type">
-<h2>pyross.inference.SIR_type<a class="headerlink" href="#pyross-inference-sir-type" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pyross.inference.SIR_type">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR_type</code><a class="headerlink" href="#pyross.inference.SIR_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parent class for inference for all SIR-type classes listed below</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 28%" />
@@ -4902,6 +4896,14 @@ I.e len(contactMatrix)</p>
 </tr>
 </tbody>
 </table>
+<p>The functions are documented under the parent class <cite>SIR_type</cite>.</p>
+<div class="section" id="sir-type">
+<h2>SIR_type<a class="headerlink" href="#sir-type" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.inference.SIR_type">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR_type</code><a class="headerlink" href="#pyross.inference.SIR_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parent class for inference for all SIR-type classes listed below</p>
+<p>All subclasses use the same functions to perform inference, which are documented below.</p>
 <dl class="method">
 <dt id="pyross.inference.SIR_type.compute_hessian">
 <code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian" title="Permalink to this definition">¶</a></dt>
@@ -4952,6 +4954,47 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 <li><p><strong>hess_init</strong> (<em>numpy.array</em>) – The Hessian over initial conditions</p></li>
 </ul>
 </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.inference.SIR_type.fill_initial_conditions">
+<code class="sig-name descname">fill_initial_conditions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_initial_conditions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the full initial condition given partial initial conditions and the observed data
+:param partial_inits: Partial initial conditions.
+:type partial_inits: 1d np.array
+:param obs_inits: The observed initial conditions.
+:type obs_inits: 1d np.array
+:param init_fltr: A vector boolean fltr that yields the partial initis given full initial conditions.
+:type init_fltr: 1d np.array
+:param fltr: A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.
+:type fltr: 2d np.array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>x0</strong> – The full initial condition.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>1d np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.inference.SIR_type.fill_params_dict">
+<code class="sig-name descname">fill_params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a full dictionary for epidemiological parameters with some changed values
+:param keys: A list of names of parameters to be changed.
+:type keys: list of String
+:param params: An array of the same size as keys for the updated value.
+:type params: numpy.array of list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>full_parameters</strong> – A dictionary of epidemiological parameters.
+For parameter names specified in <cite>keys</cite>, set the values to be the ones in <cite>params</cite>; for the others, use the values stored in the class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -5187,6 +5230,22 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pyross.inference.SIR_type.make_det_model">
+<code class="sig-name descname">make_det_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.make_det_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a determinisitic model of the same epidemiological class and same parameters
+:param parameters: A dictionary of parameter values, same as the ones required for initialisation.
+:type parameters: dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>det_model</strong> – A determinisitic model of the same epidemiological class and same parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>a class in pyross.deterministic</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyross.inference.SIR_type.minus_logp_red">
 <code class="sig-name descname">minus_logp_red</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.minus_logp_red" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes -logp for a latent trajectory</p>
@@ -5212,51 +5271,44 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dl>
 </dd></dl>
 
+<dl class="method">
+<dt id="pyross.inference.SIR_type.set_params">
+<code class="sig-name descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets epidemiological parameters used for evaluating -log(p)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> (<em>dict</em>) – A dictionary containing all epidemiological parameters. Same keys as the one used to initialise the class.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Can use <cite>fill_params_dict</cite> to generate the full dictionary if only a few parameters are changed</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-inference-spp">
-<h2>pyross.inference.Spp<a class="headerlink" href="#pyross-inference-spp" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="spp">
+<h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
 <p>Automatic generation of inference for SIR-type models</p>
 <dl class="class">
 <dt id="pyross.inference.Spp">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.inference.Spp" title="Permalink to this definition">¶</a></dt>
 <dd><p>User-defined epidemic model.</p>
-<p>To initialise the Spp model, pass the following arguments to Spp(…)</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>model_spec: dict</dt><dd><p>A dictionary specifying the model. See <cite>Examples</cite>.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>parameters: dict</dt><dd><p>A dictionary containing the model parameters.
-All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>M: int</dt><dd><p>Number of age groups.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>fi: np.array(M) or list</dt><dd><p>Fraction of each age group.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>Total population.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>steps: int</dt><dd><p>Number of internal steps used.</p>
-</dd>
-</dl>
-</li>
+<p>To initialise the Spp model,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – A dictionary containing the model parameters.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups.</p></li>
+<li><p><strong>fi</strong> (<em>np.array</em><em>(</em><em>M</em><em>) or </em><em>list</em>) – Fraction of each age group.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Total population.</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – Number of internal steps used.</p></li>
+<li><p><strong>SIR_type for a table of all the methods</strong> (<em>See</em>) – </p></li>
 </ul>
-<p>See <cite>SIR_type</cite> for a table of all the methods</p>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <p>An example of model_spec and parameters for SIR class.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
@@ -5279,8 +5331,8 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-inference-sir">
-<h2>pyross.inference.SIR<a class="headerlink" href="#pyross-inference-sir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.inference.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.inference.SIR" title="Permalink to this definition">¶</a></dt>
@@ -5289,10 +5341,11 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p>Ia: asymptomatic</p></li>
 <li><p>Is: symptomatic</p></li>
 </ul>
-<p>To initialise the SIR class, pass the following arguments to SIR(…),</p>
-<ul>
-<li><dl>
-<dt>parameters: dict</dt><dd><p>Contains the following keys:</p>
+<p>To initialise the SIR class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
 <dt>alpha: float</dt><dd><p>Ratio of asymptomatic carriers</p>
 </dd>
@@ -5305,31 +5358,18 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <dt>fsa: float</dt><dd><p>The fraction of symptomatic people who are self-isolating</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>M: int</dt><dd><p>Number of age groups</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>fi: float numpy.array</dt><dd><p>Fraction of each age group</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>Total population</p>
-</dd>
-</dl>
-</li>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
 </ul>
-<p>See <cite>SIR_type</cite> for a summary table for all inference methods.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-inference-seir">
-<h2>pyross.inference.SEIR<a class="headerlink" href="#pyross-inference-seir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.inference.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.inference.SEIR" title="Permalink to this definition">¶</a></dt>
@@ -5338,10 +5378,11 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p>Ia: asymptomatic</p></li>
 <li><p>Is: symptomatic</p></li>
 </ul>
-<p>To initialise the SEIR class, pass the following arguments to SEIR(…)</p>
-<ul>
-<li><dl>
-<dt>parameters: dict</dt><dd><p>Contains the following keys:</p>
+<p>To initialise the SEIR class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
 <dt>alpha: float or np.array(M)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
@@ -5356,31 +5397,18 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>M: int</dt><dd><p>Number of age groups</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>fi: float numpy.array</dt><dd><p>Fraction of each age group</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>Total population</p>
-</dd>
-</dl>
-</li>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
 </ul>
-<p>See <cite>SIR_type</cite> for a summary table for all inference methods.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-inference-seai5r">
-<h2>pyross.inference.SEAI5R<a class="headerlink" href="#pyross-inference-seai5r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seai5r">
+<h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.inference.SEAI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.inference.SEAI5R" title="Permalink to this definition">¶</a></dt>
@@ -5394,10 +5422,11 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p>Ic: ICU</p></li>
 <li><p>Im: Mortality</p></li>
 </ul>
-<p>To initialise the SEAI5R class, pass the following arguments to SEAI5R(…):</p>
-<ul>
-<li><dl>
-<dt>parameters: dict</dt><dd><p>Contains the following keys:</p>
+<p>To initialise the SEAI5R class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
 <dt>alpha: float or np.array(M)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
@@ -5424,31 +5453,18 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <dt>mm: np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>M: int</dt><dd><p>Number of age groups</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>fi: float numpy.array</dt><dd><p>Fraction of each age group</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>Total population</p>
-</dd>
-</dl>
-</li>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
 </ul>
-<p>See <cite>SIR_type</cite> for a summary table for all inference methods.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-inference-seairq">
-<h2>pyross.inference.SEAIRQ<a class="headerlink" href="#pyross-inference-seairq" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.inference.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.inference.SEAIRQ" title="Permalink to this definition">¶</a></dt>
@@ -5460,10 +5476,11 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p>A: asymptomatic and infectious</p></li>
 <li><p>Q: quarantined</p></li>
 </ul>
-<p>To initialise the SEAIRQ class, pass the following arguments to SEAIRQ(..),</p>
-<ul>
-<li><dl>
-<dt>parameters: dict</dt><dd><p>Contains the following keys:</p>
+<p>To initialise the SEAIRQ class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
 <dt>alpha: float or np.array(M)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
@@ -5488,26 +5505,13 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>M: int</dt><dd><p>Number of age groups.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>fi: float numpy.array</dt><dd><p>Fraction of each age group.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>Total population.</p>
-</dd>
-</dl>
-</li>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups.</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group.</p></li>
+<li><p><strong>N</strong> (<em>int</em>) – Total population.</p></li>
 </ul>
-<p>See <cite>SIR_type</cite> for a summary table for all inference methods.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
