@@ -108,42 +108,9 @@ cdef class SIR_type:
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model
 
-        .. deprecated::
-            `inference` is deprecated. Use `infer_parameters` instead.
-
-        Parameters
-        ----------
-        guess: numpy.array
-            Prior expectation (and initial guess) for the parameter values
-        stds: numpy.array
-            Standard deviations for the Gamma prior of the parameters
-        x: 2d numpy.array
-            Observed trajectory (number of data points x (age groups * model classes))
-        Tf: float
-            Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        bounds: 2d numpy.array
-            Bounds for the parameters (number of parameters x 2).
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the optimizer.
-        ftol: double
-            Relative tolerance of logp
-        eps: double
-            Disallow parameters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,
-                    cma_population, cma_stds:
-            Parameters of `minimization` function in `utils_python.py` which are documented there. If not
-            specified, `cma_stds` is set to `stds`.
-
-        Returns
-        -------
-        estimates: numpy.array
-            the MAP parameter estimate
+        Deprecated. Use `infer_parameters` instead.
         """
+
         # make bounds if it does not exist and rescale
         if bounds is None:
             bounds = np.array([[eps, g*5] for g in guess])
@@ -544,58 +511,7 @@ cdef class SIR_type:
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         """
-        .. deprecated::
-            `latent_inference` . Use `latent_infer_parameters` instead.
-
-        Parameters
-        ----------
-        guess: numpy.array
-            Prior expectation (and initial guess) for the parameter values.
-        stds: numpy.array
-            Standard deviations for the Gamma prior of the parameters
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points x (age groups * observed model classes))
-        fltr: boolean sequence or array
-            True for observed and False for unobserved classes.
-            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
-        Tf: float
-            Total time of the trajectory
-        Nf: int
-            Total number of data points along the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        bounds: 2d numpy.array
-            Bounds for the parameters + initial conditions
-            ((number of parameters + number of initial conditions) x 2).
-            Better bounds makes it easier to find the true global minimum.
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the optimizer.
-        ftol: float, optional
-            Relative tolerance
-        eps: float, optional
-            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
-        global_max_iter: int, optional
-            Number of global optimisations performed.
-        local_max_iter: int, optional
-            Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
-        enable_global: bool, optional
-            Set to True to enable global optimisation.
-        enable_local: bool, optional
-            Set to True to enable local optimisation.
-        cma_processes: int, optional
-            Number of parallel processes used for global optimisation.
-        cma_population: int, optional
-            The number of samples used in each step of the CMA algorithm.
-        cma_stds: int, optional
-            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
-
-        Returns
-        -------
-        params: numpy.array
-            MAP estimate of paramters and initial values of the classes.
+        DEPRECATED. Use `latent_infer_parameters` instead.
         """
         cdef:
             double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
@@ -776,9 +692,9 @@ cdef class SIR_type:
         stds: numpy.array
             Standard deviations for the Gamma prior of the control parameters
         x0: numpy.array
-            Observed trajectory (number of data points x (age groups * observed model classes))
+            Initial conditions.
         obs:
-            ...
+            Observed trajectory (number of data points x (age groups * observed model classes)).
         fltr: boolean sequence or array
             True for observed and False for unobserved classes.
             e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
@@ -839,8 +755,7 @@ cdef class SIR_type:
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
-        '''
-        Compute the Hessian over the parameters and initial conditions.
+        '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
         ----------
@@ -850,7 +765,7 @@ cdef class SIR_type:
             The observed data with the initial datapoint
         fltr: boolean sequence or array
             True for observed and False for unobserved.
-            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
+            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
         Tf: float
             Total time of the trajectory
         Nf: int
@@ -861,13 +776,13 @@ cdef class SIR_type:
             Step size in the calculation of the Hessian
 
         Returns
+        -------
         hess_params: numpy.array
             The Hessian over parameters
         hess_init: numpy.array
             The Hessian over initial conditions
-        -------
-
         '''
+
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
@@ -890,35 +805,7 @@ cdef class SIR_type:
     def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1.e-3):
         '''
-        DEPRECATED. Use compute_hessian_latent instead.
-
-        Compute the Hessian over the parameters and initial conditions.
-
-        Parameters
-        ----------
-        maps: numpy.array
-            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
-        obs: numpy.array
-            The observed data without the initial datapoint
-        fltr: boolean sequence or array
-            True for observed and False for unobserved.
-            e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
-        Tf: float
-            Total time of the trajectory
-        Nf: int
-            Total number of data points along the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        eps: float, optional
-            Step size in the calculation of the Hessian
-
-        Returns
-        hess_params: numpy.array
-            The Hessian over parameters
-        hess_init: numpy.array
-            The Hessian over initial conditions
-        -------
-
+        DEPRECATED. Use `compute_hessian_latent` instead.
         '''
         a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
@@ -1043,7 +930,7 @@ cdef class SIR_type:
         Parameters
         ----------
         parameters: dict
-            A dictionary of parameter values, different for each subclass
+            A dictionary of parameter values, same as the ones required for initialisation.
         x0: numpy.array
             Initial conditions
         obs: numpy.array
@@ -1058,11 +945,12 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
 
-        returns
+        Returns
         -------
         minus_logp: float
             -log(p) for the observed trajectory with the given parameters and initial conditions
         '''
+
         cdef double minus_log_p
         cdef Py_ssize_t nClass=int(self.dim/self.M)
         if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
@@ -1288,30 +1176,31 @@ cdef class SIR_type:
         self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
 
     cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
-        """
+        """A warpper around `simulate` in pyross.deterministic
+
         Parameters
         ----------
-        x0 : np.array
+        x0: np.array
             Initial state of the given model
-        t1 : float
+        t1: float
             Initial time of integrator
-        t2 : float
+        t2: float
             Final time of integrator
-        steps : int
+        steps: int
             Number of time steps for numerical integrator evaluation.
-        model : pyross model
+        model: pyross model
             Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
 
         Returns
         -------
-        sol : np.array
+        sol: np.array
             The state of the system evaulated at the time point specified.
-
         """
+
         pass # to be implemented in subclass
 
 cdef class SIR(SIR_type):

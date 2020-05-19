@@ -5539,7 +5539,7 @@ I.e len(contactMatrix)</p>
 <dl class="function">
 <dt id="pyross.inference.SIR_type.compute_hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the Hessian over the parameters and initial conditions.</p>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -5548,7 +5548,7 @@ I.e len(contactMatrix)</p>
 <dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data with the initial datapoint</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p>
 </dd>
 <dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
 </dd>
@@ -5558,12 +5558,14 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
 </dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
+</dl>
 </dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>hess_params: numpy.array</dt><dd><p>The Hessian over parameters</p>
 </dd>
-<dt><strong>——-</strong></dt><dd></dd>
+<dt>hess_init: numpy.array</dt><dd><p>The Hessian over initial conditions</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -5578,35 +5580,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SIR_type.hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian_latent instead.</p>
-<p>Compute the Hessian over the parameters and initial conditions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>maps: numpy.array</strong></dt><dd><p>MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p>
-</dd>
-<dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data without the initial datapoint</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
-</dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
-</dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
-</dd>
-<dt><strong>——-</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -5740,67 +5714,27 @@ age-dependent parameter individually</p>
 <dt id="pyross.inference.SIR_type.inference">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `inference`: </span>is deprecated. Use <cite>infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>x: 2d numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * model classes))</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: float</strong></dt><dd><p>Number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters (number of parameters x 2).
-Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: double</strong></dt><dd><p>Relative tolerance of logp</p>
-</dd>
-<dt><strong>eps: double</strong></dt><dd><p>Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,</strong></dt><dd><blockquote>
-<div><p>cma_population, cma_stds:</p>
-</div></blockquote>
-<p>Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>estimates: numpy.array</dt><dd><p>the MAP parameter estimate</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pyross.inference.SIR_type.integrate">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.integrate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>A warpper around <cite>simulate</cite> in pyross.deterministic</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>x0</strong><span class="classifier">np.array</span></dt><dd><p>Initial state of the given model</p>
+<dt><strong>x0: np.array</strong></dt><dd><p>Initial state of the given model</p>
 </dd>
-<dt><strong>t1</strong><span class="classifier">float</span></dt><dd><p>Initial time of integrator</p>
+<dt><strong>t1: float</strong></dt><dd><p>Initial time of integrator</p>
 </dd>
-<dt><strong>t2</strong><span class="classifier">float</span></dt><dd><p>Final time of integrator</p>
+<dt><strong>t2: float</strong></dt><dd><p>Final time of integrator</p>
 </dd>
-<dt><strong>steps</strong><span class="classifier">int</span></dt><dd><p>Number of time steps for numerical integrator evaluation.</p>
+<dt><strong>steps: int</strong></dt><dd><p>Number of time steps for numerical integrator evaluation.</p>
 </dd>
-<dt><strong>model</strong><span class="classifier">pyross model</span></dt><dd><p>Model to integrate (pyross.deterministic.SIR etc)</p>
+<dt><strong>model: pyross model</strong></dt><dd><p>Model to integrate (pyross.deterministic.SIR etc)</p>
 </dd>
-<dt><strong>contactMatrix</strong><span class="classifier">python function(t)</span></dt><dd><p>The social contact matrix C_{ij} denotes the
+<dt><strong>contactMatrix: python function(t)</strong></dt><dd><p>The social contact matrix C_{ij} denotes the
 average number of contacts made per day by an
 individual in class i with an individual in class j</p>
 </dd>
@@ -5808,7 +5742,7 @@ individual in class i with an individual in class j</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>sol</strong><span class="classifier">np.array</span></dt><dd><p>The state of the system evaulated at the time point specified.</p>
+<dt>sol: np.array</dt><dd><p>The state of the system evaulated at the time point specified.</p>
 </dd>
 </dl>
 </dd>
@@ -5829,9 +5763,9 @@ all age groups. This function infers the scaling parameters.</p>
 </dd>
 <dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the control parameters</p>
 </dd>
-<dt><strong>x0: numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes))</p>
+<dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions.</p>
 </dd>
-<dt><strong>obs:</strong></dt><dd><p>…</p>
+<dt><strong>obs:</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes)).</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
 e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
@@ -5948,63 +5882,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="function">
 <dt id="pyross.inference.SIR_type.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SIR_type.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `latent_inference`: </span>. Use <cite>latent_infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values.</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>obs: 2d numpy.array</strong></dt><dd><p>The observed trajectories with reduced number of variables
-(number of data points x (age groups * observed model classes))</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters + initial conditions
-((number of parameters + number of initial conditions) x 2).
-Better bounds makes it easier to find the true global minimum.</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: float, optional</strong></dt><dd><p>Relative tolerance</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter: int, optional</strong></dt><dd><p>Number of global optimisations performed.</p>
-</dd>
-<dt><strong>local_max_iter: int, optional</strong></dt><dd><p>Number of local optimisation performed.</p>
-</dd>
-<dt><strong>global_ftol_factor: float</strong></dt><dd><p>The relative tolerance for global optimisation.</p>
-</dd>
-<dt><strong>enable_global: bool, optional</strong></dt><dd><p>Set to True to enable global optimisation.</p>
-</dd>
-<dt><strong>enable_local: bool, optional</strong></dt><dd><p>Set to True to enable local optimisation.</p>
-</dd>
-<dt><strong>cma_processes: int, optional</strong></dt><dd><p>Number of parallel processes used for global optimisation.</p>
-</dd>
-<dt><strong>cma_population: int, optional</strong></dt><dd><p>The number of samples used in each step of the CMA algorithm.</p>
-</dd>
-<dt><strong>cma_stds: int, optional</strong></dt><dd><p>The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>params: numpy.array</dt><dd><p>MAP estimate of paramters and initial values of the classes.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -6014,7 +5892,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, different for each subclass</p>
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
 <dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions</p>
 </dd>
@@ -6124,7 +6002,7 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <dl class="function">
 <dt id="pyross.inference.Spp.compute_hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the Hessian over the parameters and initial conditions.</p>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -6133,7 +6011,7 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data with the initial datapoint</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p>
 </dd>
 <dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
 </dd>
@@ -6143,12 +6021,14 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
 </dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
+</dl>
 </dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>hess_params: numpy.array</dt><dd><p>The Hessian over parameters</p>
 </dd>
-<dt><strong>——-</strong></dt><dd></dd>
+<dt>hess_init: numpy.array</dt><dd><p>The Hessian over initial conditions</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -6163,35 +6043,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.Spp.hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian_latent instead.</p>
-<p>Compute the Hessian over the parameters and initial conditions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>maps: numpy.array</strong></dt><dd><p>MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p>
-</dd>
-<dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data without the initial datapoint</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
-</dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
-</dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
-</dd>
-<dt><strong>——-</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -6325,48 +6177,7 @@ age-dependent parameter individually</p>
 <dt id="pyross.inference.Spp.inference">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `inference`: </span>is deprecated. Use <cite>infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>x: 2d numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * model classes))</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: float</strong></dt><dd><p>Number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters (number of parameters x 2).
-Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: double</strong></dt><dd><p>Relative tolerance of logp</p>
-</dd>
-<dt><strong>eps: double</strong></dt><dd><p>Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,</strong></dt><dd><blockquote>
-<div><p>cma_population, cma_stds:</p>
-</div></blockquote>
-<p>Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>estimates: numpy.array</dt><dd><p>the MAP parameter estimate</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -6383,9 +6194,9 @@ all age groups. This function infers the scaling parameters.</p>
 </dd>
 <dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the control parameters</p>
 </dd>
-<dt><strong>x0: numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes))</p>
+<dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions.</p>
 </dd>
-<dt><strong>obs:</strong></dt><dd><p>…</p>
+<dt><strong>obs:</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes)).</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
 e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
@@ -6502,63 +6313,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="function">
 <dt id="pyross.inference.Spp.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.Spp.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `latent_inference`: </span>. Use <cite>latent_infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values.</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>obs: 2d numpy.array</strong></dt><dd><p>The observed trajectories with reduced number of variables
-(number of data points x (age groups * observed model classes))</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters + initial conditions
-((number of parameters + number of initial conditions) x 2).
-Better bounds makes it easier to find the true global minimum.</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: float, optional</strong></dt><dd><p>Relative tolerance</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter: int, optional</strong></dt><dd><p>Number of global optimisations performed.</p>
-</dd>
-<dt><strong>local_max_iter: int, optional</strong></dt><dd><p>Number of local optimisation performed.</p>
-</dd>
-<dt><strong>global_ftol_factor: float</strong></dt><dd><p>The relative tolerance for global optimisation.</p>
-</dd>
-<dt><strong>enable_global: bool, optional</strong></dt><dd><p>Set to True to enable global optimisation.</p>
-</dd>
-<dt><strong>enable_local: bool, optional</strong></dt><dd><p>Set to True to enable local optimisation.</p>
-</dd>
-<dt><strong>cma_processes: int, optional</strong></dt><dd><p>Number of parallel processes used for global optimisation.</p>
-</dd>
-<dt><strong>cma_population: int, optional</strong></dt><dd><p>The number of samples used in each step of the CMA algorithm.</p>
-</dd>
-<dt><strong>cma_stds: int, optional</strong></dt><dd><p>The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>params: numpy.array</dt><dd><p>MAP estimate of paramters and initial values of the classes.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -6568,7 +6323,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, different for each subclass</p>
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
 <dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions</p>
 </dd>
@@ -6668,7 +6423,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SIR.compute_hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the Hessian over the parameters and initial conditions.</p>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -6677,7 +6432,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data with the initial datapoint</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p>
 </dd>
 <dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
 </dd>
@@ -6687,12 +6442,14 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
 </dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
+</dl>
 </dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>hess_params: numpy.array</dt><dd><p>The Hessian over parameters</p>
 </dd>
-<dt><strong>——-</strong></dt><dd></dd>
+<dt>hess_init: numpy.array</dt><dd><p>The Hessian over initial conditions</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -6707,35 +6464,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SIR.hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian_latent instead.</p>
-<p>Compute the Hessian over the parameters and initial conditions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>maps: numpy.array</strong></dt><dd><p>MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p>
-</dd>
-<dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data without the initial datapoint</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
-</dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
-</dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
-</dd>
-<dt><strong>——-</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -6869,48 +6598,7 @@ age-dependent parameter individually</p>
 <dt id="pyross.inference.SIR.inference">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `inference`: </span>is deprecated. Use <cite>infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>x: 2d numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * model classes))</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: float</strong></dt><dd><p>Number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters (number of parameters x 2).
-Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: double</strong></dt><dd><p>Relative tolerance of logp</p>
-</dd>
-<dt><strong>eps: double</strong></dt><dd><p>Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,</strong></dt><dd><blockquote>
-<div><p>cma_population, cma_stds:</p>
-</div></blockquote>
-<p>Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>estimates: numpy.array</dt><dd><p>the MAP parameter estimate</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -6927,9 +6615,9 @@ all age groups. This function infers the scaling parameters.</p>
 </dd>
 <dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the control parameters</p>
 </dd>
-<dt><strong>x0: numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes))</p>
+<dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions.</p>
 </dd>
-<dt><strong>obs:</strong></dt><dd><p>…</p>
+<dt><strong>obs:</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes)).</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
 e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
@@ -7046,63 +6734,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="function">
 <dt id="pyross.inference.SIR.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SIR.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `latent_inference`: </span>. Use <cite>latent_infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values.</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>obs: 2d numpy.array</strong></dt><dd><p>The observed trajectories with reduced number of variables
-(number of data points x (age groups * observed model classes))</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters + initial conditions
-((number of parameters + number of initial conditions) x 2).
-Better bounds makes it easier to find the true global minimum.</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: float, optional</strong></dt><dd><p>Relative tolerance</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter: int, optional</strong></dt><dd><p>Number of global optimisations performed.</p>
-</dd>
-<dt><strong>local_max_iter: int, optional</strong></dt><dd><p>Number of local optimisation performed.</p>
-</dd>
-<dt><strong>global_ftol_factor: float</strong></dt><dd><p>The relative tolerance for global optimisation.</p>
-</dd>
-<dt><strong>enable_global: bool, optional</strong></dt><dd><p>Set to True to enable global optimisation.</p>
-</dd>
-<dt><strong>enable_local: bool, optional</strong></dt><dd><p>Set to True to enable local optimisation.</p>
-</dd>
-<dt><strong>cma_processes: int, optional</strong></dt><dd><p>Number of parallel processes used for global optimisation.</p>
-</dd>
-<dt><strong>cma_population: int, optional</strong></dt><dd><p>The number of samples used in each step of the CMA algorithm.</p>
-</dd>
-<dt><strong>cma_stds: int, optional</strong></dt><dd><p>The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>params: numpy.array</dt><dd><p>MAP estimate of paramters and initial values of the classes.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -7112,7 +6744,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, different for each subclass</p>
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
 <dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions</p>
 </dd>
@@ -7214,7 +6846,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SEIR.compute_hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the Hessian over the parameters and initial conditions.</p>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -7223,7 +6855,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data with the initial datapoint</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p>
 </dd>
 <dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
 </dd>
@@ -7233,12 +6865,14 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
 </dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
+</dl>
 </dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>hess_params: numpy.array</dt><dd><p>The Hessian over parameters</p>
 </dd>
-<dt><strong>——-</strong></dt><dd></dd>
+<dt>hess_init: numpy.array</dt><dd><p>The Hessian over initial conditions</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -7253,35 +6887,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SEIR.hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian_latent instead.</p>
-<p>Compute the Hessian over the parameters and initial conditions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>maps: numpy.array</strong></dt><dd><p>MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p>
-</dd>
-<dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data without the initial datapoint</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
-</dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
-</dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
-</dd>
-<dt><strong>——-</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -7415,48 +7021,7 @@ age-dependent parameter individually</p>
 <dt id="pyross.inference.SEIR.inference">
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `inference`: </span>is deprecated. Use <cite>infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>x: 2d numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * model classes))</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: float</strong></dt><dd><p>Number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters (number of parameters x 2).
-Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: double</strong></dt><dd><p>Relative tolerance of logp</p>
-</dd>
-<dt><strong>eps: double</strong></dt><dd><p>Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,</strong></dt><dd><blockquote>
-<div><p>cma_population, cma_stds:</p>
-</div></blockquote>
-<p>Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>estimates: numpy.array</dt><dd><p>the MAP parameter estimate</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -7473,9 +7038,9 @@ all age groups. This function infers the scaling parameters.</p>
 </dd>
 <dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the control parameters</p>
 </dd>
-<dt><strong>x0: numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes))</p>
+<dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions.</p>
 </dd>
-<dt><strong>obs:</strong></dt><dd><p>…</p>
+<dt><strong>obs:</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes)).</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
 e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
@@ -7592,63 +7157,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="function">
 <dt id="pyross.inference.SEIR.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SEIR.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEIR.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `latent_inference`: </span>. Use <cite>latent_infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values.</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>obs: 2d numpy.array</strong></dt><dd><p>The observed trajectories with reduced number of variables
-(number of data points x (age groups * observed model classes))</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters + initial conditions
-((number of parameters + number of initial conditions) x 2).
-Better bounds makes it easier to find the true global minimum.</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: float, optional</strong></dt><dd><p>Relative tolerance</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter: int, optional</strong></dt><dd><p>Number of global optimisations performed.</p>
-</dd>
-<dt><strong>local_max_iter: int, optional</strong></dt><dd><p>Number of local optimisation performed.</p>
-</dd>
-<dt><strong>global_ftol_factor: float</strong></dt><dd><p>The relative tolerance for global optimisation.</p>
-</dd>
-<dt><strong>enable_global: bool, optional</strong></dt><dd><p>Set to True to enable global optimisation.</p>
-</dd>
-<dt><strong>enable_local: bool, optional</strong></dt><dd><p>Set to True to enable local optimisation.</p>
-</dd>
-<dt><strong>cma_processes: int, optional</strong></dt><dd><p>Number of parallel processes used for global optimisation.</p>
-</dd>
-<dt><strong>cma_population: int, optional</strong></dt><dd><p>The number of samples used in each step of the CMA algorithm.</p>
-</dd>
-<dt><strong>cma_stds: int, optional</strong></dt><dd><p>The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>params: numpy.array</dt><dd><p>MAP estimate of paramters and initial values of the classes.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -7658,7 +7167,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, different for each subclass</p>
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
 <dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions</p>
 </dd>
@@ -7777,7 +7286,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SEAI5R.compute_hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the Hessian over the parameters and initial conditions.</p>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -7786,7 +7295,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data with the initial datapoint</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p>
 </dd>
 <dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
 </dd>
@@ -7796,12 +7305,14 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
 </dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
+</dl>
 </dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>hess_params: numpy.array</dt><dd><p>The Hessian over parameters</p>
 </dd>
-<dt><strong>——-</strong></dt><dd></dd>
+<dt>hess_init: numpy.array</dt><dd><p>The Hessian over initial conditions</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -7816,35 +7327,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SEAI5R.hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian_latent instead.</p>
-<p>Compute the Hessian over the parameters and initial conditions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>maps: numpy.array</strong></dt><dd><p>MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p>
-</dd>
-<dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data without the initial datapoint</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
-</dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
-</dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
-</dd>
-<dt><strong>——-</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -7978,48 +7461,7 @@ age-dependent parameter individually</p>
 <dt id="pyross.inference.SEAI5R.inference">
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `inference`: </span>is deprecated. Use <cite>infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>x: 2d numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * model classes))</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: float</strong></dt><dd><p>Number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters (number of parameters x 2).
-Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: double</strong></dt><dd><p>Relative tolerance of logp</p>
-</dd>
-<dt><strong>eps: double</strong></dt><dd><p>Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,</strong></dt><dd><blockquote>
-<div><p>cma_population, cma_stds:</p>
-</div></blockquote>
-<p>Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>estimates: numpy.array</dt><dd><p>the MAP parameter estimate</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -8036,9 +7478,9 @@ all age groups. This function infers the scaling parameters.</p>
 </dd>
 <dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the control parameters</p>
 </dd>
-<dt><strong>x0: numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes))</p>
+<dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions.</p>
 </dd>
-<dt><strong>obs:</strong></dt><dd><p>…</p>
+<dt><strong>obs:</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes)).</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
 e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
@@ -8155,63 +7597,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="function">
 <dt id="pyross.inference.SEAI5R.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SEAI5R.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAI5R.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `latent_inference`: </span>. Use <cite>latent_infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values.</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>obs: 2d numpy.array</strong></dt><dd><p>The observed trajectories with reduced number of variables
-(number of data points x (age groups * observed model classes))</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters + initial conditions
-((number of parameters + number of initial conditions) x 2).
-Better bounds makes it easier to find the true global minimum.</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: float, optional</strong></dt><dd><p>Relative tolerance</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter: int, optional</strong></dt><dd><p>Number of global optimisations performed.</p>
-</dd>
-<dt><strong>local_max_iter: int, optional</strong></dt><dd><p>Number of local optimisation performed.</p>
-</dd>
-<dt><strong>global_ftol_factor: float</strong></dt><dd><p>The relative tolerance for global optimisation.</p>
-</dd>
-<dt><strong>enable_global: bool, optional</strong></dt><dd><p>Set to True to enable global optimisation.</p>
-</dd>
-<dt><strong>enable_local: bool, optional</strong></dt><dd><p>Set to True to enable local optimisation.</p>
-</dd>
-<dt><strong>cma_processes: int, optional</strong></dt><dd><p>Number of parallel processes used for global optimisation.</p>
-</dd>
-<dt><strong>cma_population: int, optional</strong></dt><dd><p>The number of samples used in each step of the CMA algorithm.</p>
-</dd>
-<dt><strong>cma_stds: int, optional</strong></dt><dd><p>The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>params: numpy.array</dt><dd><p>MAP estimate of paramters and initial values of the classes.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -8221,7 +7607,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, different for each subclass</p>
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
 <dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions</p>
 </dd>
@@ -8336,7 +7722,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SEAIRQ.compute_hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the Hessian over the parameters and initial conditions.</p>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -8345,7 +7731,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data with the initial datapoint</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p>
 </dd>
 <dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
 </dd>
@@ -8355,12 +7741,14 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
 </dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
+</dl>
 </dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>hess_params: numpy.array</dt><dd><p>The Hessian over parameters</p>
 </dd>
-<dt><strong>——-</strong></dt><dd></dd>
+<dt>hess_init: numpy.array</dt><dd><p>The Hessian over initial conditions</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -8375,35 +7763,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="function">
 <dt id="pyross.inference.SEAIRQ.hessian_latent">
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian_latent instead.</p>
-<p>Compute the Hessian over the parameters and initial conditions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>maps: numpy.array</strong></dt><dd><p>MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p>
-</dd>
-<dt><strong>obs: numpy.array</strong></dt><dd><p>The observed data without the initial datapoint</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Step size in the calculation of the Hessian</p>
-</dd>
-<dt><strong>Returns</strong></dt><dd></dd>
-<dt><strong>hess_params: numpy.array</strong></dt><dd><p>The Hessian over parameters</p>
-</dd>
-<dt><strong>hess_init: numpy.array</strong></dt><dd><p>The Hessian over initial conditions</p>
-</dd>
-<dt><strong>——-</strong></dt><dd></dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -8537,48 +7897,7 @@ age-dependent parameter individually</p>
 <dt id="pyross.inference.SEAIRQ.inference">
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `inference`: </span>is deprecated. Use <cite>infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>x: 2d numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * model classes))</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: float</strong></dt><dd><p>Number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters (number of parameters x 2).
-Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: double</strong></dt><dd><p>Relative tolerance of logp</p>
-</dd>
-<dt><strong>eps: double</strong></dt><dd><p>Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter, local_max_iter, global_ftol_factor, enable_global, enable_local, cma_processes,</strong></dt><dd><blockquote>
-<div><p>cma_population, cma_stds:</p>
-</div></blockquote>
-<p>Parameters of <cite>minimization</cite> function in <cite>utils_python.py</cite> which are documented there. If not
-specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>estimates: numpy.array</dt><dd><p>the MAP parameter estimate</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -8595,9 +7914,9 @@ all age groups. This function infers the scaling parameters.</p>
 </dd>
 <dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the control parameters</p>
 </dd>
-<dt><strong>x0: numpy.array</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes))</p>
+<dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions.</p>
 </dd>
-<dt><strong>obs:</strong></dt><dd><p>…</p>
+<dt><strong>obs:</strong></dt><dd><p>Observed trajectory (number of data points x (age groups * observed model classes)).</p>
 </dd>
 <dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
 e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
@@ -8714,63 +8033,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="function">
 <dt id="pyross.inference.SEAIRQ.latent_inference">
 <code class="sig-prename descclassname">pyross.inference.SEAIRQ.</code><code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SEAIRQ.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version `latent_inference`: </span>. Use <cite>latent_infer_parameters</cite> instead.</p>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>guess: numpy.array</strong></dt><dd><p>Prior expectation (and initial guess) for the parameter values.</p>
-</dd>
-<dt><strong>stds: numpy.array</strong></dt><dd><p>Standard deviations for the Gamma prior of the parameters</p>
-</dd>
-<dt><strong>obs: 2d numpy.array</strong></dt><dd><p>The observed trajectories with reduced number of variables
-(number of data points x (age groups * observed model classes))</p>
-</dd>
-<dt><strong>fltr: boolean sequence or array</strong></dt><dd><p>True for observed and False for unobserved classes.
-e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p>
-</dd>
-<dt><strong>Tf: float</strong></dt><dd><p>Total time of the trajectory</p>
-</dd>
-<dt><strong>Nf: int</strong></dt><dd><p>Total number of data points along the trajectory</p>
-</dd>
-<dt><strong>contactMatrix: callable</strong></dt><dd><p>A function that returns the contact matrix at time t (input).</p>
-</dd>
-<dt><strong>bounds: 2d numpy.array</strong></dt><dd><p>Bounds for the parameters + initial conditions
-((number of parameters + number of initial conditions) x 2).
-Better bounds makes it easier to find the true global minimum.</p>
-</dd>
-<dt><strong>verbose: bool, optional</strong></dt><dd><p>Set to True to see intermediate outputs from the optimizer.</p>
-</dd>
-<dt><strong>ftol: float, optional</strong></dt><dd><p>Relative tolerance</p>
-</dd>
-<dt><strong>eps: float, optional</strong></dt><dd><p>Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p>
-</dd>
-<dt><strong>global_max_iter: int, optional</strong></dt><dd><p>Number of global optimisations performed.</p>
-</dd>
-<dt><strong>local_max_iter: int, optional</strong></dt><dd><p>Number of local optimisation performed.</p>
-</dd>
-<dt><strong>global_ftol_factor: float</strong></dt><dd><p>The relative tolerance for global optimisation.</p>
-</dd>
-<dt><strong>enable_global: bool, optional</strong></dt><dd><p>Set to True to enable global optimisation.</p>
-</dd>
-<dt><strong>enable_local: bool, optional</strong></dt><dd><p>Set to True to enable local optimisation.</p>
-</dd>
-<dt><strong>cma_processes: int, optional</strong></dt><dd><p>Number of parallel processes used for global optimisation.</p>
-</dd>
-<dt><strong>cma_population: int, optional</strong></dt><dd><p>The number of samples used in each step of the CMA algorithm.</p>
-</dd>
-<dt><strong>cma_stds: int, optional</strong></dt><dd><p>The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>params: numpy.array</dt><dd><p>MAP estimate of paramters and initial values of the classes.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="function">
@@ -8780,7 +8043,7 @@ Better bounds makes it easier to find the true global minimum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, different for each subclass</p>
+<dt><strong>parameters: dict</strong></dt><dd><p>A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
 <dt><strong>x0: numpy.array</strong></dt><dd><p>Initial conditions</p>
 </dd>
