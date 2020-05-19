@@ -153,11 +153,12 @@ def set_destination(term_list, destination_dict):
             product_index = destination_dict[(rate_index, reagent_index)]
             term[2] = product_index
 
-def make_gamma_dist(means, stds):
-    vars = stds**2
-    scale = vars/means
-    a = means/scale
-    return a, scale
+def make_log_norm_dist(means, stds):
+    var = stds**2
+    means_sq = means**2
+    scale = means_sq/np.sqrt(means_sq+var)
+    s = np.sqrt(np.log(1+var/means_sq))
+    return s, scale
 
 
 def plotSIR(data, showPlot=True):

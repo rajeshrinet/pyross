@@ -2,7 +2,7 @@ from itertools import compress
 from scipy import sparse
 from scipy.integrate import odeint
 from scipy.optimize import minimize, approx_fprime
-from scipy.stats import gamma
+from scipy.stats import lognorm
 import numpy as np
 from numpy.polynomial.chebyshev import chebfit, chebval
 cimport numpy as np
@@ -62,7 +62,7 @@ cdef class SIR_type:
 
 
     def _inference_to_minimize(self, params, grad=0, bounds=None, eps=None, beta_rescale=None, x=None, Tf=None, Nf=None,
-                               contactMatrix=None, a=None, scale=None):
+                               contactMatrix=None, s=None, scale=None):
         """Objective function for minimization call in inference."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
@@ -73,7 +73,7 @@ cdef class SIR_type:
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
+        minus_logp -= np.sum(lognorm.logpdf(local_params, s, scale=scale))
         return minus_logp
 
 
@@ -94,14 +94,14 @@ cdef class SIR_type:
         bounds[1] *= beta_rescale
         stds[1] *= beta_rescale
 
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
 
         minimize_args={'bounds':bounds, 'eps':eps, 'beta_rescale':beta_rescale, 'x':x, 'Tf':Tf, 'Nf':Nf,
-                         'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
+                         'contactMatrix':contactMatrix, 's':s, 'scale':scale}
         res = minimization(self._inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -112,7 +112,7 @@ cdef class SIR_type:
 
     def _infer_parameters_to_minimize(self, params, grad=0, keys=None, is_scale_parameter=None, scaled_guesses=None,
                                flat_guess_range=None, eps=None, x=None, Tf=None, Nf=None,
-                               contactMatrix=None, a=None, scale=None):
+                               contactMatrix=None, s=None, scale=None):
         """Objective function for minimization call in infer_parameters."""
         # Restore parameters from flattened parameters
         orig_params = []
@@ -128,7 +128,7 @@ cdef class SIR_type:
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
     def infer_parameters(self, keys, guess, stds, bounds, np.ndarray x,
@@ -153,7 +153,7 @@ cdef class SIR_type:
             Prior expectation (and initial guess) for the parameter values. For parameters that support it, age-dependent
             rates can be inferred by supplying a guess that is an array instead a single float.
         stds: numpy.array
-            Standard deviations for the Gamma prior of the parameters
+            Standard deviations for the log normal prior of the parameters
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2)
         x: 2d numpy.array
@@ -243,7 +243,7 @@ cdef class SIR_type:
                 i += 1
             j += 1
 
-        a, scale = pyross.utils.make_gamma_dist(flat_guess, flat_stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -254,7 +254,7 @@ cdef class SIR_type:
                 flat_cma_stds[flat_guess_range[i]] = cma_stds[i]
 
         minimize_args={'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                       'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
+                       'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale}
         res = minimization(self._infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -274,7 +274,7 @@ cdef class SIR_type:
 
 
     def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
-                                   a=None, scale=None):
+                                   s=None, scale=None):
         """Objective function for minimization call in infer_control."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
@@ -285,7 +285,7 @@ cdef class SIR_type:
         interventions = [params]
         contactMatrix = generator.interventions_temporal(times, interventions)
         minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
 
@@ -303,7 +303,7 @@ cdef class SIR_type:
         guess: numpy.array
             Prior expectation (and initial guess) for the control parameter values
         stds: numpy.array
-            Standard deviations for the Gamma prior of the control parameters
+            Standard deviations for the log normal prior of the control parameters
         x: 2d numpy.array
             Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
@@ -344,13 +344,13 @@ cdef class SIR_type:
         res: numpy.array
             MAP estimate of the control parameters
         """
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
 
-        minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 'a':a, 'scale':scale}
+        minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -366,13 +366,13 @@ cdef class SIR_type:
         cdef:
             Py_ssize_t k=maps.shape[0], i, j
             double xx0
-            np.ndarray g1, g2, a, scale, hess = np.empty((k, k))
-        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+            np.ndarray g1, g2, s, scale, hess = np.empty((k, k))
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         def minuslogP(y):
             y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
             minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(gamma.logpdf(y, a, scale=scale))
+            minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             y[1] *= beta_rescale
             return minuslogp
         g1 = approx_fprime(maps, minuslogP, eps)
@@ -420,12 +420,12 @@ cdef class SIR_type:
         cdef:
             Py_ssize_t k=maps.shape[0], i, j
             double xx0
-            np.ndarray g1, g2, a, scale, hess = np.empty((k, k))
-        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+            np.ndarray g1, g2, s, scale, hess = np.empty((k, k))
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         def minuslogP(y):
             parameters = self.fill_params_dict(keys, y)
             minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(gamma.logpdf(y, a, scale=scale))
+            minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
         g1 = approx_fprime(maps, minuslogP, eps)
         for j in range(k):
@@ -446,10 +446,10 @@ cdef class SIR_type:
         # M variate process, M=3 for SIIR model
         cdef double logP_MAPs
         cdef Py_ssize_t k
-        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         parameters = self.fill_params_dict(keys, maps)
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-        logP_MAPs += np.sum(gamma.logpdf(maps, a, scale=scale))
+        logP_MAPs += np.sum(lognorm.logpdf(maps, s, scale=scale))
         k = maps.shape[0]
         A = self.hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
@@ -462,7 +462,7 @@ cdef class SIR_type:
         return minus_logp
 
     def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None,
-                beta_rescale=None, obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, a=None, scale=None):
+                beta_rescale=None, obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None):
         """Objective function for minimization call in laten_inference."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
@@ -474,7 +474,7 @@ cdef class SIR_type:
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(local_params, a, scale=scale))
+        minus_logp -= np.sum(lognorm.logpdf(local_params, s, scale=scale))
         return minus_logp
 
 
@@ -497,14 +497,14 @@ cdef class SIR_type:
         bounds[1, :] *= beta_rescale
         stds[param_dim:] *= rescale_factor
         stds[1] *= beta_rescale
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'param_dim':param_dim, 'rescale_factor':rescale_factor, 'beta_rescale':beta_rescale,
-                         'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 'a':a, 'scale':scale}
+                         'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale}
         res = minimization(self._latent_inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -516,7 +516,7 @@ cdef class SIR_type:
         return params
 
     def _latent_infer_parameters_to_minimize(self, params, grad = 0, param_keys=None, init_fltr=None, bounds=None, param_dim=None,
-                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, a=None, scale=None):
+                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None):
         """Objective function for minimization call in laten_inference."""
         inits =  np.copy(params[param_dim:])
         parameters = self.fill_params_dict(param_keys, params[:param_dim])
@@ -528,7 +528,7 @@ cdef class SIR_type:
         x0[x0<0] = 0.1/self.N # set to be small and positive
 
         minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
         # add penalty for being negative
         minus_logp += penalty*Nf
@@ -568,7 +568,7 @@ cdef class SIR_type:
             Prior expectation for the parameter values listed, and prior for initial conditions.
             Expect of length len(param_keys)+ (total no. of variables - total no. of observed)
         stds: numpy.array
-            Standard deviations for the Gamma prior.
+            Standard deviations for the log normal prior.
         obs: 2d numpy.array
             The observed trajectories with reduced number of variables
             (number of data points, (age groups * observed model classes))
@@ -615,7 +615,7 @@ cdef class SIR_type:
             Py_ssize_t param_dim = len(param_keys)
         assert int(np.sum(init_fltr)) == self.dim - fltr.shape[0]
         assert guess.shape[0] == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -623,7 +623,7 @@ cdef class SIR_type:
 
         minimize_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'bounds':bounds, 'param_dim':param_dim,
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
-                         'a':a, 'scale':scale}
+                         's':s, 'scale':scale}
         res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -634,7 +634,7 @@ cdef class SIR_type:
 
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
-                                          obs=None, fltr=None, Tf=None, Nf=None, a=None, scale=None):
+                                          obs=None, fltr=None, Tf=None, Nf=None, s=None, scale=None):
         """Objective function for minimization call in latent_infer_control."""
         if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
             return INFINITY
@@ -645,7 +645,7 @@ cdef class SIR_type:
         interventions = [params]
         contactMatrix = generator.interventions_temporal(times, interventions)
         minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(gamma.logpdf(params, a, scale=scale))
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
     def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
@@ -664,7 +664,7 @@ cdef class SIR_type:
         guess: numpy.array
             Prior expectation (and initial guess) for the control parameter values.
         stds: numpy.array
-            Standard deviations for the Gamma prior of the control parameters
+            Standard deviations for the log normal prior of the control parameters
         x0: numpy.array
             Initial conditions.
         obs:
@@ -711,14 +711,14 @@ cdef class SIR_type:
             MAP estimate of the control parameters
         """
 
-        a, scale = pyross.utils.make_gamma_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
 
         minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
-                         'Nf':Nf, 'a':a, 'scale':scale}
+                         'Nf':Nf, 's':s, 'scale':scale}
         res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -757,16 +757,16 @@ cdef class SIR_type:
             The Hessian over initial conditions
         '''
 
-        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
         map_params = maps[:param_dim]
         map_x0 = maps[param_dim:]
-        a_params = a[:param_dim]
-        a_x0 = a[param_dim:]
+        s_params = s[:param_dim]
+        a_x0 = s[param_dim:]
         scale_params = scale[:param_dim]
         scale_x0 = scale[param_dim:]
-        hess_params = self.latent_hess_selected_params(param_keys, map_params, map_x0, a_params, scale_params,
+        hess_params = self.latent_hess_selected_params(param_keys, map_params, map_x0, s_params, scale_params,
                                                 obs, fltr, Tf, Nf, contactMatrix,
                                                 beta_rescale=beta_rescale, eps=eps)
         hess_init = self.latent_hess_selected_init(init_fltr, map_x0, map_params, a_x0, scale_x0,
@@ -781,16 +781,16 @@ cdef class SIR_type:
         '''
         DEPRECATED. Use `compute_hessian_latent` instead.
         '''
-        a, scale = pyross.utils.make_gamma_dist(prior_mean, prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
         map_params = maps[:param_dim]
         map_x0 = maps[param_dim:]
-        a_params = a[:param_dim]
-        a_x0 = a[param_dim:]
+        s_params = s[:param_dim]
+        a_x0 = s[param_dim:]
         scale_params = scale[:param_dim]
         scale_x0 = scale[param_dim:]
-        hess_params = self.latent_hess_params(map_params, map_x0, a_params, scale_params,
+        hess_params = self.latent_hess_params(map_params, map_x0, s_params, scale_params,
                                                 obs, fltr, Tf, Nf, contactMatrix,
                                                 beta_rescale=beta_rescale, eps=eps)
         hess_init = self.latent_hess_init(map_x0, map_params, a_x0, scale_x0,
@@ -798,7 +798,7 @@ cdef class SIR_type:
                                                 eps=0.5/self.N)
         return hess_params, hess_init
 
-    def latent_hess_params(self, map_params, x0, a_params, scale_params,
+    def latent_hess_params(self, map_params, x0, s_params, scale_params,
                                     obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1e-3):
         cdef Py_ssize_t j
@@ -809,7 +809,7 @@ cdef class SIR_type:
             y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
             minuslogp = self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(gamma.logpdf(y, a_params, scale=scale_params))
+            minuslogp -= np.sum(lognorm.logpdf(y, s_params, scale=scale_params))
             y[1] *= beta_rescale
             return minuslogp
         g1 = approx_fprime(map_params, minuslogP, eps)
@@ -824,7 +824,7 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def latent_hess_selected_params(self, keys, map_params, x0, a_params, scale_params,
+    def latent_hess_selected_params(self, keys, map_params, x0, s_params, scale_params,
                                     obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1e-3):
         cdef Py_ssize_t j
@@ -835,7 +835,7 @@ cdef class SIR_type:
             y[1] /= beta_rescale
             parameters = self.fill_params_dict(keys, y)
             minuslogp = self.minus_logp_red(parameters, x0, obs[1:], fltr, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(gamma.logpdf(y, a_params, scale=scale_params))
+            minuslogp -= np.sum(lognorm.logpdf(y, s_params, scale=scale_params))
             y[1] *= beta_rescale
             return minuslogp
         g1 = approx_fprime(map_params, minuslogP, eps)
@@ -862,7 +862,7 @@ cdef class SIR_type:
         model = self.make_det_model(parameters)
         def minuslogP(y):
             minuslogp = self.obtain_log_p_for_traj_red(y, obs, fltr, Tf, Nf, model, contactMatrix)
-            minuslogp -= np.sum(gamma.logpdf(y, a_x0, scale=scale_x0))
+            minuslogp -= np.sum(lognorm.logpdf(y, a_x0, scale=scale_x0))
             return minuslogp
         g1 = approx_fprime(map_x0, minuslogP, eps)
         for j in range(dim):
@@ -884,7 +884,7 @@ cdef class SIR_type:
         def minuslogP(y):
             x0 = self.fill_initial_conditions(y, obs[0], init_fltr, fltr)
             minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-            minuslogp -= np.sum(gamma.logpdf(y, a_x0, scale=scale_x0))
+            minuslogp -= np.sum(lognorm.logpdf(y, a_x0, scale=scale_x0))
             return minuslogp
         g1 = approx_fprime(map_x0, minuslogP, eps)
         for j in range(dim):
