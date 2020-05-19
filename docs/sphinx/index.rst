@@ -47,10 +47,7 @@ The examples are classified as:
 
 .. contents:
 
-.. autoclass:: pyross
-    :no-members:
-    :no-inherited-members:
-    :no-special-members:
+
 
 Deterministic simulations
 ==================================
