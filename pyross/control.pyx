@@ -123,17 +123,14 @@ cdef class control_integration:
                           t_span=[cur_t_eval[0], cur_t_eval[-1]],
                           y0=cur_y0,
                          t_eval=cur_t_eval,
-                         method='RK45',  #'RK23', # RK45 is standard, but doesn't seem to work properly
+                         method='RK23',
                          events=cur_list
                          )
             # Find current event
             for i,e in enumerate(sol.t_events):
                 if len(e) > 0:
                     #
-                    #print('i =',i)
-                    #print("list_of_available_events =",list_of_available_events)
                     current_protocol_index = list_of_available_events[i]
-                    #print("current_protocol_index =",current_protocol_index)
 
                     if events_repeat:
                         list_of_available_events = []
@@ -152,7 +149,6 @@ cdef class control_integration:
                     events_out.append([sol.t_events[i][0], current_protocol_index ])
                     #print('At time {0:3.2f}, event {1} occured.'.format(sol.t_events[current_protocol_index][0],
                     #                     current_protocol_index))
-                    #print("list_of_available_events =",list_of_available_events)
                     self.CM = contactMatrices[current_protocol_index]
                     break
             # Add current simulational result to trajectory
