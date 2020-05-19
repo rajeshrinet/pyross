@@ -1,0 +1,1633 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Stochastic simulations &mdash; PyRoss 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hybrid simulations" href="hybrid.html" />
+    <link rel="prev" title="Deterministic simulations" href="deterministic.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyRoss
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Stochastic simulations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-stochastic-integration">pyross.stochastic.stochastic_integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-sir">pyross.stochastic.SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-sikr">pyross.stochastic.SIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seir">pyross.stochastic.SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-sei5r">pyross.stochastic.SEI5R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seai5r">pyross.stochastic.SEAI5R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seairq">pyross.stochastic.SEAIRQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seairq-testing">pyross.stochastic.SEAIRQ_testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with Non-Pharmaceutical interventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact_matrix.html">Contact matrix class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRoss</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Stochastic simulations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/stochastic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="stochastic-simulations">
+<h1>Stochastic simulations<a class="headerlink" href="#stochastic-simulations" title="Permalink to this headline">¶</a></h1>
+<p>Stochastic simulations with compartment models and age structure. Has Gillespie and tau-leaping implemented.</p>
+<div class="section" id="pyross-stochastic-stochastic-integration">
+<h2>pyross.stochastic.stochastic_integration<a class="headerlink" href="#pyross-stochastic-stochastic-integration" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.stochastic_integration">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">stochastic_integration</code><a class="headerlink" href="#pyross.stochastic.stochastic_integration" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Integrators used by stochastic models:</dt><dd><p>Gillespie and tau-leaping</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.calculate_total_reaction_rate">
+<code class="sig-name descname">calculate_total_reaction_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.calculate_total_reaction_rate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">SSA_step:</code></dt>
+<dd><p>Gillespie Stochastic Simulation Step (SSA)</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate_gillespie:</code></dt>
+<dd><p>Performs stochastic simulation using the
+Gillespie algorithm</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.check_for_event">
+<code class="sig-name descname">check_for_event</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.check_for_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.simulate_gillespie_events">
+<code class="sig-name descname">simulate_gillespie_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.simulate_gillespie_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.tau_leaping_update_timesteps">
+<code class="sig-name descname">tau_leaping_update_timesteps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.tau_leaping_update_timesteps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">check_for_event</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.simulate_gillespie">
+<code class="sig-name descname">simulate_gillespie</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.simulate_gillespie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the stochastic simulation using the Gillespie algorithm.
+1. Rates for each reaction channel r_i calculated from current state.
+2. The timestep tau is chosen randomly from an
+exponential distribution P ~ e^-W       au.
+3. A single reaction occurs with probablity proportional to its fractional
+rate constant r_i/W.
+4. The state is updated to reflect this reaction occuring and time is
+propagated forward by   au
+Stops if population becomes too small.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>t_arr</strong> (<em>np.array(Nf,)</em>) – Array of time points at which the integrator was evaluated.</p></li>
+<li><p><strong>out_arr</strong> (<em>np.array</em>) – Output path from integrator.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.simulate_tau_leaping">
+<code class="sig-name descname">simulate_tau_leaping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.simulate_tau_leaping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tau leaping algorithm for producing stochastically correct trajectories
+<a class="reference external" href="https://doi.org/10.1063/1.2159468">https://doi.org/10.1063/1.2159468</a>
+This method can run much faster than the Gillespie algorithm
+1. Rates for each reaction channel r_i calculated from current state.
+2. Timestep     au chosen such that Delta r_i &lt; epsilon Sum r_i
+3. Number of reactions that occur in channel i ~Poisson(r_i     au)
+4. Update state by this amount</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>nc</strong> (<em>optional</em>) – The default is 30</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em><em>, </em><em>optional</em>) – The acceptable error in each step. The default is 0.03</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>optional</em>) – </p></li>
+<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>t_arr</strong> (<em>np.array(Nf,)</em>) – Array of time points at which the integrator was evaluated.</p></li>
+<li><p><strong>out_arr</strong> (<em>np.array</em>) – Output path from integrator.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-sir">
+<h2>pyross.stochastic.SIR<a class="headerlink" href="#pyross-stochastic-sir" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.stochastic.SIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIR)
+Ia: asymptomatic
+Is: symptomatic</p>
+<p>…</p>
+<dl class="attribute">
+<dt id="pyross.stochastic.SIR.parameters">
+<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SIR.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SIR.M">
+<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SIR.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SIR.Ni">
+<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SIR.Ni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial number in each compartment and class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array(3*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIR.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIR.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ia’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIR.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIR.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Is’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIR.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘R’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Removed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIR.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the Stochastic Simulation Algorithm (SSA)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – SSA to use, either ‘gillespie’ or ‘tau_leaping’.
+The default is ‘gillespie’.</p></li>
+<li><p><strong>nc</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+‘event_occured’ , ‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-sikr">
+<h2>pyross.stochastic.SIkR<a class="headerlink" href="#pyross-stochastic-sikr" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.stochastic.SIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIkR)
+method of k-stages of I
+.. attribute:: parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gI<span class="classifier">float</span></dt><dd><p>rate of removal from infectives.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>kI<span class="classifier">int</span></dt><dd><p>number of stages of infection.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="attribute">
+<dt id="pyross.stochastic.SIkR.M">
+<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SIkR.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SIkR.Ni">
+<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SIkR.Ni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial number in each compartment and class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array((kI + 1)*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIkR.I">
+<code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIkR.I" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘E’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIkR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIkR.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘R’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Removed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SIkR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SIkR.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-seir">
+<h2>pyross.stochastic.SEIR<a class="headerlink" href="#pyross-stochastic-seir" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SEIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.stochastic.SEIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+Ia: asymptomatic
+Is: symptomatic
+.. attribute:: parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="attribute">
+<dt id="pyross.stochastic.SEIR.M">
+<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEIR.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEIR.Ni">
+<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEIR.Ni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial number in each compartment and class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array(4*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEIR.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEIR.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘E’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEIR.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEIR.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ia’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEIR.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEIR.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Is’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEIR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEIR.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘R’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Removed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEIR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEIR.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-sei5r">
+<h2>pyross.stochastic.SEI5R<a class="headerlink" href="#pyross-stochastic-sei5r" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SEI5R">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.stochastic.SEI5R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+The infected class has 5 groups:
+* Ia: asymptomatic
+* Is: symptomatic
+* Ih: hospitalized
+* Ic: ICU
+* Im: Mortality</p>
+<p>S  —&gt; E
+E  —&gt; Ia, Is
+Ia —&gt; R
+Is —&gt; Ih, R
+Ih —&gt; Ic, R
+Ic —&gt; Im, R</p>
+<dl class="attribute">
+<dt id="pyross.stochastic.SEI5R.parameters">
+<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEI5R.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of removal for hospitalised individuals.</p>
+</dd>
+<dt>gIc<span class="classifier">float</span></dt><dd><p>rate of removal for idividuals in intensive care.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
+</dd>
+<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+sa is rate of additional/removal of population by birth etc</p>
+</dd>
+<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+</dd>
+<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+</dd>
+<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="simple">
+<dt>M<span class="classifier">int</span></dt><dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+</dd>
+<dt>Ni: np.array(8*M, )</dt><dd><p>Initial number in each compartment and class</p>
+</dd>
+</dl>
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘E’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ia’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.Ic">
+<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.Ic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ic’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ICU hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.Ih">
+<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.Ih" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ic’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.Im">
+<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.Im" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ic’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mortality time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Is’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
+<li><p><em>R = N(t) - (S + E + Ia + Is + Ih + Ic)</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEI5R.population">
+<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.population" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>population</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-seai5r">
+<h2>pyross.stochastic.SEAI5R<a class="headerlink" href="#pyross-stochastic-seai5r" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SEAI5R">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.stochastic.SEAI5R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
+The infected class has 5 groups:
+* Ia: asymptomatic
+* Is: symptomatic
+* Ih: hospitalized
+* Ic: ICU
+* Im: Mortality</p>
+<p>S  —&gt; E
+E  —&gt; Ia, Is
+Ia —&gt; R
+Is —&gt; Ih, R
+Ih —&gt; Ic, R
+Ic —&gt; Im, R
+.. attribute:: parameters</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+</dd>
+<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+</dd>
+<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of hospitalisation of infected individuals.</p>
+</dd>
+<dt>gIc<span class="classifier">float</span></dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAI5R.M">
+<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEAI5R.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAI5R.Ni">
+<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEAI5R.Ni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial number in each compartment and class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array(9*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.A">
+<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.A" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘A’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Activated population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘E’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ia’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.Ic">
+<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.Ic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ic’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ICU hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.Ih">
+<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.Ih" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ic’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.Im">
+<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.Im" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ic’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mortality time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Is’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
+<li><p><em>R = N(t) - (S + E + A + Ia + Is + Ih + Ic)</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAI5R.population">
+<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.population" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>population</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-seairq">
+<h2>pyross.stochastic.SEAIRQ<a class="headerlink" href="#pyross-stochastic-seairq" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SEAIRQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+Ia: asymptomatic
+Is: symptomatic
+A : Asymptomatic and infectious</p>
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ.parameters">
+<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha<span class="classifier">float, np.array(M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
+</dd>
+<dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
+</dd>
+<dt>tIa<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+</dd>
+<dt>tIs<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of symptomatics</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ.M">
+<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ.Ni">
+<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.Ni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial number in each compartment and class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array(6*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.A">
+<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.A" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘A’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Activated population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘E’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ia’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Is’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.Q">
+<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.Q" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Q’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Quarantined population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘R’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Removed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="pyross-stochastic-seairq-testing">
+<h2>pyross.stochastic.SEAIRQ_testing<a class="headerlink" href="#pyross-stochastic-seairq-testing" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.stochastic.SEAIRQ_testing">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAIRQ_testing</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+Ia: asymptomatic
+Is: symptomatic
+A : Asymptomatic and infectious</p>
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ_testing.parameters">
+<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha<span class="classifier">float, np.array(M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+</dd>
+<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>ars<span class="classifier">float</span></dt><dd><p>fraction of population admissible for random and symptomatic tests</p>
+</dd>
+<dt>kapE<span class="classifier">float</span></dt><dd><p>fraction of positive tests for exposed individuals</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ_testing.M">
+<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.M" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of compartments of individual for each class.
+I.e len(contactMatrix)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ_testing.Ni">
+<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.Ni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial number in each compartment and class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array(6*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">rate_matrix:</code></dt>
+<dd><p>Calculates the rate constant for each reaction channel.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">simulate:</code></dt>
+<dd><p>Performs stochastic numerical integration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.A">
+<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.A" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘A’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Activated population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘E’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Ia’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Is’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.Q">
+<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.Q" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘Q’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Quarantined population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘R’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Removed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.SEAIRQ_testing.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>‘S’</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hybrid.html" class="btn btn-neutral float-right" title="Hybrid simulations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="deterministic.html" class="btn btn-neutral float-left" title="Deterministic simulations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Python Module Index &mdash; PyRoss 1.0.0 documentation</title>
+  <title>Contact matrix class &mdash; PyRoss 1.0.0 documentation</title>
   
 
   
@@ -35,13 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
- 
-
-    <script>
-      DOCUMENTATION_OPTIONS.COLLAPSE_INDEX = true;
-    </script>
-
-
+    <link rel="prev" title="Forecasting" href="forecast.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,8 +79,19 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with Non-Pharmaceutical interventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contact matrix class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pyross-contactmatrix-contactmatrixfunction">pyross.contactMatrix.ContactMatrixFunction</a></li>
+</ul>
+</li>
+</ul>
+
             
           
         </div>
@@ -130,10 +135,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Python Module Index</li>
+      <li>Contact matrix class</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/contact_matrix.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -145,29 +154,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
+  <div class="section" id="contact-matrix-class">
+<h1>Contact matrix class<a class="headerlink" href="#contact-matrix-class" title="Permalink to this headline">¶</a></h1>
+<p>Generates contact matrix for given interventions</p>
+<div class="section" id="pyross-contactmatrix-contactmatrixfunction">
+<h2>pyross.contactMatrix.ContactMatrixFunction<a class="headerlink" href="#pyross-contactmatrix-contactmatrixfunction" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyross.contactMatrix.ContactMatrixFunction">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.contactMatrix.</code><code class="sig-name descname">ContactMatrixFunction</code><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computed a time dependent function of the contact matrix</p>
+<p>Takes as input
+CH:  constant matrix at home
+CW:  constant matrix at work
+CS:  constant matrix at school
+CO:  constant matrix at other locations</p>
+<dl class="method">
+<dt>
+<code class="sig-name descname">constant_CM : returns, CH, CW, CS, CO</code></dt>
+<dd></dd></dl>
 
-   <h1>Python Module Index</h1>
+<dl class="simple">
+<dt>interventions_temporal: returns the sum of CH, CW, CS, CO</dt><dd><p>given times and interventions_temporal</p>
+</dd>
+</dl>
+</dd></dl>
 
-   <div class="modindex-jumpbox">
-   <a href="#cap-p"><strong>p</strong></a>
-   </div>
-
-   <table class="indextable modindextable">
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-p"><td></td><td>
-       <strong>p</strong></td><td></td></tr>
-     <tr>
-       <td></td>
-       <td>
-       <a href="index.html#module-pyross"><code class="xref">pyross</code></a></td><td>
-       <em></em></td></tr>
-   </table>
+</div>
+</div>
 
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="forecast.html" class="btn btn-neutral float-left" title="Forecasting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
