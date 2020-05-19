@@ -8,10 +8,10 @@ guide to initialize Sphinx.
 
 ## Generate API
 
-First compile pyross in-place:
+First compile pyross:
 
 ```bash
-python setup.py build_ext --inplace
+python setup.py install
 ```
 
 Then, navigate to the `docs/sphinx` folderand run using the commands
@@ -31,17 +31,4 @@ Run this instead:
 cd docs/sphinx
 sphinx-build -b markdown . ../API
 ```
-
-## Clean local build
-
-Please then clean your local build to avoid future conflict errors by
-navigating to pyross and cleaning the local build.
-
-```bash
-cd ../..
-make clean-local
-```
-
-Add a table of contents in VSCode by first installing *Markdown All in One*
-and then using the command `Markdown: Create Table of Contents`.
 
