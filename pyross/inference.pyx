@@ -54,6 +54,7 @@ cdef class SIR_type:
     fill_initial_conditions Generates full initial condition with partial info.
     ======================= ===========================================================
     '''
+
     cdef:
         readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
         readonly beta, gIa, gIs, fsa
@@ -107,7 +108,8 @@ cdef class SIR_type:
                   enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model
 
-        DEPRECATED. Use infer_parameters instead
+        .. deprecated::
+            `inference` is deprecated. Use `infer_parameters` instead.
 
         Parameters
         ----------
@@ -139,7 +141,7 @@ cdef class SIR_type:
 
         Returns
         -------
-        estimates : numpy.array
+        estimates: numpy.array
             the MAP parameter estimate
         """
         # make bounds if it does not exist and rescale
@@ -250,7 +252,7 @@ cdef class SIR_type:
 
         Returns
         -------
-        estimates : numpy.array
+        estimates: numpy.array
             The MAP parameter estimate
         '''
         # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
@@ -471,7 +473,7 @@ cdef class SIR_type:
 
         Returns
         -------
-        hess : 2d numpy.array
+        hess: 2d numpy.array
             The Hessian
         '''
         cdef:
@@ -542,8 +544,8 @@ cdef class SIR_type:
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None):
         """
-        DEPRECATED. Use latent_infer_parameters instead.
-
+        .. deprecated::
+            `latent_inference` . Use `latent_infer_parameters` instead.
 
         Parameters
         ----------
@@ -1010,7 +1012,7 @@ cdef class SIR_type:
             map_x0[j] = temp
         return hess
 
-    def latent_hess_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
+    def latent_hess_selected_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
                             obs, fltr, Tf, Nf, contactMatrix,
                                     eps=1e-6):
         cdef Py_ssize_t j
@@ -1315,33 +1317,35 @@ cdef class SIR_type:
 cdef class SIR(SIR_type):
     """
     Susceptible, Infected, Removed (SIR)
+
     * Ia: asymptomatic
     * Is: symptomatic
 
-    Initialisation
-    --------------
-    To initialise the class, call SIR(parameters, M, fi, N, steps), where
+    To initialise the SIR class,
 
-    parameters : dict
-        Including the following parameters
-        alpha : float
+    Parameters
+    ----------
+    parameters: dict
+        Contains the following keys:
+
+        alpha: float
             Ratio of asymptomatic carriers
-        beta : float
+        beta: float
             Infection rate upon contact
-        gIa : float
+        gIa: float
             Recovery rate for asymptomatic
-        gIs : float
+        gIs: float
             Recovery rate for symptomatic
-        fsa : flat
+        fsa: flat
             The fraction of symptomatic people who are self-isolating
-    M : int
+    M: int
         Number of age groups
-    fi : float numpy.array
+    fi: float numpy.array
         Fraction of each age group
-    N : int
+    N: int
         Total population
 
-    See SIR_type for a summary table for all inference methods.
+    See `SIR_type` for a summary table for all inference methods.
     """
 
     def __init__(self, parameters, M, fi, N, steps):
@@ -1429,40 +1433,39 @@ cdef class SIR(SIR_type):
 cdef class SEIR(SIR_type):
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
-    Ia: asymptomatic
-    Is: symptomatic
-    Attributes
-    ----------
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        4 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
-    gE : float
-        rate of removal from exposed individuals.
 
-    Methods
-    -------
-    All methods of the superclass SIR_type
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+    * Ia: asymptomatic
+    * Is: symptomatic
+
+    To initialise the SEIR class,
+
+    Parameters
+    ----------
+    parameters: dict
+        Contains the following keys:
+
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        fsa: float
+            Fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposed individuals.
+    M: int
+        Number of age groups
+    fi: float numpy.array
+        Fraction of each age group
+    N: int
+        Total population
+
+    See `SIR_type` for a summary table for all inference methods.
     """
+
     cdef:
         readonly double gE
 
@@ -1562,66 +1565,56 @@ cdef class SEIR(SIR_type):
 
 
 cdef class SEAI5R(SIR_type):
-    """Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
+    """
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
 
-    The infected class has 5 groups:
+    * E: exposed
+    * A: activated
     * Ia: asymptomatic
     * Is: symptomatic
     * Ih: hospitalized
     * Ic: ICU
     * Im: Mortality
 
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
+    To initialise the SEAI5R class,
 
-    Attributes
+    Parameters
     ----------
+    parameters: dict
+        Contains the following keys:
 
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        8 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    fsa : float
-        Fraction by which symptomatic individuals self isolate.
-    gE : float
-        rate of removal from exposeds individuals.
-    gA : float
-        rate of removal from activated individuals.
-    gIh : float
-        rate of hospitalisation of infected individuals.
-    gIc : float
-        rate hospitalised individuals are moved to intensive care.
-    hh : np.array (M,)
-        fraction hospitalised from Is
-    cc : np.array (M,)
-        fraction sent to intensive care from hospitalised.
-    mm : np.array (M,)
-        mortality rate in intensive care
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        fsa: float
+            Fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposeds individuals.
+        gA: float
+            rate of removal from activated individuals.
+        gIh: float
+            rate of hospitalisation of infected individuals.
+        gIc: float
+            rate hospitalised individuals are moved to intensive care.
+        hh: np.array (M,)
+            fraction hospitalised from Is
+        cc: np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: np.array (M,)
+            mortality rate in intensive care
+    M: int
+        Number of age groups
+    fi: float numpy.array
+        Fraction of each age group
+    N: int
+        Total population
 
-    Methods
-    -------
-    All methods of the superclass SIR_type
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+    See `SIR_type` for a summary table for all inference methods.
     """
     cdef:
         readonly double gE, gA, gIh, gIc, fh
@@ -1814,52 +1807,52 @@ cdef class SEAI5R(SIR_type):
 cdef class SEAIRQ(SIR_type):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A : Asymptomatic and infectious
 
-    Attributes
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+    * Q: quarantined
+
+    To initialise the SEAIRQ class,
+
+    Parameters
     ----------
+    parameters: dict
+        Contains the following keys:
 
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        6 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    gE : float
-        rate of removal from exposed individuals.
-    gA : float
-        rate of removal from activated individuals.
-    fsa : float
-        fraction by which symptomatic individuals self isolate.
-    tE  : float
-        testing rate and contact tracing of exposeds
-    tA  : float
-        testing rate and contact tracing of activateds
-    tIa : float
-        testing rate and contact tracing of asymptomatics
-    tIs : float
-        testing rate and contact tracing of symptomatics
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        tE: float
+            testing rate and contact tracing of exposeds
+        tA: float
+            testing rate and contact tracing of activateds
+        tIa: float
+            testing rate and contact tracing of asymptomatics
+        tIs: float
+            testing rate and contact tracing of symptomatics
+    M: int
+        Number of age groups.
+    fi: float numpy.array
+        Fraction of each age group.
+    N: int
+        Total population.
 
-    Methods
-    -------
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    integrate : returns numerical integration of the chosen model
+    See `SIR_type` for a summary table for all inference methods.
     """
+
     cdef:
         readonly double gE, gA, tE, tA, tIa, tIs
 
@@ -2006,6 +1999,50 @@ cdef class SEAIRQ(SIR_type):
         return sol
 
 cdef class Spp(SIR_type):
+    """
+    User-defined epidemic model.
+
+    To initialise the Spp model,
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        A dictionary containing the model parameters.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of age groups.
+    fi: np.array(M) or list
+        Fraction of each age group.
+    N: int
+        Total population.
+    steps: int
+        Number of internal steps used.
+
+    See `SIR_type` for a table of all the methods
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class.
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "linear"    : [],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta' : 0.1,
+            'gamma' : 0.1
+        }
+    """
+
     cdef:
         readonly np.ndarray linear_terms, infection_terms
         readonly np.ndarray parameters

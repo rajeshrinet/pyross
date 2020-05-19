@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 PyRoss API
 ==================================
 
@@ -45,7 +47,7 @@ The examples are classified as:
    :maxdepth: 2
    :caption: Contents:
 
-.. contents::
+.. contents:
 
 Deterministic simulations
 ==================================
@@ -57,6 +59,7 @@ pyross.deterministic.IntegratorsClass
 
 .. automodule:: pyross.deterministic.IntegratorsClass
     :members:
+
 
 pyross.deterministic.Spp
 --------------------------
@@ -194,7 +197,6 @@ pyross.inference.SIR_type
 ----------------------------
 .. automodule:: pyross.inference.SIR_type
     :members:
-
 
 pyross.inference.Spp
 ------------------------
