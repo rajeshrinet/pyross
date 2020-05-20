@@ -10,7 +10,7 @@ jobs:
 
   build-and-test:
     name: Install and test
-    runs-on: ubuntu-latest, windows-latest, macos-latest
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v2
