@@ -10,7 +10,10 @@ jobs:
 
   build-and-test:
     name: Install and test
-    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+    strategy:
+     matrix:
+       platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v2
