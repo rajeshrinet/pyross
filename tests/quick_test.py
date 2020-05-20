@@ -340,7 +340,7 @@ class UtilsPythonTest(unittest.TestCase):
         """Test the minimization(...) function in utils_python.py with a few simple examples"""
 
         # A simple example
-        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**4
+        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**3
         # A multi-modal example
         f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**2 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
 
