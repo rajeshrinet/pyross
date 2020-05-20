@@ -342,7 +342,7 @@ class UtilsPythonTest(unittest.TestCase):
         # A simple example
         f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**4
         # A multi-modal example
-        f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**4 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
+        f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**2 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
 
         # Test global optimisation
         guess = np.array([1.0, 1.0])
