@@ -32,4 +32,4 @@ The examples are classified as:
 * [stochastic](https://github.com/rajeshrinet/pyross/tree/master/examples/stochastic): is for integration of equations of motion with stochastic components
 
 
-[Models.pdf](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) has a description of the various epidemiological models used in the examples (SIR, SIkR, SEIR, SEkIkR, SEAIR, SEAI5R, etc).
+[Models.pdf](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) describes various epidemiological models available in PyRoss (SIR, SIkR, SEIR, SEkIkR, SEAIR, SEAIRQ, etc).
