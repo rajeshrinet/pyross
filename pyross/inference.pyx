@@ -2170,6 +2170,7 @@ cdef class Spp(SIR_type):
             double [:, :] CM=self.CM
             double [:, :] parameters=self.parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
+            double [:] rate
         # infection terms
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
@@ -2202,7 +2203,7 @@ cdef class Spp(SIR_type):
             double [:, :] CM=self.CM
             double [:, :] parameters=self.parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
-            double [:] s, reagent
+            double [:] s, reagent, rate
         s = x[S_index*M:(S_index+1)*M]
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
