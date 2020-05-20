@@ -2909,6 +2909,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(6*M, )
         Initial number in each compartment and class
+    testRate: python function(t)
+        number of tests per day and age group
 
     Methods
     -------
