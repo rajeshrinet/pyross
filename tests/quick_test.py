@@ -174,7 +174,7 @@ class StochasticTest(unittest.TestCase):
        """Runs all stochastic models"""
        traj_dict={}
        for name, model in self.stochastic_models.items():
-           
+
            if name.startswith('S') and not name in skip:
                params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                m = model(params, M, N + M*10)
@@ -183,9 +183,9 @@ class StochasticTest(unittest.TestCase):
                               *np.zeros(m.nClass -2)],
                              dtype=np.float64).reshape((m.nClass,1))
                traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
-    
+
     def test_stochastic_mean_gillespie(self):
-        """Runs stochastic models a few times and compares mean to 
+        """Runs stochastic models a few times and compares mean to
         deterministic"""
         deterministic_models = dict(inspect.getmembers(pyross.deterministic,
                                                         inspect.isclass))
@@ -207,11 +207,11 @@ class StochasticTest(unittest.TestCase):
                 mean = mD.simulate(*x0, self.contactMatrix, self.Tf, self.Tf)['X']
                 absdiff = np.abs(traj_mean -mean)/(N*self.Tf)
                 # print(name, np.sum(absdiff[:,:-1]))
-                self.assertTrue(np.sum(absdiff[:,:-1])<0.01, 
+                self.assertTrue(np.sum(absdiff[:,:-1])<0.01,
                                 msg=f"{name} model disagreement")
 
     def test_stochastic_mean_tau(self):
-        """Runs stochastic models a few times and compares mean to 
+        """Runs stochastic models a few times and compares mean to
             deterministic using tau leaping"""
         deterministic_models = dict(inspect.getmembers(pyross.deterministic,
                                                         inspect.isclass))
@@ -234,7 +234,7 @@ class StochasticTest(unittest.TestCase):
                 mean = mD.simulate(*x0, self.contactMatrix, self.Tf, self.Tf)['X']
                 absdiff = np.abs(traj_mean -mean)/(N*self.Tf)
                 # print(name, np.sum(absdiff[:,:-1]))
-                self.assertTrue(np.sum(absdiff[:,:-1])<0.01, 
+                self.assertTrue(np.sum(absdiff[:,:-1])<0.01,
                                 msg=f"{name} model disagreement")
 
     def test_stochastic_integrators(self):
@@ -255,9 +255,9 @@ class StochasticTest(unittest.TestCase):
                 gtraj = []
                 tautraj = []
                 for i in range(self.nloops):
-                    gtraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf, 
+                    gtraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf,
                                         method='gillespie')['X'])
-                    tautraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf, 
+                    tautraj.append(mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf,
                                         method='tau_leaping', epsilon=1E-3)['X'])
                 gmean = np.sum(gtraj, axis=0)
                 taumean= np.sum(tautraj, axis=0)
@@ -268,7 +268,7 @@ class StochasticTest(unittest.TestCase):
 
 class ControlTest(unittest.TestCase):
     """testing control.pyx"""
-    
+
     def __init__(self, *args, **kwargs):
         super(ControlTest, self).__init__(*args, **kwargs)
         self.parameters = DeterministicTest.parameters
@@ -287,13 +287,13 @@ class ControlTest(unittest.TestCase):
 
 class InferenceTest(unittest.TestCase):
     """testing inference.pyx"""
-    
+
     def __init__(self, *args, **kwargs):
         super(InferenceTest, self).__init__(*args, **kwargs)
         self.parameters = DeterministicTest.parameters
         self.control_models = dict(inspect.getmembers(pyross.inference,
                                                        inspect.isclass))
-        
+
     def contactMatrix(self, t): return np.identity(self.parameters['M'])
 
     def test_init_models(self):
@@ -309,14 +309,14 @@ class InferenceTest(unittest.TestCase):
 
 class ForecastTest(unittest.TestCase):
     """testing forcast.pyx"""
-    
+
     def __init__(self, *args, **kwargs):
         super(ForecastTest, self).__init__(*args, **kwargs)
         self.parameters = DeterministicTest.parameters
         self.control_models = dict(inspect.getmembers(pyross.forecast,
                                                        inspect.isclass))
         self.parameters['cov'] = np.identity(2)
-        
+
     def contactMatrix(self, t): return np.identity(self.parameters['M'])
 
     def test_init_models(self):
@@ -340,7 +340,7 @@ class UtilsPythonTest(unittest.TestCase):
         """Test the minimization(...) function in utils_python.py with a few simple examples"""
 
         # A simple example
-        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**2  
+        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**2
         # A multi-modal example
         f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**2 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
 
@@ -359,12 +359,12 @@ class UtilsPythonTest(unittest.TestCase):
         guess = np.array([2.0, 2.0])
         bounds = np.array([[-5.0, 5.0], [-5.0, 5.0]])
         x, y = pyross.utils_python.minimization(f1, guess, bounds, enable_global=False, enable_local=True,
-                                                ftol=1e-5, verbose=False)
+                                                ftol=1e-4, verbose=False)
         self.assertTrue(np.abs(y - 1.0) < 1e-4)
 
         # And now combined
         x, y = pyross.utils_python.minimization(f2, guess, bounds, enable_global=True, enable_local=True,
-                                        ftol=1e-5, global_ftol_factor=100, verbose=False, cma_random_seed=4)
+                                        ftol=1e-4, global_ftol_factor=100, verbose=False, cma_random_seed=4)
         self.assertTrue(np.abs(y - 1.0) < 1e-4)
 
 
