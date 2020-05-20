@@ -19,6 +19,7 @@ cdef double PI = 3.14159265359
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 ctypedef np.uint8_t BOOL_t
+
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -112,7 +113,7 @@ cdef class SIR_type:
 
     def _infer_parameters_to_minimize(self, params, grad=0, keys=None, is_scale_parameter=None, scaled_guesses=None,
                                flat_guess_range=None, eps=None, x=None, Tf=None, Nf=None,
-                               contactMatrix=None, s=None, scale=None):
+                               contactMatrix=None, s=None, scale=None, tangent=None):
         """Objective function for minimization call in infer_parameters."""
         # Restore parameters from flattened parameters
         orig_params = []
@@ -127,12 +128,17 @@ cdef class SIR_type:
         parameters = self.fill_params_dict(keys, orig_params)
         self.set_params(parameters)
         model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        if tangent:
+            minus_logp = self.obtain_log_p_for_traj_tangent_space(x, Tf, Nf, model, contactMatrix)
+        else:
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
     def infer_parameters(self, keys, guess, stds, bounds, np.ndarray x,
-                        double Tf, double Nf, contactMatrix, infer_scale_parameter=False, verbose=False,
+                        double Tf, Py_ssize_t Nf, contactMatrix,
+                        tangent=False,
+                        infer_scale_parameter=False, verbose=False,
                         ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                         enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
@@ -254,7 +260,7 @@ cdef class SIR_type:
                 flat_cma_stds[flat_guess_range[i]] = cma_stds[i]
 
         minimize_args={'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                       'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale}
+                       'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale, 'tangent':tangent}
         res = minimization(self._infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -454,11 +460,14 @@ cdef class SIR_type:
         A = self.hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
-    def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix):
+    def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix, tangent=False):
         cdef double minus_log_p
         self.set_params(parameters)
         model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        if tangent:
+            minus_logp = self.obtain_log_p_for_traj_tangent_space(x, Tf, Nf, model, contactMatrix)
+        else:
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         return minus_logp
 
     def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None,
@@ -546,7 +555,8 @@ cdef class SIR_type:
         return (dev/eps)**2 + (dev/eps)**8
 
 
-    def latent_infer_parameters(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
+    def latent_infer_parameters(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds,
+                            np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
                             verbose=False, double ftol=1e-5,
                             global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
@@ -969,7 +979,8 @@ cdef class SIR_type:
         -------
         full_parameters: dict
             A dictionary of epidemiological parameters.
-            For parameter names specified in `keys`, set the values to be the ones in `params`; for the others, use the values stored in the class.
+            For parameter names specified in `keys`, set the values to be the ones in `params`;
+            for the others, use the values stored in the class.
         '''
         full_parameters = self.make_params_dict()
         for (i, k) in enumerate(keys):
@@ -988,7 +999,8 @@ cdef class SIR_type:
         init_fltr: 1d np.array
             A vector boolean fltr that yields the partial initis given full initial conditions.
         fltr: 2d np.array
-            A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.
+            A matrix fltr that yields the observed data from full data.
+            Same as the one used for latent_infer_parameters.
 
         Returns
         -------
@@ -1010,7 +1022,8 @@ cdef class SIR_type:
         Parameters
         ----------
         parameters: dict
-            A dictionary containing all epidemiological parameters. Same keys as the one used to initialise the class.
+            A dictionary containing all epidemiological parameters.
+            Same keys as the one used to initialise the class.
 
         Notes
         -----
@@ -1088,6 +1101,29 @@ cdef class SIR_type:
         log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
+
+    cdef double obtain_log_p_for_traj_tangent_space(self, double [:, :] x, double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            double [:, :] dx, cov
+            double [:] xt, time_points, dx_det
+            double dt, logp, t
+            Py_ssize_t i
+
+        dx = np.gradient(x, axis=0)
+        time_points = np.linspace(0, Tf, Nf)
+        dt = time_points[1]
+        logp = 0
+        for i in range(Nf-1):
+            xt = x[i]
+            t = time_points[i]
+            model.set_contactMatrix(t, contactMatrix)
+            model.rhs(xt, t)
+            dx_det = model.dxdt*dt
+            dev = np.subtract(dx[i], dx_det)
+            self.obtain_noise_correlation_matrix(xt, t, contactMatrix)
+            cov = self.convert_vec_to_mat(self.B_vec)
+            logp += self.log_cond_p(dev, cov)
+        return -logp
 
     cdef double log_cond_p(self, double [:] x, double [:, :] cov):
         cdef:
@@ -1192,6 +1228,9 @@ cdef class SIR_type:
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         pass # to be implemented in subclasses
 
+    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+        pass # to be implemented in subclass
+
     cdef flatten_lyaponuv(self):
         cdef:
             double [:, :] I
@@ -1230,6 +1269,10 @@ cdef class SIR_type:
 
         pass # to be implemented in subclass
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SIR(SIR_type):
     """
     Susceptible, Infected, Removed (SIR)
@@ -1281,22 +1324,38 @@ cdef class SIR(SIR_type):
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
             double [:] x, s, Ia, Is
-            double [:, :] CM=self.CM
-            double fsa=self.fsa, beta=self.beta
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t M=self.M
         x = chebval(t, cheb_coef)
         s = x[0:M]
         Ia = x[M:2*M]
         Is = x[2*M:3*M]
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        for m in range(M):
-            for n in range(M):
-                l[m] += beta*CM[m,n]*(Ia[n]+fsa*Is[n])
+        self.fill_lambdas(Ia, Is, l)
         self.jacobian(s, l)
         self.noise_correlation(s, Ia, Is, l)
         self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
 
+    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+        cdef:
+            double [:] s, Ia, Is
+            Py_ssize_t M=self.M
+        s = x[0:M]
+        Ia = x[M:2*M]
+        Is = x[2*M:3*M]
+        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        self.fill_lambdas(Ia, Is, l)
+        self.noise_correlation(s, Ia, Is, l)
+
+    cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
+        cdef:
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+fsa*Is[n])
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
@@ -1344,6 +1403,10 @@ cdef class SIR(SIR_type):
         sol = data['X']
         return sol
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEIR(SIR_type):
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
@@ -1408,22 +1471,40 @@ cdef class SEIR(SIR_type):
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
             double [:] x, s, e, Ia, Is
-            double [:, :] CM=self.CM
-            double fsa=self.fsa, beta=self.beta
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t M=self.M
         x = chebval(t, cheb_coef)
         s = x[0:M]
         e = x[M:2*M]
         Ia = x[2*M:3*M]
         Is = x[3*M:4*M]
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        for m in range(M):
-            for n in range(M):
-                l[m] += beta*CM[m,n]*(Ia[n]+fsa*Is[n])
+        self.fill_lambdas(Ia, Is, l)
         self.jacobian(s, l)
         self.noise_correlation(s, e, Ia, Is, l)
         self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
+
+    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+        cdef:
+            double [:] s, e, Ia, Is
+            Py_ssize_t M=self.M
+        s = x[0:M]
+        e = x[M:2*M]
+        Ia = x[2*M:3*M]
+        Is = x[3*M:4*M]
+        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        self.fill_lambdas(Ia, Is, l)
+        self.noise_correlation(s, e, Ia, Is, l)
+
+    cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
+        cdef:
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+fsa*Is[n])
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
@@ -1475,7 +1556,10 @@ cdef class SEIR(SIR_type):
         sol = data['X']
         return sol
 
-
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAI5R(SIR_type):
     """
     Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
@@ -1614,9 +1698,7 @@ cdef class SEAI5R(SIR_type):
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
             double [:] x, s, e, a, Ia, Is, Ih, Ic, Im
-            double [:, :] CM=self.CM
-            double fsa=self.fsa, fh=self.fh, beta=self.beta
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t M=self.M
         x = chebval(t, cheb_coef)
         s = x[0:M]
         e = x[M:2*M]
@@ -1627,13 +1709,37 @@ cdef class SEAI5R(SIR_type):
         Ic = x[6*M:7*M]
         Im = x[7*M:8*M]
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        for m in range(M):
-            for n in range(M):
-                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n]+fh*Ih[n])
+        self.fill_lambdas(a, Ia, Is, Ih, l)
         self.jacobian(s, l)
         self.noise_correlation(s, e, a, Ia, Is, Ih, Ic, l)
         self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
+
+    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+        cdef:
+            double [:] s, e, a, Ia, Is, Ih, Ic, Im
+            Py_ssize_t M=self.M
+        s = x[0:M]
+        e = x[M:2*M]
+        a = x[2*M:3*M]
+        Ia = x[3*M:4*M]
+        Is = x[4*M:5*M]
+        Ih = x[5*M:6*M]
+        Ic = x[6*M:7*M]
+        Im = x[7*M:8*M]
+        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        self.fill_lambdas(a, Ia, Is, Ih, l)
+        self.noise_correlation(s, e, a, Ia, Is, Ih, Ic, l)
+
+    cdef fill_lambdas(self, double [:] a, double [:] Ia, double [:] Is, double [:] Ih, double [:] l):
+        cdef:
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, fh=self.fh, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n]+fh*Ih[n])
 
 
     cdef jacobian(self, double [:] s, double [:] l):
@@ -1713,7 +1819,10 @@ cdef class SEAI5R(SIR_type):
         sol = data['X'][:, :8*M]
         return sol
 
-
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIRQ(SIR_type):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
@@ -1818,9 +1927,7 @@ cdef class SEAIRQ(SIR_type):
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
             double [:] x, s, e, a, Ia, Is, Q
-            double [:, :] CM=self.CM
-            double beta=self.beta, fsa=self.fsa
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t M=self.M
         x = chebval(t, cheb_coef)
         s = x[0:M]
         e = x[M:2*M]
@@ -1829,13 +1936,35 @@ cdef class SEAIRQ(SIR_type):
         Is = x[4*M:5*M]
         q = x[5*M:6*M]
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        for m in range(M):
-            for n in range(M):
-                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])
+        self.fill_lambdas(a, Ia, Is, l)
         self.jacobian(s, l)
         self.noise_correlation(s, e, a, Ia, Is, q, l)
         self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
+
+    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+        cdef:
+            double [:] s, e, a, Ia, Is, Q
+            Py_ssize_t M=self.M
+        s = x[0:M]
+        e = x[M:2*M]
+        a = x[2*M:3*M]
+        Ia = x[3*M:4*M]
+        Is = x[4*M:5*M]
+        q = x[5*M:6*M]
+        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        self.fill_lambdas(a, Ia, Is, l)
+        self.noise_correlation(s, e, a, Ia, Is, q, l)
+
+    cdef fill_lambdas(self, double [:] a, double [:] Ia, double [:] Is, double [:] l):
+        cdef:
+            double [:, :] CM=self.CM
+            double fsa=self.fsa, beta=self.beta
+            Py_ssize_t m, n, M=self.M
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
@@ -1906,6 +2035,10 @@ cdef class SEAIRQ(SIR_type):
         sol = data['X']
         return sol
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class Spp(SIR_type):
     """
     User-defined epidemic model.
@@ -1997,27 +2130,39 @@ cdef class Spp(SIR_type):
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         cdef:
             double [:] x
+            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
+        x = chebval(t, cheb_coef)
+        cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
+        self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+        self.J = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+        self.fill_lambdas(x, l)
+        self.jacobian(x, l)
+        self.noise_correlation(x, l)
+        self.flatten_lyaponuv()
+        self.compute_dsigdt(sig)
+
+    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+        cdef Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
+        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
+        self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+        self.fill_lambdas(x, l)
+        self.noise_correlation(x, l)
+
+    cdef fill_lambdas(self, double [:] x, double [:, :] l):
+        cdef:
             double [:, :] CM=self.CM
             int [:, :] infection_terms=self.infection_terms
             double infection_rate
             Py_ssize_t m, n, i, infective_index, index, M=self.M, num_of_infection_terms=infection_terms.shape[0]
-        x = chebval(t, cheb_coef)
-        cdef double [:, :] l=np.zeros((num_of_infection_terms, M), dtype=DTYPE)
-        self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
-        self.J = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
-
         for i in range(num_of_infection_terms):
             infective_index = infection_terms[i, 1]
             for m in range(M):
                 for n in range(M):
                     index = n + M*infective_index
                     l[i, m] += CM[m,n]*x[index]
-        self.jacobian(x, l)
-        self.noise_correlation(x, l)
-        self.flatten_lyaponuv()
-        self.compute_dsigdt(sig)
 
-    cpdef jacobian(self, double [:] x, double [:, :] l):
+    cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
@@ -2049,7 +2194,7 @@ cdef class Spp(SIR_type):
                 if product_index>-1:
                     J[product_index, m, reagent_index, m] += rate[m]
 
-    cpdef noise_correlation(self, double [:] x, double [:, :] l):
+    cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']

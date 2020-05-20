@@ -13,18 +13,18 @@ except ImportError:
     pathos_mp = None
 
 
-def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10., 
-                 enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None, 
+def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10.,
+                 enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None,
                  cma_random_seed=None, verbose=True, args_dict={}):
     """ Compute the global minimum of the objective function.
-    
-    This function computes the global minimum of `objective_fct` using a combination of a global minimisation step 
+
+    This function computes the global minimum of `objective_fct` using a combination of a global minimisation step
     (CMA-ES) and a local refinement step (NEWUOA) (both derivative free).
-    
+
     Parameters
     ----------
-    objective_fct: callable 
-        The objective function. It must be of the form fct(params, grad=0) for the use in NLopt. The parameters 
+    objective_fct: callable
+        The objective function. It must be of the form fct(params, grad=0) for the use in NLopt. The parameters
         should not be modified and `grad` can be ignored (since only derivative free algorithms are used).
     guess: numpy.array
         The initial guess.
@@ -47,7 +47,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
     cma_population: int
         The number of samples used in each step of the CMA algorithm. Should ideally be factor of `cma_threads`.
     cma_stds: numpy.array
-        Initial standard deviation of the spread of the population for each parameter in the CMA algorithm. Ideally, 
+        Initial standard deviation of the spread of the population for each parameter in the CMA algorithm. Ideally,
         one should have the optimum within 3*sigma of the guessed initial value. If not specified, these values are
         chosen such that 3*sigma reaches one of the boundaries for each parameters.
     cma_random_seed: int (between 0 and 2**32-1)
@@ -61,16 +61,16 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
     -------
     x_result, y_result
         Returns parameter estimate and minimal value.
-    """         
+    """
     x_result = guess
     y_result = 0
 
-    
+
     # Step 1: Global optimisation
     if enable_global:
         if verbose:
             print('Starting global minimisation...')
-        
+
         if cma_processes == 0:
             if pathos_mp:
                 # Optional dependecy for multiprocessing (pathos) is installed.
@@ -112,7 +112,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
                 try:
                     values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
                 except:
-                    # Some types of functions cannot be pickled (in particular functions that are defined in a function 
+                    # Some types of functions cannot be pickled (in particular functions that are defined in a function
                     # that is compiled with cython). This leads to an exception when trying to pass them to a different
                     # process. If this happens, we switch the algorithm to single process mode.
                     print('Warning: Running parallel optimization failed. Will switch to single-processed mode.')
@@ -133,16 +133,16 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
 
         x_result = global_opt.best.x
         y_result = global_opt.best.f
-        
+
         if verbose:
             print('Optimal value (global minimisation): ', y_result)
             print('Starting local minimisation...')
-    
+
     # Step 2: Local refinement
     if enable_local:
         # Use derivative free local optimisation algorithm with support for boundary conditions
         # to converge to the next minimum (which is hopefully the global one).
-        local_opt = nlopt.opt(nlopt.LN_NEWUOA_BOUND, guess.shape[0])
+        local_opt = nlopt.opt(nlopt.LN_BOBYQA, guess.shape[0])
         local_opt.set_min_objective(lambda x, grad: objective_fct(x, grad, **args_dict))
         local_opt.set_lower_bounds(bounds[:,0])
         local_opt.set_upper_bounds(bounds[:,1])
@@ -151,8 +151,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
 
         x_result = local_opt.optimize(x_result)
         y_result = local_opt.last_optimum_value()
-    
+
         if verbose:
             print('Optimal value (local minimisation): ', y_result)
-    
+
     return x_result, y_result

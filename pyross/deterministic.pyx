@@ -96,8 +96,8 @@ cdef class IntegratorsClass:
                             Alternatively, write your own integrator to evolve the system in time \n")
         return X, time_points
 
-
-
+    cpdef set_contactMatrix(self, double t, contactMatrix):
+        self.CM=contactMatrix(t)
 
 @cython.wraparound(False)
 @cython.boundscheck(False)

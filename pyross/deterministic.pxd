@@ -11,8 +11,7 @@ cdef class IntegratorsClass:
         readonly double tS, tE, tA, tIa, tIs, gIsp, gIcp, gIhp, ars, kapE
         readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR, sa, iaa, hh, cc, mm, alpha
 
-
-
+    cpdef set_contactMatrix(self, double t, contactMatrix)
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
