@@ -340,9 +340,9 @@ class UtilsPythonTest(unittest.TestCase):
         """Test the minimization(...) function in utils_python.py with a few simple examples"""
 
         # A simple example
-        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**2
+        f1 = lambda x, grad=0: 1 + np.linalg.norm(x)**4
         # A multi-modal example
-        f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**2 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
+        f2 = lambda x, grad=0: 1 + np.linalg.norm(x)**4 + 0.1*np.abs(np.sin(4*np.pi*np.linalg.norm(x)))
 
         # Test global optimisation
         guess = np.array([1.0, 1.0])
@@ -359,12 +359,12 @@ class UtilsPythonTest(unittest.TestCase):
         guess = np.array([2.0, 2.0])
         bounds = np.array([[-5.0, 5.0], [-5.0, 5.0]])
         x, y = pyross.utils_python.minimization(f1, guess, bounds, enable_global=False, enable_local=True,
-                                                ftol=1e-4, verbose=False)
+                                                ftol=1e-5, verbose=False)
         self.assertTrue(np.abs(y - 1.0) < 1e-4)
 
         # And now combined
         x, y = pyross.utils_python.minimization(f2, guess, bounds, enable_global=True, enable_local=True,
-                                        ftol=1e-4, global_ftol_factor=100, verbose=False, cma_random_seed=4)
+                                        ftol=1e-5, global_ftol_factor=100, verbose=False, cma_random_seed=4)
         self.assertTrue(np.abs(y - 1.0) < 1e-4)
 
 
