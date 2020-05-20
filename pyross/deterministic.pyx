@@ -166,7 +166,7 @@ cdef class SIR(IntegratorsClass):
             raise Exception('alpha can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
 
         cdef:
             int N=self.N, M=self.M, i, j
@@ -356,7 +356,7 @@ cdef class SIkR(IntegratorsClass):
         self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # right hand side
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kI=self.kI
             double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
@@ -556,7 +556,7 @@ cdef class SEIR(IntegratorsClass):
         else:
             raise Exception('alpha can be a number or an array of size M')
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, gIa=self.gIa, gIs=self.gIs, rateS, lmda
@@ -775,7 +775,7 @@ cdef class SEkIkR(IntegratorsClass):
             raise Exception('number of I stages should be greater than zero, kI>0')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
             double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
@@ -1011,7 +1011,7 @@ cdef class SEkIkIkR(IntegratorsClass):
             raise Exception('alpha can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
             double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2
@@ -1333,7 +1333,7 @@ cdef class SEI5R(IntegratorsClass):
             raise Exception('mm can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -1720,7 +1720,7 @@ cdef class SEI8R(IntegratorsClass):
             raise Exception('mm can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -2041,7 +2041,7 @@ cdef class SEAIR(IntegratorsClass):
         else:
             raise Exception('alpha can be a number or an array of size M')
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -2369,7 +2369,7 @@ cdef class SEAI5R(IntegratorsClass):
             raise Exception('mm can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -2776,7 +2776,7 @@ cdef class SEAI8R(IntegratorsClass):
             raise Exception('mm can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -3136,7 +3136,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -3426,7 +3426,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda, t0, tE, tA, tIa, tIs
@@ -3736,7 +3736,7 @@ cdef class SIRS(IntegratorsClass):
             raise Exception('iaa can be a number or an array of size M')
 
 
-    cdef rhs(self, xt, tt):
+    cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, gIa=self.gIa, rateS, lmda
@@ -3950,7 +3950,7 @@ cdef class Spp(IntegratorsClass):
                 param = np.full(self.M, param)
             self.parameters[i] = param
 
-    cdef rhs(self, xt_arr, tt):
+    cpdef rhs(self, xt_arr, tt):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index,
             Py_ssize_t S_index=self.class_index_dict['S'], infection_index, reagent_index, product_index, rate_index

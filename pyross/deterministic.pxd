@@ -24,7 +24,7 @@ cdef class SIR(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -39,7 +39,7 @@ cdef class SIRS(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -54,7 +54,7 @@ cdef class SEIR(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -80,7 +80,7 @@ cdef class SEI5R(IntegratorsClass):
     Ih ---> Ic, R
     Ic ---> Im, R
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -106,7 +106,7 @@ cdef class SEI8R(IntegratorsClass):
     Ih ---> Ih',Ic, R
     Ic ---> Ic',Im, R
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -121,7 +121,7 @@ cdef class SIkR(IntegratorsClass):
     Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -136,7 +136,7 @@ cdef class SEkIkR(IntegratorsClass):
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -152,7 +152,7 @@ cdef class SEAIR(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -178,7 +178,7 @@ cdef class SEAI5R(IntegratorsClass):
     Ih ---> Ic, R
     Ic ---> Im, R
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -205,7 +205,7 @@ cdef class SEAI8R(IntegratorsClass):
     Ih ---> Ic, Ih', R
     Ic ---> Im, Ic', R
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 
@@ -221,7 +221,7 @@ cdef class SEAIRQ(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -234,7 +234,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
 
 
 @cython.wraparound(False)
@@ -255,4 +255,4 @@ cdef class Spp(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
-    cdef rhs(self, rp, tt)
+    cpdef rhs(self, rp, tt)
