@@ -29,5 +29,5 @@ jobs:
       - name: testing-forecast
         shell: bash -l {0}
         run: |
-          make path="examples/forecast" nbtest
+          make nbtest -e path="examples/forecast" recursive=False
                 # make nbtest

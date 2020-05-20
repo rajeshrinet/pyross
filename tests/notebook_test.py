@@ -11,7 +11,7 @@ import time
 #         sys.path.remove(i)
 
 
-def run_notebook_tests(path):
+def run_notebook_tests(path, recursive=False):
     """
     Runs Jupyter notebook tests. Exits if they fail.
     """
@@ -27,17 +27,17 @@ def run_notebook_tests(path):
     # Scan and run
     print('Testing notebooks')
     ok = True
-    for notebook, cwd in list_notebooks(nbpath, True, ignore_list):
+    for notebook, cwd in list_notebooks(nbpath, recursive, ignore_list):
         os.chdir(cwd) # necessary for relative imports in notebooks
-        ok &= test_notebook(notebook)
-        # print(notebook, cwd, sys.path)
+        # ok &= test_notebook(notebook)
+        print(notebook)
     if not ok:
         print('\nErrors encountered in notebooks')
         sys.exit(1)
     print('\nOK')
 
 
-def list_notebooks(root, recursive=True, ignore_list=None, notebooks=None):
+def list_notebooks(root, recursive=False, ignore_list=None, notebooks=None):
     """
     Returns a list of all notebooks in a directory.
     """
@@ -157,6 +157,15 @@ def export_notebook(ipath, opath):
 
 if __name__ == '__main__':
     # Set up argument parsing
+    def str2bool(v):
+        if isinstance(v, bool):
+           return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
     parser = argparse.ArgumentParser(
         description='Run notebook unit tests for PyRoss.',
     )
@@ -164,8 +173,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '--path', default = '.',
         help='Run specific notebook or folder containing notebooks',)
+    parser.add_argument(
+        '--recursive', default = True, type=str2bool,
+        help='Wheither or not subfolders are searched',)
 
     # Parse!
     args = parser.parse_args()
-    print(args.path)
-    run_notebook_tests(args.path)
+    print(args)
+    run_notebook_tests(args.path, recursive=args.recursive)

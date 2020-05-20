@@ -29,23 +29,23 @@ jobs:
       - name: testing-deterministic
         shell: bash -l {0}
         run: |
-          make path="examples/deterministic" nbtest
+          make nbtest -e path="examples/deterministic"  recursive=False
       - name: testing-stochastic
         shell: bash -l {0}
         run: |
-          make path="examples/stochastic" nbtest
+          make nbtest -e path="examples/stochastic"  recursive=False
       - name: testing-hybrid
         shell: bash -l {0}
         run: |
-          make path="examples/hybrid" nbtest
+          make nbtest -e path="examples/hybrid"  recursive=False
       - name: testing-contactMatrix
         shell: bash -l {0}
         run: |
-          make path="examples/contactMatrix" nbtest
+          make nbtest -e path="examples/contactMatrix"  recursive=False
       - name: testing-control
         shell: bash -l {0}
         run: |
-          make path="examples/control" nbtest
+          make nbtest -e path="examples/control"  recursive=False
       - name: end
         shell: bash -l {0}
         run: |

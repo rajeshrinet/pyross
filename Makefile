@@ -1,5 +1,7 @@
 PYTHON=python
 #PYTHON=path to your python installation
+path=examples
+recursive=True
 
 make:
 	@echo Installing pyross...
@@ -29,8 +31,5 @@ test:
 
 nbtest:
 	@echo testing example notebooks...
-ifdef path
-	cd tests && python notebook_test.py --path $(path)
-else
-	cd tests && python notebook_test.py --path examples
-endif
+	@echo test $(path)
+	cd tests && python notebook_test.py --path $(path) --recursive $(recursive)

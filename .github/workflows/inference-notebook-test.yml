@@ -29,5 +29,5 @@ jobs:
       - name: testing-inference
         shell: bash -l {0}
         run: |
-          make path="examples/inference" nbtest
+          make nbtest -e path="examples/inference" recursive=False
                 # make nbtest
