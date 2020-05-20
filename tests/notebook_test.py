@@ -29,8 +29,8 @@ def run_notebook_tests(path, recursive=False):
     ok = True
     for notebook, cwd in list_notebooks(nbpath, recursive, ignore_list):
         os.chdir(cwd) # necessary for relative imports in notebooks
-        # ok &= test_notebook(notebook)
-        print(notebook)
+        ok &= test_notebook(notebook)
+        # print(notebook)
     if not ok:
         print('\nErrors encountered in notebooks')
         sys.exit(1)
