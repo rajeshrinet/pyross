@@ -303,7 +303,7 @@ class InferenceTest(unittest.TestCase):
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
                 fi = Ni/N
-                steps = 1
+                steps = 10
                 m = model(params, M, fi, N, steps)
 
 
@@ -326,7 +326,6 @@ class ForecastTest(unittest.TestCase):
                 params, M, Ni = self.parameters, self.parameters['M'], self.parameters['N']
                 N = int(np.sum(Ni))
                 fi = Ni/N
-                steps = 1
                 m = model(params, M, Ni)
 
 
