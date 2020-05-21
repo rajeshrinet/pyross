@@ -179,7 +179,7 @@
 <dd><p>List of all integrator used by various deterministic models listed below.</p>
 <dl class="method">
 <dt>
-<code class="sig-name descname">simulateRHS : Performs numerical integration.</code></dt>
+<code class="sig-name descname">simulateRHS: Performs numerical integration.</code></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -224,40 +224,16 @@ to obtain a solution. The default is 100000.</p></li>
 <dt id="pyross.deterministic.Spp">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.deterministic.Spp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a model specification, the</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.Spp.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.Spp.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Contains the values for the parameters given in the model specification.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.Spp.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.Spp.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.Spp.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.Spp.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.Spp.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.simulate" title="Permalink to this definition">¶</a></dt>
@@ -329,58 +305,34 @@ The default is ‘odeint’.</p></li>
 <dl class="class">
 <dt id="pyross.deterministic.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.deterministic.SIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Infected, Removed (SIR)
-Ia: asymptomatic
-Is: symptomatic</p>
-<p>…</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.SIR.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.SIR.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>Susceptible, Infected, Removed (SIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -512,48 +464,29 @@ The default is ‘odeint’.</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.deterministic.SIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIkR)
 method of k-stages of I
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gI<span class="classifier">float</span></dt><dd><p>rate of removal from infectives.</p>
+<dt>gI: float</dt><dd><p>rate of removal from infectives.</p>
 </dd>
-<dt>kI<span class="classifier">int</span></dt><dd><p>number of stages of infection.</p>
-</dd>
-</dl>
+<dt>kI: int</dt><dd><p>number of stages of infection.</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.deterministic.SIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -649,54 +582,35 @@ The default is ‘odeint’.</p></li>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
-</dd>
-</dl>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -856,52 +770,33 @@ The default is ‘odeint’.</p></li>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 method of k-stages of I and E
 See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gI<span class="classifier">float</span></dt><dd><p>rate of removal from infected individuals.</p>
+<dt>gI: float</dt><dd><p>rate of removal from infected individuals.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
-<dt>kI<span class="classifier">int</span></dt><dd><p>number of stages of infectives.</p>
+<dt>kI: int</dt><dd><p>number of stages of infectives.</p>
 </dd>
-<dt>kE<span class="classifier">int</span></dt><dd><p>number of stages of exposed.</p>
-</dd>
-</dl>
+<dt>kE: int</dt><dd><p>number of stages of exposed.</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEkIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEkIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEkIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEkIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -1014,58 +909,39 @@ The default is ‘odeint’.</p></li>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 method of k-stages of Ia, Is, E
 See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
 <dt>gIa: float</dt><dd><p>rate of removal from asymptomatic infected individuals.</p>
 </dd>
 <dt>gIs: float</dt><dd><p>rate of removal from symptomatic infected individuals.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
 <dt>kI: int</dt><dd><p>number of stages of asymptomatic infectives.</p>
 </dd>
 <dt>kI: int</dt><dd><p>number of stages of symptomatic infectives.</p>
 </dd>
-<dt>kE<span class="classifier">int</span></dt><dd><p>number of stages of exposed.</p>
+<dt>kE: int</dt><dd><p>number of stages of exposed.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEkIkIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEkIkIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEkIkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -1204,71 +1080,48 @@ Ia —&gt; R
 Is —&gt; Ih, R
 Ih —&gt; Ic, R
 Ic —&gt; Im, R</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEI5R.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.SEI5R.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of removal for hospitalised individuals.</p>
+<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>rate of removal for idividuals in intensive care.</p>
+<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEI5R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEI5R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEI5R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEI5R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEI5R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.simulate" title="Permalink to this definition">¶</a></dt>
@@ -1521,77 +1374,54 @@ Ia —&gt; R
 Is —&gt; Is’ -&gt; Ih, R
 Ih —&gt; Ih’ -&gt; Ic, R
 Ic —&gt; Ic’ -&gt; Im, R</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEI8R.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.SEI8R.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
 <dt>gIsp: float</dt><dd><p>rate of removal from symptomatic individuals towards buffer.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of removal for hospitalised individuals.</p>
+<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
 </dd>
 <dt>gIhp: float</dt><dd><p>rate of removal from hospitalised individuals towards buffer.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>rate of removal for idividuals in intensive care.</p>
+<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
 </dd>
 <dt>gIcp: float</dt><dd><p>rate of removal from ICU individuals towards buffer.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEI8R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEI8R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEI8R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEI8R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEI8R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.simulate" title="Permalink to this definition">¶</a></dt>
@@ -1834,57 +1664,38 @@ The default is ‘odeint’.</p></li>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious
-.. attribute:: parameters</p>
+A: Asymptomatic and infectious
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
-</dd>
-</dl>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEAIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEAIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEAIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -2071,69 +1882,50 @@ Ia —&gt; R
 Is —&gt; Ih, R
 Ih —&gt; Ic, R
 Ic —&gt; Im, R
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of hospitalisation of infected individuals.</p>
+<dt>gIh: float</dt><dd><p>rate of hospitalisation of infected individuals.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
+<dt>gIc: float</dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAI5R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEAI5R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAI5R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEAI5R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEAI5R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.simulate" title="Permalink to this definition">¶</a></dt>
@@ -2409,77 +2201,54 @@ Ia —&gt; R
 Is —&gt; Is’ -&gt; Ih, R
 Ih —&gt; Ih’ -&gt; Ic, R
 Ic —&gt; Ic’ -&gt; Im, R</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAI8R.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.SEAI8R.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
 <dt>gIsp: float</dt><dd><p>rate of removal from symptomatic individuals towards buffer.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of removal for hospitalised individuals.</p>
+<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
 </dd>
 <dt>gIhp: float</dt><dd><p>rate of removal from hospitalised individuals towards buffer.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>rate of removal for idividuals in intensive care.</p>
+<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
 </dd>
 <dt>gIcp: float</dt><dd><p>rate of removal from ICU individuals towards buffer.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAI8R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEAI8R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAI8R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEAI8R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.simulate" title="Permalink to this definition">¶</a></dt>
@@ -2738,67 +2507,44 @@ The default is ‘odeint’.</p></li>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIRQ.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+A: Asymptomatic and infectious</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
 </dd>
 <dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
 </dd>
-<dt>tIa<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
 </dd>
-<dt>tIs<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of symptomatics</p>
-</dd>
-</dl>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIRQ.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIRQ.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEAIRQ.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
@@ -2997,63 +2743,40 @@ The default is ‘odeint’.</p></li>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious</p>
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIRQ_testing.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+A: Asymptomatic and infectious</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>ars<span class="classifier">float</span></dt><dd><p>fraction of population admissible for random and symptomatic tests</p>
+<dt>ars: float</dt><dd><p>fraction of population admissible for random and symptomatic tests</p>
 </dd>
-<dt>kapE<span class="classifier">float</span></dt><dd><p>fraction of positive tests for exposed individuals</p>
-</dd>
-</dl>
+<dt>kapE: float</dt><dd><p>fraction of positive tests for exposed individuals</p>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIRQ_testing.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.deterministic.SEAIRQ_testing.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEAIRQ_testing.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.simulate" title="Permalink to this definition">¶</a></dt>

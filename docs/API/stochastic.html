@@ -296,15 +296,15 @@ Is: symptomatic</p>
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SIR.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 </dl>
 </dd>
@@ -462,13 +462,13 @@ method of k-stages of I
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gI<span class="classifier">float</span></dt><dd><p>rate of removal from infectives.</p>
+<dt>gI: float</dt><dd><p>rate of removal from infectives.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>kI<span class="classifier">int</span></dt><dd><p>number of stages of infection.</p>
+<dt>kI: int</dt><dd><p>number of stages of infection.</p>
 </dd>
 </dl>
 </dd>
@@ -577,17 +577,17 @@ Is: symptomatic
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
 </dl>
 </dd>
@@ -739,32 +739,32 @@ Ic —&gt; Im, R</p>
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEI5R.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of removal for hospitalised individuals.</p>
+<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>rate of removal for idividuals in intensive care.</p>
+<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
 </dd>
@@ -777,7 +777,7 @@ sa is rate of additional/removal of population by birth etc</p>
 </dd></dl>
 
 <dl class="simple">
-<dt>M<span class="classifier">int</span></dt><dd><p>Number of compartments of individual for each class.
+<dt>M: int</dt><dd><p>Number of compartments of individual for each class.
 I.e len(contactMatrix)</p>
 </dd>
 <dt>Ni: np.array(8*M, )</dt><dd><p>Initial number in each compartment and class</p>
@@ -965,23 +965,23 @@ Ic —&gt; Im, R
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>rate of hospitalisation of infected individuals.</p>
+<dt>gIh: float</dt><dd><p>rate of hospitalisation of infected individuals.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
+<dt>gIc: float</dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
 </dd>
 </dl>
 </dd>
@@ -1199,33 +1199,33 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious</p>
+A: Asymptomatic and infectious</p>
 <dl class="attribute">
 <dt id="pyross.stochastic.SEAIRQ.parameters">
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array(M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array(M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
 </dd>
 <dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
 </dd>
-<dt>tIa<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
 </dd>
-<dt>tIs<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of symptomatics</p>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
 </dl>
 </dd>
@@ -1395,29 +1395,29 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious</p>
+A: Asymptomatic and infectious</p>
 <dl class="attribute">
 <dt id="pyross.stochastic.SEAIRQ_testing.parameters">
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float, np.array(M,)</span></dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array(M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>ars<span class="classifier">float</span></dt><dd><p>fraction of population admissible for random and symptomatic tests</p>
+<dt>ars: float</dt><dd><p>fraction of population admissible for random and symptomatic tests</p>
 </dd>
-<dt>kapE<span class="classifier">float</span></dt><dd><p>fraction of positive tests for exposed individuals</p>
+<dt>kapE: float</dt><dd><p>fraction of positive tests for exposed individuals</p>
 </dd>
 </dl>
 </dd>
@@ -1448,6 +1448,17 @@ I.e len(contactMatrix)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>np.array(6*M, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyross.stochastic.SEAIRQ_testing.testRate">
+<code class="sig-name descname">testRate</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.testRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of tests per day and age group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>python function(t)</p>
 </dd>
 </dl>
 </dd></dl>
