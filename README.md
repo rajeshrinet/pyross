@@ -2,7 +2,7 @@
 
 [About](#about) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
-![Imagel](examples/banner.png)
+![Imagel](examples/banner.jpg)
 
  
 ## About
