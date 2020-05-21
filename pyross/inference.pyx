@@ -525,14 +525,14 @@ cdef class SIR_type:
         return params
 
     def _latent_infer_parameters_to_minimize(self, params, grad = 0, param_keys=None, init_fltr=None, bounds=None, param_dim=None,
-                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None):
+                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None, obs0=None, fltr0=None):
         """Objective function for minimization call in laten_inference."""
         inits =  np.copy(params[param_dim:])
         parameters = self.fill_params_dict(param_keys, params[:param_dim])
         self.set_params(parameters)
         model = self.make_det_model(parameters)
 
-        x0 = self.fill_initial_conditions(inits, obs[0], init_fltr, fltr)
+        x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
         penalty = self._penalty_from_negative_values(x0)
         x0[x0<0] = 0.1/self.N # set to be small and positive
 
@@ -561,7 +561,7 @@ cdef class SIR_type:
                             verbose=False, double ftol=1e-5,
                             global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                             enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16, cma_stds=None):
+                            cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
@@ -615,6 +615,10 @@ cdef class SIR_type:
             The number of samples used in each step of the CMA algorithm.
         cma_stds: int, optional
             The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
+        obs0: numpy.array, optional
+            Observed initial condition, if more detailed than obs[0,:]
+        fltr0: 2d numpy.array, optional
+            Matrix filter for obs0
 
         Returns
         -------
@@ -623,7 +627,13 @@ cdef class SIR_type:
         """
         cdef:
             Py_ssize_t param_dim = len(param_keys)
-        assert int(np.sum(init_fltr)) == self.dim - fltr.shape[0]
+
+        if obs0 is None or fltr0 is None:
+            # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
+            obs0=obs[0,:]
+            fltr0=fltr
+            
+        assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
         assert guess.shape[0] == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
@@ -633,7 +643,8 @@ cdef class SIR_type:
 
         minimize_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'bounds':bounds, 'param_dim':param_dim,
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
-                         's':s, 'scale':scale}
+                         's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0}
+
         res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -738,7 +749,7 @@ cdef class SIR_type:
 
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                                    beta_rescale=1, eps=1.e-3):
+                                    beta_rescale=1, eps=1.e-3, obs0=None, fltr0=None):
         '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
@@ -758,6 +769,10 @@ cdef class SIR_type:
             A function that returns the contact matrix at time t (input).
         eps: float, optional
             Step size in the calculation of the Hessian
+        obs0: numpy.array, optional
+            Observed initial condition, if more detailed than obs[0,:]
+        fltr0: 2d numpy.array, optional
+            Matrix filter for obs0
 
         Returns
         -------
@@ -779,8 +794,13 @@ cdef class SIR_type:
         hess_params = self.latent_hess_selected_params(param_keys, map_params, map_x0, s_params, scale_params,
                                                 obs, fltr, Tf, Nf, contactMatrix,
                                                 beta_rescale=beta_rescale, eps=eps)
+
+        if obs0 is None or fltr0 is None:
+            # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
+            obs0=obs[0,:]
+            fltr0=fltr
         hess_init = self.latent_hess_selected_init(init_fltr, map_x0, map_params, a_x0, scale_x0,
-                                                obs, fltr, Tf, Nf, contactMatrix,
+                                                obs, fltr, Tf, Nf, contactMatrix, obs0, fltr0,
                                                 eps=0.5/self.N)
         return hess_params, hess_init
 
@@ -884,7 +904,7 @@ cdef class SIR_type:
         return hess
 
     def latent_hess_selected_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
-                            obs, fltr, Tf, Nf, contactMatrix,
+                            obs, fltr, Tf, Nf, contactMatrix, obs0, fltr0,
                                     eps=1e-6):
         cdef Py_ssize_t j
         dim = map_x0.shape[0]
@@ -892,7 +912,7 @@ cdef class SIR_type:
         parameters = self.make_params_dict(params)
         model = self.make_det_model(parameters)
         def minuslogP(y):
-            x0 = self.fill_initial_conditions(y, obs[0], init_fltr, fltr)
+            x0 = self.fill_initial_conditions(y, obs0, init_fltr, fltr0)
             minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
             minuslogp -= np.sum(lognorm.logpdf(y, a_x0, scale=scale_x0))
             return minuslogp
@@ -1067,6 +1087,7 @@ cdef class SIR_type:
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
             np.ndarray[BOOL_t, ndim=1, cast=True] full_fltr
+        
         xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = np.tile(fltr, (Nf-1))
         cov_red = full_cov[full_fltr][:, full_fltr]
@@ -1138,7 +1159,7 @@ cdef class SIR_type:
         log_cond_p -= (ldet - self.dim*log(self.N))/2
         return log_cond_p
 
-    def estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cdef estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
         cdef:
             double [:, :] cov
             double [:, :] x
@@ -1979,7 +2000,7 @@ cdef class SEAIRQ(SIR_type):
             J[1, m, 0, m] = l[m]
             J[1, m, 1, m] = - gE - tE
             J[2, m, 1, m] = gE
-            J[2, m, 2, m] = - gA - tE
+            J[2, m, 2, m] = - gA - tA
             J[3, m, 2, m] = alpha[m]*gA
             J[3, m, 3, m] = - gIa - tIa
             J[4, m, 2, m] = balpha[m]*gA
@@ -2033,6 +2054,230 @@ cdef class SEAIRQ(SIR_type):
         q = x0[5*M:]
         data = model.simulate(s, e, a, Ia, Is, q, contactMatrix, t2, steps, Ti=t1)
         sol = data['X']
+        return sol
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEAIRQ_testing(SIR_type):
+    """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+    Ia: asymptomatic
+    Is: symptomatic
+    A : Asymptomatic and infectious
+
+    Attributes
+    ----------
+
+    N : int
+        Total popuation.
+    M : int
+        Number of compartments of individual for each class.
+    steps : int
+        Number of internal integration points used for interpolation.
+    dim : int
+        6 * M.
+    fi : np.array(M)
+        Age group size as a fraction of total population
+    alpha : float or np.array(M)
+        Fraction of infected who are asymptomatic.
+    beta : float
+        Rate of spread of infection.
+    gIa : float
+        Rate of removal from asymptomatic individuals.
+    gIs : float
+        Rate of removal from symptomatic individuals.
+    gE : float
+        rate of removal from exposed individuals.
+    gA : float
+        rate of removal from activated individuals.
+    fsa : float
+        fraction by which symptomatic individuals self isolate.
+    ars : float
+        fraction of population admissible for random and symptomatic tests
+    kapE : float
+        fraction of positive tests for exposed individuals
+    testRate: python function
+        number of tests per day and age group
+
+    Methods
+    -------
+    All methods of the superclass SIR_type
+    make_det_model : returns deterministic model
+    make_params_dict : returns a dictionary of the input parameters
+    set_tesRate : update testRate function 
+    integrate : returns numerical integration of the chosen model
+    """
+    cdef:
+        readonly double gE, gA, tE, tA, tIa, tIs, ars, kapE
+        readonly object testRate
+
+    def __init__(self, parameters, testRate, M, fi, N, steps):
+        super().__init__(parameters, 6, M, fi, N, steps)
+        self.testRate=testRate
+
+    def get_init_keys_dict(self):
+        return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
+
+
+    def set_params(self, parameters):
+        super().set_params(parameters)
+        self.gE    = parameters.get('gE')                       # removal rate of E class
+        self.gA    = parameters.get('gA')                       # removal rate of A class
+        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
+        self.ars    = parameters.get('ars')                     # fraction of population admissible for testing
+        self.kapE    = parameters.get('kapE')                   # fraction of positive tests for exposed
+        
+    def set_testRate(self,testRate):
+        self.testRate=testRate
+
+    def make_det_model(self, parameters):
+        # note: unline the other classes in inference, SEAIRQ_testing works with extensive variables
+        return pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
+        
+
+    def make_params_dict(self, params=None):
+        if params is None:
+            parameters = {'alpha':self.alpha,
+                          'beta':self.beta,
+                          'gIa':self.gIa,
+                          'gIs':self.gIs,
+                          'gE':self.gE,
+                          'gA':self.gA,
+                          'fsa': self.fsa,
+                          'ars': self.ars,
+                          'kapE': self.kapE
+                          }
+        else:
+            parameters = {'alpha':params[0],
+                          'beta':params[1],
+                          'gIa':params[2],
+                          'gIs':params[3],
+                          'gE': params[4],
+                          'gA': params[5],
+                          'fsa': self.fsa,
+                          'ars': self.ars,
+                          'kapE': self.kapE
+                          }
+        return parameters
+
+    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+        cdef:
+            double [:] x, s, e, a, Ia, Is, Q, TR
+            double [:, :] CM=self.CM
+            double beta=self.beta, fsa=self.fsa
+            Py_ssize_t m, n, M=self.M
+        x = chebval(t, cheb_coef)
+        s = x[0:M]
+        e = x[M:2*M]
+        a = x[2*M:3*M]
+        Ia = x[3*M:4*M]
+        Is = x[4*M:5*M]
+        q = x[5*M:6*M]
+        TR=self.testRate(t)
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])
+        self.jacobian(s, e, a, Ia, Is, q, l, TR)
+        self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
+        self.flatten_lyaponuv()
+        self.compute_dsigdt(sig)
+
+    cdef jacobian(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l, double [:] TR):
+        cdef:
+            Py_ssize_t m, n, M=self.M, N=self.N
+            double gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
+            double ars=self.ars, kapE=self.kapE, beta=self.beta
+            double t0, tE, tA, tIa, tIs
+            double [:] alpha=self.alpha, balpha=1-self.alpha
+            double [:, :, :, :] J = self.J
+            double [:, :] CM=self.CM
+        for m in range(M):
+            t0 = 1./(ars*(self.fi[m]-q[m]-Is[m])+Is[m])
+            tE = TR[m]*ars*kapE*t0/N
+            tA= TR[m]*ars*t0/N
+            tIa = TR[m]*ars*t0/N
+            tIs = TR[m]*t0/N
+            
+            for n in range(M):
+                J[0, m, 2, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 3, n] = -s[m]*beta*CM[m, n]
+                J[0, m, 4, n] = -s[m]*beta*CM[m, n]*fsa
+                J[1, m, 2, n] = s[m]*beta*CM[m, n]
+                J[1, m, 3, n] = s[m]*beta*CM[m, n]
+                J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa
+            J[0, m, 0, m] = -l[m]
+            J[1, m, 0, m] = l[m]
+            J[1, m, 1, m] = - gE - tE
+            J[1, m, 4, m] += (1-ars)*tE*t0*e[m]
+            J[1, m, 5, m] = -ars*tE*t0*e[m]
+            J[2, m, 1, m] = gE
+            J[2, m, 2, m] = - gA - tA
+            J[2, m, 4, m] = (1-ars)*tA*t0*a[m]
+            J[2, m, 5, m] = - ars*tA*t0*a[m]
+            J[3, m, 2, m] = alpha[m]*gA
+            J[3, m, 3, m] = - gIa - tIa
+            J[3, m, 4, m] = (1-ars)*tIa*t0*Ia[m]
+            J[3, m, 5, m] = - ars*tIa*t0*Ia[m]
+            J[4, m, 2, m] = balpha[m]*gA
+            J[4, m, 4, m] = - gIs - tIs + (1-ars)*tIs*t0*Is[m]
+            J[4, m, 5, m] = - ars*tIs*t0*Is[m]
+            J[5, m, 1, m] = tE
+            J[5, m, 2, m] = tA
+            J[5, m, 3, m] = tIa
+            J[5, m, 4, m] = tIs - (1-ars)*t0*(tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m])
+            J[5, m, 5, m] = ars*t0*(tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m])
+            
+
+    cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l, double [:] TR):
+        cdef:
+            Py_ssize_t m, M=self.M
+            double beta=self.beta, gIa=self.gIa, gIs=self.gIs, gE=self.gE, gA=self.gA,  N=self.N
+            double ars=self.ars, kapE=self.kapE
+            double tE, tA, tIa, tIs
+            double [:] alpha=self.alpha, balpha=1-self.alpha
+            double [:, :, :, :] B = self.B
+        for m in range(M): # only fill in the upper triangular form
+            t0 = 1./(ars*(self.fi[m]-q[m]-Is[m])+Is[m])
+            tE = TR[m]*ars*kapE*t0/N
+            tA= TR[m]*ars*t0/N
+            tIa = TR[m]*ars*t0/N
+            tIs = TR[m]*t0/N
+            
+            B[0, m, 0, m] = l[m]*s[m]
+            B[0, m, 1, m] =  - l[m]*s[m]
+            B[1, m, 1, m] = l[m]*s[m] + (gE+tE)*e[m]
+            B[1, m, 2, m] = -gE*e[m]
+            B[2, m, 2, m] = gE*e[m]+(gA+tA)*a[m]
+            B[2, m, 3, m] = -alpha[m]*gA*a[m]
+            B[2, m, 4, m] = -balpha[m]*gA*a[m]
+            B[3, m, 3, m] = alpha[m]*gA*a[m]+(gIa+tIa)*Ia[m]
+            B[4, m, 4, m] = balpha[m]*gA*a[m] + (gIs+tIs)*Is[m]
+            B[1, m, 5, m] = -tE*e[m]
+            B[2, m, 5, m] = -tA*a[m]
+            B[3, m, 5, m] = -tIa*Ia[m]
+            B[4, m, 5, m] = -tIs*Is[m]
+            B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+        cdef:
+            np.ndarray S, E, A, Ia, Is, Q
+            double N=self.N
+            double [:, :] sol
+            Py_ssize_t M=self.M
+        # need to switch to extensive variables to calculate test rate correctly in deterministic model 
+        S = np.asarray(x0[0:M])*N
+        E = np.asarray(x0[M:2*M])*N
+        A = np.asarray(x0[2*M:3*M])*N
+        Ia = np.asarray(x0[3*M:4*M])*N
+        Is = np.asarray(x0[4*M:5*M])*N
+        Q = np.asarray(x0[5*M:])*N
+        data = model.simulate(S, E, A, Ia, Is, Q, contactMatrix, self.testRate, t2, steps, Ti=t1)
+        sol = data['X']/N
         return sol
 
 @cython.wraparound(False)
