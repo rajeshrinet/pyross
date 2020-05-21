@@ -4,13 +4,13 @@ from distutils.core import setup
 from Cython.Build import cythonize
 from distutils.extension import Extension
 import Cython.Compiler.Options
-Cython.Compiler.Options.annotate = True
+Cython.Compiler.Options.annotate=True
 
 
 setup(
     name='PyRoss',
     version='1.0.0',
-    url='https://gitlab.com/rajeshrinet/pyross',
+    url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     license='MIT',
     description='python library for numerical simulation of infectious disease',
