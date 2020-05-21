@@ -15,7 +15,7 @@ cdef class IntegratorsClass:
 
     Methods
     -------
-    simulateRHS : Performs numerical integration.
+    simulateRHS: Performs numerical integration.
     """
 
     def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
@@ -24,20 +24,20 @@ cdef class IntegratorsClass:
 
         Parameters
         ----------
-        rhs0 : python function(x,t)
+        rhs0: python function(x,t)
             Input function of current state and time x, t
             returns dx/dt
-        x0 : np.array
+        x0: np.array
             Initial state vector.
-        Ti : float
+        Ti: float
             Start time for integrator.
-        Tf : float
+        Tf: float
             End time for integrator.
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate at.
-        integrator : string, optional
+        integrator: string, optional
             Selects which integration method to use. The default is 'odeint'.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator is allowed to take
             to obtain a solution. The default is 100000.
         **kwargs: optional kwargs to be passed to the IntegratorsClass
@@ -49,7 +49,7 @@ cdef class IntegratorsClass:
 
         Returns
         -------
-        X : np.array(len(t), len(x0))
+        X: np.array(len(t), len(x0))
             Numerical integration solution.
         time_points : np.array
             Corresponding times at which X is evaluated at.
@@ -115,17 +115,17 @@ cdef class SIR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -199,28 +199,28 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional (DEPRICATED)
+        maxNumSteps: int, optional (DEPRICATED)
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -253,7 +253,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -268,7 +268,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -283,7 +283,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -298,7 +298,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -323,13 +323,13 @@ cdef class SIkR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gI : float
+            gI: float
                 rate of removal from infectives.
-            kI : int
+            kI: int
                 number of stages of infection.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -387,26 +387,26 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        I0 : np.array
+        I0: np.array
             Initial number of  infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -438,7 +438,7 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -453,7 +453,7 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -469,7 +469,7 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -500,19 +500,19 @@ cdef class SEIR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -589,30 +589,30 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposed.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -645,7 +645,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -660,7 +660,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -675,7 +675,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -690,7 +690,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -705,7 +705,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -731,17 +731,17 @@ cdef class SEkIkR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gI : float
+            gI: float
                 rate of removal from infected individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            kI : int
+            kI: int
                 number of stages of infectives.
-            kE : int
+            kE: int
                 number of stages of exposed.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -814,28 +814,28 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        I0 : np.array
+        I0: np.array
             Initial number of  infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -867,7 +867,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -882,7 +882,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -899,7 +899,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -916,7 +916,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -950,23 +950,23 @@ cdef class SEkIkIkR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
             gIa: float
                 rate of removal from asymptomatic infected individuals.
             gIs: float
                 rate of removal from symptomatic infected individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
             kI: int
                 number of stages of asymptomatic infectives.
             kI: int
                 number of stages of symptomatic infectives.
-            kE : int
+            kE: int
                 number of stages of exposed.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -1056,28 +1056,28 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
         Ia0: np.array
             Initial number of asymptomatic infectives.
         Is0: np.array
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -1107,7 +1107,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1122,7 +1122,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1138,7 +1138,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1155,7 +1155,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1172,7 +1172,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1221,34 +1221,34 @@ cdef class SEI5R(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gIh : float
+            gIh: float
                 rate of removal for hospitalised individuals.
-            gIc : float
+            gIc: float
                 rate of removal for idividuals in intensive care.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
                 fraction by which hospitalised individuals are isolated.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -1379,36 +1379,36 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Ih0 : np.array
+        Ih0: np.array
             Initial number of hospitalized infectives.
-        Ic0 : np.array
+        Ic0: np.array
             Initial number of ICU infectives.
-        Im0 : np.array
+        Im0: np.array
             Initial number of mortality.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -1438,7 +1438,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1453,7 +1453,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1468,7 +1468,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1483,7 +1483,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1498,7 +1498,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1513,7 +1513,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1528,7 +1528,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1543,7 +1543,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1558,7 +1558,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1599,40 +1599,40 @@ cdef class SEI8R(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
             gIsp: float
                 rate of removal from symptomatic individuals towards buffer.
-            gIh : float
+            gIh: float
                 rate of removal for hospitalised individuals.
             gIhp: float
                 rate of removal from hospitalised individuals towards buffer.
-            gIc : float
+            gIc: float
                 rate of removal for idividuals in intensive care.
             gIcp: float
                 rate of removal from ICU individuals towards buffer.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
                 fraction by which hospitalised individuals are isolated.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -1773,36 +1773,36 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Ih0 : np.array
+        Ih0: np.array
             Initial number of hospitalized infectives.
-        Ic0 : np.array
+        Ic0: np.array
             Initial number of ICU infectives.
-        Im0 : np.array
+        Im0: np.array
             Initial number of mortality.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -1832,7 +1832,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1847,7 +1847,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1862,7 +1862,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1877,7 +1877,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1892,7 +1892,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1907,7 +1907,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1922,7 +1922,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1937,7 +1937,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1952,7 +1952,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1978,26 +1978,26 @@ cdef class SEAIR(IntegratorsClass):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -2079,32 +2079,32 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        A0 : np.array
+        A0: np.array
             Initial number of activateds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -2136,7 +2136,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2151,7 +2151,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2166,7 +2166,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2181,7 +2181,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2196,7 +2196,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2211,7 +2211,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2253,35 +2253,35 @@ cdef class SEAI5R(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            gIh : float
+            gIh: float
                 rate of hospitalisation of infected individuals.
-            gIc : float
+            gIc: float
                 rate hospitalised individuals are moved to intensive care.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
 
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -2417,38 +2417,38 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        A0 : np.array
+        A0: np.array
             Initial number of activateds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Ih0 : np.array
+        Ih0: np.array
             Initial number of hospitalized infectives.
-        Ic0 : np.array
+        Ic0: np.array
             Initial number of ICU infectives.
-        Im0 : np.array
+        Im0: np.array
             Initial number of mortality.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -2478,7 +2478,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2493,7 +2493,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2508,7 +2508,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2523,7 +2523,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2538,7 +2538,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2553,7 +2553,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2568,7 +2568,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2583,7 +2583,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2598,7 +2598,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2613,7 +2613,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2654,40 +2654,40 @@ cdef class SEAI8R(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
             gIsp: float
                 rate of removal from symptomatic individuals towards buffer.
-            gIh : float
+            gIh: float
                 rate of removal for hospitalised individuals.
             gIhp: float
                 rate of removal from hospitalised individuals towards buffer.
-            gIc : float
+            gIc: float
                 rate of removal for idividuals in intensive care.
             gIcp: float
                 rate of removal from ICU individuals towards buffer.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
                 fraction by which hospitalised individuals are isolated.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -2831,36 +2831,36 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Ih0 : np.array
+        Ih0: np.array
             Initial number of hospitalized infectives.
-        Ic0 : np.array
+        Ic0: np.array
             Initial number of ICU infectives.
-        Im0 : np.array
+        Im0: np.array
             Initial number of mortality.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -2890,7 +2890,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2905,7 +2905,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2920,7 +2920,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2935,7 +2935,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2950,7 +2950,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2965,7 +2965,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2980,7 +2980,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2995,7 +2995,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3010,7 +3010,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3025,7 +3025,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3056,35 +3056,35 @@ cdef class SEAIRQ(IntegratorsClass):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             tE  : float
                 testing rate and contact tracing of exposeds
             tA  : float
                 testing rate and contact tracing of activateds
-            tIa : float
+            tIa: float
                 testing rate and contact tracing of asymptomatics
-            tIs : float
+            tIs: float
                 testing rate and contact tracing of symptomatics
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -3177,34 +3177,34 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        A0 : np.array
+        A0: np.array
             Initial number of activateds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Q0 : np.array
+        Q0: np.array
             Initial number of quarantineds.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -3238,7 +3238,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3253,7 +3253,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3268,7 +3268,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3283,7 +3283,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3298,7 +3298,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3313,7 +3313,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3329,7 +3329,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3350,31 +3350,31 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            ars : float
+            ars: float
                 fraction of population admissible for random and symptomatic tests
-            kapE : float
+            kapE: float
                 fraction of positive tests for exposed individuals
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -3478,36 +3478,36 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        A0 : np.array
+        A0: np.array
             Initial number of activateds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Q0 : np.array
+        Q0: np.array
             Initial number of quarantineds.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        testRate : python function(t)
+        testRate: python function(t)
              Rate at which symptomatic and random individuals get tested
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -3542,7 +3542,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3557,7 +3557,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3572,7 +3572,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3587,7 +3587,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3602,7 +3602,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3617,7 +3617,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3633,7 +3633,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3658,23 +3658,23 @@ cdef class SIRS(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             ep  : float
                 fraction of removed who become susceptable again
             sa  : float, np.array (M,)
                 daily arrival of new susceptables
-            iaa : float, np.array (M,)
+            iaa: float, np.array (M,)
                 daily arrival of new asymptomatics
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -3769,28 +3769,28 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : str, optional
+        integrator: str, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -3820,7 +3820,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3835,7 +3835,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3850,7 +3850,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3865,7 +3865,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3880,7 +3880,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3907,7 +3907,7 @@ cdef class Spp(IntegratorsClass):
     ----------
     parameters: dict
         Contains the values for the parameters given in the model specification.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -4005,7 +4005,7 @@ cdef class Spp(IntegratorsClass):
         """
         Parameters
         ----------
-        x0 : np.array or dict
+        x0: np.array or dict
             Initial conditions. If it is an array it should have length
             M*(model_dimension-1), where x0[i + j*M] should be the initial
             value of model class i of age group j. The removed R class
@@ -4015,20 +4015,20 @@ cdef class Spp(IntegratorsClass):
             age group as value. One of the classes may be left out,
             in which case its initial values will be inferred from the
             others.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        integrator : TYPE, optional
+        integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        maxNumSteps : int, optional
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
@@ -4087,7 +4087,7 @@ cdef class Spp(IntegratorsClass):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------

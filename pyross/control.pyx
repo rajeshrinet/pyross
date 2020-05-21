@@ -36,21 +36,21 @@ cdef class control_integration:
 
         Parameters
         ----------
-        y0 : np.array
+        y0: np.array
             Inital state of the system.
-        events : list
+        events: list
             List of events that the current state can satisfy to change behaviour
             of the contact matrix.
             contactMatricies
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
-        Tf : float
+        Tf: float
             End time for integrator.
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate at.
-        Ti : float, optional
+        Ti: float, optional
             Start time for integrator. The default is 0.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -197,17 +197,17 @@ cdef class SIR(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
@@ -331,23 +331,23 @@ cdef class SEkIkIkR(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
             gIa: float
                 rate of removal from asymptomatic infected individuals.
             gIs: float
                 rate of removal from symptomatic infected individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
             kI: int
                 number of stages of asymptomatic infectives.
             kI: int
                 number of stages of symptomatic infectives.
-            kE : int
+            kE: int
                 number of stages of exposed.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
@@ -481,7 +481,7 @@ cdef class SEkIkIkR(control_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -496,7 +496,7 @@ cdef class SEkIkIkR(control_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -512,7 +512,7 @@ cdef class SEkIkIkR(control_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -529,7 +529,7 @@ cdef class SEkIkIkR(control_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -546,7 +546,7 @@ cdef class SEkIkIkR(control_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -584,23 +584,23 @@ cdef class SIRS(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             ep  : float
                 fraction of removed who become susceptable again
             sa  : float, np.array (M,)
                 daily arrival of new susceptables
-            iaa : float, np.array (M,)
+            iaa: float, np.array (M,)
                 daily arrival of new asymptomatics
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -747,19 +747,19 @@ cdef class SEIR(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -891,34 +891,34 @@ cdef class SEI5R(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gIh : float
+            gIh: float
                 rate of removal for hospitalised individuals.
-            gIc : float
+            gIc: float
                 rate of removal for idividuals in intensive care.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
                 fraction by which hospitalised individuals are isolated.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(8*M, )
@@ -1093,15 +1093,15 @@ cdef class SIkR(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gI : float
+            gI: float
                 rate of removal from infectives.
-            kI : int
+            kI: int
                 number of stages of infection.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array((kI + 1)*M, )
@@ -1211,19 +1211,19 @@ cdef class SEkIkR(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gI : float
+            gI: float
                 rate of removal from infected individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            ki : int
+            ki: int
                 number of stages of infectives.
-            ke : int
+            ke: int
                 number of stages of exposed.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array((kI = kE +1)*M, )
@@ -1342,26 +1342,26 @@ cdef class SEAIR(control_integration):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(5*M, )
@@ -1497,25 +1497,25 @@ cdef class SEAI5R(control_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            gIh : float
+            gIh: float
                 rate of hospitalisation of infected individuals.
-            gIc : float
+            gIc: float
                 rate hospitalised individuals are moved to intensive care.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
@@ -1696,35 +1696,35 @@ cdef class SEAIRQ(control_integration):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             tE  : float
                 testing rate and contact tracing of exposeds
             tA  : float
                 testing rate and contact tracing of activateds
-            tIa : float
+            tIa: float
                 testing rate and contact tracing of asymptomatics
-            tIs : float
+            tIs: float
                 testing rate and contact tracing of symptomatics
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(6*M, )

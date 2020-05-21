@@ -53,7 +53,7 @@ cdef class stochastic_integration:
 
         Returns
         -------
-        W : double
+        W: double
             Total reaction constant
         """
         cdef:
@@ -83,14 +83,14 @@ cdef class stochastic_integration:
 
         Parameters
         ----------
-        time : double
+        time: double
             Time point at which step is evaluated
         total_rate : double
             Total rate constant W.
 
         Returns
         -------
-        X : np.array(len(t), len(x0))
+        X: np.array(len(t), len(x0))
             Numerical integration solution.
         time_points : np.array
             Corresponding times at which X is evaluated at.
@@ -151,15 +151,15 @@ cdef class stochastic_integration:
 
         Parameters
         ----------
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
 
 
@@ -419,7 +419,7 @@ cdef class stochastic_integration:
 
         Parameters
         ----------
-        epsilon : float, optional
+        epsilon: float, optional
             Acceptable error in leap. The default is 0.03.
 
         Returns
@@ -523,20 +523,20 @@ cdef class stochastic_integration:
 
         Parameters
         ----------
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        nc : optional
+        nc: optional
             The default is 30
-        epsilon : float, optional
+        epsilon: float, optional
             The acceptable error in each step. The default is 0.03
         tau_update_frequency: optional
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
 
 
@@ -823,17 +823,17 @@ cdef class SIR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
@@ -920,24 +920,24 @@ cdef class SIR(stochastic_integration):
 
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t)
+        contactMatrix: python function(t)
             The social contact matrix C_{ij} denotes the
             average number of contacts made per day by an
             individual in class i with an individual in class j
-        Tf : float
+        Tf: float
             Final time of integrator
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        method : str, optional
+        method: str, optional
             SSA to use, either 'gillespie' or 'tau_leaping'.
             The default is 'gillespie'.
-        nc : TYPE, optional
+        nc: TYPE, optional
         epsilon: TYPE, optional
         tau_update_frequency: TYPE, optional
         seedRate: python function, optional
@@ -1032,7 +1032,7 @@ cdef class SIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1047,7 +1047,7 @@ cdef class SIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1062,7 +1062,7 @@ cdef class SIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1077,7 +1077,7 @@ cdef class SIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1098,16 +1098,16 @@ cdef class SIkR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gI : float
+            gI: float
                 rate of removal from infectives.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            kI : int
+            kI: int
                 number of stages of infection.
 
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array((kI + 1)*M, )
@@ -1263,7 +1263,7 @@ cdef class SIkR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1278,7 +1278,7 @@ cdef class SIkR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1293,7 +1293,7 @@ cdef class SIkR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1315,19 +1315,19 @@ cdef class SEIR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -1490,7 +1490,7 @@ cdef class SEIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1505,7 +1505,7 @@ cdef class SEIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1520,7 +1520,7 @@ cdef class SEIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1535,7 +1535,7 @@ cdef class SEIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1550,7 +1550,7 @@ cdef class SEIR(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1584,34 +1584,34 @@ cdef class SEI5R(stochastic_integration):
     ----------
      parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gIh : float
+            gIh: float
                 rate of removal for hospitalised individuals.
-            gIc : float
+            gIc: float
                 rate of removal for idividuals in intensive care.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             fh  : float
                 fraction by which hospitalised individuals are isolated.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(8*M, )
@@ -1908,7 +1908,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1923,7 +1923,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1938,7 +1938,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1953,7 +1953,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1968,7 +1968,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1983,7 +1983,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -1998,7 +1998,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2013,7 +2013,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2028,7 +2028,7 @@ cdef class SEI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2064,25 +2064,25 @@ cdef class SEAI5R(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            gIh : float
+            gIh: float
                 rate of hospitalisation of infected individuals.
-            gIc : float
+            gIc: float
                 rate hospitalised individuals are moved to intensive care.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
@@ -2381,7 +2381,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2396,7 +2396,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2411,7 +2411,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2426,7 +2426,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2441,7 +2441,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2456,7 +2456,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2471,7 +2471,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2486,7 +2486,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2501,7 +2501,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2516,7 +2516,7 @@ cdef class SEAI5R(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2540,35 +2540,35 @@ cdef class SEAIRQ(stochastic_integration):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array(M,)
+            alpha: float, np.array(M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
             tE  : float
                 testing rate and contact tracing of exposeds
             tA  : float
                 testing rate and contact tracing of activateds
-            tIa : float
+            tIa: float
                 testing rate and contact tracing of asymptomatics
-            tIs : float
+            tIs: float
                 testing rate and contact tracing of symptomatics
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(6*M, )
@@ -2771,7 +2771,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2786,7 +2786,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2801,7 +2801,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2816,7 +2816,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2831,7 +2831,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2846,7 +2846,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2863,7 +2863,7 @@ cdef class SEAIRQ(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -2880,31 +2880,31 @@ cdef class SEAIRQ_testing(stochastic_integration):
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious
+    A: Asymptomatic and infectious
 
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array(M,)
+            alpha: float, np.array(M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            gE : float
+            gE: float
                 rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 rate of removal from activated individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            ars : float
+            ars: float
                 fraction of population admissible for random and symptomatic tests
-            kapE : float
+            kapE: float
                 fraction of positive tests for exposed individuals
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(6*M, )
@@ -3133,7 +3133,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3148,7 +3148,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3163,7 +3163,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3178,7 +3178,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3193,7 +3193,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3208,7 +3208,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------
@@ -3225,7 +3225,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         """
         Parameters
         ----------
-        data : data files
+        data: data files
 
         Returns
         -------

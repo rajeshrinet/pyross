@@ -20,17 +20,17 @@ cdef class SIR:
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float, np.array (M,)
+            alpha: float, np.array (M,)
                 fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 rate of spread of infection.
-            gIa : float
+            gIa: float
                 rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )

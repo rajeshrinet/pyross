@@ -27,19 +27,19 @@ cdef class SIR:
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            cov : np.array( )
+            cov: np.array( )
                 covariance matrix for all the estimated parameters.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
@@ -87,34 +87,34 @@ cdef class SIR:
         """
         Parameters
         ----------
-        S0 : np.array(M,)
+        S0: np.array(M,)
             Initial number of susceptables.
-        Ia0 : np.array(M,)
+        Ia0: np.array(M,)
             Initial number of asymptomatic infectives.
-        Is0 : np.array(M,)
+        Is0: np.array(M,)
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -123,7 +123,7 @@ cdef class SIR:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -134,9 +134,9 @@ cdef class SIR:
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -234,28 +234,28 @@ cdef class SIR_latent:
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            cov : np.array( )
+            cov: np.array( )
                 Covariance matrix for all the estimated parameters.
-            S0 : np.array(M,)
+            S0: np.array(M,)
                 Estimate initial number of susceptables.
-            Ia0 : np.array(M,)
+            Ia0: np.array(M,)
                 Estimate initial number of asymptomatic infectives.
-            Is0 : np.array(M,)
+            Is0: np.array(M,)
                 Estimate initial number of symptomatic infectives.
             cov_init : np.array((3*M, 3*M)) :
                 Covariance matrix for the initial state.
                 
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
@@ -306,29 +306,29 @@ cdef class SIR_latent:
         """
         Parameters
         ----------
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float
+        Tf: float
             Final time of integrator.
-        Nf : Int
+        Nf: Int
             Number of time points to evaluate.
-        Ns : int
+        Ns: int
             Number of samples of parameters to take.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
             TODO
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -337,7 +337,7 @@ cdef class SIR_latent:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -348,9 +348,9 @@ cdef class SIR_latent:
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -452,21 +452,21 @@ cdef class SEIR:
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 Estimated mean value of rate of removal from exposed individuals.
-            cov : np.array( )
+            cov: np.array( )
                 covariance matrix for all the estimated parameters.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -518,36 +518,36 @@ cdef class SEIR:
         """
         Parameters
         ----------
-        S0 : np.array(M,)
+        S0: np.array(M,)
             Initial number of susceptables.
-        E0 : np.array(M,)
+        E0: np.array(M,)
             Initial number of exposed.
-        Ia0 : np.array(M,)
+        Ia0: np.array(M,)
             Initial number of asymptomatic infectives.
-        Is0 : np.array(M,)
+        Is0: np.array(M,)
             Initial number of symptomatic infectives.
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -556,7 +556,7 @@ cdef class SEIR:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -567,9 +567,9 @@ cdef class SEIR:
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -669,31 +669,31 @@ cdef class SEIR_latent:
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 Estimated mean value of rate of removal from exposed individuals.
-            cov : np.array( )
+            cov: np.array( )
                 covariance matrix for all the estimated parameters.
-            S0 : np.array(M,)
+            S0: np.array(M,)
                 Estimate initial number of susceptables.
-            E0 : np.array(M,)
+            E0: np.array(M,)
                 Estimate initial number of exposed.
-            Ia0 : np.array(M,)
+            Ia0: np.array(M,)
                 Estimate initial number of asymptomatic infectives.
-            Is0 : np.array(M,)
+            Is0: np.array(M,)
                 Estimate initial number of symptomatic infectives.
             cov_init : np.array((3*M, 3*M)) :
                 Covariance matrix for the initial state.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -754,28 +754,28 @@ cdef class SEIR_latent:
         """
         Parameters
         ----------
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -784,7 +784,7 @@ cdef class SEIR_latent:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -795,9 +795,9 @@ cdef class SEIR_latent:
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -899,36 +899,36 @@ cdef class SEAIRQ():
     Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious 
+    A: Asymptomatic and infectious 
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 Estimated mean value of rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 Estimated mean value of rate of removal from activated individuals.
-            cov : np.array( )
+            cov: np.array( )
                 covariance matrix for all the estimated parameters.
             tE  : float
                 testing rate and contact tracing of exposeds
             tA  : float
                 testing rate and contact tracing of activateds
-            tIa : float
+            tIa: float
                 testing rate and contact tracing of asymptomatics
-            tIs : float
+            tIs: float
                 testing rate and contact tracing of symptomatics
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -991,40 +991,40 @@ cdef class SEAIRQ():
         """
         Parameters
         ----------
-        S0 : np.array
+        S0: np.array
             Initial number of susceptables.
-        E0 : np.array
+        E0: np.array
             Initial number of exposeds.
-        A0 : np.array
+        A0: np.array
             Initial number of activateds.
-        Ia0 : np.array
+        Ia0: np.array
             Initial number of asymptomatic infectives.
-        Is0 : np.array
+        Is0: np.array
             Initial number of symptomatic infectives.
-        Q0 : np.array
+        Q0: np.array
             Initial number of quarantineds.
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -1033,7 +1033,7 @@ cdef class SEAIRQ():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -1044,9 +1044,9 @@ cdef class SEAIRQ():
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -1144,52 +1144,52 @@ cdef class SEAIRQ_latent():
     Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
-    A : Asymptomatic and infectious 
+    A: Asymptomatic and infectious 
     
     Latent inference class to be used when observed data is incomplete.
     Attributes
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 Estimated mean value of rate of removal from exposed individuals.
-            gA : float
+            gA: float
                 Estimated mean value of rate of removal from activated individuals.
-            cov : np.array( )
+            cov: np.array( )
                 covariance matrix for all the estimated parameters.
             tE  : float
                 testing rate and contact tracing of exposeds
             tA  : float
                 testing rate and contact tracing of activateds
-            tIa : float
+            tIa: float
                 testing rate and contact tracing of asymptomatics
-            tIs : float
+            tIs: float
                 testing rate and contact tracing of symptomatics
-            S0 : np.array(M,)
+            S0: np.array(M,)
                 Estimate initial number of susceptables.
-            E0 : np.array(M,)
+            E0: np.array(M,)
                 Estimate initial number of exposed.
-            A0 : np.array(M,)
+            A0: np.array(M,)
                 Estimate initial number of activated.
-            Ia0 : np.array(M,)
+            Ia0: np.array(M,)
                 Estimate initial number of asymptomatic infectives.
-            Is0 : np.array(M,)
+            Is0: np.array(M,)
                 Estimate initial number of symptomatic infectives.
-            Q0 : np.array(M,)
+            Q0: np.array(M,)
                 Estimate initial number of quarantined.
             cov_init : np.array((3*M, 3*M)) :
                 Covariance matrix for the initial state.
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
@@ -1262,28 +1262,28 @@ cdef class SEAIRQ_latent():
         """
         Parameters
         ----------
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -1292,7 +1292,7 @@ cdef class SEAIRQ_latent():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -1303,9 +1303,9 @@ cdef class SEAIRQ_latent():
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -1430,36 +1430,36 @@ cdef class SEAI5R():
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 Estimate mean value of rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 Estimate mean value of rate of removal from activated individuals.
-            gIh : float
+            gIh: float
                 Rate of hospitalisation of infected individuals.
-            gIc : float
+            gIc: float
                 Rate hospitalised individuals are moved to intensive care.
-            cov : np.array
+            cov: np.array
                 covariance matrix for all the estimated parameters.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
@@ -1559,44 +1559,44 @@ cdef class SEAI5R():
         """
         Parameters
         ----------
-        S0 : np.array(M,)
+        S0: np.array(M,)
             Initial number of susceptables.
-        E0 : np.array(M,)
+        E0: np.array(M,)
             Initial number of exposed.
-        A0 : np.array(M,)
+        A0: np.array(M,)
             Initial number of activated.
-        Ia0 : np.array(M,)
+        Ia0: np.array(M,)
             Initial number of asymptomatic infectives.
-        Is0 : np.array(M,)
+        Is0: np.array(M,)
             Initial number of symptomatic infectives.
-        Ih0 : np.array(M,)
+        Ih0: np.array(M,)
             Initial number of hospitalised.
-        Ic0 : np.array(M,)
+        Ic0: np.array(M,)
             Initial number in intensive care.
-        Im0 : np.array(M,)
+        Im0: np.array(M,)
             Initial number of mortalities.
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -1605,7 +1605,7 @@ cdef class SEAI5R():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -1616,9 +1616,9 @@ cdef class SEAI5R():
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
@@ -1738,36 +1738,36 @@ cdef class SEAI5R_latent():
     ----------
     parameters: dict
         Contains the following keys:
-            alpha : float
+            alpha: float
                 Estimate mean value of fraction of infected who are asymptomatic.
-            beta : float
+            beta: float
                 Estimate mean value of rate of spread of infection.
-            gIa : float
+            gIa: float
                 Estimate mean value of rate of removal from asymptomatic individuals.
-            gIs : float
+            gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
-            fsa : float
+            fsa: float
                 fraction by which symptomatic individuals self isolate.
-            gE : float
+            gE: float
                 Estimate mean value of rate of removal from exposeds individuals.
-            gA : float
+            gA: float
                 Estimate mean value of rate of removal from activated individuals.
-            gIh : float
+            gIh: float
                 Rate of hospitalisation of infected individuals.
-            gIc : float
+            gIc: float
                 Rate hospitalised individuals are moved to intensive care.
-            cov : np.array
+            cov: np.array
                 covariance matrix for all the estimated parameters.
-            sa : float, np.array (M,)
+            sa: float, np.array (M,)
                 daily arrival of new susceptables.
                 sa is rate of additional/removal of population by birth etc
-            hh : float, np.array (M,)
+            hh: float, np.array (M,)
                 fraction hospitalised from Is
-            cc : float, np.array (M,)
+            cc: float, np.array (M,)
                 fraction sent to intensive care from hospitalised.
-            mm : float, np.array (M,)
+            mm: float, np.array (M,)
                 mortality rate in intensive care
-    M : int
+    M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
@@ -1877,28 +1877,28 @@ cdef class SEAI5R_latent():
         """
         Parameters
         ----------
-        contactMatrix : python function(t), optional
+        contactMatrix: python function(t), optional
              The social contact matrix C_{ij} denotes the 
              average number of contacts made per day by an 
              individual in class i with an individual in class j
              The default is None.
-        Tf : float, optional
+        Tf: float, optional
             Final time of integrator. The default is 100.
-        Nf : Int, optional
+        Nf: Int, optional
             Number of time points to evaluate.The default is 101,
-        Ns : int, optional
+        Ns: int, optional
             Number of samples of parameters to take. The default is 1000.
-        nc : int, optional
-        epsilon : np.float64, optional
+        nc: int, optional
+        epsilon: np.float64, optional
             Acceptable error in leap. The default is 0.03.
         tau_update_frequency : int, optional
-        verbose : bool, optional
+        verbose: bool, optional
             Verbosity of output. The default is False.
-        Ti : float, optional
+        Ti: float, optional
             Start time of integrator. The default is 0.
-        method : str, optional
+        method: str, optional
             Pyross integrator to use. The default is "deterministic".
-        events : list of python functions, optional
+        events: list of python functions, optional
             List of events that the current state can satisfy to change behaviour
             of the contact matrix. Event occurs when the value of the function
             changes sign. Event.direction determines which direction triggers
@@ -1907,7 +1907,7 @@ cdef class SEAI5R_latent():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate : python function, optional
+        seedRate: python function, optional
             Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
@@ -1918,9 +1918,9 @@ cdef class SEAI5R_latent():
         -------
         out_dict : dict
             Dictionary containing the following keys:
-                X : list
+                X: list
                     List of resultant trajectories
-                t : list
+                t: list
                     List of times at which X is evaluated.
                 X_mean : list
                     Mean trajectory of X
