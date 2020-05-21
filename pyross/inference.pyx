@@ -999,14 +999,14 @@ cdef class SIR_type:
         init_fltr: 1d np.array
             A vector boolean fltr that yields the partial initis given full initial conditions.
         fltr: 2d np.array
-            A matrix fltr that yields the observed data from full data.
-            Same as the one used for latent_infer_parameters.
+            A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.
 
         Returns
         -------
         x0: 1d np.array
             The full initial condition.
         '''
+
         cdef:
             np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
             double [:] z, unknown_inits

@@ -179,17 +179,17 @@ Is: symptomatic</p>
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.forecast.SIR.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>cov<span class="classifier">np.array( )</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
 </dl>
 </dd>
@@ -267,9 +267,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -306,23 +306,23 @@ Is: symptomatic</p>
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.forecast.SIR_latent.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>cov<span class="classifier">np.array( )</span></dt><dd><p>Covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array( )</dt><dd><p>Covariance matrix for all the estimated parameters.</p>
 </dd>
-<dt>S0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of susceptables.</p>
+<dt>S0: np.array(M,)</dt><dd><p>Estimate initial number of susceptables.</p>
 </dd>
-<dt>Ia0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
+<dt>Ia0: np.array(M,)</dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
 </dd>
-<dt>Is0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of symptomatic infectives.</p>
+<dt>Is0: np.array(M,)</dt><dd><p>Estimate initial number of symptomatic infectives.</p>
 </dd>
 <dt>cov_init<span class="classifier">np.array((3*M, 3*M)) :</span></dt><dd><p>Covariance matrix for the initial state.</p>
 </dd>
@@ -399,9 +399,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -436,19 +436,19 @@ Is: symptomatic
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
 </dd>
-<dt>cov<span class="classifier">np.array( )</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
 </dl>
 </dd>
@@ -526,9 +526,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -564,27 +564,27 @@ Is: symptomatic</p>
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.forecast.SEIR_latent.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
 </dd>
-<dt>cov<span class="classifier">np.array( )</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
-<dt>S0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of susceptables.</p>
+<dt>S0: np.array(M,)</dt><dd><p>Estimate initial number of susceptables.</p>
 </dd>
-<dt>E0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of exposed.</p>
+<dt>E0: np.array(M,)</dt><dd><p>Estimate initial number of exposed.</p>
 </dd>
-<dt>Ia0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
+<dt>Ia0: np.array(M,)</dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
 </dd>
-<dt>Is0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of symptomatic infectives.</p>
+<dt>Is0: np.array(M,)</dt><dd><p>Estimate initial number of symptomatic infectives.</p>
 </dd>
 <dt>cov_init<span class="classifier">np.array((3*M, 3*M)) :</span></dt><dd><p>Covariance matrix for the initial state.</p>
 </dd>
@@ -661,9 +661,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -694,34 +694,34 @@ sample_inits : List of initial state vectors tried.</p>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious
+A: Asymptomatic and infectious
 .. attribute:: parameters</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>Estimated mean value of rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>Estimated mean value of rate of removal from activated individuals.</p>
 </dd>
-<dt>cov<span class="classifier">np.array( )</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
 <dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
 </dd>
 <dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
 </dd>
-<dt>tIa<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
 </dd>
-<dt>tIs<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of symptomatics</p>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
 </dl>
 </dd>
@@ -801,9 +801,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -833,47 +833,47 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
-A : Asymptomatic and infectious</p>
+A: Asymptomatic and infectious</p>
 <p>Latent inference class to be used when observed data is incomplete.
 .. attribute:: parameters</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>Estimated mean value of rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>Estimated mean value of rate of removal from activated individuals.</p>
 </dd>
-<dt>cov<span class="classifier">np.array( )</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
 <dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
 </dd>
 <dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
 </dd>
-<dt>tIa<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
 </dd>
-<dt>tIs<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of symptomatics</p>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
-<dt>S0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of susceptables.</p>
+<dt>S0: np.array(M,)</dt><dd><p>Estimate initial number of susceptables.</p>
 </dd>
-<dt>E0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of exposed.</p>
+<dt>E0: np.array(M,)</dt><dd><p>Estimate initial number of exposed.</p>
 </dd>
-<dt>A0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of activated.</p>
+<dt>A0: np.array(M,)</dt><dd><p>Estimate initial number of activated.</p>
 </dd>
-<dt>Ia0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
+<dt>Ia0: np.array(M,)</dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
 </dd>
-<dt>Is0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of symptomatic infectives.</p>
+<dt>Is0: np.array(M,)</dt><dd><p>Estimate initial number of symptomatic infectives.</p>
 </dd>
-<dt>Q0<span class="classifier">np.array(M,)</span></dt><dd><p>Estimate initial number of quarantined.</p>
+<dt>Q0: np.array(M,)</dt><dd><p>Estimate initial number of quarantined.</p>
 </dd>
 <dt>cov_init<span class="classifier">np.array((3*M, 3*M)) :</span></dt><dd><p>Covariance matrix for the initial state.</p>
 </dd>
@@ -949,9 +949,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -996,34 +996,34 @@ Ic —&gt; Im, R
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>Estimate mean value of rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>Estimate mean value of rate of removal from activated individuals.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>Rate of hospitalisation of infected individuals.</p>
+<dt>gIh: float</dt><dd><p>Rate of hospitalisation of infected individuals.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>Rate hospitalised individuals are moved to intensive care.</p>
+<dt>gIc: float</dt><dd><p>Rate hospitalised individuals are moved to intensive care.</p>
 </dd>
-<dt>cov<span class="classifier">np.array</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
 </dd>
@@ -1105,9 +1105,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
@@ -1153,34 +1153,34 @@ Ic —&gt; Im, R</p>
 <code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.forecast.SEAI5R_latent.parameters" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha<span class="classifier">float</span></dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
 </dd>
-<dt>gIa<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa<span class="classifier">float</span></dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>Estimate mean value of rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gA<span class="classifier">float</span></dt><dd><p>Estimate mean value of rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>Estimate mean value of rate of removal from activated individuals.</p>
 </dd>
-<dt>gIh<span class="classifier">float</span></dt><dd><p>Rate of hospitalisation of infected individuals.</p>
+<dt>gIh: float</dt><dd><p>Rate of hospitalisation of infected individuals.</p>
 </dd>
-<dt>gIc<span class="classifier">float</span></dt><dd><p>Rate hospitalised individuals are moved to intensive care.</p>
+<dt>gIc: float</dt><dd><p>Rate hospitalised individuals are moved to intensive care.</p>
 </dd>
-<dt>cov<span class="classifier">np.array</span></dt><dd><p>covariance matrix for all the estimated parameters.</p>
+<dt>cov: np.array</dt><dd><p>covariance matrix for all the estimated parameters.</p>
 </dd>
-<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables.
+<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
 sa is rate of additional/removal of population by birth etc</p>
 </dd>
-<dt>hh<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
 </dd>
-<dt>cc<span class="classifier">float, np.array (M,)</span></dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
 </dd>
-<dt>mm<span class="classifier">float, np.array (M,)</span></dt><dd><p>mortality rate in intensive care</p>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
 </dd>
@@ -1255,9 +1255,9 @@ The default is [].</p></li>
 <dd class="field-even"><p><p><strong>out_dict</strong> –</p>
 <dl>
 <dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
-<dt>X<span class="classifier">list</span></dt><dd><p>List of resultant trajectories</p>
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
 </dd>
-<dt>t<span class="classifier">list</span></dt><dd><p>List of times at which X is evaluated.</p>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
 </dd>
 <dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
 </dd>
