@@ -525,7 +525,7 @@ cdef class SIR_type:
         return params
 
     def _latent_infer_parameters_to_minimize(self, params, grad = 0, param_keys=None, init_fltr=None, bounds=None, param_dim=None,
-                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None, obs0=None, fltr0=None):
+                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None, obs0=None, fltr0=None, tangent=None):
         """Objective function for minimization call in laten_inference."""
         inits =  np.copy(params[param_dim:])
         parameters = self.fill_params_dict(param_keys, params[:param_dim])
@@ -642,7 +642,7 @@ cdef class SIR_type:
 
         minimize_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'bounds':bounds, 'param_dim':param_dim,
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
-                         's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0}
+                         's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
         res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
@@ -2295,7 +2295,7 @@ cdef class SEAIRQ_testing(SIR_type):
             B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             np.ndarray S, E, A, Ia, Is, Q
             double N=self.N
@@ -2308,7 +2308,7 @@ cdef class SEAIRQ_testing(SIR_type):
         Ia = np.asarray(x0[3*M:4*M])*N
         Is = np.asarray(x0[4*M:5*M])*N
         Q = np.asarray(x0[5*M:])*N
-        data = model.simulate(S, E, A, Ia, Is, Q, contactMatrix, self.testRate, t2, steps, Ti=t1)
+        data = model.simulate(S, E, A, Ia, Is, Q, contactMatrix, self.testRate, t2, steps, Ti=t1, maxNumSteps=maxNumSteps)
         sol = data['X']/N
         return sol
 
