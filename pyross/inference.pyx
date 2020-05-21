@@ -1,6 +1,6 @@
 from itertools import compress
 from scipy import sparse
-from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 from scipy.optimize import minimize, approx_fprime
 from scipy.stats import lognorm
 import numpy as np
@@ -50,7 +50,7 @@ cdef class SIR_type:
         self.dsigmadt = np.zeros((self.vec_size), dtype=DTYPE)
         self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-        self.J_mat = np.empty((self.vec_size, self.vec_size), dtype=DTYPE)
+        self.J_mat = np.empty((self.dim, self.dim), dtype=DTYPE)
         self.B_vec = np.empty((self.vec_size), dtype=DTYPE)
         self.U = np.empty((self.dim, self.dim), dtype=DTYPE)
 
@@ -525,7 +525,7 @@ cdef class SIR_type:
         return params
 
     def _latent_infer_parameters_to_minimize(self, params, grad = 0, param_keys=None, init_fltr=None, bounds=None, param_dim=None,
-                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None):
+                obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None, tangent=None):
         """Objective function for minimization call in laten_inference."""
         inits =  np.copy(params[param_dim:])
         parameters = self.fill_params_dict(param_keys, params[:param_dim])
@@ -536,7 +536,7 @@ cdef class SIR_type:
         penalty = self._penalty_from_negative_values(x0)
         x0[x0<0] = 0.1/self.N # set to be small and positive
 
-        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
         # add penalty for being negative
@@ -549,15 +549,14 @@ cdef class SIR_type:
             double eps=0.1/self.N, dev
             np.ndarray R_init, R_dev, x0_dev
         R_init = self.fi - np.sum(x0.reshape((int(self.dim/self.M), self.M)), axis=0)
-        R_dev = R_init - eps
-        x0_dev = x0 - eps
-        dev = - (np.sum(R_dev[R_dev<0]) + np.sum(x0_dev[x0_dev<0]))
+        dev = - (np.sum(R_init[R_init<0]) + np.sum(x0[x0<0]))
         return (dev/eps)**2 + (dev/eps)**8
 
 
     def latent_infer_parameters(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds,
                             np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
+                            tangent=False,
                             verbose=False, double ftol=1e-5,
                             global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                             enable_global=True, enable_local=True, cma_processes=0,
@@ -633,7 +632,7 @@ cdef class SIR_type:
 
         minimize_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'bounds':bounds, 'param_dim':param_dim,
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
-                         's':s, 'scale':scale}
+                         's':s, 'scale':scale, 'tangent':tangent}
         res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -908,7 +907,7 @@ cdef class SIR_type:
 
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
-                            np.ndarray fltr, double Tf, int Nf, contactMatrix):
+                            np.ndarray fltr, double Tf, int Nf, contactMatrix, tangent=False):
         '''Computes -logp for a latent trajectory
 
         Parameters
@@ -942,11 +941,11 @@ cdef class SIR_type:
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         if fltr.ndim == 1:
-            print('Vector filter is deprecated. Use matrix filter instead.')
+            print('Vector filter is deprecated. Use matrix filter instead. Also does not support tangent.')
             minus_logp = self.obtain_log_p_for_traj_red(x0, obs, fltr, Tf, Nf, model, contactMatrix)
         else:
             assert fltr.ndim == 2
-            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix)
+            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
         return minus_logp
 
     def make_det_model(self, parameters):
@@ -1082,12 +1081,15 @@ cdef class SIR_type:
         return -log_p
 
     cdef double obtain_log_p_for_traj_matrix_fltr(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
-                                            double Tf, Py_ssize_t Nf, model, contactMatrix):
+                                            double Tf, Py_ssize_t Nf, model, contactMatrix, tangent=False):
         cdef:
             Py_ssize_t reduced_dim=(Nf-1)*fltr.shape[0]
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
-        xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
+        if tangent:
+            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, model, contactMatrix)
+        else:
+            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = sparse.block_diag([fltr,]*(Nf-1))
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
         obs_flattened = np.ravel(obs)
@@ -1101,27 +1103,21 @@ cdef class SIR_type:
         log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
-
     cdef double obtain_log_p_for_traj_tangent_space(self, double [:, :] x, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             double [:, :] dx, cov
             double [:] xt, time_points, dx_det
             double dt, logp, t
             Py_ssize_t i
-
-        dx = np.gradient(x, axis=0)
         time_points = np.linspace(0, Tf, Nf)
         dt = time_points[1]
+        dx = np.gradient(x, axis=0)
         logp = 0
         for i in range(Nf-1):
             xt = x[i]
             t = time_points[i]
-            model.set_contactMatrix(t, contactMatrix)
-            model.rhs(xt, t)
-            dx_det = model.dxdt*dt
+            dx_det, cov = self.estimate_dx_and_cov(xt, t, dt, model, contactMatrix)
             dev = np.subtract(dx[i], dx_det)
-            self.obtain_noise_correlation_matrix(xt, t, contactMatrix)
-            cov = self.convert_vec_to_mat(self.B_vec)
             logp += self.log_cond_p(dev, cov)
         return -logp
 
@@ -1145,25 +1141,35 @@ cdef class SIR_type:
             double [:, :] cheb_coef
             double [:] time_points = np.linspace(t1, t2, self.steps)
             np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
-        x = self.integrate(x0, t1, t2, self.steps, model, contactMatrix)
+            double first_step
+        x = self.integrate(x0, t1, t2, self.steps, model, contactMatrix, maxNumSteps=self.steps*10)
         cheb_coef, _ = chebfit(time_points, x, 16, full=True) # even number seems to behave better
-        def rhs(sig, t):
+        def rhs(t, sig):
             self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
             self.lyapunov_fun(t, sig, cheb_coef)
             return self.dsigmadt
-        def jac(sig, t):
-            self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
-            self.lyapunov_fun(t, sig, cheb_coef)
-            return self.J_mat
-        cov = odeint(rhs, sigma0, np.array([t1, t2]), Dfun=jac)
-        return x[self.steps-1], self.convert_vec_to_mat(cov[1])
+        first_step = (t2-t1)/self.steps
+        res = solve_ivp(rhs, (t1, t2), sigma0, method='RK23', t_eval=np.array([t1, t2]), first_step=first_step, max_step=self.steps, rtol=1e-1)
+        cov = res.y
+        return x[self.steps-1], self.convert_vec_to_mat(cov[:, 1])
+
+    cpdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
+        cdef:
+            double [:] dx_det
+            double [:, :] cov
+        model.set_contactMatrix(t, contactMatrix)
+        model.rhs(xt, t)
+        dx_det = np.multiply(dt, model.dxdt)
+        self.compute_tangent_space_variables(xt, t, contactMatrix)
+        cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
+        return dx_det, cov
 
     cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             Py_ssize_t dim=self.dim, i
-            double [:, :] xm=np.empty((Nf, self.dim), dtype=DTYPE)
+            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
             double [:] time_points=np.linspace(0, Tf, Nf)
-            double [:] xi, xf, dev, mean
+            double [:] xi, xf
             double [:, :] cov
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double ti, tf
@@ -1187,6 +1193,34 @@ cdef class SIR_type:
         full_cov=np.linalg.inv(full_cov_inv)
         return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
 
+    cdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            Py_ssize_t dim=self.dim, i
+            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
+            double [:] time_points=np.linspace(0, Tf, Nf)
+            double [:] xt
+            double [:, :] cov, U, J_dt
+            np.ndarray[DTYPE_t, ndim=2] invcov, temp
+            double t, dt=time_points[1]
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix)
+        full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
+        for i in range(Nf-1):
+            t = time_points[i]
+            xt = xm[i]
+            self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
+            cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
+            J_dt = np.multiply(dt, self.J_mat)
+            U = np.add(np.identity(dim), J_dt)
+            invcov=np.linalg.inv(cov)
+            full_cov_inv[i][i]=invcov
+            if i>0:
+                temp = invcov@U
+                full_cov_inv[i-1][i-1] += np.transpose(U)@temp
+                full_cov_inv[i-1][i]=-np.transpose(U)@invcov
+                full_cov_inv[i][i-1]=-temp
+        full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
+        full_cov=np.linalg.inv(full_cov_inv)
+        return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
@@ -1203,13 +1237,14 @@ cdef class SIR_type:
     cdef compute_dsigdt(self, double [:] sig):
         cdef:
             Py_ssize_t i, j
-            double [:] dsigdt=self.dsigmadt, B_vec=self.B_vec
-            double [:, :] J_mat=self.J_mat
+            double [:] dsigdt=self.dsigmadt, B_vec=self.B_vec, linear_term_vec
+            double [:, :] sigma_mat
+            np.ndarray[DTYPE_t, ndim=2] linear_term
+        sigma_mat = self.convert_vec_to_mat(sig)
+        linear_term = np.dot(self.J_mat, sigma_mat) + np.dot(sigma_mat, (self.J_mat).T)
+        linear_term_vec = linear_term[(self.rows, self.cols)]
         for i in range(self.vec_size):
-            dsigdt[i] = B_vec[i]
-            for j in range(self.vec_size):
-                dsigdt[i] += J_mat[i, j]*sig[j]
-
+            dsigdt[i] = B_vec[i] + linear_term_vec[i]
 
     cpdef convert_vec_to_mat(self, double [:] cov):
         cdef:
@@ -1228,20 +1263,10 @@ cdef class SIR_type:
     cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
         pass # to be implemented in subclasses
 
-    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         pass # to be implemented in subclass
 
-    cdef flatten_lyaponuv(self):
-        cdef:
-            double [:, :] I
-            double [:, :] J_reshaped
-        J_reshaped = np.reshape(self.J, (self.dim, self.dim))
-        I = np.eye(self.dim)
-        self.J_mat = (np.kron(I,J_reshaped) + np.kron(J_reshaped,I))
-        self.J_mat[:, self.flat_indices1] += self.J_mat[:, self.flat_indices2]
-        self.J_mat = self.J_mat[self.flat_indices][:, self.flat_indices]
-
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         """A warpper around `simulate` in pyross.deterministic
 
         Parameters
@@ -1333,10 +1358,9 @@ cdef class SIR(SIR_type):
         self.fill_lambdas(Ia, Is, l)
         self.jacobian(s, l)
         self.noise_correlation(s, Ia, Is, l)
-        self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
 
-    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, Ia, Is
             Py_ssize_t M=self.M
@@ -1347,6 +1371,8 @@ cdef class SIR(SIR_type):
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
         self.noise_correlation(s, Ia, Is, l)
+        if jacobian:
+            self.jacobian(s, l)
 
     cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1359,7 +1385,7 @@ cdef class SIR(SIR_type):
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t m, n, M=self.M, dim=self.dim
             double gIa=self.gIa, gIs=self.gIs, fsa=self.fsa, beta=self.beta
             double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] J = self.J
@@ -1377,6 +1403,7 @@ cdef class SIR(SIR_type):
                 J[2, m, 2, n] = balpha[m]*s[m]*beta*CM[m, n]*fsa
             J[1, m, 1, m] -= gIa
             J[2, m, 2, m] -= gIs
+        self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1392,7 +1419,7 @@ cdef class SIR(SIR_type):
             B[2, m, 2, m] = balpha[m]*l[m]*s[m] + gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             double [:] S0, Ia0, Is0
             double [:, :] sol
@@ -1481,10 +1508,9 @@ cdef class SEIR(SIR_type):
         self.fill_lambdas(Ia, Is, l)
         self.jacobian(s, l)
         self.noise_correlation(s, e, Ia, Is, l)
-        self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
 
-    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, Ia, Is
             Py_ssize_t M=self.M
@@ -1496,6 +1522,8 @@ cdef class SEIR(SIR_type):
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
         self.noise_correlation(s, e, Ia, Is, l)
+        if jacobian:
+            self.jacobian(s, l)
 
     cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1508,7 +1536,7 @@ cdef class SEIR(SIR_type):
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t m, n, M=self.M, dim=self.dim
             double gIa=self.gIa, gIs=self.gIs, gE=self.gE, fsa=self.fsa, beta=self.beta
             double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] J = self.J
@@ -1526,6 +1554,7 @@ cdef class SEIR(SIR_type):
                 J[0, m, 3, n] = -s[m]*beta*CM[m, n]*fsa
                 J[1, m, 2, n] = s[m]*beta*CM[m, n]
                 J[2, m, 3, n] = s[m]*beta*CM[m, n]*fsa
+        self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1543,7 +1572,7 @@ cdef class SEIR(SIR_type):
             B[3, m, 3, m] = balpha[m]*gE*e[m]+gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             double [:] s, e, Ia, Is
             double [:, :] sol
@@ -1712,10 +1741,9 @@ cdef class SEAI5R(SIR_type):
         self.fill_lambdas(a, Ia, Is, Ih, l)
         self.jacobian(s, l)
         self.noise_correlation(s, e, a, Ia, Is, Ih, Ic, l)
-        self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
 
-    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Ih, Ic, Im
             Py_ssize_t M=self.M
@@ -1731,6 +1759,8 @@ cdef class SEAI5R(SIR_type):
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, Ih, l)
         self.noise_correlation(s, e, a, Ia, Is, Ih, Ic, l)
+        if jacobian:
+            self.jacobian(s, l)
 
     cdef fill_lambdas(self, double [:] a, double [:] Ia, double [:] Is, double [:] Ih, double [:] l):
         cdef:
@@ -1744,7 +1774,7 @@ cdef class SEAI5R(SIR_type):
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t m, n, M=self.M, dim=self.dim
             double gIa=self.gIa, gIs=self.gIs, gIh=self.gIh, gIc=self.gIc
             double gE=self.gE, gA=self.gA, fsa=self.fsa, fh=self.fh, beta=self.beta
             double [:] alpha=self.alpha, balpha=1-self.alpha
@@ -1775,7 +1805,7 @@ cdef class SEAI5R(SIR_type):
                 J[1, m, 3, n] = s[m]*beta*CM[m, n]
                 J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa
                 J[1, m, 5, n] = s[m]*beta*CM[m, n]*fh
-
+        self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] Ih, double [:] Ic, double [:] l):
         cdef:
@@ -1802,7 +1832,7 @@ cdef class SEAI5R(SIR_type):
             B[7, m, 7, m] = mm[m]*gIc*Ic[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             double [:] s, e, a, Ia, Is, Ih, Ic, Im
             double [:, :] sol
@@ -1939,10 +1969,9 @@ cdef class SEAIRQ(SIR_type):
         self.fill_lambdas(a, Ia, Is, l)
         self.jacobian(s, l)
         self.noise_correlation(s, e, a, Ia, Is, q, l)
-        self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
 
-    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q
             Py_ssize_t M=self.M
@@ -1956,6 +1985,8 @@ cdef class SEAIRQ(SIR_type):
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
         self.noise_correlation(s, e, a, Ia, Is, q, l)
+        if jacobian:
+            self.jacobian(s, l)
 
     cdef fill_lambdas(self, double [:] a, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1968,7 +1999,7 @@ cdef class SEAIRQ(SIR_type):
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t m, n, M=self.M, dim=self.dim
             double gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
             double tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs, beta=self.beta
             double [:] alpha=self.alpha, balpha=1-self.alpha
@@ -1995,6 +2026,7 @@ cdef class SEAIRQ(SIR_type):
                 J[1, m, 2, n] = s[m]*beta*CM[m, n]
                 J[1, m, 3, n] = s[m]*beta*CM[m, n]
                 J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa
+        self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l):
         cdef:
@@ -2020,7 +2052,7 @@ cdef class SEAIRQ(SIR_type):
             B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             double [:] s, e, a, Ia, Is, q
             double [:, :] sol
@@ -2138,16 +2170,17 @@ cdef class Spp(SIR_type):
         self.fill_lambdas(x, l)
         self.jacobian(x, l)
         self.noise_correlation(x, l)
-        self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
 
-    cdef obtain_noise_correlation_matrix(self, double [:] x, double t, contactMatrix):
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
         self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
         cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
         self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
         self.fill_lambdas(x, l)
         self.noise_correlation(x, l)
+        if jacobian:
+            self.jacobian(x, l)
 
     cdef fill_lambdas(self, double [:] x, double [:, :] l):
         cdef:
@@ -2164,7 +2197,7 @@ cdef class Spp(SIR_type):
 
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
-            Py_ssize_t i, m, n, M=self.M
+            Py_ssize_t i, m, n, M=self.M, dim=self.dim
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
@@ -2194,6 +2227,7 @@ cdef class Spp(SIR_type):
                 J[reagent_index, m, reagent_index, m] -= rate[m]
                 if product_index>-1:
                     J[product_index, m, reagent_index, m] += rate[m]
+        self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
@@ -2231,9 +2265,9 @@ cdef class Spp(SIR_type):
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix):
+    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             double [:, :] sol
-        data = model.simulate(np.array(x0), contactMatrix, t2, steps, Ti=t1)
+        data = model.simulate(np.array(x0), contactMatrix, t2, steps, Ti=t1, maxNumSteps=maxNumSteps)
         sol = data['X']
         return sol
