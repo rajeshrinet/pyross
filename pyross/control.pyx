@@ -193,7 +193,7 @@ cdef class SIR(control_integration):
 
     ...
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -327,7 +327,7 @@ cdef class SEkIkIkR(control_integration):
     Susceptible, Exposed, Infected, Removed (SEIR)
     method of k-stages of Ia, Is, E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -580,7 +580,7 @@ cdef class SIRS(control_integration):
     Susceptible, Infected, Removed, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -743,7 +743,7 @@ cdef class SEIR(control_integration):
     Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -887,7 +887,7 @@ cdef class SEI5R(control_integration):
     Ih ---> Ic, R
     Ic ---> Im, R
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1089,7 +1089,7 @@ cdef class SIkR(control_integration):
     """
     Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1207,7 +1207,7 @@ cdef class SEkIkR(control_integration):
     Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1343,7 +1343,7 @@ cdef class SEAIR(control_integration):
     Ia: asymptomatic
     Is: symptomatic
     A: Asymptomatic and infectious
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1493,7 +1493,7 @@ cdef class SEAI5R(control_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1698,7 +1698,7 @@ cdef class SEAIRQ(control_integration):
     Is: symptomatic
     A: Asymptomatic and infectious
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:

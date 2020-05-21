@@ -111,7 +111,7 @@ cdef class SIR(IntegratorsClass):
 
     ...
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -319,7 +319,7 @@ cdef class SIkR(IntegratorsClass):
     """
     Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -496,7 +496,7 @@ cdef class SEIR(IntegratorsClass):
     Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -727,7 +727,7 @@ cdef class SEkIkR(IntegratorsClass):
     Susceptible, Exposed, Infected, Removed (SEIR)
     method of k-stages of I and E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -946,7 +946,7 @@ cdef class SEkIkIkR(IntegratorsClass):
     Susceptible, Exposed, Infected, Removed (SEIR)
     method of k-stages of Ia, Is, E
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1217,7 +1217,7 @@ cdef class SEI5R(IntegratorsClass):
     Ih ---> Ic, R
     Ic ---> Im, R
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1595,7 +1595,7 @@ cdef class SEI8R(IntegratorsClass):
     Ih ---> Ih' -> Ic, R
     Ic ---> Ic' -> Im, R
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1979,7 +1979,7 @@ cdef class SEAIR(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     A: Asymptomatic and infectious
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -2249,7 +2249,7 @@ cdef class SEAI5R(IntegratorsClass):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -2650,7 +2650,7 @@ cdef class SEAI8R(IntegratorsClass):
     Ih ---> Ih' -> Ic, R
     Ic ---> Ic' -> Im, R
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -3058,7 +3058,7 @@ cdef class SEAIRQ(IntegratorsClass):
     Is: symptomatic
     A: Asymptomatic and infectious
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -3352,7 +3352,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     Is: symptomatic
     A: Asymptomatic and infectious
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -3654,7 +3654,7 @@ cdef class SIRS(IntegratorsClass):
     Susceptible, Infected, Removed, Susceptible (SIRS)
     Ia: asymptomatic
     Is: symptomatic
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -3903,7 +3903,7 @@ cdef class Spp(IntegratorsClass):
     """
     Given a model specification, the
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the values for the parameters given in the model specification.
