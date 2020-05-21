@@ -41,6 +41,8 @@ cdef class SIR_type:
         self.N = N
         self.M = M
         self.fi = fi
+        if steps < 2:
+            raise Exception('Steps must be at least 2')
         self.steps = steps
         self.set_params(parameters)
 
