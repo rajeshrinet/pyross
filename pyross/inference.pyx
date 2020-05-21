@@ -2079,8 +2079,8 @@ cdef class Spp(SIR_type):
             }
         }
     >>> parameters = {
-            'beta' : 0.1,
-            'gamma' : 0.1
+            'beta': 0.1,
+            'gamma': 0.1
         }
     """
 
