@@ -12,7 +12,7 @@ Inference on pre-defined or user-defined models is performed using model-adapted
 
 Non-pharmaceutical interventions are implemented as modifications of the contact structures of the model. Optimised control of these structures, given cost functions, is possible. This feature is being actively developed to be better integrated with the library.
 
-.. image:: ../../examples/banner.png
+.. image:: ../../examples/banner.jpg
   :width: 800
   :alt: PyRoss banner
 
