@@ -16,7 +16,7 @@ cdef class SIR:
 
     ...
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:

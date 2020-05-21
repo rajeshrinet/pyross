@@ -819,7 +819,7 @@ cdef class SIR(stochastic_integration):
 
     ...
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1094,7 +1094,7 @@ cdef class SIkR(stochastic_integration):
     """
     Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1311,7 +1311,7 @@ cdef class SEIR(stochastic_integration):
     Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1580,7 +1580,7 @@ cdef class SEI5R(stochastic_integration):
     Ih ---> Ic, R
     Ic ---> Im, R
 
-    Attributes
+    Parameters
     ----------
      parameters: dict
         Contains the following keys:
@@ -2060,7 +2060,7 @@ cdef class SEAI5R(stochastic_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -2542,7 +2542,7 @@ cdef class SEAIRQ(stochastic_integration):
     Is: symptomatic
     A: Asymptomatic and infectious
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -2882,7 +2882,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
     Is: symptomatic
     A: Asymptomatic and infectious
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:

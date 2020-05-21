@@ -23,7 +23,7 @@ cdef class SIR:
 
     ...
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -230,7 +230,7 @@ cdef class SIR_latent:
     Latent inference class to be used when observed data is incomplete.
     ...
 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -448,7 +448,7 @@ cdef class SEIR:
     Susceptible, Exposed, Infected, Removed (SEIR)
     Ia: asymptomatic
     Is: symptomatic
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -665,7 +665,7 @@ cdef class SEIR_latent:
     
     Latent inference class to be used when observed data is incomplete.
     
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -900,7 +900,7 @@ cdef class SEAIRQ():
     Ia: asymptomatic
     Is: symptomatic
     A: Asymptomatic and infectious 
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1147,7 +1147,7 @@ cdef class SEAIRQ_latent():
     A: Asymptomatic and infectious 
     
     Latent inference class to be used when observed data is incomplete.
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1426,7 +1426,7 @@ cdef class SEAI5R():
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
@@ -1734,7 +1734,7 @@ cdef class SEAI5R_latent():
     
     Latent inference class to be used when observed data is incomplete.
     
-    Attributes
+    Parameters
     ----------
     parameters: dict
         Contains the following keys:
