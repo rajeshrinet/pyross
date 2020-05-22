@@ -10,6 +10,7 @@ cdef class IntegratorsClass:
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh, ep, gI
         readonly double tS, tE, tA, tIa, tIs, gIsp, gIcp, gIhp, ars, kapE
         readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR, sa, iaa, hh, cc, mm, alpha
+        readonly dict paramList
 
     cpdef set_contactMatrix(self, double t, contactMatrix)
 
