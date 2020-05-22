@@ -562,7 +562,7 @@ cdef class SIR_type:
                             verbose=False, double ftol=1e-5,
                             global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                             enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None):
+                            cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None, full_output=False):
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
@@ -620,11 +620,16 @@ cdef class SIR_type:
             Observed initial condition, if more detailed than obs[0,:]
         fltr0: 2d numpy.array, optional
             Matrix filter for obs0
+        full_output: bool, optional
+            Set to True to return full minimization output
 
         Returns
         -------
         params: numpy.array
             MAP estimate of paramters and initial values of the classes.
+        res: OptimizeResult object
+            returned if full_output is True
+            
         """
         cdef:
             Py_ssize_t param_dim = len(param_keys)
@@ -652,7 +657,10 @@ cdef class SIR_type:
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
         params = res[0]
-        return params
+        if full_output==True:
+            return res
+        else:
+            return params
 
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
@@ -674,7 +682,7 @@ cdef class SIR_type:
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
                             verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
-                            cma_processes=0, cma_population=16, cma_stds=None):
+                            cma_processes=0, cma_population=16, cma_stds=None, full_output=False):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown
@@ -726,11 +734,16 @@ cdef class SIR_type:
             The number of samples used in each step of the CMA algorithm.
         cma_stds: int, optional
             The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
+        full_output: bool, optional
+            Set to True to return full minimization output
 
         Returns
         -------
-        res: numpy.array
-            MAP estimate of the control parameters
+        params: numpy.array
+            MAP estimate of control parameters
+        res: OptimizeResult object
+            returned if full_output is True
+            
         """
 
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
@@ -745,8 +758,12 @@ cdef class SIR_type:
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+        params = res[0]
 
-        return res[0]
+        if full_output == True:
+            return res
+        else:
+            return params
 
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
