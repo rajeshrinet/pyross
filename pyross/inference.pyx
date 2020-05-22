@@ -1133,10 +1133,10 @@ cdef class SIR_type:
             double dt, logp, t
             Py_ssize_t i
         time_points = np.linspace(0, Tf, Nf)
-        dt = time_points[1]
-        dx = np.gradient(x, axis=0)
+        dt = time_points[2]
+        dx = np.gradient(x, axis=0)*2
         logp = 0
-        for i in range(Nf-1):
+        for i in range(1, Nf-1):
             xt = x[i]
             t = time_points[i]
             dx_det, cov = self.estimate_dx_and_cov(xt, t, dt, model, contactMatrix)
