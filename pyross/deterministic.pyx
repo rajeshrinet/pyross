@@ -16,6 +16,10 @@ cdef class IntegratorsClass:
     Methods
     -------
     simulateRHS: Performs numerical integration.
+    
+    simulator: interface for user to call simulateRHS 
+
+    set_contactMatrix: setting contact matrix
     """
 
     def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
@@ -96,8 +100,56 @@ cdef class IntegratorsClass:
                             Alternatively, write your own integrator to evolve the system in time \n")
         return X, time_points
 
+
     cpdef set_contactMatrix(self, double t, contactMatrix):
         self.CM=contactMatrix(t)
+
+
+    def simulator(self, x0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', maxNumSteps=100000, **kwargs):
+        """
+        Parameters
+        ----------
+        x0: np.array
+            Initial number of compartment values.
+        contactMatrix: python function(t)
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
+             individual in class i with an individual in class j
+        Tf: float
+            Final time of integrator
+        Nf: Int
+            Number of time points to evaluate.
+        Ti: float, optional
+            Start time of integrator. The default is 0.
+        integrator: TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        maxNumSteps: int, optional
+            maximum number of steps the integrator can take. The default is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        dict
+            'X': output path from integrator, 't': time points evaluated at,
+            'param': input param to integrator.
+
+        """
+
+        def rhs0(xt, t):
+            self.CM = contactMatrix(t)
+            self.rhs(xt, t)
+            return self.dxdt
+
+        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+
+        data     = {'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M}
+        data_out = data.copy()    
+        data_out.update(self.paramList)
+        return data_out
+
+
+
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -153,9 +205,9 @@ cdef class SIR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
 
+        self.paramList = parameters
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -177,7 +229,6 @@ cdef class SIR(IntegratorsClass):
             double [:] Is   = xt[2*M:3*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] dxdt = self.dxdt
 
             double [:] alpha= self.alpha
@@ -188,14 +239,14 @@ cdef class SIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS - FM[i]                                           # \dot S
-            dxdt[i+M]   = alpha[i]*rateS     - gIa*Ia[i] + alpha[i]    *FM[i]      # \dot Ia
-            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i] + (1-alpha[i])*FM[i]      # \dot Is
+            dxdt[i]     = -rateS                                                   # \dot S
+            dxdt[i+M]   = alpha[i]*rateS     - gIa*Ia[i]                           # \dot Ia
+            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs*Is[i]                           # \dot Is
         return
 
 
     def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint',
-                 Ti=0, seedRate=None, maxNumSteps=10000, **kwargs):
+                 Ti=0, maxNumSteps=10000, **kwargs):
         """
         Parameters
         ----------
@@ -218,8 +269,6 @@ cdef class SIR(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional (DEPRICATED)
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -234,10 +283,6 @@ cdef class SIR(IntegratorsClass):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
 
@@ -352,8 +397,9 @@ cdef class SIkR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # right hand side
+        
+        self.paramList = parameters
 
 
     cpdef rhs(self, xt, tt):
@@ -364,7 +410,6 @@ cdef class SIkR(IntegratorsClass):
             double [:] I    = xt[M  :(kI+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] dxdt = self.dxdt
 
         for i in range(M):
@@ -374,8 +419,8 @@ cdef class SIkR(IntegratorsClass):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS - FM[i]
-            dxdt[i+M]   = rateS - gI*I[i] + FM[i]
+            dxdt[i]     = -rateS 
+            dxdt[i+M]   = rateS - gI*I[i] 
 
             for j in range(kI-1):
                 dxdt[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
@@ -383,7 +428,7 @@ cdef class SIkR(IntegratorsClass):
 
 
     def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
-                 seedRate=None, maxNumSteps=100000, **kwargs):
+                 maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -404,8 +449,6 @@ cdef class SIkR(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -420,10 +463,6 @@ cdef class SIkR(IntegratorsClass):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
 
@@ -538,6 +577,7 @@ cdef class SEIR(IntegratorsClass):
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha']                        # fraction of asymptomatics
 
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -545,7 +585,6 @@ cdef class SEIR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -567,7 +606,6 @@ cdef class SEIR(IntegratorsClass):
             double [:] Is    = xt[3*M:4*M]
             double [:] Ni    = self.Ni
             double [:,:] CM  = self.CM
-            double [:]   FM  = self.FM
             double [:] dxdt  = self.dxdt
             double [:] alpha = self.alpha
 
@@ -577,15 +615,15 @@ cdef class SEIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS - FM[i]                             # \dot S
-            dxdt[i+M]   = rateS       - gE*  E[i] + FM[i]            # \dot E
+            dxdt[i]     = -rateS                                     # \dot S
+            dxdt[i+M]   = rateS       - gE*  E[i]                    # \dot E
             dxdt[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # \dot Ia
             dxdt[i+3*M] = ce2*E[i] - gIs*Is[i]                       # \dot Is
         return
 
 
     def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
-                        seedRate=None, maxNumSteps=100000, **kwargs):
+                        maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -610,8 +648,6 @@ cdef class SEIR(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -626,10 +662,6 @@ cdef class SEIR(IntegratorsClass):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
 
@@ -759,6 +791,8 @@ cdef class SEkIkR(IntegratorsClass):
         self.kI    = parameters['kI']                           # number of stages
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kE + 1
+        
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -766,7 +800,6 @@ cdef class SEkIkR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( (self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
 
         if self.kE==0:
@@ -785,7 +818,6 @@ cdef class SEkIkR(IntegratorsClass):
             double [:] I    = xt[(kE+1)*M  :(kE+kI+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] dxdt = self.dxdt
 
         for i in range(M):
@@ -795,10 +827,10 @@ cdef class SEkIkR(IntegratorsClass):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS - FM[i]
+            dxdt[i]     = -rateS        
 
             #Exposed class
-            dxdt[i+M+0] = rateS - gE*E[i] + FM[i]
+            dxdt[i+M+0] = rateS - gE*E[i]        
             for j in range(kE-1) :
                 dxdt[i+M+(j+1)*M] = gE * E[i+j*M] - gE*E[i+(j+1)*M]
 
@@ -810,7 +842,7 @@ cdef class SEkIkR(IntegratorsClass):
 
 
     def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
-            seedRate=None, maxNumSteps=100000, **kwargs):
+            maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -833,8 +865,6 @@ cdef class SEkIkR(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -849,10 +879,6 @@ cdef class SEkIkR(IntegratorsClass):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
 
@@ -986,6 +1012,8 @@ cdef class SEkIkIkR(IntegratorsClass):
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kI + self.kE + 1
+        
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -993,7 +1021,6 @@ cdef class SEkIkIkR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
 
         if self.kE==0:
@@ -1283,6 +1310,8 @@ cdef class SEI5R(IntegratorsClass):
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
         cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
         mm         = parameters['mm']                       # mortality fraction from ICU
+        
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1375,7 +1404,7 @@ cdef class SEI5R(IntegratorsClass):
 
 
     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0,
-                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+                    integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -1406,8 +1435,6 @@ cdef class SEI5R(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -1670,6 +1697,7 @@ cdef class SEI8R(IntegratorsClass):
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
         cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
         mm         = parameters['mm']                       # mortality fraction from ICU
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -1769,7 +1797,7 @@ cdef class SEI8R(IntegratorsClass):
 
 
     def simulate(self, S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0,
-                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+                    integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -1800,8 +1828,6 @@ cdef class SEI8R(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -2023,6 +2049,8 @@ cdef class SEAIR(IntegratorsClass):
         self.gA    = parameters['gA']                           # rate to go from A to Ia, Is
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha']
+        
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -2030,7 +2058,6 @@ cdef class SEAIR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -2055,7 +2082,6 @@ cdef class SEAIR(IntegratorsClass):
             double [:] Is   = xt[4*M:5*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] dxdt = self.dxdt
 
             double [:] alpha= self.alpha
@@ -2066,8 +2092,8 @@ cdef class SEAIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS - FM[i]                          # \dot S
-            dxdt[i+M]   =  rateS      - gE*E[i] + FM[i]           # \dot E
+            dxdt[i]     = -rateS                                  # \dot S
+            dxdt[i+M]   =  rateS   - gE*E[i]                   # \dot E
             dxdt[i+2*M] = gE* E[i] - gA*A[i]                      # \dot A
             dxdt[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # \dot Ia
             dxdt[i+4*M] = gAS*A[i] - gIs     *Is[i]               # \dot Is
@@ -2075,7 +2101,7 @@ cdef class SEAIR(IntegratorsClass):
 
 
     def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0,
-             integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+             integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -2102,8 +2128,6 @@ cdef class SEAIR(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -2118,10 +2142,6 @@ cdef class SEAIR(IntegratorsClass):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
@@ -2314,6 +2334,8 @@ cdef class SEAI5R(IntegratorsClass):
         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
 
+        self.paramList = parameters
+
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
@@ -2413,7 +2435,7 @@ cdef class SEAI5R(IntegratorsClass):
 
 
     def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0,
-                 integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+                 integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -2446,8 +2468,6 @@ cdef class SEAI5R(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -2726,6 +2746,8 @@ cdef class SEAI8R(IntegratorsClass):
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
         cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
         mm         = parameters['mm']                       # mortality fraction from ICU
+        
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -2827,7 +2849,7 @@ cdef class SEAI8R(IntegratorsClass):
 
 
     def simulate(self, S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0,
-                    integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+                    integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -2858,8 +2880,6 @@ cdef class SEAI8R(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -3121,9 +3141,10 @@ cdef class SEAIRQ(IntegratorsClass):
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
+        
+        self.paramList = parameters
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -3152,7 +3173,6 @@ cdef class SEAIRQ(IntegratorsClass):
             double [:] Q    = xt[5*M:6*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] dxdt = self.dxdt
 
             double [:] alpha= self.alpha
@@ -3163,8 +3183,8 @@ cdef class SEAIRQ(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS      - FM[i]                         # \dot S
-            dxdt[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E
+            dxdt[i]     = -rateS                                      # \dot S
+            dxdt[i+M]   = rateS    - (gE+tE)     *E[i]                # \dot E
             dxdt[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A
             dxdt[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia
             dxdt[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is
@@ -3173,7 +3193,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
 
     def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0,
-                     integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -3202,8 +3222,6 @@ cdef class SEAIRQ(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -3218,10 +3236,6 @@ cdef class SEAIRQ(IntegratorsClass):
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
 
@@ -3405,6 +3419,8 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         self.kapE    = parameters['kapE']                   # fraction of positive tests for exposed
 
         alpha      = parameters['alpha']
+        
+        self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -3412,7 +3428,6 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.TR    = np.zeros( self.M, dtype = DTYPE)           # test rate
         self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
 
@@ -3443,7 +3458,6 @@ cdef class SEAIRQ_testing(IntegratorsClass):
             double [:] Q    = xt[5*M:6*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:]   TR = self.TR
             double [:] dxdt = self.dxdt
 
@@ -3463,8 +3477,8 @@ cdef class SEAIRQ_testing(IntegratorsClass):
             tIs = TR[i]*t0
 
 
-            dxdt[i]     = -rateS      - FM[i]                         # \dot S
-            dxdt[i+M]   =  rateS      - (gE+tE)     *E[i] + FM[i]     # \dot E
+            dxdt[i]     = -rateS                                      # \dot S
+            dxdt[i+M]   =  rateS   - (gE+tE)     *E[i]                # \dot E
             dxdt[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A
             dxdt[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia
             dxdt[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is
@@ -3474,7 +3488,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
 
     def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, testRate, Tf, Nf, Ti=0,
-                     integrator='odeint', seedRate=None, maxNumSteps=100000, **kwargs):
+                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -3505,8 +3519,6 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
@@ -3522,10 +3534,6 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.TR = testRate(t)
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(xt, t)
             return self.dxdt
 
@@ -3708,7 +3716,6 @@ cdef class SIRS(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
@@ -3765,7 +3772,7 @@ cdef class SIRS(IntegratorsClass):
 
 
     def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
-                     seedRate=None, maxNumSteps=100000, **kwargs):
+                     maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -3788,8 +3795,6 @@ cdef class SIRS(IntegratorsClass):
         integrator: str, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
