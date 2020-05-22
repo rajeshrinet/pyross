@@ -7,7 +7,7 @@
  
 ## About
 
-[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library for **inference**, **prediction** and **non-pharmaceutical interventions** in age-structured epidemiological compartment models. 
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library that offers an integrated platform for **inference**, **prediction** and **non-pharmaceutical interventions** in age- and contact-structured epidemiological compartment models. 
 
 The library is designed to be model-agnostic and **allows the user to define models** in a JSON format. The most common epidemiological models, and several less common ones, come pre-defined with the library. Models can include **stages** to allow for non-exponentially distributed compartmental residence times. Currently,  [pre-defined models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include ones with multiple infectious (symptomatic, asymptomatic etc) and non-infectious (exposed, asymptomatic etc) classes.
 
