@@ -4,9 +4,10 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import minimize, approx_fprime
 from scipy.stats import lognorm
 import numpy as np
-from numpy.polynomial.chebyshev import chebfit, chebval
+from scipy.interpolate import make_interp_spline
 cimport numpy as np
 cimport cython
+import time
 
 import pyross.deterministic
 cimport pyross.deterministic
@@ -41,8 +42,8 @@ cdef class SIR_type:
         self.N = N
         self.M = M
         self.fi = fi
-        if steps < 2:
-            raise Exception('Steps must be at least 2')
+        if steps < 4:
+            raise Exception('Steps must be at least 4 for internal spline interpolation.')
         self.steps = steps
         self.set_params(parameters)
 
@@ -1161,22 +1162,23 @@ cdef class SIR_type:
         cdef:
             double [:, :] cov
             double [:, :] x
-            double [:, :] cheb_coef
             double [:] time_points = np.linspace(t1, t2, self.steps)
             np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
             double first_step
-        x = self.integrate(x0, t1, t2, self.steps, model, contactMatrix, maxNumSteps=self.steps*10)
-        cheb_coef, _ = chebfit(time_points, x, 16, full=True) # even number seems to behave better
+
+        x = self.integrate(x0, t1, t2, self.steps, model, contactMatrix, maxNumSteps=self.steps*2)
+        spline = make_interp_spline(time_points, x)
+
         def rhs(t, sig):
             self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
-            self.lyapunov_fun(t, sig, cheb_coef)
+            self.lyapunov_fun(t, sig, spline)
             return self.dsigmadt
         first_step = (t2-t1)/self.steps
-        res = solve_ivp(rhs, (t1, t2), sigma0, method='RK23', t_eval=np.array([t1, t2]), first_step=first_step, max_step=self.steps, rtol=1e-1)
+        res = solve_ivp(rhs, (t1, t2), sigma0, method='RK23', t_eval=np.array([t2]), first_step=first_step, max_step=self.steps, rtol=1e-1)
         cov = res.y
-        return x[self.steps-1], self.convert_vec_to_mat(cov[:, 1])
+        return x[self.steps-1], self.convert_vec_to_mat(cov[0])
 
-    cpdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
+    cdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
         cdef:
             double [:] dx_det
             double [:, :] cov
@@ -1283,14 +1285,14 @@ cdef class SIR_type:
                 count += 1
         return cov_mat
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         pass # to be implemented in subclasses
 
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         pass # to be implemented in subclass
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        """A warpper around `simulate` in pyross.deterministic
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+        """An light weight integrate method similar to `simulate` in pyross.deterministic
 
         Parameters
         ----------
@@ -1314,8 +1316,15 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified.
         """
-
-        pass # to be implemented in subclass
+        cdef:
+            double [:, :] sol
+            double [:] time_points = np.linspace(t1, t2, steps)
+        def rhs0(t, xt):
+            model.set_contactMatrix(t, contactMatrix)
+            model.rhs(xt, t)
+            return model.dxdt
+        sol = solve_ivp(rhs0, [t1,t2], x0, method='RK23', t_eval=time_points, max_step=maxNumSteps).y.T
+        return sol
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -1369,11 +1378,11 @@ cdef class SIR(SIR_type):
     def get_init_keys_dict(self):
         return {'S':0, 'Ia':1, 'Is':2}
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, s, Ia, Is
             Py_ssize_t M=self.M
-        x = chebval(t, cheb_coef)
+        x = spline(t)
         s = x[0:M]
         Ia = x[M:2*M]
         Is = x[2*M:3*M]
@@ -1442,17 +1451,6 @@ cdef class SIR(SIR_type):
             B[2, m, 2, m] = balpha[m]*l[m]*s[m] + gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        cdef:
-            double [:] S0, Ia0, Is0
-            double [:, :] sol
-        S0 = x0[0:self.M]
-        Ia0 = x0[self.M:2*self.M]
-        Is0 = x0[2*self.M:3*self.M]
-        data = model.simulate(S0, Ia0, Is0, contactMatrix, t2, steps, Ti=t1)
-        sol = data['X']
-        return sol
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -1518,11 +1516,11 @@ cdef class SEIR(SIR_type):
         return {'S':0, 'E':1, 'Ia':2, 'Is':3}
 
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, s, e, Ia, Is
             Py_ssize_t M=self.M
-        x = chebval(t, cheb_coef)
+        x = spline(t)
         s = x[0:M]
         e = x[M:2*M]
         Ia = x[2*M:3*M]
@@ -1594,19 +1592,6 @@ cdef class SEIR(SIR_type):
             B[2, m, 2, m] = alpha[m]*gE*e[m]+gIa*Ia[m]
             B[3, m, 3, m] = balpha[m]*gE*e[m]+gIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
-
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        cdef:
-            double [:] s, e, Ia, Is
-            double [:, :] sol
-            Py_ssize_t M=self.M
-        s = x0[0:M]
-        e = x0[M:2*M]
-        Ia = x0[2*M:3*M]
-        Is = x0[3*M:4*M]
-        data = model.simulate(s, e, Ia, Is, contactMatrix, t2, steps, Ti=t1)
-        sol = data['X']
-        return sol
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -1747,11 +1732,11 @@ cdef class SEAI5R(SIR_type):
         return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Ih':5, 'Ic':6, 'Im':7}
 
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, s, e, a, Ia, Is, Ih, Ic, Im
             Py_ssize_t M=self.M
-        x = chebval(t, cheb_coef)
+        x = spline(t)
         s = x[0:M]
         e = x[M:2*M]
         a = x[2*M:3*M]
@@ -1855,22 +1840,19 @@ cdef class SEAI5R(SIR_type):
             B[7, m, 7, m] = mm[m]*gIc*Ic[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
-            double [:] s, e, a, Ia, Is, Ih, Ic, Im
             double [:, :] sol
+            double [:] time_points=np.linspace(t1, t2, steps), init
             Py_ssize_t M=self.M
-        s = x0[0:M]
-        e = x0[M:2*M]
-        a = x0[2*M:3*M]
-        Ia = x0[3*M:4*M]
-        Is = x0[4*M:5*M]
-        Ih = x0[5*M:6*M]
-        Ic = x0[6*M:7*M]
-        Im = x0[7*M:8*M]
-        data = model.simulate(s, e, a, Ia, Is, Ih, Ic, Im, contactMatrix, t2, steps, Ti=t1)
-        sol = data['X'][:, :8*M]
-        return sol
+        def rhs0(t, xt):
+            model.set_contactMatrix(t, contactMatrix)
+            model.rhs(xt, t)
+            return model.dxdt
+        init = np.concatenate(x0, self.fi)
+        first_step = (t2-t1)/steps
+        sol = solve_ivp(rhs0, [t1,t2], init, method='RK23', t_eval=time_points, first_step=first_step, max_step=maxNumSteps).y.T
+        return sol[:, :8*M]
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -1977,11 +1959,11 @@ cdef class SEAIRQ(SIR_type):
                           }
         return parameters
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, s, e, a, Ia, Is, Q
             Py_ssize_t M=self.M
-        x = chebval(t, cheb_coef)
+        x = spline(t)
         s = x[0:M]
         e = x[M:2*M]
         a = x[2*M:3*M]
@@ -2075,20 +2057,6 @@ cdef class SEAIRQ(SIR_type):
             B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        cdef:
-            double [:] s, e, a, Ia, Is, q
-            double [:, :] sol
-            Py_ssize_t M=self.M
-        s = x0[0:M]
-        e = x0[M:2*M]
-        a = x0[2*M:3*M]
-        Ia = x0[3*M:4*M]
-        Is = x0[4*M:5*M]
-        q = x0[5*M:]
-        data = model.simulate(s, e, a, Ia, Is, q, contactMatrix, t2, steps, Ti=t1)
-        sol = data['X']
-        return sol
 
 
 @cython.wraparound(False)
@@ -2197,13 +2165,13 @@ cdef class SEAIRQ_testing(SIR_type):
                           }
         return parameters
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, s, e, a, Ia, Is, Q, TR
             double [:, :] CM=self.CM
             double beta=self.beta, fsa=self.fsa
             Py_ssize_t m, n, M=self.M
-        x = chebval(t, cheb_coef)
+        x = spline(t)
         s = x[0:M]
         e = x[M:2*M]
         a = x[2*M:3*M]
@@ -2297,7 +2265,7 @@ cdef class SEAIRQ_testing(SIR_type):
             B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             np.ndarray S, E, A, Ia, Is, Q
             double N=self.N
@@ -2406,11 +2374,11 @@ cdef class Spp(SIR_type):
         param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
         return param_dict
 
-    cdef lyapunov_fun(self, double t, double [:] sig, double [:, :] cheb_coef):
+    cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-        x = chebval(t, cheb_coef)
+        x = spline(t)
         cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
         self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
         self.J = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
@@ -2511,10 +2479,3 @@ cdef class Spp(SIR_type):
                     B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
-
-    cpdef integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        cdef:
-            double [:, :] sol
-        data = model.simulate(np.array(x0), contactMatrix, t2, steps, Ti=t1, maxNumSteps=maxNumSteps)
-        sol = data['X']
-        return sol
