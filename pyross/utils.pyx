@@ -161,6 +161,45 @@ def make_log_norm_dist(means, stds):
     return s, scale
 
 
+DTYPE = np.float
+
+cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
+    cdef:
+        double dt=(t2-t1)/(steps-1),t=t1
+        double [:] fx
+        Py_ssize_t i, j, size=x.shape[0]
+        double [:, :] sol=np.empty((steps, size), dtype=DTYPE)
+
+    for j in range(size):
+        sol[0, j] = x[j]
+    for i in range(1, steps):
+        fx = f(t, x)
+        for j in range(size):
+            sol[i, j] = sol[i-1, j] + fx[j]*dt
+        t += dt
+    return sol
+
+cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
+    cdef:
+        double dt=(t2-t1)/(steps-1),t=t1
+        double [:] fx
+        Py_ssize_t i, j, size=x.shape[0]
+        double [:] k1=np.empty((size), dtype=DTYPE), temp=np.empty((size), dtype=DTYPE)
+        double [:, :] sol=np.empty((steps, size), dtype=DTYPE)
+
+    for j in range(size):
+        sol[0, j] = x[j]
+    for i in range(1, steps):
+        fx = f(t, x)
+        for j in range(size):
+            k1[j] = dt*fx[j]
+            temp[j] = sol[i-1, j] + k1[j]
+        t += dt
+        fx = f(t, temp)
+        for j in range(size):
+            sol[i, j] = sol[i-1, j] + 0.5*(k1[j] + dt*fx[j])
+    return sol
+
 def plotSIR(data, showPlot=True):
     t = data['t']
     X = data['X']

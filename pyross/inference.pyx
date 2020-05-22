@@ -36,9 +36,10 @@ cdef class SIR_type:
         readonly beta, gIa, gIs, fsa
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
+        readonly str det_method, lyapunov_method
 
 
-    def __init__(self, parameters, nClass, M, fi, N, steps):
+    def __init__(self, parameters, nClass, M, fi, N, steps, det_method, lyapunov_method):
         self.N = N
         self.M = M
         self.fi = fi
@@ -46,6 +47,8 @@ cdef class SIR_type:
             raise Exception('Steps must be at least 4 for internal spline interpolation.')
         self.steps = steps
         self.set_params(parameters)
+        self.det_method=det_method
+        self.lyapunov_method=lyapunov_method
 
         self.dim = nClass*M
         self.vec_size = int(self.dim*(self.dim+1)/2)
@@ -597,6 +600,8 @@ cdef class SIR_type:
             Bounds for the parameters + initial conditions
             ((number of parameters + number of initial conditions) x 2).
             Better bounds makes it easier to find the true global minimum.
+        tangent: bool, optional
+            Set to True to use tangent space inference (about 10 times faster, but may not be as accurate).
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: float, optional
@@ -630,7 +635,7 @@ cdef class SIR_type:
             MAP estimate of paramters and initial values of the classes.
         res: OptimizeResult object
             returned if full_output is True
-            
+
         """
         cdef:
             Py_ssize_t param_dim = len(param_keys)
@@ -744,7 +749,7 @@ cdef class SIR_type:
             MAP estimate of control parameters
         res: OptimizeResult object
             returned if full_output is True
-            
+
         """
 
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
@@ -967,6 +972,8 @@ cdef class SIR_type:
             The total number of datapoints
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
+        tangent: bool, optional
+            Set to True to do infernece in tangent space.
 
         Returns
         -------
@@ -987,6 +994,12 @@ cdef class SIR_type:
             assert fltr.ndim == 2
             minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
         return minus_logp
+
+    def set_lyapunov_method(self, lyapunov_method):
+        self.lyapunov_method=lyapunov_method
+
+    def set_det_method(self, det_method):
+        self.det_method=det_method
 
     def make_det_model(self, parameters):
         '''Returns a determinisitic model of the same epidemiological class and same parameters
@@ -1116,7 +1129,7 @@ cdef class SIR_type:
         cov_red_inv=np.linalg.inv(cov_red)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
         sign,ldet=np.linalg.slogdet(cov_red)
-        if sign <0:
+        if sign < 0:
             raise ValueError('Cov has negative determinant')
         log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
@@ -1177,23 +1190,32 @@ cdef class SIR_type:
 
     cdef estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
         cdef:
-            double [:, :] cov
+            double [:, :] cov_array
+            double [:] cov
             double [:, :] x
-            double [:] time_points = np.linspace(t1, t2, self.steps)
             np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
-            double first_step
+            Py_ssize_t steps = self.steps
+            double [:] time_points = np.linspace(t1, t2, steps)
 
-        x = self.integrate(x0, t1, t2, self.steps, model, contactMatrix, maxNumSteps=self.steps*2)
-        spline = make_interp_spline(time_points, x)
+        x = self.integrate(x0, t1, t2, steps, model, contactMatrix)
+        spline = make_interp_spline(time_points, np.log(x))
 
         def rhs(t, sig):
             self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
             self.lyapunov_fun(t, sig, spline)
             return self.dsigmadt
-        first_step = (t2-t1)/self.steps
-        res = solve_ivp(rhs, (t1, t2), sigma0, method='RK23', t_eval=np.array([t2]), first_step=first_step, max_step=self.steps, rtol=1e-1)
-        cov = res.y
-        return x[self.steps-1], self.convert_vec_to_mat(cov[0])
+        if self.lyapunov_method=='euler':
+            cov_array = pyross.utils.forward_euler_integration(rhs, sigma0, t1, t2, steps)
+            cov = cov_array[steps-1]
+        elif self.lyapunov_method=='solve_ivp':
+            cov_array = solve_ivp(rhs, (t1, t2), sigma0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            cov = cov_array[0]
+        elif self.lyapunov_method=='RK2':
+            cov_array = pyross.utils.RK2_integration(rhs, sigma0, t1, t2, steps)
+            cov = cov_array[steps-1]
+        else:
+            raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
+        return x[steps-1], self.convert_vec_to_mat(cov)
 
     cdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
         cdef:
@@ -1308,6 +1330,7 @@ cdef class SIR_type:
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         pass # to be implemented in subclass
 
+
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         """An light weight integrate method similar to `simulate` in pyross.deterministic
 
@@ -1333,14 +1356,19 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified.
         """
-        cdef:
-            double [:, :] sol
-            double [:] time_points = np.linspace(t1, t2, steps)
         def rhs0(t, xt):
             model.set_contactMatrix(t, contactMatrix)
             model.rhs(xt, t)
             return model.dxdt
-        sol = solve_ivp(rhs0, [t1,t2], x0, method='RK23', t_eval=time_points, max_step=maxNumSteps).y.T
+        if self.det_method=='solve_ivp':
+            time_points = np.linspace(t1, t2, steps)
+            sol = solve_ivp(rhs0, [t1,t2], x0, method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
+        elif self.det_method=='euler':
+            sol = pyross.utils.forward_euler_integration(rhs0, x0, t1, t2, steps)
+        elif self.det_method=='RK2':
+            sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
+        else:
+            raise Exception("Error: det_method not found. use set_det_method to reset.")
         return sol
 
 @cython.wraparound(False)
@@ -1379,8 +1407,8 @@ cdef class SIR(SIR_type):
         Total population
     """
 
-    def __init__(self, parameters, M, fi, N, steps):
-        super().__init__(parameters, 3, M, fi, N, steps)
+    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+        super().__init__(parameters, 3, M, fi, N, steps, det_method, lyapunov_method)
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SIR(parameters, self.M, self.fi)
@@ -1399,7 +1427,7 @@ cdef class SIR(SIR_type):
         cdef:
             double [:] x, s, Ia, Is
             Py_ssize_t M=self.M
-        x = spline(t)
+        x = np.exp(spline(t))
         s = x[0:M]
         Ia = x[M:2*M]
         Is = x[2*M:3*M]
@@ -1412,11 +1440,12 @@ cdef class SIR(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, Ia, Is
+            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         Ia = x[M:2*M]
         Is = x[2*M:3*M]
-        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
         self.noise_correlation(s, Ia, Is, l)
@@ -1509,8 +1538,8 @@ cdef class SEIR(SIR_type):
     cdef:
         readonly double gE
 
-    def __init__(self, parameters, M, fi, N, steps):
-        super().__init__(parameters, 4, M, fi, N, steps)
+    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+        super().__init__(parameters, 4, M, fi, N, steps, det_method, lyapunov_method)
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -1537,7 +1566,7 @@ cdef class SEIR(SIR_type):
         cdef:
             double [:] x, s, e, Ia, Is
             Py_ssize_t M=self.M
-        x = spline(t)
+        x = np.exp(spline(t))
         s = x[0:M]
         e = x[M:2*M]
         Ia = x[2*M:3*M]
@@ -1551,12 +1580,13 @@ cdef class SEIR(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, Ia, Is
+            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         e = x[M:2*M]
         Ia = x[2*M:3*M]
         Is = x[3*M:4*M]
-        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
         self.noise_correlation(s, e, Ia, Is, l)
@@ -1668,8 +1698,8 @@ cdef class SEAI5R(SIR_type):
         readonly double gE, gA, gIh, gIc, fh
         readonly np.ndarray hh, cc, mm
 
-    def __init__(self, parameters, M, fi, N, steps):
-        super().__init__(parameters, 8, M, fi, N, steps)
+    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+        super().__init__(parameters, 8, M, fi, N, steps, det_method, lyapunov_method)
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -1753,7 +1783,7 @@ cdef class SEAI5R(SIR_type):
         cdef:
             double [:] x, s, e, a, Ia, Is, Ih, Ic, Im
             Py_ssize_t M=self.M
-        x = spline(t)
+        x = np.exp(spline(t))
         s = x[0:M]
         e = x[M:2*M]
         a = x[2*M:3*M]
@@ -1771,6 +1801,7 @@ cdef class SEAI5R(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Ih, Ic, Im
+            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         e = x[M:2*M]
@@ -1780,7 +1811,7 @@ cdef class SEAI5R(SIR_type):
         Ih = x[5*M:6*M]
         Ic = x[6*M:7*M]
         Im = x[7*M:8*M]
-        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, Ih, l)
         self.noise_correlation(s, e, a, Ia, Is, Ih, Ic, l)
@@ -1860,15 +1891,9 @@ cdef class SEAI5R(SIR_type):
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         cdef:
             double [:, :] sol
-            double [:] time_points=np.linspace(t1, t2, steps), init
             Py_ssize_t M=self.M
-        def rhs0(t, xt):
-            model.set_contactMatrix(t, contactMatrix)
-            model.rhs(xt, t)
-            return model.dxdt
         init = np.concatenate(x0, self.fi)
-        first_step = (t2-t1)/steps
-        sol = solve_ivp(rhs0, [t1,t2], init, method='RK23', t_eval=time_points, first_step=first_step, max_step=maxNumSteps).y.T
+        sol = super().integrate(init, t1, t2, steps, model, contactMatrix, maxNumSteps)
         return sol[:, :8*M]
 
 @cython.wraparound(False)
@@ -1925,8 +1950,8 @@ cdef class SEAIRQ(SIR_type):
     cdef:
         readonly double gE, gA, tE, tA, tIa, tIs
 
-    def __init__(self, parameters, M, fi, N, steps):
-        super().__init__(parameters, 6, M, fi, N, steps)
+    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+        super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
 
     def get_init_keys_dict(self):
         return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
@@ -1980,7 +2005,7 @@ cdef class SEAIRQ(SIR_type):
         cdef:
             double [:] x, s, e, a, Ia, Is, Q
             Py_ssize_t M=self.M
-        x = spline(t)
+        x = np.exp(spline(t))
         s = x[0:M]
         e = x[M:2*M]
         a = x[2*M:3*M]
@@ -1996,6 +2021,7 @@ cdef class SEAIRQ(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q
+            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         e = x[M:2*M]
@@ -2003,7 +2029,7 @@ cdef class SEAIRQ(SIR_type):
         Ia = x[3*M:4*M]
         Is = x[4*M:5*M]
         q = x[5*M:6*M]
-        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
         self.noise_correlation(s, e, a, Ia, Is, q, l)
@@ -2133,8 +2159,8 @@ cdef class SEAIRQ_testing(SIR_type):
         readonly double gE, gA, tE, tA, tIa, tIs, ars, kapE
         readonly object testRate
 
-    def __init__(self, parameters, testRate, M, fi, N, steps):
-        super().__init__(parameters, 6, M, fi, N, steps)
+    def __init__(self, parameters, testRate, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+        super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
         self.testRate=testRate
 
     def get_init_keys_dict(self):
@@ -2188,7 +2214,7 @@ cdef class SEAIRQ_testing(SIR_type):
             double [:, :] CM=self.CM
             double beta=self.beta, fsa=self.fsa
             Py_ssize_t m, n, M=self.M
-        x = spline(t)
+        x = np.exp(spline(t))
         s = x[0:M]
         e = x[M:2*M]
         a = x[2*M:3*M]
@@ -2356,14 +2382,14 @@ cdef class Spp(SIR_type):
         readonly pyross.deterministic.Spp det_model
 
 
-    def __init__(self, model_spec, parameters, M, fi, N, steps):
+    def __init__(self, model_spec, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
         self.linear_terms = res[2]
         self.infection_terms = res[3]
-        super().__init__(parameters, self.nClass, M, fi, N, steps)
+        super().__init__(parameters, self.nClass, M, fi, N, steps, det_method, lyapunov_method)
         self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi)
 
 
@@ -2395,7 +2421,7 @@ cdef class Spp(SIR_type):
         cdef:
             double [:] x
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-        x = spline(t)
+        x = np.exp(spline(t))
         cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
         self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
         self.J = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
@@ -2405,9 +2431,11 @@ cdef class Spp(SIR_type):
         self.compute_dsigdt(sig)
 
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
-        cdef Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-        self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
-        cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
+        cdef:
+            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
+            double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
+            double [:, :] CM=contactMatrix(t)
+        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
         self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
         self.fill_lambdas(x, l)
         self.noise_correlation(x, l)
