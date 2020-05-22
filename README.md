@@ -47,7 +47,7 @@ PyRoss requires the following software
 - Optional:  integrators ([OdesPy](https://github.com/rajeshrinet/odespy)) |  parallelizing inference ([pathos](https://anaconda.org/conda-forge/pathos)) |  data files ([Pandas](https://pandas.pydata.org/), [xlrd](https://xlrd.readthedocs.io/en/latest/))
 
 
-Clone (or download) the repository and use a terminal to install PyRoss (above requirements need to be satisfied)
+Clone (or download) the repository and use a terminal to install PyRoss (above [requirements](https://github.com/rajeshrinet/pyross/blob/master/requirements.txt) need to be satisfied)
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
 >> cd pyross
