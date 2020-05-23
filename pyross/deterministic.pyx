@@ -16,8 +16,8 @@ cdef class IntegratorsClass:
     Methods
     -------
     simulateRHS: Performs numerical integration.
-    
-    simulator: interface for user to call simulateRHS 
+
+    simulator: interface for user to call simulateRHS
 
     set_contactMatrix: setting contact matrix
     """
@@ -144,7 +144,7 @@ cdef class IntegratorsClass:
         X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data     = {'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M}
-        data_out = data.copy()    
+        data_out = data.copy()
         data_out.update(self.paramList)
         return data_out
 
@@ -166,7 +166,7 @@ cdef class SIR(IntegratorsClass):
     ----------
     parameters: dict
         Contains the following keys:
-        
+
         alpha: float, np.array (M,)
             fraction of infected who are asymptomatic.
         beta: float
@@ -398,7 +398,7 @@ cdef class SIkR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # right hand side
-        
+
         self.paramList = parameters
 
 
@@ -419,8 +419,8 @@ cdef class SIkR(IntegratorsClass):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS 
-            dxdt[i+M]   = rateS - gI*I[i] 
+            dxdt[i]     = -rateS
+            dxdt[i+M]   = rateS - gI*I[i]
 
             for j in range(kI-1):
                 dxdt[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
@@ -791,7 +791,7 @@ cdef class SEkIkR(IntegratorsClass):
         self.kI    = parameters['kI']                           # number of stages
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kE + 1
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
@@ -827,10 +827,10 @@ cdef class SEkIkR(IntegratorsClass):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS        
+            dxdt[i]     = -rateS
 
             #Exposed class
-            dxdt[i+M+0] = rateS - gE*E[i]        
+            dxdt[i+M+0] = rateS - gE*E[i]
             for j in range(kE-1) :
                 dxdt[i+M+(j+1)*M] = gE * E[i+j*M] - gE*E[i+(j+1)*M]
 
@@ -1012,7 +1012,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kI + self.kE + 1
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
@@ -1310,7 +1310,7 @@ cdef class SEI5R(IntegratorsClass):
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
         cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
         mm         = parameters['mm']                       # mortality fraction from ICU
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
@@ -2049,7 +2049,7 @@ cdef class SEAIR(IntegratorsClass):
         self.gA    = parameters['gA']                           # rate to go from A to Ia, Is
         self.fsa   = parameters['fsa']                          # the self-isolation parameter
         alpha      = parameters['alpha']
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
@@ -2746,7 +2746,7 @@ cdef class SEAI8R(IntegratorsClass):
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
         cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
         mm         = parameters['mm']                       # mortality fraction from ICU
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
@@ -3141,7 +3141,7 @@ cdef class SEAIRQ(IntegratorsClass):
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
-        
+
         self.paramList = parameters
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -3419,7 +3419,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         self.kapE    = parameters['kapE']                   # fraction of positive tests for exposed
 
         alpha      = parameters['alpha']
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)

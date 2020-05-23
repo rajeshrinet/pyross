@@ -176,6 +176,8 @@ cdef class SIR_type:
             Number of data points along the trajectory
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
+        tangent: bool, optional
+            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
         infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
             Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
             for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
@@ -601,7 +603,7 @@ cdef class SIR_type:
             ((number of parameters + number of initial conditions) x 2).
             Better bounds makes it easier to find the true global minimum.
         tangent: bool, optional
-            Set to True to use tangent space inference (about 10 times faster, but may not be as accurate).
+            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: float, optional
@@ -973,7 +975,7 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
         tangent: bool, optional
-            Set to True to do infernece in tangent space.
+            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
 
         Returns
         -------
@@ -996,9 +998,25 @@ cdef class SIR_type:
         return minus_logp
 
     def set_lyapunov_method(self, lyapunov_method):
+        '''Sets the method used for deterministic integration for the SIR_type model
+        Parameters
+        ----------
+        det_method: str
+            The name of the integration method. Choose between 'solve_ivp', 'RK2' and 'euler'.
+        '''
+        if lyapunov_method not in ['solve_ivp', 'RK2', 'euler']:
+            raise Exception('det_method not implemented. Please see our documentation for the available options')
         self.lyapunov_method=lyapunov_method
 
     def set_det_method(self, det_method):
+        '''Sets the method used for deterministic integration for the SIR_type model
+        Parameters
+        ----------
+        det_method: str
+            The name of the integration method. Choose between 'solve_ivp', 'RK2' and 'euler'.
+        '''
+        if det_method not in ['solve_ivp', 'RK2', 'euler']:
+            raise Exception('det_method not implemented. Please see our documentation for the available options')
         self.det_method=det_method
 
     def make_det_model(self, parameters):
@@ -1350,11 +1368,13 @@ cdef class SIR_type:
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
+        maxNumSteps:
+            The maximum number of steps taken by the integrator.
 
         Returns
         -------
         sol: np.array
-            The state of the system evaulated at the time point specified.
+            The state of the system evaulated at the time point specified. Only used if det_method is set to 'solve_ivp'.
         """
         def rhs0(t, xt):
             model.set_contactMatrix(t, contactMatrix)
@@ -1405,6 +1425,18 @@ cdef class SIR(SIR_type):
         Fraction of each age group
     N: int
         Total population
+    steps: int
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        The minimal is 4, as required by the cubic spline fit used for interpolation.
+        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
+    det_method: str, optional
+        The integration method used for deterministic integration.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
     """
 
     def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
@@ -1533,6 +1565,18 @@ cdef class SEIR(SIR_type):
         Fraction of each age group
     N: int
         Total population
+    steps: int
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        The minimal is 4, as required by the cubic spline fit used for interpolation.
+        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
+    det_method: str, optional
+        The integration method used for deterministic integration.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
     """
 
     cdef:
@@ -1693,6 +1737,18 @@ cdef class SEAI5R(SIR_type):
         Fraction of each age group
     N: int
         Total population
+    steps: int
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        The minimal is 4, as required by the cubic spline fit used for interpolation.
+        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
+    det_method: str, optional
+        The integration method used for deterministic integration.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
     """
     cdef:
         readonly double gE, gA, gIh, gIc, fh
@@ -1945,6 +2001,18 @@ cdef class SEAIRQ(SIR_type):
         Fraction of each age group.
     N: int
         Total population.
+    steps: int
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        The minimal is 4, as required by the cubic spline fit used for interpolation.
+        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
+    det_method: str, optional
+        The integration method used for deterministic integration.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
     """
 
     cdef:
@@ -2146,14 +2214,14 @@ cdef class SEAIRQ_testing(SIR_type):
         fraction of positive tests for exposed individuals
     testRate: python function
         number of tests per day and age group
-
-    Methods
-    -------
-    All methods of the superclass SIR_type
-    make_det_model : returns deterministic model
-    make_params_dict : returns a dictionary of the input parameters
-    set_tesRate : update testRate function
-    integrate : returns numerical integration of the chosen model
+    steps: int
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        The minimal is 4, as required by the cubic spline fit used for interpolation.
+    det_method: str, optional
+        Not yet configured for this class.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
     """
     cdef:
         readonly double gE, gA, tE, tA, tIa, tIs, ars, kapE
@@ -2349,7 +2417,18 @@ cdef class Spp(SIR_type):
     N: int
         Total population.
     steps: int
-        Number of internal steps used.
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        The minimal is 4, as required by the cubic spline fit used for interpolation.
+        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
+    det_method: str, optional
+        The integration method used for deterministic integration.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+
 
     See `SIR_type` for a table of all the methods
 

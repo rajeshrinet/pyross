@@ -183,6 +183,16 @@
 <dd></dd></dl>
 
 <dl class="method">
+<dt>
+<code class="sig-name descname">simulator: interface for user to call simulateRHS</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">set_contactMatrix: setting contact matrix</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pyross.deterministic.IntegratorsClass.simulateRHS">
 <code class="sig-name descname">simulateRHS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.IntegratorsClass.simulateRHS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs numerical integration</p>
@@ -210,6 +220,35 @@ to obtain a solution. The default is 100000.</p></li>
 <li><p><strong>time_points</strong> (<em>np.array</em>) – Corresponding times at which X is evaluated at.</p></li>
 </ul>
 </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.deterministic.IntegratorsClass.simulator">
+<code class="sig-name descname">simulator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.IntegratorsClass.simulator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em>) – Initial number of compartment values.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -439,7 +478,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>DEPRICATED</em><em>)</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -556,7 +594,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -744,7 +781,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -883,7 +919,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -1338,7 +1373,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -1638,7 +1672,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -1846,7 +1879,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -2164,7 +2196,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -2481,7 +2512,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -2717,7 +2747,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
@@ -2950,7 +2979,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>

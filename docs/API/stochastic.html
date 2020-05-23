@@ -291,10 +291,10 @@ individual in class i with an individual in class j</p></li>
 Ia: asymptomatic
 Is: symptomatic</p>
 <p>…</p>
-<dl class="attribute">
-<dt id="pyross.stochastic.SIR.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SIR.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -309,36 +309,13 @@ Is: symptomatic</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(3*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt>
 <code class="sig-name descname">rate_matrix:</code></dt>
@@ -458,7 +435,7 @@ The default is ‘gillespie’.</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.stochastic.SIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIkR)
 method of k-stages of I
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -473,35 +450,16 @@ method of k-stages of I
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.stochastic.SIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>(</em><em>kI + 1</em><em>)</em><em>*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array((kI + 1)*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt>
 <code class="sig-name descname">rate_matrix:</code></dt>
@@ -573,7 +531,7 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -592,35 +550,16 @@ Is: symptomatic
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.stochastic.SEIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(4*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt>
 <code class="sig-name descname">rate_matrix:</code></dt>
@@ -734,10 +673,9 @@ Ia —&gt; R
 Is —&gt; Ih, R
 Ih —&gt; Ic, R
 Ic —&gt; Im, R</p>
-<dl class="attribute">
-<dt id="pyross.stochastic.SEI5R.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEI5R.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -769,13 +707,9 @@ sa is rate of additional/removal of population by birth etc</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="simple">
 <dt>M: int</dt><dd><p>Number of compartments of individual for each class.
 I.e len(contactMatrix)</p>
@@ -961,7 +895,7 @@ Ia —&gt; R
 Is —&gt; Ih, R
 Ih —&gt; Ic, R
 Ic —&gt; Im, R
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -986,35 +920,16 @@ Ic —&gt; Im, R
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAI5R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEAI5R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>9*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class.</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAI5R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEAI5R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(9*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt>
 <code class="sig-name descname">rate_matrix:</code></dt>
@@ -1200,10 +1115,10 @@ I.e len(contactMatrix)</p>
 Ia: asymptomatic
 Is: symptomatic
 A: Asymptomatic and infectious</p>
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array(M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -1230,36 +1145,13 @@ A: Asymptomatic and infectious</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>6*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(6*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt>
 <code class="sig-name descname">rate_matrix:</code></dt>
@@ -1396,10 +1288,10 @@ I.e len(contactMatrix)</p>
 Ia: asymptomatic
 Is: symptomatic
 A: Asymptomatic and infectious</p>
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ_testing.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array(M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -1422,47 +1314,14 @@ A: Asymptomatic and infectious</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>6*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+<li><p><strong>testRate</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – number of tests per day and age group</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ_testing.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ_testing.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(6*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.stochastic.SEAIRQ_testing.testRate">
-<code class="sig-name descname">testRate</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing.testRate" title="Permalink to this definition">¶</a></dt>
-<dd><p>number of tests per day and age group</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>python function(t)</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt>
 <code class="sig-name descname">rate_matrix:</code></dt>

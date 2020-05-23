@@ -167,10 +167,10 @@
 Ia: asymptomatic
 Is: symptomatic</p>
 <p>…</p>
-<dl class="attribute">
-<dt id="pyross.hybrid.SIR.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.hybrid.SIR.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -185,36 +185,13 @@ Is: symptomatic</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.hybrid.SIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.hybrid.SIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.hybrid.SIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.hybrid.SIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(3*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.hybrid.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.hybrid.SIR.simulate" title="Permalink to this definition">¶</a></dt>

@@ -222,10 +222,10 @@ contactMatricies</p></li>
 Ia: asymptomatic
 Is: symptomatic</p>
 <p>…</p>
-<dl class="attribute">
-<dt id="pyross.control.SIR.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.control.SIR.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -240,36 +240,13 @@ Is: symptomatic</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(3*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -286,7 +263,7 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 method of k-stages of Ia, Is, E
 See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -309,35 +286,16 @@ See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅t
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SEkIkIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEkIkIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEkIkIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEkIkIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEkIkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -434,7 +392,7 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Infected, Removed, Susceptible (SIRS)
 Ia: asymptomatic
 Is: symptomatic
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -457,35 +415,16 @@ Is: symptomatic
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SIRS.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SIRS.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SIRS.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SIRS.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(4*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SIRS.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIRS.simulate" title="Permalink to this definition">¶</a></dt>
@@ -502,7 +441,7 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
 Ia: asymptomatic
 Is: symptomatic
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -521,35 +460,16 @@ Is: symptomatic
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SEIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(4*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -576,10 +496,10 @@ Ia —&gt; R
 Is —&gt; Ih, R
 Ih —&gt; Ic, R
 Ic —&gt; Im, R</p>
-<dl class="attribute">
-<dt id="pyross.control.SEI5R.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.control.SEI5R.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -611,36 +531,13 @@ sa is rate of additional/removal of population by birth etc</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>8*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEI5R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEI5R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEI5R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEI5R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(8*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEI5R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEI5R.simulate" title="Permalink to this definition">¶</a></dt>
@@ -656,7 +553,7 @@ I.e len(contactMatrix)</p>
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.control.SIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIkR)
 method of k-stages of I
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -671,35 +568,16 @@ method of k-stages of I
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>(</em><em>kI + 1</em><em>)</em><em>*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array((kI + 1)*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -716,7 +594,7 @@ I.e len(contactMatrix)</p>
 <dd><p>Susceptible, Infected, Removed (SIkR)
 method of k-stages of I
 See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -735,35 +613,16 @@ See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅t
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SEkIkR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEkIkR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>(</em><em>kI = kE +1</em><em>)</em><em>*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEkIkR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEkIkR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array((kI = kE +1)*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -781,7 +640,7 @@ I.e len(contactMatrix)</p>
 Ia: asymptomatic
 Is: symptomatic
 A: Asymptomatic and infectious
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -802,35 +661,16 @@ A: Asymptomatic and infectious
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SEAIR.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEAIR.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>5*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEAIR.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEAIR.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(5*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEAIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
@@ -857,7 +697,7 @@ Ia —&gt; R
 Is —&gt; Ih, R
 Ih —&gt; Ic, R
 Ic —&gt; Im, R
-.. attribute:: parameters</p>
+:param parameters:</p>
 <blockquote>
 <div><dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
@@ -882,35 +722,16 @@ Ic —&gt; Im, R
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
 </div></blockquote>
-<dl class="attribute">
-<dt id="pyross.control.SEAI5R.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEAI5R.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>9*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEAI5R.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEAI5R.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(9*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEAI5R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAI5R.simulate" title="Permalink to this definition">¶</a></dt>
@@ -928,10 +749,10 @@ I.e len(contactMatrix)</p>
 Ia: asymptomatic
 Is: symptomatic
 A: Asymptomatic and infectious</p>
-<dl class="attribute">
-<dt id="pyross.control.SEAIRQ.parameters">
-<code class="sig-name descname">parameters</code><a class="headerlink" href="#pyross.control.SEAIRQ.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
 <dt>Contains the following keys:</dt><dd><dl class="simple">
 <dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
@@ -958,36 +779,13 @@ A: Asymptomatic and infectious</p>
 </dl>
 </dd>
 </dl>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>6*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEAIRQ.M">
-<code class="sig-name descname">M</code><a class="headerlink" href="#pyross.control.SEAIRQ.M" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pyross.control.SEAIRQ.Ni">
-<code class="sig-name descname">Ni</code><a class="headerlink" href="#pyross.control.SEAIRQ.Ni" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initial number in each compartment and class</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>np.array(6*M, )</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyross.control.SEAIRQ.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
