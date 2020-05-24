@@ -129,6 +129,23 @@ cdef class SEkIkR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
+cdef class SEkIkIkR(IntegratorsClass):
+    """
+    Susceptible, Infected, Removed (SIkR)
+    method of k-stages of I
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+    """
+    cdef:
+        readonly double beta, gE, gIa, gIs, fsa
+    cpdef rhs(self, rp, tt)
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
@@ -139,6 +156,8 @@ cdef class SEAIR(IntegratorsClass):
     cdef:
         readonly double beta, gE, gA, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
+
+
 
 
 @cython.wraparound(False)
@@ -203,6 +222,8 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     cpdef rhs(self, rp, tt)
 
 
+
+
 @cython.wraparound(False)
 @cython.boundscheck(True)
 @cython.cdivision(False)
@@ -221,4 +242,63 @@ cdef class Spp(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
+    cpdef rhs(self, rp, tt) 
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEI5R(IntegratorsClass):
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
+    """
+    Susceptible, Exposed, Infected, Removed (SEIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+    S  ---> E
+    E  ---> Ia, Is
+    Ia ---> R
+    Is ---> Ih, R
+    Ih ---> Ic, R
+    Ic ---> Im, R
+    """
     cpdef rhs(self, rp, tt)
+
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEAI5R(IntegratorsClass):
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
+    """
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
+    The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+    S  ---> E
+    E  ---> Ia, Is
+    Ia ---> R
+    Is ---> Ih, R
+    Ih ---> Ic, R
+    Ic ---> Im, R
+    """
+    cpdef rhs(self, rp, tt)
+
+
+
+
