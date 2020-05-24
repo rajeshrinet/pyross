@@ -3,14 +3,14 @@
 * ex03-age-structured-SIR-for-India.ipynb 
 * ex04-age-structured-SIR-india-with-interventions.ipynb
 * ex05-SEIR.ipynb:  SEIR class shows the effect of adding an exposed class to SIR
-* ex06-SIkR-and-SEkIkR.ipynb: Adding stages to SIkR and SEIR
+* ex06-SIkR-and-SEkIkR.ipynb: Adding stages to SIR and SEIR
 * ex07-age-structured-SEIR-for-India.ipynb
 * ex08-age-structured-SEIR-india-with-interventions.ipynb
 * ex09-age-structured-SIRS-UK.ipynb
-* ex10-SEkIkIkR.ipynb: Adding stages to an SEIR with both asymptomatic and symptomatic classes
-* ex11-SEI8R.ipynb: a SEIR model with 8 classes of infectives
-* ex12-SEAIR.ipynb: an activated class which is asymptomatic and infectious.
-* ex13-interfaceData.ipynb: shows how to obtain data in differen class
+* ex10-SEkIkIkR.ipynb: Adding stages to SEIR model with both asymptomatic and symptomatic classes
+* ex11-SEI8R.ipynb: SEIR model with 8 classes of infectives
+* ex12-SEAIR.ipynb: an activated class which is asymptomatic and infectious
+* ex13-interfaceData.ipynb: shows how to obtain data in differen classes
 * ex14-SEAIRQ.ipynb: a quanrantine class Q, which may model individuals who have been tested and put into quarantine
 * ex15-SEAI8R.ipynb: SEAIR with 8 classes of infectives
 * ex16-Spp.ipynb: Generic user-defined model
