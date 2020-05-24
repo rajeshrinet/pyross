@@ -153,6 +153,14 @@ def set_destination(term_list, destination_dict):
             product_index = destination_dict[(rate_index, reagent_index)]
             term[2] = product_index
 
+def age_dep_rates(rate, int M, str name):
+    if np.size(rate)==1:
+        return rate*np.ones(M)
+    elif np.size(rate)==M:
+        return rate
+    else:
+        raise Exception('{} can be a number or an array of size M'.format(name))
+
 def make_log_norm_dist(means, stds):
     var = stds**2
     means_sq = means**2

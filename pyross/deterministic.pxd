@@ -7,8 +7,8 @@ ctypedef np.float_t DTYPE_t
 cdef class IntegratorsClass:
     cdef:
         readonly int N, M, kI, kE, nClass
-        readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh, ep, gI
-        readonly double tS, tE, tA, tIa, tIs, gIsp, gIcp, gIhp, ars, kapE
+        readonly double gIh, gIc, fh, ep, gI
+        readonly double gIsp, gIcp, gIhp, ars, kapE
         readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR, sa, iaa, hh, cc, mm, alpha
         readonly dict paramList
 
@@ -24,6 +24,9 @@ cdef class SIR(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     """
+    cdef:
+        readonly np.ndarray beta, gIa, gIs, fsa
+
     cpdef rhs(self, rp, tt)
 
 
@@ -39,6 +42,8 @@ cdef class SIRS(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     """
+    cdef:
+        readonly double beta, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
 
 
@@ -54,36 +59,9 @@ cdef class SEIR(IntegratorsClass):
     Ia: asymptomatic
     Is: symptomatic
     """
+    cdef:
+        readonly np.ndarray beta, gIa, gIs, gE, fsa
     cpdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEI5R(IntegratorsClass):
-    """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
-    """
-    cpdef rhs(self, rp, tt)
-
-
-
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -106,6 +84,8 @@ cdef class SEI8R(IntegratorsClass):
     Ih ---> Ih',Ic, R
     Ic ---> Ic',Im, R
     """
+    cdef:
+        readonly double beta, gE, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
 
 
@@ -121,6 +101,8 @@ cdef class SIkR(IntegratorsClass):
     Susceptible, Infected, Removed (SIkR)
     method of k-stages of I
     """
+    cdef:
+        readonly double beta, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
 
 
@@ -136,6 +118,8 @@ cdef class SEkIkR(IntegratorsClass):
     method of k-stages of I
     See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
+    cdef:
+        readonly double beta, gE, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
 
 
@@ -152,35 +136,9 @@ cdef class SEAIR(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEAI5R(IntegratorsClass):
-    """
-    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
-    The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
-    """
-    cpdef rhs(self, rp, tt)
-
-
 
 
 @cython.wraparound(False)
@@ -205,6 +163,8 @@ cdef class SEAI8R(IntegratorsClass):
     Ih ---> Ic, Ih', R
     Ic ---> Im, Ic', R
     """
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
 
 
@@ -221,6 +181,9 @@ cdef class SEAIRQ(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
+    cdef:
+        readonly np.ndarray beta, gE, gA, gIs, gIa, fsa
+        readonly np.ndarray tS, tE, tA, tIa, tIs
     cpdef rhs(self, rp, tt)
 
 @cython.wraparound(False)
@@ -234,6 +197,9 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     Is: symptomatic
     A : Asymptomatic and infectious
     """
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
+        readonly double tS, tE, tA, tIa, tIs
     cpdef rhs(self, rp, tt)
 
 
