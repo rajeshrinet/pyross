@@ -18,4 +18,4 @@
 * fitParamBeta_UK_data.ipynb: fitting data to obtain the parameter beta for SEkIkIkR
 
 
-Please read the Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/)  for more details.
+Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/)  for more details.
