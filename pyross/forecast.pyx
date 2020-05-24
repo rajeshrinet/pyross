@@ -80,7 +80,6 @@ cdef class SIR:
                 verbose=False,
                 method='deterministic',
                 events=[],contactMatrices=[],
-                seedRate=None,
                 events_repeat=False,
                 events_subsequent=True,
                 ):
@@ -123,8 +122,6 @@ cdef class SIR:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -181,7 +178,6 @@ cdef class SIR:
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -190,11 +186,10 @@ cdef class SIR:
                     model = pyross.deterministic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -302,7 +297,7 @@ cdef class SIR_latent:
                 events=[],contactMatrices=[],
                 events_repeat=False,
                 events_subsequent=True,
-                seedRate=None):
+                ):
         """
         Parameters
         ----------
@@ -337,8 +332,6 @@ cdef class SIR_latent:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -403,7 +396,6 @@ cdef class SIR_latent:
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -412,11 +404,10 @@ cdef class SIR_latent:
                     model = pyross.deterministic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -514,7 +505,7 @@ cdef class SEIR:
                 events=[],contactMatrices=[],
                 events_repeat=False,
                 events_subsequent=True,
-                seedRate=None):
+                ):
         """
         Parameters
         ----------
@@ -556,8 +547,6 @@ cdef class SEIR:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -617,7 +606,6 @@ cdef class SEIR:
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -626,12 +614,11 @@ cdef class SEIR:
                     model = pyross.deterministic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                   contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -749,8 +736,7 @@ cdef class SEIR_latent:
                 method='deterministic',
                 events=[],contactMatrices=[],
                 events_repeat=False,
-                events_subsequent=True,
-                seedRate=None):
+                events_subsequent=True):
         """
         Parameters
         ----------
@@ -784,8 +770,6 @@ cdef class SEIR_latent:
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -852,7 +836,6 @@ cdef class SEIR_latent:
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -861,12 +844,11 @@ cdef class SEIR_latent:
                     model = pyross.deterministic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                   contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -986,8 +968,7 @@ cdef class SEAIRQ():
                 method='deterministic',
                 events=[],contactMatrices=[],
                 events_repeat=False,
-                events_subsequent=True,
-                seedRate=None):
+                events_subsequent=True):
         """
         Parameters
         ----------
@@ -1033,8 +1014,6 @@ cdef class SEAIRQ():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -1099,7 +1078,6 @@ cdef class SEAIRQ():
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -1108,12 +1086,11 @@ cdef class SEAIRQ():
                     model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                   contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -1257,8 +1234,7 @@ cdef class SEAIRQ_latent():
                 method='deterministic',
                 events=[],contactMatrices=[],
                 events_repeat=False,
-                events_subsequent=True,
-                seedRate=None):
+                events_subsequent=True):
         """
         Parameters
         ----------
@@ -1292,8 +1268,6 @@ cdef class SEAIRQ_latent():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -1368,7 +1342,6 @@ cdef class SEAIRQ_latent():
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -1377,12 +1350,11 @@ cdef class SEAIRQ_latent():
                     model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                   contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -1554,8 +1526,7 @@ cdef class SEAI5R():
                 method='deterministic',
                 events=[],contactMatrices=[],
                 events_repeat=False,
-                events_subsequent=True,
-                seedRate=None):
+                events_subsequent=True):
         """
         Parameters
         ----------
@@ -1605,8 +1576,6 @@ cdef class SEAI5R():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -1671,7 +1640,6 @@ cdef class SEAI5R():
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -1680,12 +1648,11 @@ cdef class SEAI5R():
                     model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                   contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)
@@ -1872,8 +1839,7 @@ cdef class SEAI5R_latent():
                 method='deterministic',
                 events=[],contactMatrices=[],
                 events_repeat=False,
-                events_subsequent=True,
-                seedRate=None):
+                events_subsequent=True):
         """
         Parameters
         ----------
@@ -1907,8 +1873,6 @@ cdef class SEAI5R_latent():
         contactMatricies: list of python functions
             New contact matrix after the corresponding event occurs
             The default is [].
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -1986,7 +1950,6 @@ cdef class SEAI5R_latent():
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
                               events_subsequent=events_subsequent,
-                              seedRate=seedRate,
                               nc=nc,epsilon=epsilon,
                               tau_update_frequency=tau_update_frequency,
                               method=method)
@@ -1995,12 +1958,11 @@ cdef class SEAI5R_latent():
                     model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                     contactMatrix,
-                                    Tf, Nf,seedRate=seedRate)
+                                    Tf, Nf)
                 else:
                     model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                   contactMatrix, Tf, Nf,
-                                  seedRate=seedRate,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   method=method)

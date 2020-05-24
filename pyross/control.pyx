@@ -21,14 +21,14 @@ cdef class control_integration:
         readonly int N, M
         int nClass
         double beta
-        np.ndarray FM, Ni, CM, dxdt
+        np.ndarray Ni, CM, dxdt
 
     cdef rhs(self, rp, tt):
         return
 
     def simulate_deterministic(self, y0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          events_repeat=False,
                          events_subsequent=True): # only relevant of repeat_events = False
         """
@@ -50,8 +50,6 @@ cdef class control_integration:
             Number of time points to evaluate at.
         Ti: float, optional
             Start time for integrator. The default is 0.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
         events_repeat: bool, optional
             Wheither events is periodic in time. The default is false.
         events_subsequent : bool, optional
@@ -78,10 +76,6 @@ cdef class control_integration:
         from scipy.integrate import solve_ivp
 
         def rhs0(t,rp):
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             self.rhs(rp, t)
             return self.dxdt
 
@@ -238,7 +232,6 @@ cdef class SIR(control_integration):
         self.nClass = 3             # total number of degrees of freedom we explicitly track
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
@@ -262,7 +255,6 @@ cdef class SIR(control_integration):
             double [:] Is   = rp[2*M:3*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] X    = self.dxdt
             double [:] alpha= self.alpha
 
@@ -272,15 +264,15 @@ cdef class SIR(control_integration):
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i]                                # rate S  -> Ia, Is
-            X[i+M]   = alpha[i]*aa     - gIa*Ia[i] + alpha[i]    *FM[i]      # rate Ia -> R
-            X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i] + (1-alpha[i])*FM[i]      # rate Is -> R
+            X[i]     = -aa                                         # rate S  -> Ia, Is
+            X[i+M]   = alpha[i]*aa     - gIa*Ia[i]                # rate Ia -> R
+            X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                # rate Is -> R
         return
 
 
     def simulate(self, S0, Ia0, Is0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -295,7 +287,7 @@ cdef class SIR(control_integration):
             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
@@ -311,8 +303,7 @@ cdef class SIR(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
 
 
 
@@ -379,7 +370,6 @@ cdef class SEkIkIkR(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
 
         if self.kE==0:
@@ -440,7 +430,7 @@ cdef class SEkIkIkR(control_integration):
 
     def simulate(self, S0, E0, Ia0, Is0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -455,7 +445,7 @@ cdef class SEkIkIkR(control_integration):
             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
@@ -474,7 +464,6 @@ cdef class SEkIkIkR(control_integration):
             #                    tau_update_frequency = tau_update_frequency,
             #                      events_repeat=events_repeat,
             #                      events_subsequent=events_subsequent,
-            #                    seedRate=seedRate)
 
 
     def S(self,  data):
@@ -634,7 +623,6 @@ cdef class SIRS(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
@@ -692,7 +680,7 @@ cdef class SIRS(control_integration):
 
     def simulate(self, S0, Ia0, Is0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -706,7 +694,7 @@ cdef class SIRS(control_integration):
             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
@@ -724,8 +712,7 @@ cdef class SIRS(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
             ''';
 
 
@@ -790,7 +777,6 @@ cdef class SEIR(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
@@ -813,7 +799,6 @@ cdef class SEIR(control_integration):
             double [:] Is   = rp[3*M:4*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] X    = self.dxdt
             double [:] alpha= self.alpha
 
@@ -822,8 +807,8 @@ cdef class SEIR(control_integration):
             for j in range(M):
                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i]                                # rate S  -> E
-            X[i+M]   = aa       - gE*  E[i] + FM[i]               # rate E  -> Ia, Is
+            X[i]     = -aa                                      # rate S  -> E
+            X[i+M]   = aa       - gE*  E[i]                       # rate E  -> Ia, Is
             X[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R
             X[i+3*M] = ce2*E[i] - gIs*Is[i]                       # rate Is -> R
         return
@@ -831,7 +816,7 @@ cdef class SEIR(control_integration):
 
     def simulate(self, S0, E0, Ia0, Is0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -845,7 +830,7 @@ cdef class SEIR(control_integration):
             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
@@ -861,8 +846,7 @@ cdef class SEIR(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
 
 
 
@@ -1043,7 +1027,7 @@ cdef class SEI5R(control_integration):
 
     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -1057,7 +1041,7 @@ cdef class SEI5R(control_integration):
             y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
@@ -1074,8 +1058,7 @@ cdef class SEI5R(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
 
 
 
@@ -1130,7 +1113,6 @@ cdef class SIkR(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side
 
 
@@ -1142,7 +1124,6 @@ cdef class SIkR(control_integration):
             double [:] I    = rp[M  :(ki+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] X    = self.dxdt
 
         for i in range(M):
@@ -1151,8 +1132,8 @@ cdef class SIkR(control_integration):
                 for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i]
-            X[i+M]   = aa - gI*I[i] + FM[i]
+            X[i]     = -aa        
+            X[i+M]   = aa - gI*I[i]        
 
             for j in range(ki-1):
                 X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
@@ -1162,7 +1143,7 @@ cdef class SIkR(control_integration):
 
     def simulate(self,  S0, I0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -1176,7 +1157,7 @@ cdef class SIkR(control_integration):
             y0 = np.concatenate(( S0, I0 )) # initial condition
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
@@ -1191,8 +1172,7 @@ cdef class SIkR(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
 
 
 
@@ -1254,7 +1234,6 @@ cdef class SEkIkR(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
 
@@ -1268,7 +1247,6 @@ cdef class SEkIkR(control_integration):
             double [:] I    = rp[(ke+1)*M  :(ke+ki+1)*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] X    = self.dxdt
 
         for i in range(M):
@@ -1277,12 +1255,12 @@ cdef class SEkIkR(control_integration):
                 for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i]
+            X[i]     = -aa         
 
             # If there is any E stage...
             if 0 != ke :
                 # People removed from S are put in E[0]
-                X[i+M+0] = aa - gE*E[i] + FM[i]
+                X[i+M+0] = aa - gE*E[i]         
 
                 # Propagate cases along the E stages
                 for j in range(ke - 1) :
@@ -1294,7 +1272,7 @@ cdef class SEkIkR(control_integration):
             # However, if there aren't any E stages
             else :
                 # People removed from S are put in I[0]
-                X[i + (ke+1)* M + 0] = aa + FM[i] - gI * I[i]
+                X[i + (ke+1)* M + 0] = aa          - gI * I[i]
 
             # In both cases, propagate cases along the I stages.
             for j in range(ki-1):
@@ -1305,7 +1283,7 @@ cdef class SEkIkR(control_integration):
 
     def simulate(self,  S0, E0, I0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -1320,7 +1298,7 @@ cdef class SEkIkR(control_integration):
         if method.lower() =='deterministic':
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
         else:
@@ -1393,7 +1371,6 @@ cdef class SEAIR(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
@@ -1419,7 +1396,6 @@ cdef class SEAIR(control_integration):
             double [:] Is   = rp[4*M:5*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] X    = self.dxdt
 
             double [:] alpha= self.alpha
@@ -1429,8 +1405,8 @@ cdef class SEAIR(control_integration):
             for j in range(M):
                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa - FM[i]                          # rate S  -> E
-            X[i+M]   =  aa      - gE*E[i] + FM[i]           # rate E  -> A
+            X[i]     = -aa                                   # rate S  -> E
+            X[i+M]   =  aa      - gE*E[i]                    # rate E  -> A
             X[i+2*M] = gE* E[i] - gA*A[i]                   # rate A  -> Ia, Is
             X[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R
             X[i+4*M] = gAS*A[i] - gIs     *Is[i]            # rate Is -> R
@@ -1440,7 +1416,7 @@ cdef class SEAIR(control_integration):
 
     def simulate(self, S0, E0, A0, Ia0, Is0,
                 events, contactMatrices,
-                         Tf, Nf, Ti=0,seedRate=None,
+                         Tf, Nf, Ti=0,
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
@@ -1455,7 +1431,7 @@ cdef class SEAIR(control_integration):
         if method.lower() =='deterministic':
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
-                                  Tf=Tf,Nf=Nf,Ti=Ti,seedRate=seedRate,
+                                  Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
         else:
@@ -1556,7 +1532,6 @@ cdef class SEAI5R(control_integration):
         self.nClass = 9
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
@@ -1644,7 +1619,7 @@ cdef class SEAI5R(control_integration):
     def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                 events, contactMatrices,
                          Tf, Nf, Ti=0,
-                         method='deterministic',seedRate=None,
+                         method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
                          int nc=30, double epsilon = 0.03,
@@ -1658,7 +1633,7 @@ cdef class SEAI5R(control_integration):
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
-                                  events_repeat=events_repeat,seedRate=seedRate,
+                                  events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                           'Ni':self.Ni, 'M':self.M,
@@ -1681,8 +1656,7 @@ cdef class SEAI5R(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
 
 
 
@@ -1763,7 +1737,6 @@ cdef class SEAIRQ(control_integration):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
 
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
@@ -1793,7 +1766,6 @@ cdef class SEAIRQ(control_integration):
             double [:] Q    = rp[5*M:6*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   FM = self.FM
             double [:] X    = self.dxdt
 
             double [:] alpha= self.alpha
@@ -1803,8 +1775,8 @@ cdef class SEAIRQ(control_integration):
             for j in range(M):
                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa      - FM[i]        # rate S  -> E, Q
-            X[i+M]   =  aa      - (gE+tE)     *E[i] + FM[i]        # rate E  -> A, Q
+            X[i]     = -aa                      # rate S  -> E, Q
+            X[i+M]   =  aa      - (gE+tE)     *E[i]                 # rate E  -> A, Q
             X[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q
             X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
             X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
@@ -1816,7 +1788,7 @@ cdef class SEAIRQ(control_integration):
     def simulate(self, S0, E0, A0, Ia0, Is0, Q0,
                 events, contactMatrices,
                          Tf, Nf, Ti=0,
-                         method='deterministic',seedRate=None,
+                         method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
                          int nc=30, double epsilon = 0.03,
@@ -1830,7 +1802,7 @@ cdef class SEAIRQ(control_integration):
             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
-                                  events_repeat=events_repeat,seedRate=seedRate,
+                                  events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                     'fsa':self.fsa,
@@ -1848,5 +1820,4 @@ cdef class SEAIRQ(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                seedRate=seedRate)
+                                  events_subsequent=events_subsequent)

@@ -32,7 +32,7 @@ cdef class stochastic_integration:
     cdef:
         readonly int N, M, nClass
         int k_tot
-        np.ndarray RM, xt, weights, FM, CM, xtminus1
+        np.ndarray RM, xt, weights, CM, xtminus1
 
     cdef calculate_total_reaction_rate(self):
         """
@@ -135,8 +135,7 @@ cdef class stochastic_integration:
             xt[i + M*k] -= 1
         return t
 
-    cpdef simulate_gillespie(self, contactMatrix, Tf, Nf,
-                              seedRate=None):
+    cpdef simulate_gillespie(self, contactMatrix, Tf, Nf):
         """
         Performs the stochastic simulation using the Gillespie algorithm.
         1. Rates for each reaction channel r_i calculated from current state.
@@ -159,8 +158,6 @@ cdef class stochastic_integration:
             Final time of integrator
         Nf: Int
             Number of time points to evaluate.
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
 
 
         Returns
@@ -201,11 +198,6 @@ cdef class stochastic_integration:
                     for i in range(next_writeout,int(Tf)+1):
                         trajectory[i] = xt
                 break
-
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
 
             # calculate current rate matrix
             self.CM = contactMatrix(t)
@@ -280,8 +272,7 @@ cdef class stochastic_integration:
 
     cpdef simulate_gillespie_events(self, events, contactMatrices,
                                 Tf, Nf,
-                                events_repeat=False,events_subsequent=True,
-                              seedRate=None):
+                                events_repeat=False,events_subsequent=True):
         cdef:
             int M=self.M
             int i, j, k, I, k_tot = self.k_tot
@@ -336,11 +327,6 @@ cdef class stochastic_integration:
                     for i in range(next_writeout,int(Tf)+1):
                         trajectory[i] = xt
                 break
-
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
 
             # calculate current rate matrix
             self.rate_matrix(xt, t)
@@ -510,8 +496,7 @@ cdef class stochastic_integration:
 
     cpdef simulate_tau_leaping(self, contactMatrix, Tf, Nf,
                           int nc = 30, double epsilon = 0.03,
-                          int tau_update_frequency = 1,
-                          seedRate=None):
+                          int tau_update_frequency = 1):
         """
         Tau leaping algorithm for producing stochastically correct trajectories
         https://doi.org/10.1063/1.2159468
@@ -536,8 +521,6 @@ cdef class stochastic_integration:
         epsilon: float, optional
             The acceptable error in each step. The default is 0.03
         tau_update_frequency: optional
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
 
 
         Returns
@@ -581,10 +564,6 @@ cdef class stochastic_integration:
                     for i in range(next_writeout,int(Tf)+1):
                         trajectory[i] = xt
                 break
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
             # calculate current rate matrix
             self.CM = contactMatrix(t)
             self.rate_matrix(xt, t)
@@ -653,8 +632,7 @@ cdef class stochastic_integration:
                             Tf, Nf,
                           int nc = 30, double epsilon = 0.03,
                           int tau_update_frequency = 1,
-                          events_repeat=False,events_subsequent=True,
-                          seedRate=None):
+                          events_repeat=False,events_subsequent=True):
         cdef:
             int M=self.M
             int i, j, k,  I, K_events, k_tot = self.k_tot
@@ -710,11 +688,6 @@ cdef class stochastic_integration:
                     for i in range(next_writeout,int(Tf)+1):
                         trajectory[i] = xt
                 break
-
-            if None != seedRate :
-                self.FM = seedRate(t)
-            else :
-                self.FM = np.zeros( self.M, dtype = DTYPE)
 
             # calculate current rate matrix
             self.rate_matrix(xt, t)
@@ -867,7 +840,6 @@ cdef class SIR(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M, self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # previous state
         # (for event-driven simulations)
@@ -893,7 +865,6 @@ cdef class SIR(stochastic_integration):
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
-            double [:]   FM = self.FM
             double [:] alpha= self.alpha
 
         for i in range(M): #, nogil=False):
@@ -902,7 +873,7 @@ cdef class SIR(stochastic_integration):
                  lmda += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M,i] = alpha[i] *rateS + FM[i] # rate S -> Ia
+            RM[i+M,i] = alpha[i] *rateS        # rate S -> Ia
             RM[i+2*M,i] = (1-alpha[i]) *rateS # rate S -> Is
             RM[i+M,i+M] = gIa*Ia[i] # rate Ia -> R
             RM[i+2*M,i+2*M] = gIs*Is[i] # rate Is -> R
@@ -912,7 +883,6 @@ cdef class SIR(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         """
         Performs the Stochastic Simulation Algorithm (SSA)
@@ -940,8 +910,6 @@ cdef class SIR(stochastic_integration):
         nc: TYPE, optional
         epsilon: TYPE, optional
         tau_update_frequency: TYPE, optional
-        seedRate: python function, optional
-            Seeding of infectives. The default is None.
 
         Returns
         -------
@@ -963,15 +931,13 @@ cdef class SIR(stochastic_integration):
 
         if method.lower() == 'gillespie':
             t_arr, out_arr =  self.simulate_gillespie(contactMatrix=contactMatrix,
-                                     Tf= Tf, Nf= Nf,
-                                    seedRate=seedRate)
+                                     Tf= Tf, Nf= Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix=contactMatrix,
                                   Tf=Tf, Nf=Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
 
         out_dict = {'X':out_arr, 't':t_arr,
                      'Ni':self.Ni, 'M':self.M,
@@ -988,7 +954,6 @@ cdef class SIR(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -1007,8 +972,7 @@ cdef class SIR(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1016,7 +980,6 @@ cdef class SIR(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
 
@@ -1149,7 +1112,6 @@ cdef class SIkR(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
@@ -1165,7 +1127,6 @@ cdef class SIkR(stochastic_integration):
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
-            double [:]   FM = self.FM
 
         for i in range(M): #, nogil=False):
             lmda=0
@@ -1174,7 +1135,7 @@ cdef class SIkR(stochastic_integration):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M,i] =  rateS + FM[i] # rate S -> I1
+            RM[i+M,i] =  rateS  # rate S -> I1
             for j in range(kk-1):
                 RM[i+(j+2)*M, i + (j+1)*M]   =  kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
             RM[i+kk*M, i+kk*M] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
@@ -1184,7 +1145,6 @@ cdef class SIkR(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i, j
@@ -1198,14 +1158,12 @@ cdef class SIkR(stochastic_integration):
               xt[i+(j+1)*M] = I0[j]
 
         if method.lower() == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-                                    seedRate=seedRate)
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                      seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
 
         out_dict = {'X':out_arr, 't':t_arr,
                       'Ni':self.Ni, 'M':self.M,
@@ -1219,7 +1177,6 @@ cdef class SIkR(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i, j
@@ -1239,8 +1196,7 @@ cdef class SIkR(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1248,7 +1204,6 @@ cdef class SIkR(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
 
@@ -1362,7 +1317,6 @@ cdef class SEIR(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
@@ -1389,7 +1343,6 @@ cdef class SEIR(stochastic_integration):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
-            double [:]   FM = self.FM
             double [:] alpha = self.alpha
 
         for i in range(M): #, nogil=False):
@@ -1398,7 +1351,7 @@ cdef class SEIR(stochastic_integration):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M  , i]     =  rateS + FM[i] # rate S -> E
+            RM[i+M  , i]     =  rateS # rate S -> E
             RM[i+2*M, i+M]   = ce1 * E[i] # rate E -> Ia
             RM[i+3*M, i+M]   = ce2 * E[i] # rate E -> Is
             RM[i+2*M, i+2*M] = gIa * Ia[i] # rate Ia -> R
@@ -1409,7 +1362,6 @@ cdef class SEIR(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -1423,14 +1375,12 @@ cdef class SEIR(stochastic_integration):
             xt[i+3*M] = Is0[i]
 
         if method.lower() == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-                                    seedRate=seedRate)
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                      seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
 
         out_dict = {'X':out_arr, 't':t_arr,
                       'Ni':self.Ni, 'M':self.M,
@@ -1445,7 +1395,6 @@ cdef class SEIR(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -1465,8 +1414,7 @@ cdef class SEIR(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1474,7 +1422,6 @@ cdef class SEIR(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
 
@@ -1664,7 +1611,6 @@ cdef class SEI5R(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
@@ -1783,7 +1729,6 @@ cdef class SEI5R(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -1809,14 +1754,12 @@ cdef class SEI5R(stochastic_integration):
                 #    " {0} > {1}".format(xt[i+7*M],self.Ni[i]))
 
         if method.lower() == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-                                    seedRate=seedRate)
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                      seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
         # Instead of the removed population, which is stored in the last compartment,
         # we want to output the total alive population (whose knowledge is mathematically
         # equivalent to knowing the removed population).
@@ -1845,7 +1788,6 @@ cdef class SEI5R(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -1877,8 +1819,7 @@ cdef class SEI5R(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1886,7 +1827,6 @@ cdef class SEI5R(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
 
@@ -2137,7 +2077,6 @@ cdef class SEAI5R(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
@@ -2252,7 +2191,6 @@ cdef class SEAI5R(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -2275,14 +2213,12 @@ cdef class SEAI5R(stochastic_integration):
                     " {0} exceeds total initial population for that class\n".format(i) + \
                     " {0} > {1}".format(xt[i+8*M],self.Ni[i]))
         if method.lower() == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-                                    seedRate=seedRate)
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                      seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
         # Instead of the removed population, which is stored in the last compartment,
         # we want to output the total alive population (whose knowledge is mathematically
         # equivalent to knowing the removed population).
@@ -2312,7 +2248,6 @@ cdef class SEAI5R(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -2343,8 +2278,7 @@ cdef class SEAI5R(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -2352,7 +2286,6 @@ cdef class SEAI5R(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
         # Instead of the removed population, which is stored in the last compartment,
@@ -2618,7 +2551,6 @@ cdef class SEAIRQ(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
@@ -2650,7 +2582,6 @@ cdef class SEAIRQ(stochastic_integration):
 
             double [:] Ni   = self.Ni
             #
-            double [:]   FM = self.FM
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
             double [:] alpha= self.alpha
@@ -2684,7 +2615,6 @@ cdef class SEAIRQ(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -2700,14 +2630,12 @@ cdef class SEAIRQ(stochastic_integration):
             xt[i+5*M] = Q0[i]
 
         if method.lower() == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-                                    seedRate=seedRate)
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                      seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
 
         out_dict={'X':out_arr, 't':t_arr,
                 'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
@@ -2723,7 +2651,6 @@ cdef class SEAIRQ(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -2745,8 +2672,7 @@ cdef class SEAIRQ(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -2754,7 +2680,6 @@ cdef class SEAIRQ(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
 
@@ -2960,7 +2885,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.FM    = np.zeros( self.M, dtype = DTYPE)           # seed function F
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
@@ -2994,7 +2918,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
             double [:] Ni   = self.Ni
             #
-            double [:]   FM = self.FM
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
             double [:] alpha= self.alpha
@@ -3042,7 +2965,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -3060,14 +2982,12 @@ cdef class SEAIRQ_testing(stochastic_integration):
             xt[i+5*M] = Q0[i]
 
         if method.lower() == 'gillespie':
-            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf,
-                                    seedRate=seedRate)
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix, Tf, Nf)
         else:
             t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix, Tf, Nf,
                                   nc=nc,
                                   epsilon= epsilon,
-                                  tau_update_frequency=tau_update_frequency,
-                                      seedRate=seedRate)
+                                  tau_update_frequency=tau_update_frequency)
 
         out_dict={'X':out_arr, 't':t_arr,
                 'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
@@ -3083,7 +3003,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
-                seedRate=None
                 ):
         cdef:
             int M = self.M, i
@@ -3107,8 +3026,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent,
-                                    seedRate=seedRate)
+                                  events_subsequent=events_subsequent)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -3116,7 +3034,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
                                   nc=nc,
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
-                                  seedRate=seedRate,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent)
 

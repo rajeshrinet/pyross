@@ -6,6 +6,7 @@ dependencies:
   - cython
   - numpy
   - matplotlib
+  - jupyter
   - scipy 
   - nlopt
   - pathos
