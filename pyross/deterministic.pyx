@@ -13,14 +13,6 @@ DTYPE   = np.float
 cdef class IntegratorsClass:
     """
     List of all integrator used by various deterministic models listed below.
-
-    Methods
-    -------
-    simulateRHS: Performs numerical integration.
-
-    simulator: interface for user to call simulateRHS
-
-    set_contactMatrix: setting contact matrix
     """
 
     def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
@@ -131,7 +123,7 @@ cdef class IntegratorsClass:
 
         Returns
         -------
-        dict
+        data: dict
             'X': output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
@@ -158,10 +150,6 @@ cdef class IntegratorsClass:
 @cython.nonecheck(False)
 cdef class SIR(IntegratorsClass):
     """
-    Susceptible, Infected, Removed (SIR)
-
-    * Ia: asymptomatic
-    * Is: symptomatic
 
     Parameters
     ----------
@@ -183,15 +171,8 @@ cdef class SIR(IntegratorsClass):
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    Ia
-    Is
-    R
     """
+
     def __init__(self, parameters, M, Ni):
         self.nClass= 3
         self.beta  = pyross.utils.age_dep_rates(parameters['beta'],  M, 'beta')
@@ -355,27 +336,22 @@ cdef class SIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIkR(IntegratorsClass):
     """
-    Susceptible, Infected, Removed (SIkR)
-    method of k-stages of I
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            beta: float
-                rate of spread of infection.
-            gI: float
-                rate of removal from infectives.
-            kI: int
-                number of stages of infection.
+
+        beta: float
+            rate of spread of infection.
+        gI: float
+            rate of removal from infectives.
+        kI: int
+            number of stages of infection.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -525,40 +501,28 @@ cdef class SIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEIR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    Ia: asymptomatic
-    Is: symptomatic
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            gE: float
-                rate of removal from exposed individuals.
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposed individuals.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    E
-    A
-    Ia
-    Is
-    R
     """
 
     def __init__(self, parameters, M, Ni):
@@ -743,32 +707,26 @@ cdef class SEIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    method of k-stages of I and E
-    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            beta: float
-                rate of spread of infection.
-            gI: float
-                rate of removal from infected individuals.
-            gE: float
-                rate of removal from exposed individuals.
-            kI: int
-                number of stages of infectives.
-            kE: int
-                number of stages of exposed.
+
+        beta: float
+            rate of spread of infection.
+        gI: float
+            rate of removal from infected individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        kI: int
+            number of stages of infectives.
+        kE: int
+            number of stages of exposed.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -956,38 +914,32 @@ cdef class SEkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkIkR(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    method of k-stages of Ia, Is, E
-    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic infected individuals.
-            gIs: float
-                rate of removal from symptomatic infected individuals.
-            gE: float
-                rate of removal from exposed individuals.
-            kI: int
-                number of stages of asymptomatic infectives.
-            kI: int
-                number of stages of symptomatic infectives.
-            kE: int
-                number of stages of exposed.
+
+        alpha: float
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic infected individuals.
+        gIs: float
+            rate of removal from symptomatic infected individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        kI: int
+            number of stages of asymptomatic infectives.
+        kI: int
+            number of stages of symptomatic infectives.
+        kE: int
+            number of stages of exposed.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
     """
 
     def __init__(self, parameters, M, Ni):
@@ -1216,76 +1168,49 @@ cdef class SEkIkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEI8R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Is' -> Ih, R
-    Ih ---> Ih' -> Ic, R
-    Ic ---> Ic' -> Im, R
-
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gE: float
-                rate of removal from exposeds individuals.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gIsp: float
-                rate of removal from symptomatic individuals towards buffer.
-            gIh: float
-                rate of removal for hospitalised individuals.
-            gIhp: float
-                rate of removal from hospitalised individuals towards buffer.
-            gIc: float
-                rate of removal for idividuals in intensive care.
-            gIcp: float
-                rate of removal from ICU individuals towards buffer.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            fh  : float
-                fraction by which hospitalised individuals are isolated.
-            sa: float, np.array (M,)
-                daily arrival of new susceptables.
-                sa is rate of additional/removal of population by birth etc
-            hh: float, np.array (M,)
-                fraction hospitalised from Is
-            cc: float, np.array (M,)
-                fraction sent to intensive care from hospitalised.
-            mm: float, np.array (M,)
-                mortality rate in intensive care
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gE: float
+            rate of removal from exposeds individuals.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gIsp: float
+            rate of removal from symptomatic individuals towards buffer.
+        gIh: float
+            rate of removal for hospitalised individuals.
+        gIhp: float
+            rate of removal from hospitalised individuals towards buffer.
+        gIc: float
+            rate of removal for idividuals in intensive care.
+        gIcp: float
+            rate of removal from ICU individuals towards buffer.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        fh  : float
+            fraction by which hospitalised individuals are isolated.
+        sa: float, np.array (M,)
+            daily arrival of new susceptables.
+            sa is rate of additional/removal of population by birth etc
+        hh: float, np.array (M,)
+            fraction hospitalised from Is
+        cc: float, np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: float, np.array (M,)
+            mortality rate in intensive care
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    E
-    Ia
-    Is
-    Ih
-    Ic
-    Im
-    population
-    R
     """
 
     def __init__(self, parameters, M, Ni):
@@ -1610,43 +1535,30 @@ cdef class SEI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
-    Ia: asymptomatic
-    Is: symptomatic
-    A: Asymptomatic and infectious
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            gE: float
-                rate of removal from exposeds individuals.
-            gA: float
-                rate of removal from activated individuals.
+
+        alpha: float
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposeds individuals.
+        gA: float
+            rate of removal from activated individuals.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    E
-    A
-    Ia
-    Is
-    R
     """
 
     def __init__(self, parameters, M, Ni):
@@ -1858,77 +1770,49 @@ cdef class SEAIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAI8R(IntegratorsClass):
     """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-
-    S  ---> E
-    E  ---> A
-    A  ---> Ia, Is
-    Ia ---> R
-    Is ---> Is' -> Ih, R
-    Ih ---> Ih' -> Ic, R
-    Ic ---> Ic' -> Im, R
-
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gE: float
-                rate of removal from exposeds individuals.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gIsp: float
-                rate of removal from symptomatic individuals towards buffer.
-            gIh: float
-                rate of removal for hospitalised individuals.
-            gIhp: float
-                rate of removal from hospitalised individuals towards buffer.
-            gIc: float
-                rate of removal for idividuals in intensive care.
-            gIcp: float
-                rate of removal from ICU individuals towards buffer.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            fh  : float
-                fraction by which hospitalised individuals are isolated.
-            sa: float, np.array (M,)
-                daily arrival of new susceptables.
-                sa is rate of additional/removal of population by birth etc
-            hh: float, np.array (M,)
-                fraction hospitalised from Is
-            cc: float, np.array (M,)
-                fraction sent to intensive care from hospitalised.
-            mm: float, np.array (M,)
-                mortality rate in intensive care
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gE: float
+            rate of removal from exposeds individuals.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gIsp: float
+            rate of removal from symptomatic individuals towards buffer.
+        gIh: float
+            rate of removal for hospitalised individuals.
+        gIhp: float
+            rate of removal from hospitalised individuals towards buffer.
+        gIc: float
+            rate of removal for idividuals in intensive care.
+        gIcp: float
+            rate of removal from ICU individuals towards buffer.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        fh  : float
+            fraction by which hospitalised individuals are isolated.
+        sa: float, np.array (M,)
+            daily arrival of new susceptables.
+            sa is rate of additional/removal of population by birth etc
+        hh: float, np.array (M,)
+            fraction hospitalised from Is
+        cc: float, np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: float, np.array (M,)
+            mortality rate in intensive care
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    E
-    Ia
-    Is
-    Ih
-    Ic
-    Im
-    population
-    R
     """
 
     def __init__(self, parameters, M, Ni):
@@ -2277,37 +2161,35 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A: Asymptomatic and infectious
+    To initialise the SEAIRQ class,
 
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gE: float
-                rate of removal from exposed individuals.
-            gA: float
-                rate of removal from activated individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            tE  : float
-                testing rate and contact tracing of exposeds
-            tA  : float
-                testing rate and contact tracing of activateds
-            tIa: float
-                testing rate and contact tracing of asymptomatics
-            tIs: float
-                testing rate and contact tracing of symptomatics
+
+        alpha: float
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        tE: float
+            testing rate and contact tracing of exposeds
+        tA: float
+            testing rate and contact tracing of activateds
+        tIa: float
+            testing rate and contact tracing of asymptomatics
+        tIs: float
+            testing rate and contact tracing of symptomatics
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2395,9 +2277,9 @@ cdef class SEAIRQ(IntegratorsClass):
         Q0: np.array
             Initial number of quarantineds.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
+            The social contact matrix C_{ij} denotes the
+            average number of contacts made per day by an
+            individual in class i with an individual in class j
         Tf: float
             Final time of integrator
         Nf: Int
@@ -2413,10 +2295,12 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-        dict
-            'X': output path from integrator, 't': time points evaluated at,
-            'param': input param to integrator.
+        data: dict
+            contains the following keys:
 
+            * 'X': output path from integrator
+            * 't': time points evaluated at,
+            * 'param': input param to integrator.
         """
 
         def rhs0(xt, t):
@@ -2441,7 +2325,8 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+        S: np.array
+            Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -2456,7 +2341,8 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+        E: np.array
+            Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -2546,49 +2432,34 @@ cdef class SEAIRQ(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ_testing(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A: Asymptomatic and infectious
-
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gE: float
-                rate of removal from exposed individuals.
-            gA: float
-                rate of removal from activated individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            ars: float
-                fraction of population admissible for random and symptomatic tests
-            kapE: float
-                fraction of positive tests for exposed individuals
+
+        alpha: float
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        ars: float
+            fraction of population admissible for random and symptomatic tests
+        kapE: float
+            fraction of positive tests for exposed individuals
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    E
-    A
-    Ia
-    Is
-    R
-    Q
     """
 
     def __init__(self, parameters, M, Ni):
@@ -2844,43 +2715,32 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIRS(IntegratorsClass):
     """
-    Susceptible, Infected, Removed, Susceptible (SIRS)
-    Ia: asymptomatic
-    Is: symptomatic
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            ep  : float
-                fraction of removed who become susceptable again
-            sa  : float, np.array (M,)
-                daily arrival of new susceptables
-            iaa: float, np.array (M,)
-                daily arrival of new asymptomatics
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        ep  : float
+            fraction of removed who become susceptable again
+        sa  : float, np.array (M,)
+            daily arrival of new susceptables
+        iaa: float, np.array (M,)
+            daily arrival of new asymptomatics
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
-    Ia
-    Is
-    population
-    R
     """
 
 
@@ -3091,8 +2951,6 @@ cdef class SIRS(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class Spp(IntegratorsClass):
     """
-    Given a model specification, the
-
     Parameters
     ----------
     parameters: dict
@@ -3102,11 +2960,6 @@ cdef class Spp(IntegratorsClass):
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    simulate
-    S
     """
 
     def __init__(self, model_spec, parameters, M, Ni):
@@ -3224,7 +3077,7 @@ cdef class Spp(IntegratorsClass):
 
         Returns
         -------
-        dict
+        data: dict
             'X': output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
         """
@@ -3277,7 +3130,8 @@ cdef class Spp(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: dict
+            The object returned by `simulate`.
 
         Returns
         -------
@@ -3290,7 +3144,7 @@ cdef class Spp(IntegratorsClass):
             Os = X[:, class_index*self.M:(class_index+1)*self.M]
         else:
             Os = np.array([ self.Ni[i] - np.sum(X[:,i::self.M], axis=1) for i in range(self.M) ]).T
-        return Os 
+        return Os
 
 
 
@@ -3305,67 +3159,45 @@ cdef class Spp(IntegratorsClass):
 cdef class SEI5R(IntegratorsClass):
     warnings.warn('SEI5R not supported', DeprecationWarning)
     """
-    Susceptible, Exposed, Infected, Removed (SEIR)
-    The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
+    DEPRECATED.
+
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gE: float
-                rate of removal from exposeds individuals.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gIh: float
-                rate of removal for hospitalised individuals.
-            gIc: float
-                rate of removal for idividuals in intensive care.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            fh  : float
-                fraction by which hospitalised individuals are isolated.
-            sa: float, np.array (M,)
-                daily arrival of new susceptables.
-                sa is rate of additional/removal of population by birth etc
-            hh: float, np.array (M,)
-                fraction hospitalised from Is
-            cc: float, np.array (M,)
-                fraction sent to intensive care from hospitalised.
-            mm: float, np.array (M,)
-                mortality rate in intensive care
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gE: float
+            rate of removal from exposeds individuals.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gIh: float
+            rate of removal for hospitalised individuals.
+        gIc: float
+            rate of removal for idividuals in intensive care.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        fh  : float
+            fraction by which hospitalised individuals are isolated.
+        sa: float, np.array (M,)
+            daily arrival of new susceptables.
+            sa is rate of additional/removal of population by birth etc
+        hh: float, np.array (M,)
+            fraction hospitalised from Is
+        cc: float, np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: float, np.array (M,)
+            mortality rate in intensive care
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-    Methods
-    -------
-    simulate
-    S
-    E
-    Ia
-    Is
-    Ih
-    Ic
-    Im
-    population
-    R
     """
 
     def __init__(self, parameters, M, Ni):
@@ -3383,7 +3215,7 @@ cdef class SEI5R(IntegratorsClass):
         hh         = parameters['hh']                       # fraction of infected who gets hospitalized
         cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
         mm         = parameters['mm']                       # mortality fraction from ICU
-        
+
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
@@ -3669,68 +3501,45 @@ cdef class SEI5R(IntegratorsClass):
 cdef class SEAI5R(IntegratorsClass):
     warnings.warn('SEAI5R not supported', DeprecationWarning)
     """
-    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
-    The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
+    DEPRECATED.
+
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            gE: float
-                rate of removal from exposeds individuals.
-            gA: float
-                rate of removal from activated individuals.
-            gIh: float
-                rate of hospitalisation of infected individuals.
-            gIc: float
-                rate hospitalised individuals are moved to intensive care.
-            sa: float, np.array (M,)
-                daily arrival of new susceptables.
-                sa is rate of additional/removal of population by birth etc
-            hh: float, np.array (M,)
-                fraction hospitalised from Is
-            cc: float, np.array (M,)
-                fraction sent to intensive care from hospitalised.
-            mm: float, np.array (M,)
-                mortality rate in intensive care
+
+        alpha: float
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposeds individuals.
+        gA: float
+            rate of removal from activated individuals.
+        gIh: float
+            rate of hospitalisation of infected individuals.
+        gIc: float
+            rate hospitalised individuals are moved to intensive care.
+        sa: float, np.array (M,)
+            daily arrival of new susceptables.
+            sa is rate of additional/removal of population by birth etc
+        hh: float, np.array (M,)
+            fraction hospitalised from Is
+        cc: float, np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: float, np.array (M,)
+            mortality rate in intensive care
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
-    Methods
-    -------
-    simulate
-    S
-    E
-    A
-    Ia
-    Is
-    Ih
-    Ic
-    Im
-    population
-    R
     """
 
     def __init__(self, parameters, M, Ni):

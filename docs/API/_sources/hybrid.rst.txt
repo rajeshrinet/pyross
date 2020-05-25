@@ -1,8 +1,8 @@
 Hybrid simulations
 ==================================
-Hybrid simulation scheme using a combination of stochastic and determinisitic schemes.
+Hybrid simulation scheme using a combination of stochastic and deterministic schemes.
 
-pyross.hybrid.SIR
+SIR
 --------------------
 .. autoclass:: pyross.hybrid.SIR
     :members:

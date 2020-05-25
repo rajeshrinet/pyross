@@ -86,17 +86,17 @@
 <li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Control with Non-Pharmaceutical interventions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-control-integration">pyross.control.control_integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-sir">pyross.control.SIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-sekikikr">pyross.control.SEkIkIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-sirs">pyross.control.SIRS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-seir">pyross.control.SEIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-sei5r">pyross.control.SEI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-sikr">pyross.control.SIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-sekikr">pyross.control.SEkIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-seair">pyross.control.SEAIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-seai5r">pyross.control.SEAI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-control-seairq">pyross.control.SEAIRQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#control-integration">control_integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikikr">SEkIkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sirs">SIRS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sei5r">SEI5R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikr">SEkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seair">SEAIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seai5r">SEAI5R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
@@ -167,8 +167,8 @@
             
   <div class="section" id="control-with-non-pharmaceutical-interventions">
 <h1>Control with Non-Pharmaceutical interventions<a class="headerlink" href="#control-with-non-pharmaceutical-interventions" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="pyross-control-control-integration">
-<h2>pyross.control.control_integration<a class="headerlink" href="#pyross-control-control-integration" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="control-integration">
+<h2>control_integration<a class="headerlink" href="#control-integration" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.control_integration">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">control_integration</code><a class="headerlink" href="#pyross.control.control_integration" title="Permalink to this definition">¶</a></dt>
@@ -194,7 +194,6 @@ contactMatricies</p></li>
 <li><p><strong>Tf</strong> (<em>float</em>) – End time for integrator.</p></li>
 <li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate at.</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time for integrator. The default is 0.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 <li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
 <li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
 </ul>
@@ -213,8 +212,8 @@ contactMatricies</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-sir">
-<h2>pyross.control.SIR<a class="headerlink" href="#pyross-control-sir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.control.SIR" title="Permalink to this definition">¶</a></dt>
@@ -255,8 +254,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-sekikikr">
-<h2>pyross.control.SEkIkIkR<a class="headerlink" href="#pyross-control-sekikikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sekikikr">
+<h2>SEkIkIkR<a class="headerlink" href="#sekikikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEkIkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEkIkIkR</code><a class="headerlink" href="#pyross.control.SEkIkIkR" title="Permalink to this definition">¶</a></dt>
@@ -384,8 +383,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-sirs">
-<h2>pyross.control.SIRS<a class="headerlink" href="#pyross-control-sirs" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sirs">
+<h2>SIRS<a class="headerlink" href="#sirs" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SIRS">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIRS</code><a class="headerlink" href="#pyross.control.SIRS" title="Permalink to this definition">¶</a></dt>
@@ -433,8 +432,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-seir">
-<h2>pyross.control.SEIR<a class="headerlink" href="#pyross-control-seir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.control.SEIR" title="Permalink to this definition">¶</a></dt>
@@ -478,8 +477,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-sei5r">
-<h2>pyross.control.SEI5R<a class="headerlink" href="#pyross-control-sei5r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sei5r">
+<h2>SEI5R<a class="headerlink" href="#sei5r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.control.SEI5R" title="Permalink to this definition">¶</a></dt>
@@ -546,8 +545,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-sikr">
-<h2>pyross.control.SIkR<a class="headerlink" href="#pyross-control-sikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sikr">
+<h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.control.SIkR" title="Permalink to this definition">¶</a></dt>
@@ -586,8 +585,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-sekikr">
-<h2>pyross.control.SEkIkR<a class="headerlink" href="#pyross-control-sekikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sekikr">
+<h2>SEkIkR<a class="headerlink" href="#sekikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.control.SEkIkR" title="Permalink to this definition">¶</a></dt>
@@ -631,8 +630,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-seair">
-<h2>pyross.control.SEAIR<a class="headerlink" href="#pyross-control-seair" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seair">
+<h2>SEAIR<a class="headerlink" href="#seair" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEAIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAIR</code><a class="headerlink" href="#pyross.control.SEAIR" title="Permalink to this definition">¶</a></dt>
@@ -679,8 +678,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-seai5r">
-<h2>pyross.control.SEAI5R<a class="headerlink" href="#pyross-control-seai5r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seai5r">
+<h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEAI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.control.SEAI5R" title="Permalink to this definition">¶</a></dt>
@@ -740,8 +739,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-control-seairq">
-<h2>pyross.control.SEAIRQ<a class="headerlink" href="#pyross-control-seairq" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.control.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.control.SEAIRQ" title="Permalink to this definition">¶</a></dt>

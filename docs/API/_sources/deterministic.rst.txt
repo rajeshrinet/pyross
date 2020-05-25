@@ -3,78 +3,63 @@ Deterministic simulations
 
 Deterministic simulations with compartment models and age structure.
 
-pyross.deterministic.IntegratorsClass
+IntegratorsClass
 ----------------------------------------
-
 .. autoclass:: pyross.deterministic.IntegratorsClass
     :members:
 
 
-pyross.deterministic.Spp
+Spp
 --------------------------
-Automatic generation of all SIR-type models.
-
 .. autoclass:: pyross.deterministic.Spp
     :members:
 
-pyross.deterministic.SIR
+SIR
 --------------------------
 .. autoclass:: pyross.deterministic.SIR
     :members:
 
-pyross.deterministic.SIkR
+SIkR
 --------------------------
 .. autoclass:: pyross.deterministic.SIkR
     :members:
 
-pyross.deterministic.SEIR
+SEIR
 --------------------------
 .. autoclass:: pyross.deterministic.SEIR
     :members:
 
-pyross.deterministic.SEkIkR
+SEkIkR
 -----------------------------
 .. autoclass:: pyross.deterministic.SEkIkR
     :members:
 
-pyross.deterministic.SEkIkIkR
+SEkIkIkR
 -------------------------------
 .. autoclass:: pyross.deterministic.SEkIkIkR
     :members:
 
-pyross.deterministic.SEI5R
--------------------------------
-.. autoclass:: pyross.deterministic.SEI5R
-    :members:
-
-
-pyross.deterministic.SEI8R
+SEI8R
 -------------------------------
 .. autoclass:: pyross.deterministic.SEI8R
     :members:
 
-pyross.deterministic.SEAIR
+SEAIR
 ----------------------------
 .. autoclass:: pyross.deterministic.SEAIR
     :members:
 
-
-pyross.deterministic.SEAI5R
-----------------------------
-.. autoclass:: pyross.deterministic.SEAI5R
-    :members:
-
-pyross.deterministic.SEAI8R
+SEAI8R
 --------------------------------
 .. autoclass:: pyross.deterministic.SEAI8R
     :members:
 
-pyross.deterministic.SEAIRQ
+SEAIRQ
 ------------------------------
 .. autoclass:: pyross.deterministic.SEAIRQ
     :members:
 
-pyross.deterministic.SEAIRQ_testing
+SEAIRQ_testing
 --------------------------------------
 .. autoclass:: pyross.deterministic.SEAIRQ_testing
     :members:

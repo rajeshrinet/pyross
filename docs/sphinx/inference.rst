@@ -52,8 +52,6 @@ SIR_type
 
 Spp
 ------------------------
-Automatic generation of inference for SIR-type models
-
 .. autoclass:: pyross.inference.Spp
     :members:
 
@@ -65,11 +63,6 @@ SIR
 SEIR
 -------------------------
 .. autoclass:: pyross.inference.SEIR
-    :members:
-
-SEAI5R
---------------------------
-.. autoclass:: pyross.inference.SEAI5R
     :members:
 
 SEAIRQ

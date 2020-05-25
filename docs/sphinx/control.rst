@@ -2,58 +2,58 @@ Control with Non-Pharmaceutical interventions
 =================================================
 
 
-pyross.control.control_integration
+control_integration
 ------------------------------------
 .. autoclass:: pyross.control.control_integration
     :members:
 
-pyross.control.SIR
+SIR
 ------------------------------------
 .. autoclass:: pyross.control.SIR
     :members:
 
-pyross.control.SEkIkIkR
+SEkIkIkR
 ------------------------------------
 .. autoclass:: pyross.control.SEkIkIkR
     :members:
 
-pyross.control.SIRS
+SIRS
 ---------------------
 .. autoclass:: pyross.control.SIRS
     :members:
 
-pyross.control.SEIR
+SEIR
 ---------------------
 .. autoclass:: pyross.control.SEIR
     :members:
 
-pyross.control.SEI5R
+SEI5R
 ----------------------
 .. autoclass:: pyross.control.SEI5R
     :members:
 
-pyross.control.SIkR
+SIkR
 ----------------------
 .. autoclass:: pyross.control.SIkR
     :members:
 
-pyross.control.SEkIkR
+SEkIkR
 ------------------------
 .. autoclass:: pyross.control.SEkIkR
     :members:
 
 
-pyross.control.SEAIR
+SEAIR
 -----------------------
 .. autoclass:: pyross.control.SEAIR
     :members:
 
-pyross.control.SEAI5R
+SEAI5R
 -----------------------
 .. autoclass:: pyross.control.SEAI5R
     :members:
 
-pyross.control.SEAIRQ
+SEAIRQ
 -----------------------
 .. autoclass:: pyross.control.SEAIRQ
     :members:

@@ -3,42 +3,42 @@ Stochastic simulations
 Stochastic simulations with compartment models and age structure. Has Gillespie and tau-leaping implemented.
 
 
-pyross.stochastic.stochastic_integration
+stochastic_integration
 --------------------------------------------
 .. autoclass:: pyross.stochastic.stochastic_integration
     :members:
 
-pyross.stochastic.SIR
+SIR
 ----------------------
 .. autoclass:: pyross.stochastic.SIR
     :members:
 
-pyross.stochastic.SIkR
+SIkR
 ------------------------
 .. autoclass:: pyross.stochastic.SIkR
     :members:
 
-pyross.stochastic.SEIR
+SEIR
 -------------------------
 .. autoclass:: pyross.stochastic.SEIR
     :members:
 
-pyross.stochastic.SEI5R
+SEI5R
 --------------------------
 .. autoclass:: pyross.stochastic.SEI5R
     :members:
 
-pyross.stochastic.SEAI5R
+SEAI5R
 ----------------------------
 .. autoclass:: pyross.stochastic.SEAI5R
     :members:
 
-pyross.stochastic.SEAIRQ
+SEAIRQ
 ---------------------------
 .. autoclass:: pyross.stochastic.SEAIRQ
     :members:
 
-pyross.stochastic.SEAIRQ_testing
+SEAIRQ_testing
 -------------------------------------
 .. autoclass:: pyross.stochastic.SEAIRQ_testing
     :members:
