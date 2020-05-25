@@ -1,3 +1,6 @@
+# distutils: language = c++
+# distutils: extra_compile_args = -std=c++11
+
 import numpy as np
 cimport numpy as np
 cimport cpython
