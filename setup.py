@@ -1,5 +1,5 @@
 import numpy
-import os, sys
+import os, sys 
 from distutils.core import setup
 from Cython.Build import cythonize
 from distutils.extension import Extension
@@ -18,8 +18,6 @@ setup(
     platforms='works on all platforms (such as LINUX, macOS, and Microsoft Windows)',
     ext_modules=cythonize([ Extension("pyross/*", ["pyross/*.pyx"],
         include_dirs=[numpy.get_include()],
-        extra_compile_args=['-mmacosx-version-min=10.9'],
-        extra_link_args=['-mmacosx-version-min=10.9'],
         )],
         compiler_directives={"language_level": sys.version_info[0]},
         ),
