@@ -3,6 +3,7 @@ cimport numpy as np
 cimport cython
 from libc.stdlib cimport malloc, free
 import pyross.utils
+import warnings
 
 DTYPE   = np.float
 
@@ -3302,7 +3303,7 @@ cdef class Spp(IntegratorsClass):
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SEI5R(IntegratorsClass):
-    print('SEI5R not supported')
+    warnings.warn('SEI5R not supported', DeprecationWarning)
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
@@ -3666,7 +3667,7 @@ cdef class SEI5R(IntegratorsClass):
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SEAI5R(IntegratorsClass):
-    print('SEAI5R not supported')
+    warnings.warn('SEAI5R not supported', DeprecationWarning)
     """
     Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:

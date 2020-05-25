@@ -5,6 +5,7 @@ cimport cpython
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 from numpy.math cimport INFINITY
+import warnings
 
 cdef extern from "math.h":
     double log(double x) nogil
@@ -1511,6 +1512,7 @@ cdef class SEIR(stochastic_integration):
 
 
 cdef class SEI5R(stochastic_integration):
+    warnings.warn('SEI5R not supported', DeprecationWarning)
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
     The infected class has 5 groups:
@@ -1985,6 +1987,7 @@ cdef class SEI5R(stochastic_integration):
 
 
 cdef class SEAI5R(stochastic_integration):
+    warnings.warn('SEAI5R not supported', DeprecationWarning)
     """
     Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
