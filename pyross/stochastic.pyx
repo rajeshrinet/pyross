@@ -1,5 +1,9 @@
+# distutils: language = c++
+# distutils: extra_compile_args = -std=c++11
+
 import numpy as np
 cimport numpy as np
+import os, time
 cimport cpython
 #from cython.parallel import prange
 DTYPE   = np.float
@@ -9,9 +13,33 @@ import warnings
 
 cdef extern from "math.h":
     double log(double x) nogil
-    double exp(double x) nogil
 
-from libc.stdlib cimport rand, RAND_MAX
+
+from libcpp.vector cimport vector
+
+# wrapper for C++11 pseudo-random number generator
+cdef extern from "<random>" namespace "std":
+    cdef cppclass mt19937:
+        mt19937()
+        mt19937(unsigned long seed)
+
+    cdef cppclass uniform_real_distribution[T]:
+        uniform_real_distribution()
+        uniform_real_distribution(T a, T b)
+        T operator()(mt19937 gen)
+
+    cdef cppclass poisson_distribution[T]:
+        poisson_distribution()
+        poisson_distribution(double a)
+        T operator()(mt19937 gen)
+
+    cdef cppclass discrete_distribution[T]:
+        discrete_distribution()
+        discrete_distribution(vector.iterator first, vector.iterator last)
+        T operator()(mt19937 gen)
+
+
+
 
 cdef class stochastic_integration:
     """
@@ -20,6 +48,10 @@ cdef class stochastic_integration:
 
     Methods
     -------
+    random_choice
+    uniform_dist
+    poisson_dist
+    initialize_random_number_generator
     calculate_total_reaction_rate
     SSA_step:
         Gillespie Stochastic Simulation Step (SSA)
@@ -34,6 +66,90 @@ cdef class stochastic_integration:
         readonly int N, M, nClass
         int k_tot
         np.ndarray RM, xt, weights, CM, xtminus1
+        mt19937 gen
+        long seed
+
+
+    cdef random_choice(self,weights):
+        '''
+        Generates random choice X from ( 0, 1, ..., len(weights) ), with
+        Probability( X = i ) = weights[i] / sum(weights).
+
+        Parameters
+        ----------
+        weights: 1D np.array
+            Relative weights for random choice
+
+        Returns
+        -------
+        X: int
+            Random choice from integers in ( 0, 1, ..., len(weights) )
+        '''
+        cdef:
+            vector[double] values = weights
+            discrete_distribution[int] dd = discrete_distribution[int](\
+                                              values.begin(),values.end())
+        return dd(self.gen)
+
+    cdef uniform_dist(self):
+        '''
+        Draws random sample X from uniform distribution on (0,1)
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        X: double
+            Random sample from uniform distribution on (0,1)
+        '''
+        cdef:
+            uniform_real_distribution[double] dist = uniform_real_distribution[double](0.0,1.0)
+        return dist(self.gen)
+
+    cdef poisson_dist(self,double mean):
+        '''
+        Draws random sample X from Poisson distribution with mean "mean"
+
+        Parameters
+        ----------
+        mean: double
+            Mean for Poisson distribution
+
+        Returns
+        -------
+        X: int
+            Random sample from Poisson distribution with given mean
+        '''
+        cdef:
+            poisson_distribution[int] dist = poisson_distribution[int](mean)
+        return dist(self.gen)
+
+    cdef initialize_random_number_generator(self,long supplied_seed=-1):
+        '''
+        Sets seed for random number generator.
+        If negative seed is supplied, a seed will be generated based
+        on process ID and current time.
+
+        Parameters
+        ----------
+        supplied_seed: long
+            Seed for random number generator
+
+        Returns
+        -------
+        None
+        '''
+        cdef:
+            long max_long = 9223372036854775807
+        if supplied_seed < 0:
+            self.seed = (abs(os.getpid()) + long(time.time()*1000)) % max_long
+        else:
+            self.seed = supplied_seed % max_long
+        self.gen = mt19937(self.seed)
+
+
 
     cdef calculate_total_reaction_rate(self):
         """
@@ -102,25 +218,14 @@ cdef class stochastic_integration:
             double dt, cs, t
             int M = self.M
             int I, i, j, k,  k_tot = self.k_tot
-            int max_index = k_tot*k_tot*M,
-            double fRAND_MAX = float(RAND_MAX) + 1
+
         # draw exponentially distributed time for next reaction
-        random = rand()/fRAND_MAX
+        random = self.uniform_dist()
         dt = -log(random) / total_rate
         t = time + dt
 
         # decide which reaction happens
-        '''
-        random = ( rand()/fRAND_MAX ) * total_rate
-        I = 0
-        while cs < random and I < max_index:
-            cs += weights[I]
-            I += 1
-        I -= 1
-        ''';
-        # Alternative to the above implementation: use numpy to choose random event
-        I = np.random.choice(np.arange(max_index),
-                                      p=weights/np.sum(weights))
+        I = self.random_choice(weights)
 
         # adjust population according to chosen reaction
         i = I//( k_tot*k_tot )
@@ -479,7 +584,7 @@ cdef class stochastic_integration:
                 for k in range(k_tot):
                     if RM[i+j*M,i+k*M] > 0:
                         # draw poisson variable
-                        K_events = np.random.poisson(RM[i+j*M,i+k*M] * cur_tau )
+                        K_events = self.poisson_dist( RM[i+j*M,i+k*M] * cur_tau )
                         if j == k:
                             if j == 0:
                                 xt[i + M*j] += K_events # influx of susceptibles
@@ -807,6 +912,8 @@ cdef class SIR(stochastic_integration):
                 rate of removal from symptomatic individuals.
             fsa: float
                 fraction by which symptomatic individuals self isolate.
+            seed: long
+                seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -853,6 +960,13 @@ cdef class SIR(stochastic_integration):
             self.alpha = alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
 
     cdef rate_matrix(self, xt, tt):
         cdef:
@@ -1070,6 +1184,8 @@ cdef class SIkR(stochastic_integration):
                 fraction by which symptomatic individuals self isolate.
             kI: int
                 number of stages of infection.
+            seed: long
+                seed for pseudo-random number generator (optional).
 
     M: int
         Number of compartments of individual for each class.
@@ -1116,6 +1232,13 @@ cdef class SIkR(stochastic_integration):
         self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
         self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
 
     cdef rate_matrix(self, xt, tt):
         cdef:
@@ -1283,6 +1406,8 @@ cdef class SEIR(stochastic_integration):
                 fraction by which symptomatic individuals self isolate.
             gE: float
                 rate of removal from exposed individuals.
+            seed: long
+                seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1329,6 +1454,13 @@ cdef class SEIR(stochastic_integration):
             self.alpha= alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
 
     cdef rate_matrix(self, xt, tt):
         cdef:
@@ -1560,6 +1692,8 @@ cdef class SEI5R(stochastic_integration):
                 fraction sent to intensive care from hospitalised.
             mm: float, np.array (M,)
                 mortality rate in intensive care
+            seed: long
+                seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1664,6 +1798,13 @@ cdef class SEI5R(stochastic_integration):
             self.iaa = iaa
         else:
             print('iaa can be a number or an array of size M')
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
 
 
     cdef rate_matrix(self, xt, tt):
@@ -2025,6 +2166,8 @@ cdef class SEAI5R(stochastic_integration):
                 rate of hospitalisation of infected individuals.
             gIc: float
                 rate hospitalised individuals are moved to intensive care.
+            seed: long
+                seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2123,6 +2266,13 @@ cdef class SEAI5R(stochastic_integration):
             self.mm= mm
         else:
             print('mm can be a number or an array of size M')
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
 
 
     cdef rate_matrix(self, xt, tt):
@@ -2504,6 +2654,8 @@ cdef class SEAIRQ(stochastic_integration):
                 testing rate and contact tracing of asymptomatics
             tIs: float
                 testing rate and contact tracing of symptomatics
+            seed: long
+                seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2565,6 +2717,13 @@ cdef class SEAIRQ(stochastic_integration):
             self.alpha= alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
 
     cdef rate_matrix(self, xt, tt):
         cdef:
@@ -2801,8 +2960,8 @@ cdef class SEAIRQ(stochastic_integration):
         Is = X[:, 5*self.M:6*self.M]
         return Is
 
-    
-    
+
+
 cdef class SEAIRQ_testing(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
@@ -2832,6 +2991,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
                 fraction of population admissible for random and symptomatic tests
             kapE: float
                 fraction of positive tests for exposed individuals
+            seed: long
+                seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2847,8 +3008,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
     simulate:
         Performs stochastic numerical integration.
     """
-    
-    
+
+
     cdef:
         readonly double beta, gIa, gIs, gE, gA, fsa
         readonly double ars, kapE
@@ -2868,13 +3029,13 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
         self.ars    = parameters['ars']                     # fraction of population admissible for testing
         self.kapE   = parameters['kapE']                    # fraction of positive tests for exposed
-        
+
 
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
-        
+
         self.testRate=None
 
         self.k_tot = 6 # total number of explicit states per age group
@@ -2900,6 +3061,13 @@ cdef class SEAIRQ_testing(stochastic_integration):
         else:
             raise Exception('alpha can be a number or an array of size M')
 
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
+
     cdef rate_matrix(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
@@ -2910,7 +3078,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
             double ars=self.ars, kapE=self.kapE
             double gA=self.gA
             double gAA, gAS
-            
+
 
             long [:] S    = xt[0*M:M]
             long [:] E    = xt[1*M:2*M]
@@ -2924,14 +3092,14 @@ cdef class SEAIRQ_testing(stochastic_integration):
             double [:,:] CM = self.CM
             double [:,:] RM = self.RM
             double [:] alpha= self.alpha
-            
+
             double [:] TR
-            
+
         if None != self.testRate :
             TR = self.testRate(tt)
         else :
             TR = np.zeros(M)
-            
+
 
         for i in range(M):
             t0 = 1./(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
@@ -2939,7 +3107,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
             tA= TR[i]*ars*t0
             tIa = TR[i]*ars*t0
             tIs = TR[i]*t0
-            
+
             lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
             for j in range(M):
                 lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
@@ -2974,7 +3142,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
             long [:] xt = self.xt
 
         self.testRate=testRate
-        
+
         # write initial condition to xt
         for i in range(M):
             xt[i]     = S0[i]
@@ -3013,8 +3181,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
             list events_out
             np.ndarray out_arr, t_arr
 
-        self.testRate=testRate    
-        
+        self.testRate=testRate
+
         # write initial condition to xt
         for i in range(M):
             xt[i]     = S0[i]
