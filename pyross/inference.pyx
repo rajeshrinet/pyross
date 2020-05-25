@@ -754,7 +754,8 @@ cdef class SIR_type:
                 k += 1
             else:
                 orig_params.append(estimates[flat_guess_range[j]])
-        return np.concatenate([orig_params, estimates[flat_param_guess_size:]], axis=0)
+        orig_params += list(estimates[flat_param_guess_size:])
+        return np.array(orig_params)
 
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
