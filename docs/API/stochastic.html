@@ -83,14 +83,14 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Stochastic simulations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-stochastic-integration">pyross.stochastic.stochastic_integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-sir">pyross.stochastic.SIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-sikr">pyross.stochastic.SIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seir">pyross.stochastic.SEIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-sei5r">pyross.stochastic.SEI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seai5r">pyross.stochastic.SEAI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seairq">pyross.stochastic.SEAIRQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-stochastic-seairq-testing">pyross.stochastic.SEAIRQ_testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stochastic-integration">stochastic_integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sei5r">SEI5R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seai5r">SEAI5R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq-testing">SEAIRQ_testing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
@@ -165,8 +165,8 @@
   <div class="section" id="stochastic-simulations">
 <h1>Stochastic simulations<a class="headerlink" href="#stochastic-simulations" title="Permalink to this headline">¶</a></h1>
 <p>Stochastic simulations with compartment models and age structure. Has Gillespie and tau-leaping implemented.</p>
-<div class="section" id="pyross-stochastic-stochastic-integration">
-<h2>pyross.stochastic.stochastic_integration<a class="headerlink" href="#pyross-stochastic-stochastic-integration" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stochastic-integration">
+<h2>stochastic_integration<a class="headerlink" href="#stochastic-integration" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.stochastic_integration">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">stochastic_integration</code><a class="headerlink" href="#pyross.stochastic.stochastic_integration" title="Permalink to this definition">¶</a></dt>
@@ -232,7 +232,6 @@ average number of contacts made per day by an
 individual in class i with an individual in class j</p></li>
 <li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
 <li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -266,7 +265,6 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>nc</strong> (<em>optional</em>) – The default is 30</p></li>
 <li><p><strong>epsilon</strong> (<em>float</em><em>, </em><em>optional</em>) – The acceptable error in each step. The default is 0.03</p></li>
 <li><p><strong>tau_update_frequency</strong> (<em>optional</em>) – </p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -282,8 +280,8 @@ individual in class i with an individual in class j</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-sir">
-<h2>pyross.stochastic.SIR<a class="headerlink" href="#pyross-stochastic-sir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.stochastic.SIR" title="Permalink to this definition">¶</a></dt>
@@ -412,7 +410,6 @@ The default is ‘gillespie’.</p></li>
 <li><p><strong>nc</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
 <li><p><strong>epsilon</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
 <li><p><strong>tau_update_frequency</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>seedRate</strong> (<em>python function</em><em>, </em><em>optional</em>) – Seeding of infectives. The default is None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -428,8 +425,8 @@ The default is ‘gillespie’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-sikr">
-<h2>pyross.stochastic.SIkR<a class="headerlink" href="#pyross-stochastic-sikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sikr">
+<h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.stochastic.SIkR" title="Permalink to this definition">¶</a></dt>
@@ -523,8 +520,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-seir">
-<h2>pyross.stochastic.SEIR<a class="headerlink" href="#pyross-stochastic-seir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.stochastic.SEIR" title="Permalink to this definition">¶</a></dt>
@@ -655,81 +652,12 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-sei5r">
-<h2>pyross.stochastic.SEI5R<a class="headerlink" href="#pyross-stochastic-sei5r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sei5r">
+<h2>SEI5R<a class="headerlink" href="#sei5r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SEI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.stochastic.SEI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Ih, R
-Ih —&gt; Ic, R
-Ic —&gt; Im, R</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
-</dd>
-<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
-sa is rate of additional/removal of population by birth etc</p>
-</dd>
-<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
-</dd>
-<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
-</dd>
-<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>M: int</dt><dd><p>Number of compartments of individual for each class.
-I.e len(contactMatrix)</p>
-</dd>
-<dt>Ni: np.array(8*M, )</dt><dd><p>Initial number in each compartment and class</p>
-</dd>
-</dl>
-<dl class="method">
-<dt>
-<code class="sig-name descname">rate_matrix:</code></dt>
-<dd><p>Calculates the rate constant for each reaction channel.</p>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate:</code></dt>
-<dd><p>Performs stochastic numerical integration.</p>
-</dd></dl>
-
-<dl class="method">
+<dd><dl class="method">
 <dt id="pyross.stochastic.SEI5R.E">
 <code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEI5R.E" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -877,72 +805,12 @@ I.e len(contactMatrix)</p>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-seai5r">
-<h2>pyross.stochastic.SEAI5R<a class="headerlink" href="#pyross-stochastic-seai5r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seai5r">
+<h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SEAI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.stochastic.SEAI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Ih, R
-Ih —&gt; Ic, R
-Ic —&gt; Im, R
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of hospitalisation of infected individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
-I.e len(contactMatrix)</p></li>
-<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>9*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt>
-<code class="sig-name descname">rate_matrix:</code></dt>
-<dd><p>Calculates the rate constant for each reaction channel.</p>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate:</code></dt>
-<dd><p>Performs stochastic numerical integration.</p>
-</dd></dl>
-
-<dl class="method">
+<dd><dl class="method">
 <dt id="pyross.stochastic.SEAI5R.A">
 <code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.SEAI5R.A" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -1106,8 +974,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-seairq">
-<h2>pyross.stochastic.SEAIRQ<a class="headerlink" href="#pyross-stochastic-seairq" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ" title="Permalink to this definition">¶</a></dt>
@@ -1279,8 +1147,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-stochastic-seairq-testing">
-<h2>pyross.stochastic.SEAIRQ_testing<a class="headerlink" href="#pyross-stochastic-seairq-testing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seairq-testing">
+<h2>SEAIRQ_testing<a class="headerlink" href="#seairq-testing" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.stochastic.SEAIRQ_testing">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAIRQ_testing</code><a class="headerlink" href="#pyross.stochastic.SEAIRQ_testing" title="Permalink to this definition">¶</a></dt>

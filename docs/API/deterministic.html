@@ -82,20 +82,18 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Deterministic simulations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-integratorsclass">pyross.deterministic.IntegratorsClass</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-spp">pyross.deterministic.Spp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-sir">pyross.deterministic.SIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-sikr">pyross.deterministic.SIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-seir">pyross.deterministic.SEIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-sekikr">pyross.deterministic.SEkIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-sekikikr">pyross.deterministic.SEkIkIkR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-sei5r">pyross.deterministic.SEI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-sei8r">pyross.deterministic.SEI8R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-seair">pyross.deterministic.SEAIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-seai5r">pyross.deterministic.SEAI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-seai8r">pyross.deterministic.SEAI8R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-seairq">pyross.deterministic.SEAIRQ</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pyross-deterministic-seairq-testing">pyross.deterministic.SEAIRQ_testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integratorsclass">IntegratorsClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spp">Spp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikr">SEkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikikr">SEkIkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sei8r">SEI8R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seair">SEAIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seai8r">SEAI8R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq-testing">SEAIRQ_testing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
@@ -171,27 +169,12 @@
   <div class="section" id="deterministic-simulations">
 <h1>Deterministic simulations<a class="headerlink" href="#deterministic-simulations" title="Permalink to this headline">¶</a></h1>
 <p>Deterministic simulations with compartment models and age structure.</p>
-<div class="section" id="pyross-deterministic-integratorsclass">
-<h2>pyross.deterministic.IntegratorsClass<a class="headerlink" href="#pyross-deterministic-integratorsclass" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="integratorsclass">
+<h2>IntegratorsClass<a class="headerlink" href="#integratorsclass" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.IntegratorsClass">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">IntegratorsClass</code><a class="headerlink" href="#pyross.deterministic.IntegratorsClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all integrator used by various deterministic models listed below.</p>
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulateRHS: Performs numerical integration.</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulator: interface for user to call simulateRHS</code></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">set_contactMatrix: setting contact matrix</code></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.IntegratorsClass.simulateRHS">
 <code class="sig-name descname">simulateRHS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.IntegratorsClass.simulateRHS" title="Permalink to this definition">¶</a></dt>
@@ -244,7 +227,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p><strong>data</strong> – ‘X’: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -256,14 +239,12 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-spp">
-<h2>pyross.deterministic.Spp<a class="headerlink" href="#pyross-deterministic-spp" title="Permalink to this headline">¶</a></h2>
-<p>Automatic generation of all SIR-type models.</p>
+<div class="section" id="spp">
+<h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.Spp">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.deterministic.Spp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a model specification, the</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.</p></li>
@@ -274,21 +255,11 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.Spp.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.Spp.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.Spp.model_class_data">
 <code class="sig-name descname">model_class_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.model_class_data" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – The object returned by <cite>simulate</cite>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
@@ -300,8 +271,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.Spp.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -327,7 +298,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p><strong>data</strong> – ‘X’: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -339,17 +310,12 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-sir">
-<h2>pyross.deterministic.SIR<a class="headerlink" href="#pyross-deterministic-sir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.deterministic.SIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Infected, Removed (SIR)</p>
-<ul class="simple">
-<li><p>Ia: asymptomatic</p></li>
-<li><p>Is: symptomatic</p></li>
-</ul>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
@@ -373,33 +339,8 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.SIR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.SIR.Ia">
 <code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -414,8 +355,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SIR.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -430,8 +371,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SIR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -446,8 +387,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SIR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -462,8 +403,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -495,17 +436,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-sikr">
-<h2>pyross.deterministic.SIkR<a class="headerlink" href="#pyross-deterministic-sikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sikr">
+<h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.deterministic.SIkR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Infected, Removed (SIkR)
-method of k-stages of I
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
 <dt>gI: float</dt><dd><p>rate of removal from infectives.</p>
@@ -513,23 +453,13 @@ method of k-stages of I
 <dt>kI: int</dt><dd><p>number of stages of infection.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+</p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
 <li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SIkR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SIkR.I">
 <code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.I" title="Permalink to this definition">¶</a></dt>
@@ -579,8 +509,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -611,18 +541,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-seir">
-<h2>pyross.deterministic.SEIR<a class="headerlink" href="#pyross-deterministic-seir" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.deterministic.SEIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-Ia: asymptomatic
-Is: symptomatic
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -636,12 +564,7 @@ Is: symptomatic
 <dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+</p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
 <li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
@@ -649,43 +572,8 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.SEIR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.SEIR.E">
 <code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.A">
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.A" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -700,8 +588,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEIR.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -716,8 +604,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEIR.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -732,8 +620,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEIR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -748,8 +636,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEIR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -764,8 +652,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -798,18 +686,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-sekikr">
-<h2>pyross.deterministic.SEkIkR<a class="headerlink" href="#pyross-deterministic-sekikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sekikr">
+<h2>SEkIkR<a class="headerlink" href="#sekikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-method of k-stages of I and E
-See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
 </dd>
 <dt>gI: float</dt><dd><p>rate of removal from infected individuals.</p>
@@ -821,23 +707,13 @@ See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅t
 <dt>kE: int</dt><dd><p>number of stages of exposed.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+</p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
 <li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEkIkR.E">
 <code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.E" title="Permalink to this definition">¶</a></dt>
@@ -903,8 +779,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEkIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -936,18 +812,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-sekikikr">
-<h2>pyross.deterministic.SEkIkIkR<a class="headerlink" href="#pyross-deterministic-sekikikr" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sekikikr">
+<h2>SEkIkIkR<a class="headerlink" href="#sekikikr" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEkIkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkIkR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-method of k-stages of Ia, Is, E
-See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -965,23 +839,13 @@ See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅t
 <dt>kE: int</dt><dd><p>number of stages of exposed.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+</p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
 <li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkIkR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEkIkIkR.E">
 <code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.E" title="Permalink to this definition">¶</a></dt>
@@ -1063,8 +927,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEkIkIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1097,322 +961,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-sei5r">
-<h2>pyross.deterministic.SEI5R<a class="headerlink" href="#pyross-deterministic-sei5r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pyross.deterministic.SEI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.deterministic.SEI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Ih, R
-Ih —&gt; Ic, R
-Ic —&gt; Im, R</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
-</dd>
-<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
-sa is rate of additional/removal of population by birth etc</p>
-</dd>
-<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
-</dd>
-<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
-</dd>
-<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
-I.e len(contactMatrix)</p></li>
-<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.Ih">
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.Ih" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.Ic">
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.Ic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.Im">
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.Im" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.population">
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.population" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI5R.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI5R.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ICU hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>mortality time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
-<li><p><em>R = N(t) - (S + E + Ia + Is + Ih + Ic)</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>population</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
-<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
-<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
-<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
-<li><p><strong>Ih0</strong> (<em>np.array</em>) – Initial number of hospitalized infectives.</p></li>
-<li><p><strong>Ic0</strong> (<em>np.array</em>) – Initial number of ICU infectives.</p></li>
-<li><p><strong>Im0</strong> (<em>np.array</em>) – Initial number of mortality.</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
-<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
-<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
-The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
-<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
-‘param’: input param to integrator.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="pyross-deterministic-sei8r">
-<h2>pyross.deterministic.SEI8R<a class="headerlink" href="#pyross-deterministic-sei8r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sei8r">
+<h2>SEI8R<a class="headerlink" href="#sei8r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEI8R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEI8R</code><a class="headerlink" href="#pyross.deterministic.SEI8R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Is’ -&gt; Ih, R
-Ih —&gt; Ih’ -&gt; Ic, R
-Ic —&gt; Ic’ -&gt; Im, R</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -1447,8 +1005,6 @@ sa is rate of additional/removal of population by birth etc</p>
 <dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-</dd>
-</dl>
 </p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
@@ -1457,58 +1013,8 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.SEI8R.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.SEI8R.E">
 <code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Ih">
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ih" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Ic">
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Im">
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Im" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.population">
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.population" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1523,8 +1029,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1539,8 +1045,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.Ic">
+<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ic" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1555,8 +1061,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.Ih">
+<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ih" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1571,8 +1077,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.Im">
+<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Im" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1587,8 +1093,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1603,8 +1109,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1620,8 +1126,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1636,8 +1142,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.population">
+<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.population" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1652,8 +1158,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEI8R.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1689,19 +1195,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-seair">
-<h2>pyross.deterministic.SEAIR<a class="headerlink" href="#pyross-deterministic-seair" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seair">
+<h2>SEAIR<a class="headerlink" href="#seair" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEAIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIR</code><a class="headerlink" href="#pyross.deterministic.SEAIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
-Ia: asymptomatic
-Is: symptomatic
-A: Asymptomatic and infectious
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -1717,12 +1220,7 @@ A: Asymptomatic and infectious
 <dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
 </dd>
 </dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+</p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
 <li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
@@ -1730,43 +1228,8 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.SEAIR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.SEAIR.A">
 <code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.A" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1781,8 +1244,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIR.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.E" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1797,8 +1260,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIR.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1813,8 +1276,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIR.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1829,8 +1292,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1845,8 +1308,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -1861,8 +1324,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1896,347 +1359,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-seai5r">
-<h2>pyross.deterministic.SEAI5R<a class="headerlink" href="#pyross-deterministic-seai5r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pyross.deterministic.SEAI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.deterministic.SEAI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Ih, R
-Ih —&gt; Ic, R
-Ic —&gt; Im, R
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of hospitalisation of infected individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
-</dd>
-<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
-sa is rate of additional/removal of population by birth etc</p>
-</dd>
-<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
-</dd>
-<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
-</dd>
-<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
-I.e len(contactMatrix)</p></li>
-<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.A">
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.A" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.Ih">
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.Ih" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.Ic">
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.Ic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.Im">
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.Im" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.population">
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.population" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI5R.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI5R.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Activated population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ICU hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>mortality time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
-<li><p><em>R = N(t) - (S + E + A + Ia + Is + Ih + Ic)</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>population</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
-<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
-<li><p><strong>A0</strong> (<em>np.array</em>) – Initial number of activateds.</p></li>
-<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
-<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
-<li><p><strong>Ih0</strong> (<em>np.array</em>) – Initial number of hospitalized infectives.</p></li>
-<li><p><strong>Ic0</strong> (<em>np.array</em>) – Initial number of ICU infectives.</p></li>
-<li><p><strong>Im0</strong> (<em>np.array</em>) – Initial number of mortality.</p></li>
-<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
-average number of contacts made per day by an
-individual in class i with an individual in class j</p></li>
-<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
-<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
-<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
-<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
-The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
-<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
-‘param’: input param to integrator.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="pyross-deterministic-seai8r">
-<h2>pyross.deterministic.SEAI8R<a class="headerlink" href="#pyross-deterministic-seai8r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seai8r">
+<h2>SEAI8R<a class="headerlink" href="#seai8r" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEAI8R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAI8R</code><a class="headerlink" href="#pyross.deterministic.SEAI8R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; A
-A  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Is’ -&gt; Ih, R
-Ih —&gt; Ih’ -&gt; Ic, R
-Ic —&gt; Ic’ -&gt; Im, R</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -2271,8 +1403,6 @@ sa is rate of additional/removal of population by birth etc</p>
 <dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
 </dl>
-</dd>
-</dl>
 </p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
@@ -2280,56 +1410,6 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Ih">
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ih" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Ic">
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Im">
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Im" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.population">
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.population" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="pyross.deterministic.SEAI8R.A">
 <code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.A" title="Permalink to this definition">¶</a></dt>
@@ -2347,8 +1427,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.E" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2363,8 +1443,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2379,8 +1459,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.Ic">
+<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ic" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2395,8 +1475,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.Ih">
+<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ih" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2411,8 +1491,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.Im">
+<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Im" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2427,8 +1507,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2443,8 +1523,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2460,8 +1540,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2476,8 +1556,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.population">
+<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.population" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2492,8 +1572,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAI8R.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -2529,20 +1609,17 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-seairq">
-<h2>pyross.deterministic.SEAIRQ<a class="headerlink" href="#pyross-deterministic-seairq" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-Ia: asymptomatic
-Is: symptomatic
-A: Asymptomatic and infectious</p>
+<dd><p>To initialise the SEAIRQ class,</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -2557,15 +1634,13 @@ A: Asymptomatic and infectious</p>
 </dd>
 <dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
+<dt>tE: float</dt><dd><p>testing rate and contact tracing of exposeds</p>
 </dd>
-<dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
+<dt>tA: float</dt><dd><p>testing rate and contact tracing of activateds</p>
 </dd>
 <dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
 </dd>
 <dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
-</dd>
-</dl>
 </dd>
 </dl>
 </p></li>
@@ -2576,48 +1651,8 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.SEAIRQ.A">
 <code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.A" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.Q">
-<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Q" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2632,24 +1667,24 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.E" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong> – Exposed population time series</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
+<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2664,8 +1699,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2680,8 +1715,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.Q">
+<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Q" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2696,8 +1731,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2712,24 +1747,24 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong> – Susceptible population time series</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
+<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -2752,8 +1787,13 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
-‘param’: input param to integrator.</p>
+<dd class="field-even"><p><p><strong>data</strong> – contains the following keys:</p>
+<ul class="simple">
+<li><p>’X’: output path from integrator</p></li>
+<li><p>’t’: time points evaluated at,</p></li>
+<li><p>’param’: input param to integrator.</p></li>
+</ul>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
@@ -2764,20 +1804,16 @@ The default is ‘odeint’.</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="pyross-deterministic-seairq-testing">
-<h2>pyross.deterministic.SEAIRQ_testing<a class="headerlink" href="#pyross-deterministic-seairq-testing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="seairq-testing">
+<h2>SEAIRQ_testing<a class="headerlink" href="#seairq-testing" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pyross.deterministic.SEAIRQ_testing">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIRQ_testing</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-Ia: asymptomatic
-Is: symptomatic
-A: Asymptomatic and infectious</p>
-<dl class="field-list simple">
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
 <dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
 </dd>
 <dt>beta: float</dt><dd><p>rate of spread of infection.</p>
@@ -2797,8 +1833,6 @@ A: Asymptomatic and infectious</p>
 <dt>kapE: float</dt><dd><p>fraction of positive tests for exposed individuals</p>
 </dd>
 </dl>
-</dd>
-</dl>
 </p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
@@ -2807,48 +1841,8 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 <dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.S" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.E" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.SEAIRQ_testing.A">
 <code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.A" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Ia" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Is" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.Q">
-<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Q" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt>
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2863,8 +1857,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.E" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2879,8 +1873,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2895,8 +1889,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2911,8 +1905,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.Q">
+<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Q" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2927,8 +1921,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2943,8 +1937,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
@@ -2959,8 +1953,8 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dt id="pyross.deterministic.SEAIRQ_testing.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

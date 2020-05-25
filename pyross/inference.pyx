@@ -161,8 +161,8 @@ cdef class SIR_type:
         ----------
         keys: list
             A list of names for parameters to be inferred
-        guess: numpy.array
-            Prior expectation (and initial guess) for the parameter values. For parameters that support it, age-dependent
+        guess: numpy.array or list
+            Prior expectation (and initial guess) for the parameter values. Age-dependent
             rates can be inferred by supplying a guess that is an array instead a single float.
         stds: numpy.array
             Standard deviations for the log normal prior of the parameters
@@ -582,7 +582,7 @@ cdef class SIR_type:
                             verbose=False, double ftol=1e-5,
                             global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
                             enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None, full_output=False):
+                            cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
@@ -595,9 +595,10 @@ cdef class SIR_type:
             True for initial conditions to be inferred.
             Shape = (nClass*M)
             Total number of True = total no. of variables - total no. of observed
-        guess: numpy.array
+        guess: numpy.array or list
             Prior expectation for the parameter values listed, and prior for initial conditions.
-            Expect of length len(param_keys)+ (total no. of variables - total no. of observed)
+            Expect of length len(param_keys)+ (total no. of variables - total no. of observed).
+            Age-dependent rates can be inferred by supplying a guess that is an array instead a single float.
         stds: numpy.array
             Standard deviations for the log normal prior.
         obs: 2d numpy.array
@@ -651,7 +652,6 @@ cdef class SIR_type:
         -------
         params: nested list
             MAP estimate of paramters (nested if some parameters are age dependent) and initial values of the classes.
-
         """
         cdef:
             Py_ssize_t param_dim = len(param_keys)
@@ -1086,6 +1086,7 @@ cdef class SIR_type:
 
     def set_lyapunov_method(self, lyapunov_method):
         '''Sets the method used for deterministic integration for the SIR_type model
+
         Parameters
         ----------
         det_method: str
@@ -1097,6 +1098,7 @@ cdef class SIR_type:
 
     def set_det_method(self, det_method):
         '''Sets the method used for deterministic integration for the SIR_type model
+
         Parameters
         ----------
         det_method: str
@@ -1108,6 +1110,7 @@ cdef class SIR_type:
 
     def make_det_model(self, parameters):
         '''Returns a determinisitic model of the same epidemiological class and same parameters
+
         Parameters
         ----------
         parameters: dict
@@ -1125,6 +1128,7 @@ cdef class SIR_type:
 
     def fill_params_dict(self, keys, params):
         '''Returns a full dictionary for epidemiological parameters with some changed values
+
         Parameters
         ----------
         keys: list of String
@@ -1147,6 +1151,7 @@ cdef class SIR_type:
     def fill_initial_conditions(self, np.ndarray partial_inits, double [:] obs_inits,
                                         np.ndarray init_fltr, np.ndarray fltr):
         '''Returns the full initial condition given partial initial conditions and the observed data
+
         Parameters
         ----------
         partial_inits: 1d np.array
@@ -2210,8 +2215,7 @@ cdef class SEAIRQ_testing(SIR_type):
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class Spp(SIR_type):
-    """
-    User-defined epidemic model.
+    """User-defined epidemic model.
 
     To initialise the Spp model,
 
