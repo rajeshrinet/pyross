@@ -89,7 +89,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#spp">Spp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#seai5r">SEAI5R</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
 </ul>
 </li>
@@ -324,21 +323,21 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 <dl class="method">
 <dt id="pyross.inference.SIR_type.fill_initial_conditions">
 <code class="sig-name descname">fill_initial_conditions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_initial_conditions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the full initial condition given partial initial conditions and the observed data
-:param partial_inits: Partial initial conditions.
-:type partial_inits: 1d np.array
-:param obs_inits: The observed initial conditions.
-:type obs_inits: 1d np.array
-:param init_fltr: A vector boolean fltr that yields the partial initis given full initial conditions.
-:type init_fltr: 1d np.array
-:param fltr: A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.
-:type fltr: 2d np.array</p>
+<dd><p>Returns the full initial condition given partial initial conditions and the observed data</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>x0</strong> – The full initial condition.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>partial_inits</strong> (<em>1d np.array</em>) – Partial initial conditions.</p></li>
+<li><p><strong>obs_inits</strong> (<em>1d np.array</em>) – The observed initial conditions.</p></li>
+<li><p><strong>init_fltr</strong> (<em>1d np.array</em>) – A vector boolean fltr that yields the partial initis given full initial conditions.</p></li>
+<li><p><strong>fltr</strong> (<em>2d np.array</em>) – A matrix fltr that yields the observed data from full data. Same as the one used for latent_infer_parameters.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>1d np.array</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>x0</strong> – The full initial condition.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>1d np.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -346,19 +345,21 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 <dl class="method">
 <dt id="pyross.inference.SIR_type.fill_params_dict">
 <code class="sig-name descname">fill_params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_params_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a full dictionary for epidemiological parameters with some changed values
-:param keys: A list of names of parameters to be changed.
-:type keys: list of String
-:param params: An array of the same size as keys for the updated value.
-:type params: numpy.array of list</p>
+<dd><p>Returns a full dictionary for epidemiological parameters with some changed values</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>full_parameters</strong> – A dictionary of epidemiological parameters.
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> (<em>list of String</em>) – A list of names of parameters to be changed.</p></li>
+<li><p><strong>params</strong> (<em>numpy.array of list</em>) – An array of the same size as keys for the updated value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>full_parameters</strong> – A dictionary of epidemiological parameters.
 For parameter names specified in <cite>keys</cite>, set the values to be the ones in <cite>params</cite>;
 for the others, use the values stored in the class.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,7 +432,7 @@ future without warning.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>keys</strong> (<em>list</em>) – A list of names for parameters to be inferred</p></li>
-<li><p><strong>guess</strong> (<em>numpy.array</em>) – Prior expectation (and initial guess) for the parameter values. For parameters that support it, age-dependent
+<li><p><strong>guess</strong> (<em>numpy.array</em><em> or </em><em>list</em>) – Prior expectation (and initial guess) for the parameter values. Age-dependent
 rates can be inferred by supplying a guess that is an array instead a single float.</p></li>
 <li><p><strong>stds</strong> (<em>numpy.array</em>) – Standard deviations for the log normal prior of the parameters</p></li>
 <li><p><strong>bounds</strong> (<em>2d numpy.array</em>) – Bounds for the parameters (number of parameters x 2)</p></li>
@@ -439,6 +440,7 @@ rates can be inferred by supplying a guess that is an array instead a single flo
 <li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
 <li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
 <li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
 <li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
@@ -486,10 +488,11 @@ age-dependent parameter individually</p></li>
 <li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
 average number of contacts made per day by an
 individual in class i with an individual in class j</p></li>
+<li><p><strong>maxNumSteps</strong> – The maximum number of steps taken by the integrator.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified.</p>
+<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified. Only used if det_method is set to ‘solve_ivp’.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>np.array</p>
@@ -555,8 +558,9 @@ when the classes are only partially observed. Unobserved classes are treated as 
 <li><p><strong>init_fltr</strong> (<em>boolean array</em>) – True for initial conditions to be inferred.
 Shape = (nClass*M)
 Total number of True = total no. of variables - total no. of observed</p></li>
-<li><p><strong>guess</strong> (<em>numpy.array</em>) – Prior expectation for the parameter values listed, and prior for initial conditions.
-Expect of length len(param_keys)+ (total no. of variables - total no. of observed)</p></li>
+<li><p><strong>guess</strong> (<em>numpy.array</em><em> or </em><em>list</em>) – Prior expectation for the parameter values listed, and prior for initial conditions.
+Expect of length len(param_keys)+ (total no. of variables - total no. of observed).
+Age-dependent rates can be inferred by supplying a guess that is an array instead a single float.</p></li>
 <li><p><strong>stds</strong> (<em>numpy.array</em>) – Standard deviations for the log normal prior.</p></li>
 <li><p><strong>obs</strong> (<em>2d numpy.array</em>) – The observed trajectories with reduced number of variables
 (number of data points, (age groups * observed model classes))</p></li>
@@ -568,7 +572,10 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 <li><p><strong>bounds</strong> (<em>2d numpy.array</em>) – Bounds for the parameters + initial conditions
 ((number of parameters + number of initial conditions) x 2).
 Better bounds makes it easier to find the true global minimum.</p></li>
-<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference (about 10 times faster, but may not be as accurate).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
+<li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
@@ -581,15 +588,13 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
 <li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0,:]</p></li>
 <li><p><strong>fltr0</strong> (<em>2d numpy.array</em><em>, </em><em>optional</em>) – Matrix filter for obs0</p></li>
-<li><p><strong>full_output</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to return full minimization output</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>params</strong> (<em>numpy.array</em>) – MAP estimate of paramters and initial values of the classes.</p></li>
-<li><p><strong>res</strong> (<em>OptimizeResult object</em>) – returned if full_output is True</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>params</strong> – MAP estimate of paramters (nested if some parameters are age dependent) and initial values of the classes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>nested list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -603,15 +608,16 @@ Better bounds makes it easier to find the true global minimum.</p></li>
 <dl class="method">
 <dt id="pyross.inference.SIR_type.make_det_model">
 <code class="sig-name descname">make_det_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.make_det_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a determinisitic model of the same epidemiological class and same parameters
-:param parameters: A dictionary of parameter values, same as the ones required for initialisation.
-:type parameters: dict</p>
+<dd><p>Returns a determinisitic model of the same epidemiological class and same parameters</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>det_model</strong> – A determinisitic model of the same epidemiological class and same parameters</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> (<em>dict</em>) – A dictionary of parameter values, same as the ones required for initialisation.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>a class in pyross.deterministic</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>det_model</strong> – A determinisitic model of the same epidemiological class and same parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>a class in pyross.deterministic</p>
 </dd>
 </dl>
 </dd></dl>
@@ -631,7 +637,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <li><p><strong>Tf</strong> (<em>float</em>) – The total time of the trajectory</p></li>
 <li><p><strong>Nf</strong> (<em>int</em>) – The total number of datapoints</p></li>
 <li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
-<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do infernece in tangent space.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -639,6 +645,28 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.inference.SIR_type.set_det_method">
+<code class="sig-name descname">set_det_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_det_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘solve_ivp’, ‘RK2’ and ‘euler’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.inference.SIR_type.set_lyapunov_method">
+<code class="sig-name descname">set_lyapunov_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_lyapunov_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘solve_ivp’, ‘RK2’ and ‘euler’.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -662,7 +690,6 @@ Same keys as the one used to initialise the class.</p>
 </div>
 <div class="section" id="spp">
 <h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
-<p>Automatic generation of inference for SIR-type models</p>
 <dl class="class">
 <dt id="pyross.inference.Spp">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.inference.Spp" title="Permalink to this definition">¶</a></dt>
@@ -677,11 +704,19 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p><strong>M</strong> (<em>int</em>) – Number of age groups.</p></li>
 <li><p><strong>fi</strong> (<em>np.array</em><em>(</em><em>M</em><em>) or </em><em>list</em>) – Fraction of each age group.</p></li>
 <li><p><strong>N</strong> (<em>int</em>) – Total population.</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – Number of internal steps used.</p></li>
-<li><p><strong>SIR_type for a table of all the methods</strong> (<em>See</em>) – </p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
 </ul>
 </dd>
 </dl>
+<p>See <cite>SIR_type</cite> for a table of all the methods</p>
 <p class="rubric">Examples</p>
 <p>An example of model_spec and parameters for SIR class.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
@@ -735,6 +770,15 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
 <li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group</p></li>
 <li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -774,62 +818,15 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
 <li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group</p></li>
 <li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-<div class="section" id="seai5r">
-<h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pyross.inference.SEAI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.inference.SEAI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:</p>
-<ul class="simple">
-<li><p>E: exposed</p></li>
-<li><p>A: activated</p></li>
-<li><p>Ia: asymptomatic</p></li>
-<li><p>Is: symptomatic</p></li>
-<li><p>Ih: hospitalized</p></li>
-<li><p>Ic: ICU</p></li>
-<li><p>Im: Mortality</p></li>
-</ul>
-<p>To initialise the SEAI5R class,</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
-<dl class="simple">
-<dt>alpha: float or np.array(M)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of hospitalisation of infected individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
-</dd>
-<dt>hh: np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
-</dd>
-<dt>cc: np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
-</dd>
-<dt>mm: np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
-<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group</p></li>
-<li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -882,6 +879,15 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p><strong>M</strong> (<em>int</em>) – Number of age groups.</p></li>
 <li><p><strong>fi</strong> (<em>float numpy.array</em>) – Fraction of each age group.</p></li>
 <li><p><strong>N</strong> (<em>int</em>) – Total population.</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
 </ul>
 </dd>
 </dl>
