@@ -2972,32 +2972,31 @@ cdef class Spp(IntegratorsClass):
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
-        self.linear_terms = res[2]
-        self.infection_terms = res[3]
+        self.constant_terms = res[2]
+        self.linear_terms = res[3]
+        self.infection_terms = res[4]
         self.update_model_parameters(parameters)
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
+        self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
+
 
     def update_model_parameters(self, parameters):
-        nParams = len(parameters)
+        nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        for (i, param) in enumerate(parameters.values()):
-            if type(param) == list:
-                param = np.array(param)
-
-            if type(param) == np.ndarray:
-                if param.size != self.M:
-                    raise Exception("Parameter array size must be equal to M.")
-            else:
-                param = np.full(self.M, param)
-            self.parameters[i] = param
+        try:
+            for (i, key) in enumerate(self.param_keys):
+                param = parameters[key]
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+        except KeyError:
+            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
 
     cpdef rhs(self, xt_arr, tt):
         cdef:
-            Py_ssize_t m, n, M=self.M, i, index,
+            Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
             Py_ssize_t S_index=self.class_index_dict['S'], infection_index, reagent_index, product_index, rate_index
-            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
+            int sign
+            int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms, infection_terms=self.infection_terms
             double [:, :] parameters=self.parameters
             double term
             double [:] xt = xt_arr
@@ -3006,6 +3005,8 @@ cdef class Spp(IntegratorsClass):
             double [:,:] lambdas = self._lambdas
 
         # Compute lambda
+        if self.constant_terms.size > 0:
+            Ni = xt_arr[(nClass-1)*M:] # update Ni
 
         for i in range(infection_terms.shape[0]):
             infective_index = infection_terms[i, 1]
@@ -3016,13 +3017,20 @@ cdef class Spp(IntegratorsClass):
                     lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
 
         # Reset dxdt
-
-
-        self.dxdt = np.zeros((self.nClass*M), dtype=DTYPE)
+        self.dxdt = np.zeros(nClass*M, dtype=DTYPE)
         cdef double [:] dxdt = self.dxdt
-        # Compute rhs
 
+        # Compute rhs
         for m in range(M):
+
+            if self.constant_terms.size > 0:
+                for i in range(constant_terms.shape[0]):
+                    rate_index = constant_terms[i, 0]
+                    class_index = constant_terms[i, 1]
+                    sign = constant_terms[i, 2]
+                    term = parameters[rate_index, m]*sign
+                    dxdt[m + M*class_index] += term
+                    dxdt[m + M*(nClass-1)] += term
 
             for i in range(linear_terms.shape[0]):
                 rate_index = linear_terms[i, 0]
@@ -3092,29 +3100,37 @@ cdef class Spp(IntegratorsClass):
         elif type(x0) == dict:
             # Check if any classes are not included in x0
 
+            class_list = list(self.class_index_dict.keys())
+            if self.constant_terms.size > 0:
+                class_list.remove('Ni')
+
             skipped_classes = []
-            for O in self.class_index_dict.keys():
+            for O in class_list:
                 if not O in x0:
                     skipped_classes.append(O)
             if len(skipped_classes) > 0:
                 raise Exception("Missing classes in initial conditions: %s" % skipped_classes)
 
-            # Construct initial condition array (without R)
 
+            # Construct initial condition array
             x0_arr = np.zeros(0)
 
-            for O in self.class_index_dict.keys():
+            for O in class_list:
                 x0_arr = np.concatenate( [x0_arr, x0[O]] )
             x0 = x0_arr
 
         x0 = np.array(x0, dtype=DTYPE)
+
+        # add Ni to x0
+        if self.constant_terms.size > 0:
+            x0 = np.concatenate([x0, self.Ni])
 
         def rhs0(xt, t):
             self.CM = contactMatrix(t)
             self.rhs(xt, t)
             return self.dxdt
 
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self.simulateRHS(rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         ## add parameters as a dictionary to this
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M }
@@ -3143,7 +3159,13 @@ cdef class Spp(IntegratorsClass):
             class_index = self.class_index_dict[model_class_key]
             Os = X[:, class_index*self.M:(class_index+1)*self.M]
         else:
-            Os = np.array([ self.Ni[i] - np.sum(X[:,i::self.M], axis=1) for i in range(self.M) ]).T
+            if self.constant_terms.size > 0:
+                x = X[:, :(self.nClass-1)*self.M]
+                x_reshaped = x.reshape((X.shape[0], (self.nClass-1), self.M))
+                Os = X[:, (self.nClass-1)*self.M:] - np.sum(x_reshaped, axis=1)
+            else:
+                X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+                Os = self.Ni - np.sum(X_reshaped, axis=1)
         return Os
 
 

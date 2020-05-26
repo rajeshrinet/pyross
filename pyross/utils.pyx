@@ -89,9 +89,39 @@ def parse_model_spec(model_spec, param_keys):
     params_index_dict = {param: i for (i, param) in enumerate(param_keys)}
 
     try:
-        # dictionaries of all linear terms and all infection terms
-        linear_dict = {class_name: model_spec[class_name]['linear'] for class_name in class_list }
-        infection_dict = {class_name: model_spec[class_name]['infection'] for class_name in class_list }
+        # dictionaries of all constant, linear and all infection terms
+        constant_dict = {}
+        linear_dict = {}
+        infection_dict = {}
+        for class_name in class_list:
+            reaction_dict = model_spec[class_name]
+            if 'constant' in reaction_dict.keys():
+                constant_dict[class_name] = reaction_dict['constant']
+            if 'linear' in reaction_dict.keys():
+                linear_dict[class_name] = reaction_dict['linear']
+            if 'infection' in reaction_dict.keys():
+                infection_dict[class_name] = reaction_dict['infection']
+
+        # parse the constant term
+        constant_term_set = set() # used to check for duplicates
+        constant_term_list = []
+        for (k, val) in constant_dict.items():
+            for (rate,) in val:
+                if (k, rate) in constant_term_set:
+                    raise Exception('Duplicate constant term: {}, {}'.format(k, rate))
+                else:
+                    sign = 1
+                    constant_term_set.add((k, rate))
+                    class_index = class_index_dict[k]
+                    if rate.startswith('-'):
+                        rate = rate[1:]
+                        sign = -1
+                    rate_index = params_index_dict[rate]
+                    constant_term_list.append([rate_index, class_index, sign])
+
+        if len(constant_term_list) > 0: # add one class for Ni
+            class_index_dict['Ni'] = nClass
+            nClass += 1 # add one class for Ni
 
         # parse the linear terms into a list of [rate_index, reagent_index] and a dictionary for the product
         linear_terms_set = set() # used to check for duplicates
@@ -140,7 +170,10 @@ def parse_model_spec(model_spec, param_keys):
     # set the product index
     set_destination(linear_terms_list, linear_terms_destination_dict)
     set_destination(infection_terms_list, infection_terms_destination_dict)
-    return nClass, class_index_dict, np.array(linear_terms_list, dtype=np.intc), np.array(infection_terms_list, dtype=np.intc)
+    res = (nClass, class_index_dict, np.array(constant_term_list, dtype=np.intc, ndmin=2),
+                                     np.array(linear_terms_list, dtype=np.intc, ndmin=2),
+                                     np.array(infection_terms_list, dtype=np.intc, ndmin=2))
+    return res
 
 def set_destination(term_list, destination_dict):
     '''

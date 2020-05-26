@@ -254,7 +254,7 @@ cdef class Spp(IntegratorsClass):
     """
 
     cdef:
-        readonly np.ndarray linear_terms, infection_terms
+        readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
         readonly list param_keys
         readonly dict class_index_dict
