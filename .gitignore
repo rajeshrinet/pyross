@@ -6,6 +6,9 @@
 *.mat
 *.swo
 pyross/*.html
+pyross/*.c
+pyross/*.so
+pyross/*.cpp
 *.c
 *egg-info*
 dist
