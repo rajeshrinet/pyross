@@ -1,11 +1,11 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
-from libc.stdlib cimport malloc, free
 import pyross.utils
 import warnings
 
 DTYPE   = np.float
+from libc.stdlib cimport malloc, free
 
 
 
@@ -183,7 +183,7 @@ cdef class SIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -362,7 +362,7 @@ cdef class SIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -538,7 +538,7 @@ cdef class SEIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -741,7 +741,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -956,7 +956,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -1235,7 +1235,7 @@ cdef class SEI8R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -1575,7 +1575,7 @@ cdef class SEAIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -1839,7 +1839,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -2214,7 +2214,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.paramList = parameters
@@ -2480,7 +2480,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix
@@ -2757,7 +2757,7 @@ cdef class SIRS(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -3246,7 +3246,7 @@ cdef class SEI5R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
@@ -3590,7 +3590,7 @@ cdef class SEAI5R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
