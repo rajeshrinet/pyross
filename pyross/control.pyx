@@ -477,7 +477,7 @@ cdef class SEkIkIkR(control_integration):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -492,7 +492,7 @@ cdef class SEkIkIkR(control_integration):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         kE = data['kE']
         X = data['X']
@@ -542,7 +542,7 @@ cdef class SEkIkIkR(control_integration):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         kI = data['kI']

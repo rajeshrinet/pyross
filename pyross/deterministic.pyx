@@ -124,7 +124,7 @@ cdef class IntegratorsClass:
         Returns
         -------
         data: dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -250,7 +250,7 @@ cdef class SIR(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -276,7 +276,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -321,7 +321,7 @@ cdef class SIR(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
@@ -425,7 +425,7 @@ cdef class SIkR(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -450,7 +450,7 @@ cdef class SIkR(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -465,7 +465,7 @@ cdef class SIkR(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         kI = data['kI']
         X = data['X']
@@ -481,7 +481,7 @@ cdef class SIkR(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -606,7 +606,7 @@ cdef class SEIR(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -632,7 +632,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -647,7 +647,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -692,7 +692,7 @@ cdef class SEIR(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
@@ -817,7 +817,7 @@ cdef class SEkIkR(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -842,7 +842,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -857,7 +857,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         kI = data['kI']
         kE = data['kE']
@@ -891,7 +891,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -1050,7 +1050,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -1077,7 +1077,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -1092,7 +1092,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         kE = data['kE']
         X = data['X']
@@ -1142,7 +1142,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         kI = data['kI']
@@ -1369,7 +1369,7 @@ cdef class SEI8R(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -1396,7 +1396,7 @@ cdef class SEI8R(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -1411,7 +1411,7 @@ cdef class SEI8R(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -1516,7 +1516,7 @@ cdef class SEI8R(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -1656,7 +1656,7 @@ cdef class SEAIR(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -1681,7 +1681,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -1696,7 +1696,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -1711,7 +1711,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'A': Activated population time series
+             A: Activated population time series
         """
         X = data['X']
         A = X[:, 2*self.M:3*self.M]
@@ -1756,7 +1756,7 @@ cdef class SEAIR(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -1975,7 +1975,7 @@ cdef class SEAI8R(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -2002,7 +2002,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -2017,7 +2017,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -2032,7 +2032,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         Returns
         -------
-            'A': Activates population time series
+             A: Activates population time series
         """
         X = data['X']
         E = X[:, 2*self.M:3*self.M]
@@ -2137,7 +2137,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
             R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -2357,7 +2357,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'A': Activated population time series
+             A: Activated population time series
         """
         X = data['X']
         A = X[:, 2*self.M:3*self.M]
@@ -2402,7 +2402,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -2418,7 +2418,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         Returns
         -------
-            'Q': Quarantined population time series
+             Q: Quarantined population time series
         """
         X  = data['X']
         Is = X[:, 5*self.M:6*self.M]
@@ -2582,7 +2582,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -2610,7 +2610,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -2625,7 +2625,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -2640,7 +2640,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         Returns
         -------
-            'A': Activated population time series
+             A: Activated population time series
         """
         X = data['X']
         A = X[:, 2*self.M:3*self.M]
@@ -2685,7 +2685,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
@@ -2701,7 +2701,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         Returns
         -------
-            'Q': Quarantined population time series
+             Q: Quarantined population time series
         """
         X  = data['X']
         Is = X[:, 5*self.M:6*self.M]
@@ -2847,7 +2847,7 @@ cdef class SIRS(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
 
         """
@@ -2874,7 +2874,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -2919,7 +2919,7 @@ cdef class SIRS(IntegratorsClass):
 
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
         """
         X = data['X']
         R =  X[:, 3*self.M:4*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
@@ -3078,7 +3078,7 @@ cdef class Spp(IntegratorsClass):
         Returns
         -------
         data: dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
         """
 
@@ -3346,7 +3346,7 @@ cdef class SEI5R(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
         """
 
@@ -3371,7 +3371,7 @@ cdef class SEI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -3385,7 +3385,7 @@ cdef class SEI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -3483,7 +3483,7 @@ cdef class SEI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
@@ -3694,7 +3694,7 @@ cdef class SEAI5R(IntegratorsClass):
         Returns
         -------
         dict
-            'X': output path from integrator, 't': time points evaluated at,
+             X: output path from integrator, 't': time points evaluated at,
             'param': input param to integrator.
         """
 
@@ -3719,7 +3719,7 @@ cdef class SEAI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'S': Susceptible population time series
+             S: Susceptible population time series
         """
         X = data['X']
         S = X[:, 0:self.M]
@@ -3733,7 +3733,7 @@ cdef class SEAI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'E': Exposed population time series
+             E: Exposed population time series
         """
         X = data['X']
         E = X[:, self.M:2*self.M]
@@ -3747,7 +3747,7 @@ cdef class SEAI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'A': Activated population time series
+             A: Activated population time series
         """
         X = data['X']
         A = X[:, 2*self.M:3*self.M]
@@ -3845,7 +3845,7 @@ cdef class SEAI5R(IntegratorsClass):
         data: data files
         Returns
         -------
-            'R': Removed population time series
+             R: Removed population time series
             R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
         """
         X = data['X']
