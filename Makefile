@@ -1,5 +1,4 @@
 PYTHON=python
-#PYTHON=path to your python installation
 path=examples
 recursive=True
 
