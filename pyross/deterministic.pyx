@@ -195,7 +195,7 @@ cdef class SIR(IntegratorsClass):
     cpdef rhs(self, xt, tt):
 
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double [:] beta=self.beta, gIa=self.gIa,
             double rateS, lmda
             double [:] fsa=self.fsa, gIs=self.gIs
@@ -373,7 +373,7 @@ cdef class SIkR(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, kI=self.kI
+            Py_ssize_t N=self.N, M=self.M, i, j, jj, kI=self.kI
             double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
             double [:] S    = xt[0  :M]
             double [:] I    = xt[M  :(kI+1)*M]
@@ -546,7 +546,7 @@ cdef class SEIR(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double [:] beta=self.beta, gIa=self.gIa, gIs=self.gIs,
             double rateS, lmda
             double [:] fsa=self.fsa, gE=self.gE,
@@ -755,7 +755,7 @@ cdef class SEkIkR(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
+            Py_ssize_t N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
             double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
             double gE = self.kE * self.gE
             double [:] S    = xt[0  :M]
@@ -979,7 +979,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
+            Py_ssize_t N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
             double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2
             double gE=self.kE*self.gE, gIs=self.kI*self.gIs, fsa=self.fsa
             double [:] S    = xt[0  :M]
@@ -1284,7 +1284,7 @@ cdef class SEI8R(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
             double fsa=self.fsa, fh=self.fh, gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
@@ -1591,7 +1591,7 @@ cdef class SEAIR(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
             double gAA, gAS
@@ -1888,7 +1888,7 @@ cdef class SEAI8R(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
             double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
@@ -2225,7 +2225,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double [:] beta=self.beta
             double rateS, lmda
             double [:] tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
@@ -2499,7 +2499,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda, t0, tE, tA, tIa, tIs
             double ars=self.ars, kapE=self.kapE
             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
@@ -2790,7 +2790,7 @@ cdef class SIRS(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, gIa=self.gIa, rateS, lmda
             double fsa=self.fsa,gIs=self.gIs, ep=self.ep
             double [:] S    = xt[0  :M]
@@ -3291,7 +3291,7 @@ cdef class SEI5R(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
             double fsa=self.fsa, fh=self.fh, gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
@@ -3635,7 +3635,7 @@ cdef class SEAI5R(IntegratorsClass):
 
     cpdef rhs(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j
+            Py_ssize_t N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
             double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
