@@ -12,12 +12,12 @@ make:
 
 clean-local:
 	@echo removing local compiled files
-	rm pyross/*.c pyross/*.html
+	rm pyross/*.c pyross/*.html pyross/*.cpp
 
 clean:
 	@echo removing all compiled files
 	${PYTHON} setup.py clean
-	rm pyross/*.c pyross/*.html
+	rm pyross/*.c pyross/*.html pyross/*.cpp
 	
 env:
 	@echo creating conda environment...
