@@ -3094,9 +3094,13 @@ cdef class Spp(IntegratorsClass):
             x0 = np.array(x0)
 
         if type(x0) == np.ndarray:
-            if x0.size != self.nClass*self.M:
+
+            n_class_for_init = self.nClass
+            if self.constant_terms.size > 0:
+                n_class_for_init -= 1
+            if x0.size != n_class_for_init*self.M:
                 raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
-                    % ( self.nClass*self.M) )
+                    % ( n_class_for_init*self.M) )
         elif type(x0) == dict:
             # Check if any classes are not included in x0
 
