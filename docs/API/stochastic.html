@@ -175,6 +175,26 @@
 </dd>
 </dl>
 <dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.random_choice">
+<code class="sig-name descname">random_choice</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.random_choice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.uniform_dist">
+<code class="sig-name descname">uniform_dist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.uniform_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.poisson_dist">
+<code class="sig-name descname">poisson_dist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.poisson_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyross.stochastic.stochastic_integration.initialize_random_number_generator">
+<code class="sig-name descname">initialize_random_number_generator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.initialize_random_number_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pyross.stochastic.stochastic_integration.calculate_total_reaction_rate">
 <code class="sig-name descname">calculate_total_reaction_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.stochastic.stochastic_integration.calculate_total_reaction_rate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -304,6 +324,8 @@ Is: symptomatic</p>
 </dd>
 <dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
+<dt>seed: long</dt><dd><p>seed for pseudo-random number generator (optional).</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -366,7 +388,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -382,7 +404,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -413,7 +435,7 @@ The default is ‘gillespie’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘event_occured’ , ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -443,6 +465,8 @@ method of k-stages of I
 <dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
 </dd>
 <dt>kI: int</dt><dd><p>number of stages of infection.</p>
+</dd>
+<dt>seed: long</dt><dd><p>seed for pseudo-random number generator (optional).</p>
 </dd>
 </dl>
 </dd>
@@ -477,7 +501,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -493,7 +517,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -509,7 +533,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -544,6 +568,8 @@ Is: symptomatic
 </dd>
 <dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
 </dd>
+<dt>seed: long</dt><dd><p>seed for pseudo-random number generator (optional).</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -577,7 +603,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -625,7 +651,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -641,7 +667,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -665,7 +691,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -761,10 +787,11 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
-<li><p><em>R = N(t) - (S + E + Ia + Is + Ih + Ic)</em></p></li>
-</ul>
+<dd class="field-even"><p><strong>R</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>Removed population time series</p>
+<p>R = N(t) - (S + E + Ia + Is + Ih + Ic)</p>
 </p>
 </dd>
 </dl>
@@ -778,7 +805,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -818,7 +845,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activated population time series</p>
@@ -834,7 +861,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -930,10 +957,11 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
-<li><p><em>R = N(t) - (S + E + A + Ia + Is + Ih + Ic)</em></p></li>
-</ul>
+<dd class="field-even"><p><strong>R</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>Removed population time series</p>
+<p>R = N(t) - (S + E + A + Ia + Is + Ih + Ic)</p>
 </p>
 </dd>
 </dl>
@@ -947,7 +975,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -1010,6 +1038,8 @@ A: Asymptomatic and infectious</p>
 </dd>
 <dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
+<dt>seed: long</dt><dd><p>seed for pseudo-random number generator (optional).</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -1040,7 +1070,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activated population time series</p>
@@ -1056,7 +1086,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -1104,7 +1134,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Q’</strong></p>
+<dd class="field-even"><p><strong>Q</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Quarantined population time series</p>
@@ -1120,7 +1150,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -1136,7 +1166,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -1179,6 +1209,8 @@ A: Asymptomatic and infectious</p>
 </dd>
 <dt>kapE: float</dt><dd><p>fraction of positive tests for exposed individuals</p>
 </dd>
+<dt>seed: long</dt><dd><p>seed for pseudo-random number generator (optional).</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -1210,7 +1242,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activated population time series</p>
@@ -1226,7 +1258,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -1274,7 +1306,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Q’</strong></p>
+<dd class="field-even"><p><strong>Q</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Quarantined population time series</p>
@@ -1290,7 +1322,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -1306,7 +1338,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>

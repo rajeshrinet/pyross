@@ -85,6 +85,7 @@ cdef class ContactMatrixFunction:
         contactMatrix: callable
             A function that takes t as an argument and outputs the contact matrix
         '''
+
         self.protocol = TemporalProtocol(np.array(times), np.array(interventions))
         return self.contactMatrix
 
@@ -104,6 +105,7 @@ cdef class ContactMatrixFunction:
         contactMatrix: callable
             A function that takes t as an argument and outputs the contact matrix
         '''
+
         self.protocol = ThresholdProtocol(np.array(thresholds), np.array(interventions))
         return self.contactMatrix
 
@@ -121,8 +123,18 @@ cdef class ContactMatrixFunction:
         Returns
         -------
         contactMatrix: callable
-            A function that takes t as an argument and outputs the contact matrix
+            A function that takes t as an argument and outputs the contact matrix.
+
+        Examples
+        --------
+        An example for an custom temporal intervetion that allows for some anticipation and reaction time
+
+        >>> def fun(t, width=1, loc=0) # using keyword arguments for parameters of the intervention
+                a = (1-np.tanh((t-loc)/width))/2
+                return a, a, a
+        >>> contactMatrix = generator.intervention_custom_temporal(fun, width=5, loc=10)
         '''
+
         self.protocol = CustomTemporalProtocol(intervention_func, **kwargs)
         return self.contactMatrix
 

@@ -655,7 +655,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘solve_ivp’, ‘RK2’ and ‘euler’.</p>
+<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -666,7 +666,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘solve_ivp’, ‘RK2’ and ‘euler’.</p>
+<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -706,23 +706,23 @@ All parameters can be float if not age-dependent, and np.array(M,) if age-depend
 <li><p><strong>N</strong> (<em>int</em>) – Total population.</p></li>
 <li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
 The minimal is 4, as required by the cubic spline fit used for interpolation.
-For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
 For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
 For a combination of the two, choose something in between.</p></li>
 <li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 <li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 </ul>
 </dd>
 </dl>
 <p>See <cite>SIR_type</cite> for a table of all the methods</p>
 <p class="rubric">Examples</p>
-<p>An example of model_spec and parameters for SIR class.</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
 <span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
 <span class="go">        &quot;S&quot; : {</span>
-<span class="go">            &quot;linear&quot;    : [],</span>
+<span class="go">            &quot;constant&quot;  : [ [&quot;k&quot;] ],</span>
 <span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
 <span class="go">        },</span>
 <span class="go">        &quot;I&quot; : {</span>
@@ -732,7 +732,8 @@ Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_iv
 <span class="go">    }</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
 <span class="go">        &#39;beta&#39;: 0.1,</span>
-<span class="go">        &#39;gamma&#39;: 0.1</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;k&#39;: 1,</span>
 <span class="go">    }</span>
 </pre></div>
 </div>
@@ -772,13 +773,13 @@ Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_iv
 <li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
 <li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
 The minimal is 4, as required by the cubic spline fit used for interpolation.
-For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
 For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
 For a combination of the two, choose something in between.</p></li>
 <li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 <li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -820,13 +821,13 @@ Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_iv
 <li><p><strong>N</strong> (<em>int</em>) – Total population</p></li>
 <li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
 The minimal is 4, as required by the cubic spline fit used for interpolation.
-For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
 For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
 For a combination of the two, choose something in between.</p></li>
 <li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 <li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 </ul>
 </dd>
 </dl>
@@ -881,13 +882,13 @@ Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_iv
 <li><p><strong>N</strong> (<em>int</em>) – Total population.</p></li>
 <li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
 The minimal is 4, as required by the cubic spline fit used for interpolation.
-For robustness, set steps to be large, det_method=’solve_ivp’, lyapunov_method=’solve_ivp’.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
 For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
 For a combination of the two, choose something in between.</p></li>
 <li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 <li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
-Choose one of ‘solve_ivp’, ‘RK2’ and ‘euler’. Default is ‘solve_ivp’.</p></li>
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
 </ul>
 </dd>
 </dl>

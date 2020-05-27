@@ -176,38 +176,6 @@
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">IntegratorsClass</code><a class="headerlink" href="#pyross.deterministic.IntegratorsClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all integrator used by various deterministic models listed below.</p>
 <dl class="method">
-<dt id="pyross.deterministic.IntegratorsClass.simulateRHS">
-<code class="sig-name descname">simulateRHS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.IntegratorsClass.simulateRHS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs numerical integration</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rhs0</strong> (<em>python function</em><em>(</em><em>x</em><em>,</em><em>t</em><em>)</em>) – Input function of current state and time x, t
-returns dx/dt</p></li>
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state vector.</p></li>
-<li><p><strong>Ti</strong> (<em>float</em>) – Start time for integrator.</p></li>
-<li><p><strong>Tf</strong> (<em>float</em>) – End time for integrator.</p></li>
-<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate at.</p></li>
-<li><p><strong>integrator</strong> (<em>string</em><em>, </em><em>optional</em>) – Selects which integration method to use. The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator is allowed to take
-to obtain a solution. The default is 100000.</p></li>
-<li><p><strong>**kwargs</strong> (<em>optional kwargs to be passed to the IntegratorsClass</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>Exception</strong> – If integration fails.</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>X</strong> (<em>np.array(len(t), len(x0))</em>) – Numerical integration solution.</p></li>
-<li><p><strong>time_points</strong> (<em>np.array</em>) – Corresponding times at which X is evaluated at.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="pyross.deterministic.IntegratorsClass.simulator">
 <code class="sig-name descname">simulator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.IntegratorsClass.simulator" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -227,7 +195,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> – ‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -298,7 +266,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> – ‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -378,7 +346,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -394,7 +362,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -424,7 +392,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -468,7 +436,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -484,7 +452,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -500,7 +468,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -529,7 +497,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -579,7 +547,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -627,7 +595,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -643,7 +611,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -674,7 +642,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -722,7 +690,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -754,7 +722,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -770,7 +738,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -800,7 +768,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -854,7 +822,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -902,7 +870,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -918,7 +886,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -949,7 +917,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1020,7 +988,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -1116,10 +1084,11 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
-<li><p><em>R = N(t) - (S + E + Ia + Is + Ih + Ic)</em></p></li>
-</ul>
+<dd class="field-even"><p><strong>R</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>Removed population time series</p>
+<p>R = N(t) - (S + E + Ia + Is + Ih + Ic)</p>
 </p>
 </dd>
 </dl>
@@ -1133,7 +1102,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -1183,7 +1152,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1235,7 +1204,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activated population time series</p>
@@ -1251,7 +1220,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -1299,7 +1268,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -1315,7 +1284,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -1347,7 +1316,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1418,7 +1387,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activates population time series</p>
@@ -1434,7 +1403,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -1530,10 +1499,11 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>‘R’</strong> (<em>Removed population time series</em>)</p></li>
-<li><p><em>R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)</em></p></li>
-</ul>
+<dd class="field-even"><p><strong>R</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><p>Removed population time series</p>
+<p>R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)</p>
 </p>
 </dd>
 </dl>
@@ -1547,7 +1517,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -1597,7 +1567,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1658,7 +1628,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activated population time series</p>
@@ -1722,7 +1692,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Q’</strong></p>
+<dd class="field-even"><p><strong>Q</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Quarantined population time series</p>
@@ -1738,7 +1708,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -1848,7 +1818,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘A’</strong></p>
+<dd class="field-even"><p><strong>A</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Activated population time series</p>
@@ -1864,7 +1834,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘E’</strong></p>
+<dd class="field-even"><p><strong>E</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Exposed population time series</p>
@@ -1912,7 +1882,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Q’</strong></p>
+<dd class="field-even"><p><strong>Q</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Quarantined population time series</p>
@@ -1928,7 +1898,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘R’</strong></p>
+<dd class="field-even"><p><strong>R</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Removed population time series</p>
@@ -1944,7 +1914,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘S’</strong></p>
+<dd class="field-even"><p><strong>S</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Susceptible population time series</p>
@@ -1978,7 +1948,7 @@ The default is ‘odeint’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>‘X’: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>

@@ -177,6 +177,97 @@ CO:  constant matrix at other locations</p>
 <dt>interventions_temporal: returns the sum of CH, CW, CS, CO</dt><dd><p>given times and interventions_temporal</p>
 </dd>
 </dl>
+<dl class="method">
+<dt id="pyross.contactMatrix.ContactMatrixFunction.constant_contactMatrix">
+<code class="sig-name descname">constant_contactMatrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.constant_contactMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant contact matrix
+:param aW: Scale factor for work contacts.
+:type aW: float, optional
+:param aS: Scale factor for school contacts.
+:type aS: float, optional
+:param aO: Scale factor for other contacts.
+:type aO: float, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.contactMatrix.ContactMatrixFunction.intervention_custom_temporal">
+<code class="sig-name descname">intervention_custom_temporal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.intervention_custom_temporal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom temporal interventions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intervention_func</strong> (<em>callable</em>) – The calling signature is intervention_func(t, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs), where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO).</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Keyword arguments for the function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>An example for an custom temporal intervetion that allows for some anticipation and reaction time</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">intervention_func</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># using keyword arguments for parameters of the intervention</span>
+<span class="go">        a = (1-np.tanh((t-loc)/width))/2</span>
+<span class="go">        return a, a, a</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">width</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">loc</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># setting the keyword arguments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contactMatrix</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">intervention_custom_temporal</span><span class="p">(</span><span class="n">intervention_func</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.contactMatrix.ContactMatrixFunction.interventions_temporal">
+<code class="sig-name descname">interventions_temporal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.interventions_temporal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temporal interventions
+:param time: Ordered array with temporal boundaries between the different interventions.
+:type time: np.array
+:param interventions: Ordered matrix with prefactors of CW, CS, CO matrices during the different time intervals.</p>
+<blockquote>
+<div><p>Note that len(interventions) = len(times) + 1</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyross.contactMatrix.ContactMatrixFunction.interventions_threshold">
+<code class="sig-name descname">interventions_threshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.interventions_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temporal interventions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold</strong> (<em>np.array</em>) – Ordered array with temporal boundaries between the different interventions.</p></li>
+<li><p><strong>interventions</strong> (<em>np.array</em>) – Array of shape [K+1,3] with prefactors during different phases of intervention
+The current state of the intervention is defined by the largest integer “index” such that state[j] &gt;= thresholds[index,j] for all j.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>callable</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
