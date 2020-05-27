@@ -45,22 +45,6 @@ cdef class stochastic_integration:
     """
     Integrators used by stochastic models:
         Gillespie and tau-leaping
-
-    Methods
-    -------
-    random_choice
-    uniform_dist
-    poisson_dist
-    initialize_random_number_generator
-    calculate_total_reaction_rate
-    SSA_step:
-        Gillespie Stochastic Simulation Step (SSA)
-    simulate_gillespie:
-        Performs stochastic simulation using the
-        Gillespie algorithm
-    check_for_event
-    simulate_gillespie_events
-    tau_leaping_update_timesteps
     """
     cdef:
         readonly int N, M,
@@ -192,9 +176,9 @@ cdef class stochastic_integration:
                       double total_rate):
         """
         Gillespie Stochastic Simulation Algorithm step (SSA)
-        Probabiliity of reaction occuring in time P ~ e^-W\tau
+        Probabiliity of reaction occuring in time P ~ e^(-W tau)
         W = sum of all reaction rates.
-        Solve to get \tau =d
+        Solve to get tau =d
 
 
         Parameters
@@ -236,6 +220,7 @@ cdef class stochastic_integration:
     cpdef simulate_gillespie(self, contactMatrix, Tf, Nf):
         """
         Performs the stochastic simulation using the Gillespie algorithm.
+
         1. Rates for each reaction channel r_i calculated from current state.
         2. The timestep tau is chosen randomly from an
         exponential distribution P ~ e^-W\tau.
@@ -583,6 +568,7 @@ cdef class stochastic_integration:
         Tau leaping algorithm for producing stochastically correct trajectories
         https://doi.org/10.1063/1.2159468
         This method can run much faster than the Gillespie algorithm
+        
         1. Rates for each reaction channel r_i calculated from current state.
         2. Timestep \tau chosen such that \Delta r_i < epsilon \Sum r_i
         3. Number of reactions that occur in channel i ~Poisson(r_i \tau)
