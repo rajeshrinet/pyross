@@ -32,7 +32,8 @@ cdef class SIR_type:
     '''
 
     cdef:
-        readonly Py_ssize_t nClass, N, M, steps, dim, vec_size
+        readonly Py_ssize_t nClass, M, steps, dim, vec_size
+        readonly double N
         readonly np.ndarray beta, gIa, gIs, fsa
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
@@ -1095,9 +1096,9 @@ cdef class SIR_type:
         Parameters
         ----------
         det_method: str
-            The name of the integration method. Choose between 'solve_ivp', 'RK2' and 'euler'.
+            The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
         '''
-        if lyapunov_method not in ['solve_ivp', 'RK2', 'euler']:
+        if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
             raise Exception('det_method not implemented. Please see our documentation for the available options')
         self.lyapunov_method=lyapunov_method
 
@@ -1107,9 +1108,9 @@ cdef class SIR_type:
         Parameters
         ----------
         det_method: str
-            The name of the integration method. Choose between 'solve_ivp', 'RK2' and 'euler'.
+            The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
         '''
-        if det_method not in ['solve_ivp', 'RK2', 'euler']:
+        if det_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
             raise Exception('det_method not implemented. Please see our documentation for the available options')
         self.det_method=det_method
 
@@ -1310,14 +1311,18 @@ cdef class SIR_type:
         spline = make_interp_spline(time_points, x)
 
         def rhs(t, sig):
-            self.CM = np.einsum('ij,j->ij', contactMatrix(t), 1/self.fi)
+            self.CM = contactMatrix(t)
             self.lyapunov_fun(t, sig, spline)
             return self.dsigmadt
+
         if self.lyapunov_method=='euler':
             cov_array = pyross.utils.forward_euler_integration(rhs, sigma0, t1, t2, steps)
             cov = cov_array[steps-1]
-        elif self.lyapunov_method=='solve_ivp':
+        elif self.lyapunov_method=='RK45':
             res = solve_ivp(rhs, (t1, t2), sigma0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            cov = res.y[0]
+        elif self.lyapunov_method=='LSODA':
+            res = solve_ivp(rhs, (t1, t2), sigma0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
             cov = res.y[0]
         elif self.lyapunov_method=='RK2':
             cov_array = pyross.utils.RK2_integration(rhs, sigma0, t1, t2, steps)
@@ -1331,8 +1336,8 @@ cdef class SIR_type:
             double [:] dx_det
             double [:, :] cov
         model.set_contactMatrix(t, contactMatrix)
-        model.rhs(xt, t)
-        dx_det = np.multiply(dt, model.dxdt)
+        model.rhs(np.multiply(xt, self.N), t)
+        dx_det = np.multiply(dt/self.N, model.dxdt)
         self.compute_tangent_space_variables(xt, t, contactMatrix)
         cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
         return dx_det, cov
@@ -1469,9 +1474,12 @@ cdef class SIR_type:
         """
         def rhs0(t, xt):
             model.set_contactMatrix(t, contactMatrix)
-            model.rhs(xt, t)
-            return model.dxdt
-        if self.det_method=='solve_ivp':
+            model.rhs(xt*self.N, t)
+            return model.dxdt/self.N
+        if self.det_method=='LSODA':
+            time_points = np.linspace(t1, t2, steps)
+            sol = solve_ivp(rhs0, [t1,t2], x0, method='LSODA', t_eval=time_points, max_step=maxNumSteps).y.T
+        elif self.det_method=='RK45':
             time_points = np.linspace(t1, t2, steps)
             sol = solve_ivp(rhs0, [t1,t2], x0, method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
         elif self.det_method=='euler':
@@ -1519,22 +1527,22 @@ cdef class SIR(SIR_type):
     steps: int
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
         The minimal is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
         For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     """
 
-    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+    def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 3, M, fi, N, steps, det_method, lyapunov_method)
 
     def make_det_model(self, parameters):
-        return pyross.deterministic.SIR(parameters, self.M, self.fi)
+        return pyross.deterministic.SIR(parameters, self.M, self.fi*self.N)
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1563,12 +1571,11 @@ cdef class SIR(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, Ia, Is
-            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         Ia = x[M:2*M]
         Is = x[2*M:3*M]
-        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
+        self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
         self.noise_correlation(s, Ia, Is, l)
@@ -1579,16 +1586,17 @@ cdef class SIR(SIR_type):
         cdef:
             double [:, :] CM=self.CM
             double [:] fsa=self.fsa, beta=self.beta
+            double [:] fi=self.fi
             Py_ssize_t m, n, M=self.M
         for m in range(M):
             for n in range(M):
-                l[m] += beta[m]*CM[m,n]*(Ia[n]+fsa[n]*Is[n])
+                l[m] += beta[m]*CM[m,n]*(Ia[n]+fsa[n]*Is[n])/fi[n]
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M, dim=self.dim
             double [:] gIa=self.gIa, gIs=self.gIs, fsa=self.fsa, beta=self.beta
-            double [:] alpha=self.alpha, balpha=1-self.alpha
+            double [:] alpha=self.alpha, balpha=1-self.alpha, fi=self.fi
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
@@ -1596,12 +1604,12 @@ cdef class SIR(SIR_type):
             J[1, m, 0, m] = alpha[m]*l[m]
             J[2, m, 0, m] = balpha[m]*l[m]
             for n in range(M):
-                J[0, m, 1, n] = -s[m]*beta[m]*CM[m, n]
-                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]
-                J[1, m, 1, n] = alpha[m]*s[m]*beta[m]*CM[m, n]
-                J[1, m, 2, n] = alpha[m]*s[m]*beta[m]*CM[m, n]*fsa[n]
-                J[2, m, 1, n] = balpha[m]*s[m]*beta[m]*CM[m, n]
-                J[2, m, 2, n] = balpha[m]*s[m]*beta[m]*CM[m, n]*fsa[n]
+                J[0, m, 1, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
+                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[1, m, 1, n] = alpha[m]*s[m]*beta[m]*CM[m, n]/fi[n]
+                J[1, m, 2, n] = alpha[m]*s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[2, m, 1, n] = balpha[m]*s[m]*beta[m]*CM[m, n]/fi[n]
+                J[2, m, 2, n] = balpha[m]*s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
             J[1, m, 1, m] -= gIa[m]
             J[2, m, 2, m] -= gIs[m]
         self.J_mat = self.J.reshape((dim, dim))
@@ -1659,21 +1667,21 @@ cdef class SEIR(SIR_type):
     steps: int
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
         The minimal is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
         For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     """
 
     cdef:
         readonly np.ndarray gE
 
-    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+    def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 4, M, fi, N, steps, det_method, lyapunov_method)
 
     def set_params(self, parameters):
@@ -1681,7 +1689,7 @@ cdef class SEIR(SIR_type):
         self.gE = pyross.utils.age_dep_rates(parameters['gE'], self.M, 'gE')
 
     def make_det_model(self, parameters):
-        return pyross.deterministic.SEIR(parameters, self.M, self.fi)
+        return pyross.deterministic.SEIR(parameters, self.M, self.fi*self.N)
 
 
     def make_params_dict(self, params=None):
@@ -1715,13 +1723,12 @@ cdef class SEIR(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, Ia, Is
-            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         e = x[M:2*M]
         Ia = x[2*M:3*M]
         Is = x[3*M:4*M]
-        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
+        self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
         self.noise_correlation(s, e, Ia, Is, l)
@@ -1731,17 +1738,17 @@ cdef class SEIR(SIR_type):
     cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
         cdef:
             double [:, :] CM=self.CM
-            double [:] fsa=self.fsa, beta=self.beta
+            double [:] fsa=self.fsa, beta=self.beta, fi=self.fi
             Py_ssize_t m, n, M=self.M
         for m in range(M):
             for n in range(M):
-                l[m] += beta[m]*CM[m,n]*(Ia[n]+fsa[n]*Is[n])
+                l[m] += beta[m]*CM[m,n]*(Ia[n]+fsa[n]*Is[n])/fi[n]
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M, dim=self.dim
             double [:] gIa=self.gIa, gIs=self.gIs, gE=self.gE, fsa=self.fsa, beta=self.beta
-            double [:] alpha=self.alpha, balpha=1-self.alpha
+            double [:] alpha=self.alpha, balpha=1-self.alpha, fi=self.fi
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
@@ -1753,10 +1760,10 @@ cdef class SEIR(SIR_type):
             J[3, m, 1, m] = balpha[m]*gE[m]
             J[3, m, 3, m] = - gIs[m]
             for n in range(M):
-                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]
-                J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]
-                J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]
-                J[2, m, 3, n] = s[m]*beta[m]*CM[m, n]*fsa[n]
+                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
+                J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]/fi[n]
+                J[2, m, 3, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] Ia, double [:] Is, double [:] l):
@@ -1828,21 +1835,21 @@ cdef class SEAIRQ(SIR_type):
     steps: int
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
         The minimal is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
         For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     """
 
     cdef:
         readonly np.ndarray gE, gA, tE, tA, tIa, tIs
 
-    def __init__(self, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+    def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
 
     def get_init_keys_dict(self):
@@ -1858,7 +1865,7 @@ cdef class SEAIRQ(SIR_type):
         self.tIs = pyross.utils.age_dep_rates(parameters['tIs'], self.M, 'tIs')
 
     def make_det_model(self, parameters):
-        return pyross.deterministic.SEAIRQ(parameters, self.M, self.fi)
+        return pyross.deterministic.SEAIRQ(parameters, self.M, self.fi*self.N)
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1911,7 +1918,6 @@ cdef class SEAIRQ(SIR_type):
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q
-            double [:, :] CM=contactMatrix(t)
             Py_ssize_t M=self.M
         s = x[0:M]
         e = x[M:2*M]
@@ -1919,7 +1925,7 @@ cdef class SEAIRQ(SIR_type):
         Ia = x[3*M:4*M]
         Is = x[4*M:5*M]
         q = x[5*M:6*M]
-        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
+        self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
         self.noise_correlation(s, e, a, Ia, Is, q, l)
@@ -1929,18 +1935,18 @@ cdef class SEAIRQ(SIR_type):
     cdef fill_lambdas(self, double [:] a, double [:] Ia, double [:] Is, double [:] l):
         cdef:
             double [:, :] CM=self.CM
-            double [:] fsa=self.fsa, beta=self.beta
+            double [:] fsa=self.fsa, beta=self.beta, fi=self.fi
             Py_ssize_t m, n, M=self.M
         for m in range(M):
             for n in range(M):
-                l[m] += beta[m]*CM[m,n]*(Ia[n]+a[n]+fsa[n]*Is[n])
+                l[m] += beta[m]*CM[m,n]*(Ia[n]+a[n]+fsa[n]*Is[n])/fi[n]
 
     cdef jacobian(self, double [:] s, double [:] l):
         cdef:
             Py_ssize_t m, n, M=self.M, dim=self.dim
             double [:] gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
             double [:] tE=self.tE, tA=self.tE, tIa=self.tIa, tIs=self.tIs, beta=self.beta
-            double [:] alpha=self.alpha, balpha=1-self.alpha
+            double [:] alpha=self.alpha, balpha=1-self.alpha, fi=self.fi
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
@@ -1958,12 +1964,12 @@ cdef class SEAIRQ(SIR_type):
             J[5, m, 3, m] = tIa[m]
             J[5, m, 4, m] = tIs[m]
             for n in range(M):
-                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]
-                J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]
-                J[0, m, 4, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]
-                J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]
-                J[1, m, 3, n] = s[m]*beta[m]*CM[m, n]
-                J[1, m, 4, n] = s[m]*beta[m]*CM[m, n]*fsa[n]
+                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
+                J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
+                J[0, m, 4, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]/fi[n]
+                J[1, m, 3, n] = s[m]*beta[m]*CM[m, n]/fi[n]
+                J[1, m, 4, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l):
@@ -2043,13 +2049,13 @@ cdef class SEAIRQ_testing(SIR_type):
         Not yet configured for this class.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA.
     """
     cdef:
         readonly double gE, gA, tE, tA, tIa, tIs, ars, kapE
         readonly object testRate
 
-    def __init__(self, parameters, testRate, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+    def __init__(self, parameters, testRate, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
         self.testRate=testRate
 
@@ -2069,7 +2075,6 @@ cdef class SEAIRQ_testing(SIR_type):
         self.testRate=testRate
 
     def make_det_model(self, parameters):
-        # note: unline the other classes in inference, SEAIRQ_testing works with extensive variables
         return pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
 
 
@@ -2102,6 +2107,7 @@ cdef class SEAIRQ_testing(SIR_type):
         cdef:
             double [:] x, s, e, a, Ia, Is, Q, TR
             double [:, :] CM=self.CM
+            double [:] fi=self.fi
             double beta=self.beta, fsa=self.fsa
             Py_ssize_t m, n, M=self.M
         x = spline(t)
@@ -2115,7 +2121,7 @@ cdef class SEAIRQ_testing(SIR_type):
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         for m in range(M):
             for n in range(M):
-                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])
+                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])/fi[n]
         self.jacobian(s, e, a, Ia, Is, q, l, TR)
         self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
         self.flatten_lyaponuv()
@@ -2123,11 +2129,12 @@ cdef class SEAIRQ_testing(SIR_type):
 
     cdef jacobian(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l, double [:] TR):
         cdef:
-            Py_ssize_t m, n, M=self.M, N=self.N
+            Py_ssize_t m, n, M=self.M,
+            double N=self.N
             double gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
             double ars=self.ars, kapE=self.kapE, beta=self.beta
             double t0, tE, tA, tIa, tIs
-            double [:] alpha=self.alpha, balpha=1-self.alpha
+            double [:] alpha=self.alpha, balpha=1-self.alpha, fi=self.fi
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
@@ -2138,12 +2145,12 @@ cdef class SEAIRQ_testing(SIR_type):
             tIs = TR[m]*t0/N
 
             for n in range(M):
-                J[0, m, 2, n] = -s[m]*beta*CM[m, n]
-                J[0, m, 3, n] = -s[m]*beta*CM[m, n]
-                J[0, m, 4, n] = -s[m]*beta*CM[m, n]*fsa
-                J[1, m, 2, n] = s[m]*beta*CM[m, n]
-                J[1, m, 3, n] = s[m]*beta*CM[m, n]
-                J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa
+                J[0, m, 2, n] = -s[m]*beta*CM[m, n]/fi[n]
+                J[0, m, 3, n] = -s[m]*beta*CM[m, n]/fi[n]
+                J[0, m, 4, n] = -s[m]*beta*CM[m, n]*fsa/fi[n]
+                J[1, m, 2, n] = s[m]*beta*CM[m, n]/fi[n]
+                J[1, m, 3, n] = s[m]*beta*CM[m, n]/fi[n]
+                J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa/fi[n]
             J[0, m, 0, m] = -l[m]
             J[1, m, 0, m] = l[m]
             J[1, m, 1, m] = - gE - tE
@@ -2240,27 +2247,27 @@ cdef class Spp(SIR_type):
     steps: int
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
         The minimal is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='solve_ivp', lyapunov_method='solve_ivp'.
+        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
         For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'solve_ivp', 'RK2' and 'euler'. Default is 'solve_ivp'.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
 
 
     See `SIR_type` for a table of all the methods
 
     Examples
     --------
-    An example of model_spec and parameters for SIR class.
+    An example of model_spec and parameters for SIR class with a constant influx
 
     >>> model_spec = {
             "classes" : ["S", "I"],
             "S" : {
-                "linear"    : [],
+                "constant"  : [ ["k"] ],
                 "infection" : [ ["I", "-beta"] ]
             },
             "I" : {
@@ -2270,27 +2277,29 @@ cdef class Spp(SIR_type):
         }
     >>> parameters = {
             'beta': 0.1,
-            'gamma': 0.1
+            'gamma': 0.1,
+            'k': 1,
         }
     """
 
     cdef:
-        readonly np.ndarray linear_terms, infection_terms
+        readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
         readonly list param_keys
         readonly dict class_index_dict
         readonly pyross.deterministic.Spp det_model
 
 
-    def __init__(self, model_spec, parameters, M, fi, N, steps, det_method='solve_ivp', lyapunov_method='solve_ivp'):
+    def __init__(self, model_spec, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
-        self.linear_terms = res[2]
-        self.infection_terms = res[3]
+        self.constant_terms = res[2]
+        self.linear_terms = res[3]
+        self.infection_terms = res[4]
         super().__init__(parameters, self.nClass, M, fi, N, steps, det_method, lyapunov_method)
-        self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi)
+        self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*N)
 
 
     def set_params(self, parameters):
@@ -2299,15 +2308,7 @@ cdef class Spp(SIR_type):
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
-                if type(param) == list:
-                    param = np.array(param)
-
-                if type(param) == np.ndarray:
-                    if param.size != self.M:
-                        raise Exception("Parameter array size must be equal to M.")
-                else:
-                    param = np.full(self.M, param)
-                self.parameters[i] = param
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
             raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
 
@@ -2323,12 +2324,15 @@ cdef class Spp(SIR_type):
 
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
-            double [:] x
+            double [:] x, fi=self.fi
+            Py_ssize_t nClass=self.nClass, M=self.M
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
         x = spline(t)
         cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-        self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
-        self.J = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+        if self.constant_terms.size > 0:
+            fi = x[(nClass-1)*M:]
+        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+        self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.fill_lambdas(x, l)
         self.jacobian(x, l)
         self.noise_correlation(x, l)
@@ -2336,14 +2340,18 @@ cdef class Spp(SIR_type):
 
     cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
         cdef:
+            Py_ssize_t nClass=self.nClass, M=self.M
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
             double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-            double [:, :] CM=contactMatrix(t)
-        self.CM = np.einsum('ij,j->ij', CM, 1/self.fi)
-        self.B = np.zeros((self.nClass, self.M, self.nClass, self.M), dtype=DTYPE)
+            double [:] fi=self.fi
+        self.CM = contactMatrix(t)
+        if self.constant_terms.size > 0:
+            fi = x[(nClass-1)*M:]
+        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.fill_lambdas(x, l)
         self.noise_correlation(x, l)
         if jacobian:
+            self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
             self.jacobian(x, l)
 
     cdef fill_lambdas(self, double [:] x, double [:, :] l):
@@ -2351,13 +2359,14 @@ cdef class Spp(SIR_type):
             double [:, :] CM=self.CM
             int [:, :] infection_terms=self.infection_terms
             double infection_rate
+            double [:] fi=self.fi
             Py_ssize_t m, n, i, infective_index, index, M=self.M, num_of_infection_terms=infection_terms.shape[0]
         for i in range(num_of_infection_terms):
             infective_index = infection_terms[i, 1]
             for m in range(M):
                 for n in range(M):
                     index = n + M*infective_index
-                    l[i, m] += CM[m,n]*x[index]
+                    l[i, m] += CM[m,n]*x[index]/fi[n]
 
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
@@ -2368,6 +2377,7 @@ cdef class Spp(SIR_type):
             double [:, :] parameters=self.parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             double [:] rate
+            double [:] fi=self.fi
         # infection terms
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
@@ -2379,9 +2389,9 @@ cdef class Spp(SIR_type):
                 if product_index>-1:
                     J[product_index, m, S_index, m] += rate[m]*l[i, m]
                 for n in range(M):
-                    J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]
+                    J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
                     if product_index>-1:
-                        J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]
+                        J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
             reagent_index = linear_terms[i, 1]
@@ -2395,14 +2405,26 @@ cdef class Spp(SIR_type):
 
     cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
-            Py_ssize_t i, m, n, M=self.M
+            Py_ssize_t i, m, n, M=self.M, nClass=self.nClass, class_index
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
             double [:, :] parameters=self.parameters
+            int [:, :] constant_terms=self.constant_terms
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             double [:] s, reagent, rate
+            double N=self.N
         s = x[S_index*M:(S_index+1)*M]
+
+        if self.constant_terms.size > 0:
+            for i in range(constant_terms.shape[0]):
+                rate_index = constant_terms[i, 0]
+                class_index = constant_terms[i, 1]
+                rate = parameters[rate_index]
+                for m in range(M):
+                    B[class_index, m, class_index, m] += rate[m]/N
+                    B[nClass-1, m, nClass-1, m] += rate[m]/N
+
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
             infective_index = infection_terms[i, 1]
