@@ -63,9 +63,10 @@ cdef class stochastic_integration:
     tau_leaping_update_timesteps
     """
     cdef:
-        readonly int N, M, nClass
-        int k_tot
-        np.ndarray RM, xt, weights, CM, xtminus1
+        readonly int N, M,
+        readonly int nClass, nReactions, nReactions_per_agegroup
+        readonly int dim_state_vec
+        np.ndarray rates, xt, xtminus1, vectors_of_change, CM
         mt19937 gen
         long seed
 
@@ -176,17 +177,15 @@ cdef class stochastic_integration:
         cdef:
             double W = 0. # total rate for next reaction to happen
             double [:,:] RM = self.RM
-            double [:] weights = self.weights
+            double [:] rates = self.rates
+            int nReactions = self.nReactions
             int M = self.M
             int i, j, k, k_tot = self.k_tot
-        for i in range(M):
-            for j in range(k_tot):
-                for k in range(k_tot):
-                    W += RM[i+j*M,i+k*M]
-                    weights[i*k_tot*k_tot + k_tot*j + k] = RM[i+j*M,i+k*M]
+        for i in range(nReactions):
+            W += rates[i]
         return W
 
-    cdef rate_matrix(self, xt, tt):
+    cdef rate_vector(self, xt, tt):
         return
 
     cdef SSA_step(self,double time,
@@ -213,11 +212,12 @@ cdef class stochastic_integration:
             Corresponding times at which X is evaluated at.
         """
         cdef:
-            double [:] weights = self.weights
+            double [:] rates = self.rates
+            long [:,:] vectors_of_change = self.vectors_of_change
             long [:] xt = self.xt
-            double dt, cs, t
-            int M = self.M
-            int I, i, j, k,  k_tot = self.k_tot
+            double dt, t, random
+            int i, j, M = self.M
+            int dim_state_vec = self.dim_state_vec
 
         # draw exponentially distributed time for next reaction
         random = self.uniform_dist()
@@ -225,20 +225,12 @@ cdef class stochastic_integration:
         t = time + dt
 
         # decide which reaction happens
-        I = self.random_choice(weights)
+        i = self.random_choice(rates)
 
         # adjust population according to chosen reaction
-        i = I//( k_tot*k_tot )
-        j = (I - i*k_tot*k_tot)//k_tot
-        k = (I - i*k_tot*k_tot)%k_tot
-        if j == k:
-            if j == 0:
-                xt[i + M*j] += 1 # influx of susceptibles
-            else:
-                xt[i + M*j] -= 1
-        else:
-            xt[i + M*j] += 1
-            xt[i + M*k] -= 1
+        for j in range(dim_state_vec):
+            xt[j] += vectors_of_change[i,j]
+
         return t
 
     cpdef simulate_gillespie(self, contactMatrix, Tf, Nf):
@@ -275,13 +267,12 @@ cdef class stochastic_integration:
         """
         cdef:
             int M=self.M
-            int i, j, k, I, k_tot = self.k_tot
-            int max_index =  k_tot*k_tot*M*M
+            int nReactions = self.nReactions
+            int dim_state_vec = self.dim_state_vec
+            int i
             double t, dt, W
-            double [:,:] RM = self.RM
             long [:] xt = self.xt
-            double [:] weights = self.weights
-            #double [:,:] CM = self.CM
+            double [:] rates = self.rates
 
         t = 0
         if Nf <= 0:
@@ -290,14 +281,14 @@ cdef class stochastic_integration:
             trajectory.append((self.xt).copy())
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
+            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
             next_writeout = 1
 
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
-            for i in range(M,k_tot*M):
+            for i in range(M,dim_state_vec):
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
@@ -307,11 +298,12 @@ cdef class stochastic_integration:
 
             # calculate current rate matrix
             self.CM = contactMatrix(t)
-            self.rate_matrix(xt, t)
+            self.rate_vector(xt, t)
 
             # calculate total rate
-            W = self.calculate_total_reaction_rate()
-            #print("t = {0:3.5f}\tReaction rate = {1:3.5f}".format(t,W))
+            W = 0.
+            for i in range(nReactions):
+                W += rates[i]
 
             # if total reaction rate is zero
             if W == 0.:
@@ -381,17 +373,16 @@ cdef class stochastic_integration:
                                 events_repeat=False,events_subsequent=True):
         cdef:
             int M=self.M
-            int i, j, k, I, k_tot = self.k_tot
-            int max_index =  k_tot*k_tot*M*M
+            int nReactions = self.nReactions
+            int dim_state_vec = self.dim_state_vec
+            int i
             double t, dt, W, t_previous
-            double [:,:] RM = self.RM
             long [:] xt = self.xt
             long [:] xtminus1 = self.xtminus1
-            double [:] weights = self.weights
+            double [:] rates = self.rates
             #
             list list_of_available_events, events_out
             int N_events, current_protocol_index
-            #double [:,:] CM = self.CM
 
         t = 0
         if Nf <= 0:
@@ -400,7 +391,7 @@ cdef class stochastic_integration:
             trajectory.append( (self.xt).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
+            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
             next_writeout = 1
 
@@ -426,7 +417,7 @@ cdef class stochastic_integration:
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
-            for i in range(M,k_tot*M):
+            for i in range(M,dim_state_vec):
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
@@ -434,11 +425,13 @@ cdef class stochastic_integration:
                         trajectory[i] = xt
                 break
 
-            # calculate current rate matrix
-            self.rate_matrix(xt, t)
+            # calculate current rate vector
+            self.rate_vector(xt, t)
 
             # calculate total rate
-            W = self.calculate_total_reaction_rate()
+            W = 0.
+            for i in range(nReactions):
+                W += rates[i]
 
             # if total reaction rate is zero
             if W == 0.:
@@ -449,7 +442,7 @@ cdef class stochastic_integration:
 
             # save current state, which will become the previous state once
             # we perform the SSA step
-            for i in range(k_tot*M):
+            for i in range(dim_state_vec):
                 xtminus1[i] = xt[i]
 
             # perform SSA step
@@ -520,80 +513,63 @@ cdef class stochastic_integration:
             The maximal timestep that can be taken with error < epsilon
         """
         cdef:
-            int M=self.M, k_tot = self.k_tot
-            int i, j, k
-            double [:,:] RM = self.RM
+            int dim_state_vec = self.dim_state_vec
+            int nReactions = self.nReactions
+            int i, j
+            double [:] rates = self.rates
+            long [:,:] vectors_of_change = self.vectors_of_change
             long [:] xt = self.xt
             double cur_tau, cur_mu, cur_sig_sq
         #
         #
         # evaluate Eqs. (32), (33) of Ref. 1
         cur_tau = INFINITY
-        # iterate over species
-        for i in range(M):     #  } The tuple (i,j) here corresponds
-            for j in range(k_tot): #  } to what is called "i" in Eqs. (32), (33)
-                cur_mu = 0.
-                cur_sig_sq = 0.
-                # current species has index I = i + j*M,
-                # and can either decay (diagonal element) or
-                # transform into J = i + k*M with k = 0,1,2 but k != j
-                for k in range(k_tot):
-                    if j == k: # influx or decay
-                        if j == 0:
-                            cur_mu += RM[i + j*M, i + k*M]
-                        else:
-                            cur_mu -= RM[i + j*M, i + k*M]
-                        cur_sig_sq += RM[i + j*M, i + k*M]
-                    else: # transformation
-                        cur_mu += RM[i + j*M, i + k*M]
-                        cur_mu -= RM[i + k*M, i + j*M]
-                        cur_sig_sq += RM[i + j*M, i + k*M]
-                        cur_sig_sq += RM[i + k*M, i + j*M]
-                cur_mu = abs(cur_mu)
-                #
-                factor = epsilon*xt[i+j*M]/2.
-                if factor < 1:
-                    factor = 1.
-                #
-                if cur_mu != 0:
-                    cur_mu = factor/cur_mu
-                else:
-                    cur_mu = INFINITY
-                if cur_sig_sq != 0:
-                    cur_sig_sq = factor**2/cur_sig_sq
-                else:
-                    cur_sig_sq = INFINITY
-                #
-                if cur_mu < cur_sig_sq:
-                    if cur_mu < cur_tau:
-                        cur_tau = cur_mu
-                else:
-                    if cur_sig_sq < cur_tau:
-                        cur_tau = cur_sig_sq
+        # sum over species
+        for i in range(dim_state_vec):
+            cur_mu = 0.
+            cur_sig_sq = 0.
+            # iterate over reactions
+            for j in range(nReactions):
+                cur_mu += vectors_of_change[j,i] * rates[j]
+                cur_sig_sq += (vectors_of_change[j,i])**2 * rates[j]
+            cur_mu = abs(cur_mu)
+            #
+            factor = epsilon*xt[i]/2.
+            if factor < 1:
+                factor = 1.
+            #
+            if cur_mu != 0:
+                cur_mu = factor/cur_mu
+            else:
+                cur_mu = INFINITY
+            if cur_sig_sq != 0:
+                cur_sig_sq = factor**2/cur_sig_sq
+            else:
+                cur_sig_sq = INFINITY
+            #
+            if cur_mu < cur_sig_sq:
+                if cur_mu < cur_tau:
+                    cur_tau = cur_mu
+            else:
+                if cur_sig_sq < cur_tau:
+                    cur_tau = cur_sig_sq
         return cur_tau
 
     cdef tau_leaping_update_state(self,double cur_tau):
         cdef:
-            int M=self.M, k_tot = self.k_tot
-            int i, j, k
-            double [:,:] RM = self.RM
+            int nReactions = self.nReactions
+            int dim_state_vec = self.dim_state_vec
+            int i, j
+            double [:] rates = self.rates
+            long [:,:] vectors_of_change = self.vectors_of_change
             long [:] xt = self.xt
         # Draw reactions
-        for i in range(M):
-            for j in range(k_tot):
-                for k in range(k_tot):
-                    if RM[i+j*M,i+k*M] > 0:
-                        # draw poisson variable
-                        K_events = self.poisson_dist( RM[i+j*M,i+k*M] * cur_tau )
-                        if j == k:
-                            if j == 0:
-                                xt[i + M*j] += K_events # influx of susceptibles
-                            else:
-                                xt[i + M*j] -= K_events
-                        else:
-                            xt[i + M*j] += K_events
-                            xt[i + M*k] -= K_events
-        for i in range(M*k_tot):
+        for i in range(nReactions):
+            if rates[i] > 0:
+                K_events = self.poisson_dist( rates[i] * cur_tau )
+                for j in range(dim_state_vec):
+                    xt[j] += vectors_of_change[i,j] * K_events
+        for i in range(dim_state_vec):
             if xt[i] < 0:
                 raise RuntimeError("Tau leaping led to negative population. " + \
                                   "Try increasing threshold by increasing the " + \
@@ -638,12 +614,12 @@ cdef class stochastic_integration:
         """
         cdef:
             int M=self.M
-            int i, j, k,  I, K_events, k_tot = self.k_tot
+            int i
+            int dim_state_vec = self.dim_state_vec
+            int nReactions = self.nReactions
             double t, dt, W
-            double [:,:] RM = self.RM
+            double [:] rates = self.rates
             long [:] xt = self.xt
-            double [:] weights = self.weights
-            double factor, cur_f
             double cur_tau
             int SSA_steps_left = 0
             int steps_until_tau_update = 0
@@ -657,13 +633,13 @@ cdef class stochastic_integration:
             trajectory.append( (self.xt).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
+            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
             next_writeout = 1
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
-            for i in range(M,k_tot*M):
+            for i in range(M,dim_state_vec):
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
@@ -672,10 +648,12 @@ cdef class stochastic_integration:
                 break
             # calculate current rate matrix
             self.CM = contactMatrix(t)
-            self.rate_matrix(xt, t)
+            self.rate_vector(xt, t)
 
-            # Calculate total rate
-            W = self.calculate_total_reaction_rate()
+            # calculate total rate
+            W = 0.
+            for i in range(nReactions):
+                W += rates[i]
 
             # if total reaction rate is zero
             if W == 0.:
@@ -686,7 +664,7 @@ cdef class stochastic_integration:
 
             if SSA_steps_left < 0.5:
                 # check if we are below threshold
-                for i in range(k_tot*M):
+                for i in range(dim_state_vec):
                     if xt[i] > 0:
                         if xt[i] < nc:
                             SSA_steps_left = 100
@@ -741,12 +719,12 @@ cdef class stochastic_integration:
                           events_repeat=False,events_subsequent=True):
         cdef:
             int M=self.M
-            int i, j, k,  I, K_events, k_tot = self.k_tot
-            double t, dt, W, t_previous
-            double [:,:] RM = self.RM
+            int i
+            int dim_state_vec = self.dim_state_vec
+            int nReactions = self.nReactions
+            double t, dt, W
+            double [:] rates = self.rates
             long [:] xt = self.xt
-            double [:] weights = self.weights
-            double factor, cur_f
             double cur_tau
             int SSA_steps_left = 0
             int steps_until_tau_update = 0
@@ -763,7 +741,7 @@ cdef class stochastic_integration:
             trajectory.append( (self.xt).copy()  )
         else:
             t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,k_tot*M],dtype=long)
+            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
             next_writeout = 1
 
@@ -787,7 +765,7 @@ cdef class stochastic_integration:
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
-            for i in range(M,k_tot*M):
+            for i in range(M,dim_state_vec):
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
@@ -795,11 +773,13 @@ cdef class stochastic_integration:
                         trajectory[i] = xt
                 break
 
-            # calculate current rate matrix
-            self.rate_matrix(xt, t)
+            # calculate current rate vector
+            self.rate_vector(xt, t)
 
-            # Calculate total rate
-            W = self.calculate_total_reaction_rate()
+            # calculate total rate
+            W = 0.
+            for i in range(nReactions):
+                W += rates[i]
 
             # if total reaction rate is zero
             if W == 0.:
@@ -810,14 +790,14 @@ cdef class stochastic_integration:
 
             # save current state, which will become the previous state once
             # we perform either an SSA or a tau-leaping step
-            for i in range(k_tot*M):
+            for i in range(dim_state_vec):
                 xtminus1[i] = xt[i]
             t_previous = t
 
             # either perform tau-leaping or SSA step:
             if SSA_steps_left < 0.5:
                 # check if we are below threshold for tau-leaping
-                for i in range(k_tot*M):
+                for i in range(dim_state_vec):
                     if xt[i] > 0:
                         if xt[i] < nc:
                             SSA_steps_left = 100
@@ -932,6 +912,10 @@ cdef class SIR(stochastic_integration):
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
 
     def __init__(self, parameters, M, Ni):
+        cdef:
+            int i
+            int nRpa # short for number of reactions per age group
+
         self.nClass = 3
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
@@ -944,14 +928,15 @@ cdef class SIR(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
-        self.k_tot = 3
+        self.nReactions_per_agegroup = 4
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M, self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # previous state
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
         # (for event-driven simulations)
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -968,7 +953,28 @@ cdef class SIR(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
-    cdef rate_matrix(self, xt, tt):
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            # reaction S -> Ia at age group i:
+            # population of S decreases by 1, population of Ia increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = -1
+            self.vectors_of_change[  i*nRpa,i+  M] = +1
+            # reaction S -> Is at age group i:
+            # population of S decreases by 1, population of Is increases by 1
+            self.vectors_of_change[1+i*nRpa,i    ] = -1
+            self.vectors_of_change[1+i*nRpa,i+2*M] = +1
+            # reaction Ia -> R at age group i:
+            # population of Ia decreases by 1
+            self.vectors_of_change[2+i*nRpa,i+  M] = -1
+            # reaction Is -> R at age group i:
+            # population of Is decreases by 1
+            self.vectors_of_change[3+i*nRpa,i+2*M] = -1
+
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double  beta=self.beta, gIa=self.gIa, rateS, lmda
@@ -979,8 +985,9 @@ cdef class SIR(stochastic_integration):
             double [:] Ni   = self.Ni
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
+            double [:] rates = self.rates
             double [:] alpha= self.alpha
+            int nRpa = self.nReactions_per_agegroup
 
         for i in range(M): #, nogil=False):
             lmda=0
@@ -988,10 +995,10 @@ cdef class SIR(stochastic_integration):
                  lmda += beta*(CM[i,j]*Ia[j]+fsa*CM[i,j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M,i] = alpha[i] *rateS        # rate S -> Ia
-            RM[i+2*M,i] = (1-alpha[i]) *rateS # rate S -> Is
-            RM[i+M,i+M] = gIa*Ia[i] # rate Ia -> R
-            RM[i+2*M,i+2*M] = gIs*Is[i] # rate Is -> R
+            rates[  i*nRpa] = alpha[i] *rateS        # rate S -> Ia
+            rates[1+i*nRpa] = (1-alpha[i]) *rateS # rate S -> Is
+            rates[2+i*nRpa] = gIa*Ia[i] # rate Ia -> R
+            rates[3+i*nRpa] = gIs*Is[i] # rate Is -> R
         return
 
     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf,
@@ -1203,9 +1210,12 @@ cdef class SIkR(stochastic_integration):
     cdef:
         readonly int kk
         readonly double beta
-        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, gIvec, gI
+        readonly np.ndarray xt0, Ni, dxtdt, CC, gIvec, gI
 
     def __init__(self, parameters, M, Ni):
+        cdef:
+            int nRpa # short for number of reactions per age group
+
         self.kk = parameters['kI']
         self.nClass = 1 + self.kk
         self.beta  = parameters['beta']                     # infection rate
@@ -1224,14 +1234,15 @@ cdef class SIkR(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
-        self.k_tot = 1 + self.kk # total number of compartments per age group,
-        # namely (1 susceptible + kk infected compartments)
+        self.nReactions_per_agegroup = 1 + self.kk
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
 
         # Set seed for pseudo-random number generator (if provided)
         try:
@@ -1240,7 +1251,30 @@ cdef class SIkR(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
-    cdef rate_matrix(self, xt, tt):
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            # reaction S -> I at age group i:
+            # population of S decreases by 1, population of first compartment
+            # of I increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = -1
+            self.vectors_of_change[  i*nRpa,i+  M] = +1
+            #
+            # reaction I_k -> I_{k+1} at age group i:
+            # population of k-th  stage by 1, population of (k+1)-th
+            # stage is increases by 1
+            for j in range(self.kk - 1):
+                self.vectors_of_change[1+j+i*nRpa, i+(j+1)*M] = -1
+                self.vectors_of_change[1+j+i*nRpa, i+(j+2)*M] = +1
+            #
+            # reaction I_{kk} -> R} at age group i:
+            # population of last stage decreases by 1
+            self.vectors_of_change[self.kk+i*nRpa,i+self.kk*M] = -1
+
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j, jj, kk=self.kk
             double beta=self.beta, rateS, lmda
@@ -1248,9 +1282,9 @@ cdef class SIkR(stochastic_integration):
             long [:] I    = xt[M  :(kk+1)*M]
             double [:] gI = self.gI
             double [:] Ni   = self.Ni
-            double [:] ld   = self.lld
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
+            double [:] rates = self.rates
+            int nRpa = self.nReactions_per_agegroup
 
         for i in range(M): #, nogil=False):
             lmda=0
@@ -1259,10 +1293,10 @@ cdef class SIkR(stochastic_integration):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M,i] =  rateS  # rate S -> I1
+            rates[i*nRpa] =  rateS  # rate S -> I1
             for j in range(kk-1):
-                RM[i+(j+2)*M, i + (j+1)*M]   =  kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
-            RM[i+kk*M, i+kk*M] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
+                rates[1+j+i*nRpa] = kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
+            rates[kk+i*nRpa] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
         return
 
     cpdef simulate(self, S0, I0, contactMatrix, Tf, Nf,
@@ -1426,6 +1460,9 @@ cdef class SEIR(stochastic_integration):
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
 
     def __init__(self, parameters, M, Ni):
+        cdef:
+            int nRpa # short for number of reactions per age group
+
         self.nClass = 4
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
@@ -1439,13 +1476,15 @@ cdef class SEIR(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
-        self.k_tot = 4
+        self.nReactions_per_agegroup = 5
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1462,7 +1501,37 @@ cdef class SEIR(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
-    cdef rate_matrix(self, xt, tt):
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            # reaction S -> E at age group i:
+            # population of S decreases by 1, population of E increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = -1
+            self.vectors_of_change[  i*nRpa,i+  M] = +1
+            #
+            # reaction E -> Ia at age group i:
+            # population of E decreases by 1, population of Ia increases by 1
+            self.vectors_of_change[1+i*nRpa,i+  M] = -1
+            self.vectors_of_change[1+i*nRpa,i+2*M] = +1
+            #
+            # reaction E -> Is at age group i:
+            # population of E decreases by 1, population of Is increases by 1
+            self.vectors_of_change[2+i*nRpa,i+  M] = -1
+            self.vectors_of_change[2+i*nRpa,i+3*M] = +1
+            #
+            # reaction Ia -> R at age group i:
+            # population of Ia decreases by 1
+            self.vectors_of_change[3+i*nRpa,i+2*M] = -1
+            #
+            # reaction Is -> R at age group i:
+            # population of Ia decreases by 1
+            self.vectors_of_change[4+i*nRpa,i+3*M] = -1
+
+
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double gIa=self.gIa, gIs=self.gIs
@@ -1475,8 +1544,10 @@ cdef class SEIR(stochastic_integration):
             long [:] Is   = xt[3*M:4*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
             double [:] alpha = self.alpha
+            double [:] rates = self.rates
+            int nRpa = self.nReactions_per_agegroup
+
 
         for i in range(M): #, nogil=False):
             lmda=0;  ce1=gE*alpha[i];  ce2=gE-ce1
@@ -1484,11 +1555,11 @@ cdef class SEIR(stochastic_integration):
                  lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i+M  , i]     =  rateS # rate S -> E
-            RM[i+2*M, i+M]   = ce1 * E[i] # rate E -> Ia
-            RM[i+3*M, i+M]   = ce2 * E[i] # rate E -> Is
-            RM[i+2*M, i+2*M] = gIa * Ia[i] # rate Ia -> R
-            RM[i+3*M, i+3*M] = gIs * Is[i] # rate Is -> R
+            rates[  i*nRpa]   =  rateS # rate S -> E
+            rates[1+i*nRpa]   = ce1 * E[i] # rate E -> Ia
+            rates[2+i*nRpa]   = ce2 * E[i] # rate E -> Is
+            rates[3+i*nRpa]   = gIa * Ia[i] # rate Ia -> R
+            rates[4+i*nRpa]   = gIs * Is[i] # rate Is -> R
         return
 
     cpdef simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf,
@@ -1642,7 +1713,6 @@ cdef class SEIR(stochastic_integration):
 
 
 
-
 cdef class SEI5R(stochastic_integration):
     warnings.warn('SEI5R not supported', DeprecationWarning)
     """
@@ -1712,7 +1782,9 @@ cdef class SEI5R(stochastic_integration):
         readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm, alpha
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 7
+        cdef:
+            int nRpa # short for number of reactions per age group
+
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # removal rate of E class
@@ -1734,8 +1806,8 @@ cdef class SEI5R(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = np.array(Ni.copy(),dtype=long)
 
-        self.k_tot = 8 # total number of explicit states per age group
-        # here:
+        self.nClass = 8
+        # explicit states per age group:
         # 1. S    susceptibles
         # 2. E    exposed
         # 3. Ia   infectives, asymptomatic
@@ -1745,11 +1817,15 @@ cdef class SEI5R(stochastic_integration):
         # 7. Im   infectives, deceased
         # 8. R    Removed
 
+        self.nReactions_per_agegroup = 11
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1806,8 +1882,62 @@ cdef class SEI5R(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            # birth rate
+            # population of S increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = +1
+            #
+            # reaction S -> E at age group i:
+            # population of S decreases by 1, population of E increases by 1
+            self.vectors_of_change[1+i*nRpa,i    ] = -1
+            self.vectors_of_change[1+i*nRpa,i+  M] = +1
+            #
+            # reaction E -> Ia at age group i:
+            # population of E decreases by 1, population of Ia increases by 1
+            self.vectors_of_change[2+i*nRpa,i+  M] = -1
+            self.vectors_of_change[2+i*nRpa,i+2*M] = +1
+            #
+            # reaction E -> Is at age group i:
+            # population of E decreases by 1, population of Is increases by 1
+            self.vectors_of_change[3+i*nRpa,i+  M] = -1
+            self.vectors_of_change[3+i*nRpa,i+3*M] = +1
+            #
+            # reaction Ia -> R at age group i:
+            # population of Ia decreases by 1, population of R increases by 1
+            self.vectors_of_change[4+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[4+i*nRpa,i+7*M] = +1
+            #
+            # reaction Is -> R at age group i:
+            # population of Is decreases by 1, population of R increases by 1
+            self.vectors_of_change[5+i*nRpa,i+3*M] = -1
+            self.vectors_of_change[5+i*nRpa,i+7*M] = +1
+            #
+            # reaction Is -> Ih at age group i:
+            self.vectors_of_change[6+i*nRpa,i+3*M] = -1
+            self.vectors_of_change[6+i*nRpa,i+4*M] = +1
+            #
+            # reaction Ih -> R at age group i:
+            self.vectors_of_change[7+i*nRpa,i+4*M] = -1
+            self.vectors_of_change[7+i*nRpa,i+7*M] = +1
+            #
+            # reaction Ih -> Ic at age group i:
+            self.vectors_of_change[8+i*nRpa,i+4*M] = -1
+            self.vectors_of_change[8+i*nRpa,i+5*M] = +1
+            #
+            # reaction Ic -> R at age group i:
+            self.vectors_of_change[9+i*nRpa,i+5*M] = -1
+            self.vectors_of_change[9+i*nRpa,i+7*M] = +1
+            #
+            # reaction Ic -> Im at age group i:
+            self.vectors_of_change[10+i*nRpa,i+5*M] = -1
+            self.vectors_of_change[10+i*nRpa,i+6*M] = +1
 
-    cdef rate_matrix(self, xt, tt):
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -1834,7 +1964,8 @@ cdef class SEI5R(stochastic_integration):
             double [:] mm   = self.mm
             #
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
+            double [:] rates = self.rates
+            int nRpa = self.nReactions_per_agegroup
 
         # update Ni
         for i in range(M):
@@ -1846,23 +1977,21 @@ cdef class SEI5R(stochastic_integration):
                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            RM[i,i] = sa[i] # birth rate (note also associated hard-coded increase
-                           #              for the diagonal element with M = 0 in
-                          #               the integrators in the mother class)
-            RM[i+M  , i]     =  rateS  # rate S -> E
-            RM[i+2*M, i+M]   = ce1 * E[i] # rate E -> Ia
-            RM[i+3*M, i+M]   = ce2 * E[i] # rate E -> Is
+            rates[  i*nRpa]  = sa[i] # birth rate
+            rates[1+i*nRpa]  =  rateS  # rate S -> E
+            rates[2+i*nRpa]  = ce1 * E[i] # rate E -> Ia
+            rates[3+i*nRpa]  = ce2 * E[i] # rate E -> Is
             #
-            RM[i+7*M, i+2*M] = gIa * Ia[i] # rate Ia -> R
+            rates[4+i*nRpa]  = gIa * Ia[i] # rate Ia -> R
             #
-            RM[i+7*M, i+3*M] = (1.-hh[i])*gIs * Is[i] # rate Is -> R
-            RM[i+4*M, i+3*M] = hh[i]*gIs * Is[i] # rate Is -> Ih
+            rates[5+i*nRpa]  = (1.-hh[i])*gIs * Is[i] # rate Is -> R
+            rates[6+i*nRpa]  = hh[i]*gIs * Is[i] # rate Is -> Ih
             #
-            RM[i+7*M, i+4*M] = (1.-cc[i])*gIh * Ih[i] # rate Ih -> R
-            RM[i+5*M, i+4*M] = cc[i]*gIh * Ih[i] # rate Ih -> Ic
+            rates[7+i*nRpa]  = (1.-cc[i])*gIh * Ih[i] # rate Ih -> R
+            rates[8+i*nRpa]  = cc[i]*gIh * Ih[i] # rate Ih -> Ic
             #
-            RM[i+7*M, i+5*M] = (1.-mm[i])*gIc * Ic[i] # rate Ic -> R
-            RM[i+6*M, i+5*M] = mm[i]*gIc * Ic[i] # rate Ic -> Im
+            rates[9+i*nRpa]  = (1.-mm[i])*gIc * Ic[i] # rate Ic -> R
+            rates[10+i*nRpa] = mm[i]*gIc * Ic[i] # rate Ic -> Im
             #
         return
 
@@ -2186,7 +2315,9 @@ cdef class SEAI5R(stochastic_integration):
         readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm, alpha
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 8
+        cdef:
+            int nRpa # short for number of reactions per age group
+
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate of E class
@@ -2209,8 +2340,8 @@ cdef class SEAI5R(stochastic_integration):
         #self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = np.array( Ni.copy(), dtype=long)
 
-        self.k_tot = 9 # total number of explicit states per age group
-        # here:
+        self.nClass = 9
+        # explicit states per age group:
         # 1. S    susceptibles
         # 2. E    exposed
         # 3. A    Asymptomatic and infected
@@ -2221,11 +2352,15 @@ cdef class SEAI5R(stochastic_integration):
         # 8. Im   infectives, deceased
         # 9. R    removed
 
+        self.nReactions_per_agegroup = 12
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2274,8 +2409,67 @@ cdef class SEAI5R(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            # birth rate
+            # population of S increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = +1
+            #
+            # reaction S -> E at age group i:
+            # population of S decreases by 1, population of E increases by 1
+            self.vectors_of_change[1+i*nRpa,i    ] = -1
+            self.vectors_of_change[1+i*nRpa,i+  M] = +1
+            #
+            # reaction E -> A at age group i:
+            # population of E decreases by 1, population of A increases by 1
+            self.vectors_of_change[2+i*nRpa,i+  M] = -1
+            self.vectors_of_change[2+i*nRpa,i+2*M] = +1
+            #
+            # reaction A -> Ia at age group i:
+            # population of A decreases by 1, population of Ia increases by 1
+            self.vectors_of_change[3+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[3+i*nRpa,i+3*M] = +1
+            #
+            # reaction A -> Is at age group i:
+            # population of E decreases by 1, population of Is increases by 1
+            self.vectors_of_change[4+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[4+i*nRpa,i+4*M] = +1
+            #
+            # reaction Ia -> R at age group i:
+            # population of Ia decreases by 1, population of R increases by 1
+            self.vectors_of_change[5+i*nRpa,i+3*M] = -1
+            self.vectors_of_change[5+i*nRpa,i+8*M] = +1
+            #
+            # reaction Is -> R at age group i:
+            # population of Is decreases by 1, population of R increases by 1
+            self.vectors_of_change[6+i*nRpa,i+4*M] = -1
+            self.vectors_of_change[6+i*nRpa,i+8*M] = +1
+            #
+            # reaction Is -> Ih at age group i:
+            self.vectors_of_change[7+i*nRpa,i+4*M] = -1
+            self.vectors_of_change[7+i*nRpa,i+5*M] = +1
+            #
+            # reaction Ih -> R at age group i:
+            self.vectors_of_change[8+i*nRpa,i+5*M] = -1
+            self.vectors_of_change[8+i*nRpa,i+8*M] = +1
+            #
+            # reaction Ih -> Ic at age group i:
+            self.vectors_of_change[9+i*nRpa,i+5*M] = -1
+            self.vectors_of_change[9+i*nRpa,i+6*M] = +1
+            #
+            # reaction Ic -> R at age group i:
+            self.vectors_of_change[10+i*nRpa,i+6*M] = -1
+            self.vectors_of_change[10+i*nRpa,i+8*M] = +1
+            #
+            # reaction Ic -> Im at age group i:
+            self.vectors_of_change[11+i*nRpa,i+6*M] = -1
+            self.vectors_of_change[11+i*nRpa,i+7*M] = +1
 
-    cdef rate_matrix(self, xt, tt):
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -2302,7 +2496,8 @@ cdef class SEAI5R(stochastic_integration):
             double [:] mm   = self.mm
             #
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
+            double [:] rates = self.rates
+            int nRpa = self.nReactions_per_agegroup
 
         # update Ni
         for i in range(M):
@@ -2315,26 +2510,24 @@ cdef class SEAI5R(stochastic_integration):
             rateS = lmda*S[i]
             #
             # rates from S
-            RM[i,i] = sa[i] # birth rate (note also associated hard-coded increase
-                           #              for the diagonal element with M = 0 in
-                          #               the integrators in the mother class)
-            RM[i+M  , i]     =  rateS  # rate S -> E
+            rates[  i*nRpa]  = sa[i] # birth rate
+            rates[1+i*nRpa]  = rateS  # rate S -> E
             # rates from E
-            RM[i+2*M, i+M]   = gE * E[i] # rate E -> A
+            rates[2+i*nRpa]  = gE * E[i] # rate E -> A
             # rates from A
-            RM[i+3*M, i+2*M]  = gAA * A[i] # rate A -> Ia
-            RM[i+4*M, i+2*M]  = gAS * A[i] # rate A -> Is
+            rates[3+i*nRpa]  = gAA * A[i] # rate A -> Ia
+            rates[4+i*nRpa]  = gAS * A[i] # rate A -> Is
             # rates from Ia
-            RM[i+8*M, i+3*M] = gIa * Ia[i] # rate Ia -> R
+            rates[5+i*nRpa]  = gIa * Ia[i] # rate Ia -> R
             # rates from Is
-            RM[i+8*M, i+4*M] = (1.-hh[i])*gIs * Is[i] # rate Is -> R
-            RM[i+5*M, i+4*M] = hh[i]*gIs * Is[i] # rate Is -> Ih
-            # rates from Ih
-            RM[i+8*M, i+5*M] = (1.-cc[i])*gIh * Ih[i] # rate Ih -> R
-            RM[i+6*M, i+5*M] = cc[i]*gIh * Ih[i] # rate Ih -> Ic
+            rates[6+i*nRpa]  = (1.-hh[i])*gIs * Is[i] # rate Is -> R
+            rates[7+i*nRpa]  = hh[i]*gIs * Is[i] # rate Is -> Ih
+            # rate from Ih
+            rates[8+i*nRpa]  = (1.-cc[i])*gIh * Ih[i] # rate Ih -> R
+            rates[9+i*nRpa]  = cc[i]*gIh * Ih[i] # rate Ih -> Ic
             # rates from Ic
-            RM[i+8*M, i+6*M] = (1.-mm[i])*gIc * Ic[i] # rate Ic -> R
-            RM[i+7*M, i+6*M] = mm[i]*gIc * Ic[i] # rate Ic -> Im
+            rates[10+i*nRpa]  = (1.-mm[i])*gIc * Ic[i] # rate Ic -> R
+            rates[11+i*nRpa]  = mm[i]*gIc * Ic[i] # rate Ic -> Im
             #
         return
 
@@ -2620,7 +2813,6 @@ cdef class SEAI5R(stochastic_integration):
 
 
 
-
 cdef class SEAIRQ(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
@@ -2675,7 +2867,9 @@ cdef class SEAIRQ(stochastic_integration):
         readonly np.ndarray xt0, Ni, dxtdt, CC, alpha
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 6
+        cdef:
+            int nRpa # short for number of reactions per age group
+
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate from E
@@ -2695,8 +2889,8 @@ cdef class SEAIRQ(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
-        self.k_tot = 6 # total number of explicit states per age group
-        # here:
+        self.nClass = 6
+        # explicit states per age group:
         # 1. S    Susceptible
         # 2. E    Exposed
         # 3. A    Asymptomatic and infective
@@ -2704,11 +2898,15 @@ cdef class SEAIRQ(stochastic_integration):
         # 5. Is   Infective, symptomatic
         # 6. Q    Quarantined
 
+        self.nReactions_per_agegroup = 10
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2725,7 +2923,53 @@ cdef class SEAIRQ(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
-    cdef rate_matrix(self, xt, tt):
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            #
+            # reaction S -> E at age group i:
+            # population of S decreases by 1, population of E increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = -1
+            self.vectors_of_change[  i*nRpa,i+  M] = +1
+            #
+            # reaction E -> A at age group i:
+            self.vectors_of_change[1+i*nRpa,i+  M] = -1
+            self.vectors_of_change[1+i*nRpa,i+2*M] = +1
+            #
+            # reaction E -> Q at age group i:
+            self.vectors_of_change[2+i*nRpa,i+  M] = -1
+            self.vectors_of_change[2+i*nRpa,i+5*M] = +1
+            #
+            # reaction A -> Ia at age group i:
+            self.vectors_of_change[3+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[3+i*nRpa,i+3*M] = +1
+            #
+            # reaction A -> Is at age group i:
+            self.vectors_of_change[4+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[4+i*nRpa,i+4*M] = +1
+            #
+            # reaction A -> Q at age group i:
+            self.vectors_of_change[5+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[5+i*nRpa,i+5*M] = +1
+            #
+            # reaction Ia -> R at age group i:
+            self.vectors_of_change[6+i*nRpa,i+3*M] = -1
+            #
+            # reaction Ia -> Q at age group i:
+            self.vectors_of_change[7+i*nRpa,i+3*M] = -1
+            self.vectors_of_change[7+i*nRpa,i+5*M] = +1
+            #
+            # reaction Is -> R at age group i:
+            self.vectors_of_change[8+i*nRpa,i+4*M] = -1
+            #
+            # reaction Is -> Q at age group i:
+            self.vectors_of_change[9+i*nRpa,i+4*M] = -1
+            self.vectors_of_change[9+i*nRpa,i+5*M] = +1
+
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -2745,8 +2989,9 @@ cdef class SEAIRQ(stochastic_integration):
             double [:] Ni   = self.Ni
             #
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
+            double [:] rates = self.rates
             double [:] alpha= self.alpha
+            int nRpa = self.nReactions_per_agegroup
 
         for i in range(M):
             lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
@@ -2754,21 +2999,20 @@ cdef class SEAIRQ(stochastic_integration):
                 lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             # rates away from S
-            RM[i+M  , i]     = rateS  # rate S -> E
-            #RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
+            rates[  i*nRpa]  = rateS  # rate S -> E
             # rates away from E
-            RM[i+2*M, i+M]   = gE  * E[i] # rate E -> A
-            RM[i+5*M, i+M]   = tE  * E[i] # rate E -> Q
+            rates[1+i*nRpa]  = gE  * E[i] # rate E -> A
+            rates[2+i*nRpa]  = tE  * E[i] # rate E -> Q
             # rates away from A
-            RM[i+3*M, i+2*M] = gAA * A[i] # rate A -> Ia
-            RM[i+4*M, i+2*M] = gAS * A[i] # rate A -> Is
-            RM[i+5*M, i+2*M] = tA  * A[i] # rate A -> Q
+            rates[3+i*nRpa]  = gAA * A[i] # rate A -> Ia
+            rates[4+i*nRpa]  = gAS * A[i] # rate A -> Is
+            rates[5+i*nRpa]  = tA  * A[i] # rate A -> Q
             # rates away from Ia
-            RM[i+3*M, i+3*M] = gIa * Ia[i] # rate Ia -> R
-            RM[i+5*M, i+3*M] = tIa * Ia[i] # rate Ia -> Q
+            rates[6+i*nRpa]  = gIa * Ia[i] # rate Ia -> R
+            rates[7+i*nRpa]  = tIa * Ia[i] # rate Ia -> Q
             # rates away from Is
-            RM[i+4*M, i+4*M] = gIs * Is[i] # rate Is -> R
-            RM[i+5*M, i+4*M] = tIs * Is[i] # rate Is -> Q
+            rates[8+i*nRpa]  = gIs * Is[i] # rate Is -> R
+            rates[9+i*nRpa]  = tIs * Is[i] # rate Is -> Q
             #
         return
 
@@ -2961,7 +3205,6 @@ cdef class SEAIRQ(stochastic_integration):
         return Is
 
 
-
 cdef class SEAIRQ_testing(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
@@ -3018,7 +3261,9 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 
     def __init__(self, parameters, M, Ni):
-        self.nClass = 6
+        cdef:
+            int nRpa # short for number of reactions per age group
+
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gE    = parameters['gE']                       # progression rate from E
@@ -3038,8 +3283,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
         self.testRate=None
 
-        self.k_tot = 6 # total number of explicit states per age group
-        # here:
+        self.nClass = 6
+        # explicit states per age group:
         # 1. S    Susceptible
         # 2. E    Exposed
         # 3. A    Asymptomatic and infective
@@ -3047,11 +3292,15 @@ cdef class SEAIRQ_testing(stochastic_integration):
         # 5. Is   Infective, symptomatic
         # 6. Q    Quarantined
 
+        self.nReactions_per_agegroup = 10
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.RM = np.zeros( [self.k_tot*self.M,self.k_tot*self.M] , dtype=DTYPE)  # rate matrix
-        self.xt = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.xtminus1 = np.zeros([self.k_tot*self.M],dtype=long) # state
-        self.weights = np.zeros(self.k_tot*self.k_tot*self.M,dtype=DTYPE)
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -3068,7 +3317,53 @@ cdef class SEAIRQ_testing(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
-    cdef rate_matrix(self, xt, tt):
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        for i in range(M):
+            #
+            # reaction S -> E at age group i:
+            # population of S decreases by 1, population of E increases by 1
+            self.vectors_of_change[  i*nRpa,i    ] = -1
+            self.vectors_of_change[  i*nRpa,i+  M] = +1
+            #
+            # reaction E -> A at age group i:
+            self.vectors_of_change[1+i*nRpa,i+  M] = -1
+            self.vectors_of_change[1+i*nRpa,i+2*M] = +1
+            #
+            # reaction E -> Q at age group i:
+            self.vectors_of_change[2+i*nRpa,i+  M] = -1
+            self.vectors_of_change[2+i*nRpa,i+5*M] = +1
+            #
+            # reaction A -> Ia at age group i:
+            self.vectors_of_change[3+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[3+i*nRpa,i+3*M] = +1
+            #
+            # reaction A -> Is at age group i:
+            self.vectors_of_change[4+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[4+i*nRpa,i+4*M] = +1
+            #
+            # reaction A -> Q at age group i:
+            self.vectors_of_change[5+i*nRpa,i+2*M] = -1
+            self.vectors_of_change[5+i*nRpa,i+5*M] = +1
+            #
+            # reaction Ia -> R at age group i:
+            self.vectors_of_change[6+i*nRpa,i+3*M] = -1
+            #
+            # reaction Ia -> Q at age group i:
+            self.vectors_of_change[7+i*nRpa,i+3*M] = -1
+            self.vectors_of_change[7+i*nRpa,i+5*M] = +1
+            #
+            # reaction Is -> R at age group i:
+            self.vectors_of_change[8+i*nRpa,i+4*M] = -1
+            #
+            # reaction Is -> Q at age group i:
+            self.vectors_of_change[9+i*nRpa,i+4*M] = -1
+            self.vectors_of_change[9+i*nRpa,i+5*M] = +1
+
+    cdef rate_vector(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
@@ -3078,7 +3373,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
             double ars=self.ars, kapE=self.kapE
             double gA=self.gA
             double gAA, gAS
-
 
             long [:] S    = xt[0*M:M]
             long [:] E    = xt[1*M:2*M]
@@ -3090,8 +3384,9 @@ cdef class SEAIRQ_testing(stochastic_integration):
             double [:] Ni   = self.Ni
             #
             double [:,:] CM = self.CM
-            double [:,:] RM = self.RM
+            double [:,:] rates = self.rates
             double [:] alpha= self.alpha
+            int nRpa = self.nReactions_per_agegroup
 
             double [:] TR
 
@@ -3113,21 +3408,20 @@ cdef class SEAIRQ_testing(stochastic_integration):
                 lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             # rates away from S
-            RM[i+M  , i]     = rateS  # rate S -> E
-            #RM[i+5*M, i]     = tS  * S[i] # rate S -> Q
+            rates[  i*nRpa]  = rateS  # rate S -> E
             # rates away from E
-            RM[i+2*M, i+M]   = gE  * E[i] # rate E -> A
-            RM[i+5*M, i+M]   = tE  * E[i] # rate E -> Q
+            rates[1+i*nRpa]  = gE  * E[i] # rate E -> A
+            rates[2+i*nRpa]  = tE  * E[i] # rate E -> Q
             # rates away from A
-            RM[i+3*M, i+2*M] = gAA * A[i] # rate A -> Ia
-            RM[i+4*M, i+2*M] = gAS * A[i] # rate A -> Is
-            RM[i+5*M, i+2*M] = tA  * A[i] # rate A -> Q
+            rates[3+i*nRpa]  = gAA * A[i] # rate A -> Ia
+            rates[4+i*nRpa]  = gAS * A[i] # rate A -> Is
+            rates[5+i*nRpa]  = tA  * A[i] # rate A -> Q
             # rates away from Ia
-            RM[i+3*M, i+3*M] = gIa * Ia[i] # rate Ia -> R
-            RM[i+5*M, i+3*M] = tIa * Ia[i] # rate Ia -> Q
+            rates[6+i*nRpa]  = gIa * Ia[i] # rate Ia -> R
+            rates[7+i*nRpa]  = tIa * Ia[i] # rate Ia -> Q
             # rates away from Is
-            RM[i+4*M, i+4*M] = gIs * Is[i] # rate Is -> R
-            RM[i+5*M, i+4*M] = tIs * Is[i] # rate Is -> Q
+            rates[8+i*nRpa]  = gIs * Is[i] # rate Is -> R
+            rates[9+i*nRpa]  = tIs * Is[i] # rate Is -> Q
             #
         return
 
