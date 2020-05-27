@@ -4,7 +4,7 @@ import scipy.linalg as spl
 cimport cython
 import warnings
 from types import ModuleType
-import os 
+import os
 
 
 
@@ -16,9 +16,9 @@ ctypedef np.float_t DTYPE_t
 @cython.nonecheck(False)
 cdef class ContactMatrixFunction:
     """
-    Computed a time dependent function of the contact matrix 
+    Computed a time dependent function of the contact matrix
 
-    Takes as input 
+    Takes as input
     CH:  constant matrix at home
     CW:  constant matrix at work
     CS:  constant matrix at school
@@ -27,92 +27,183 @@ cdef class ContactMatrixFunction:
 
     Methods
     -------
-    constant_CM : returns, CH, CW, CS, CO 
+    constant_CM : returns, CH, CW, CS, CO
 
 
-    interventions_temporal: returns the sum of CH, CW, CS, CO 
+    interventions_temporal: returns the sum of CH, CW, CS, CO
                             given times and interventions_temporal
     """
     cdef:
         np.ndarray CH, CW, CS, CO
+        double aW, aS, aO
+        Protocol protocol
 
     def __init__(self, CH, CW, CS, CO):
         self.CH, self.CW, self.CS, self.CO = CH, CW, CS, CO
 
+    def contactMatrix(self, t, **kwargs):
+        cdef np.ndarray[DTYPE_t, ndim=2] C
+        aW, aS, aO = self.protocol(t, **kwargs)
+        C = self.CH + aW*self.CW + aS*self.CS + aO*self.CO
+        return C
+
     cpdef get_individual_contactMatrices(self):
         return self.CH, self.CW, self.CS, self.CO
 
-    def constant_contactMatrix(self):
-        cdef:
-            np.ndarray C
-        C = self.CH + self.CW + self.CS + self.CO
-        def C_func(t):
-            return C
-        return C_func
+    def constant_contactMatrix(self, aW=1, aS=1, aO=1):
+        '''Constant contact matrix
+        Parameters
+        ----------
+        aW: float, optional
+            Scale factor for work contacts.
+        aS: float, optional
+            Scale factor for school contacts.
+        aO: float, optional
+            Scale factor for other contacts.
 
-    def constant_CM(self, t):
-        return self.CH + self.CW + self.CS + self.CO
+        Returns
+        -------
+        contactMatrix: callable
+            A function that takes t as an argument and outputs the contact matrix
+        '''
+
+        self.protocol=ConstantProtocol(aW, aS, aO)
+        return self.contactMatrix
 
     def interventions_temporal(self,times,interventions):
-        cdef:
-            np.ndarray t_arr = np.array(times)
-            np.ndarray prefac_arr = np.array(interventions)
-            int index
-            np.ndarray C
-            np.ndarray CH = self.CH, CW = self.CW
-            np.ndarray CS = self.CS, CO = self.CO
-        # times: ordered array with temporal boundaries between the
-        #        different interventions
-        # interventions: ordered matrix with prefactors of CW, CS, CO matrices
-        #                during the different time intervals
-        # note that len(interventions) = len(times) + 1
-        def C_func(t):
-            index = np.argmin( t_arr < t)
-            if index == 0:
-                if t >= t_arr[len(t_arr)-1]:
-                    index = -1
-            #print("t = {0},\tprefac_arr = {1}".format(t,prefac_arr[index]))
-            return CH + prefac_arr[index,0]*CW \
-                      + prefac_arr[index,1]*CS \
-                      + prefac_arr[index,2]*CO
-        return C_func
+        '''Temporal interventions
+        Parameters
+        ----------
+        time: np.array
+            Ordered array with temporal boundaries between the different interventions.
+        interventions: np.array
+            Ordered matrix with prefactors of CW, CS, CO matrices during the different time intervals.
+            Note that len(interventions) = len(times) + 1
 
+        Returns
+        -------
+        contactMatrix: callable
+            A function that takes t as an argument and outputs the contact matrix
+        '''
+        self.protocol = TemporalProtocol(np.array(times), np.array(interventions))
+        return self.contactMatrix
 
     def interventions_threshold(self,thresholds,interventions):
+        '''Temporal interventions
+
+        Parameters
+        ----------
+        threshold: np.array
+            Ordered array with temporal boundaries between the different interventions.
+        interventions: np.array
+            Array of shape [K+1,3] with prefactors during different phases of intervention
+            The current state of the intervention is defined by the largest integer "index" such that state[j] >= thresholds[index,j] for all j.
+
+        Returns
+        -------
+        contactMatrix: callable
+            A function that takes t as an argument and outputs the contact matrix
+        '''
+        self.protocol = ThresholdProtocol(np.array(thresholds), np.array(interventions))
+        return self.contactMatrix
+
+    def intervention_custom_temporal(self, intervention_func, **kwargs):
+        '''Custom temporal interventions
+
+        Parameters
+        ----------
+        intervention_func: callable
+            The calling signature is intervention_func(t, **kwargs), where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO).
+        kwargs: dict
+            Keyword arguments for the function.
+
+        Returns
+        -------
+        contactMatrix: callable
+            A function that takes t as an argument and outputs the contact matrix
+        '''
+        self.protocol = CustomTemporalProtocol(intervention_func, **kwargs)
+        return self.contactMatrix
+
+
+cdef class Protocol:
+    def __init__(self):
+        pass
+
+    def __call__(self, t):
+        pass
+
+cdef class ConstantProtocol(Protocol):
+    cdef:
+        double aW, aS, aO
+
+    def __init__(self, double aW=1, double aS=1, double aO=1):
+        self.aW = aW
+        self.aS = aS
+        self.aO = aO
+
+    def __call__(self, double t):
+        return self.aW, self.aS, self.aO
+
+cdef class TemporalProtocol(Protocol):
+    cdef:
+        np.ndarray times, interventions
+
+    def __init__(self, np.ndarray times, np.ndarray interventions):
+        self.times = times
+        self.interventions = interventions
+
+    def __call__(self, double t):
         cdef:
-            np.ndarray thresholds_ = np.array(thresholds)
-            np.ndarray prefac_arr = np.array(interventions)
-            int index
-            np.ndarray C
-            np.ndarray CH = self.CH, CW = self.CW
-            np.ndarray CS = self.CS, CO = self.CO
-        # thresholds: array of shape [K*M,3] with K*M population numbers (S,Ia,Is)
-        # interventions: array of shape [K+1,3] with prefactors during different
-        #                phases of intervention
-        # The current state of the intervention is defined by the
-        # largest integer "index" such that state[j] >= thresholds[index,j] for all j.
-        #
-        def C_func(t,S,Ia,Is):
-            state = np.concatenate((S, Ia, Is))
-            index = np.argmin((thresholds_ <= state ).all(axis=1))
-            if index == 0:
-                N = len(thresholds_)
-                if (thresholds_[N-1] <= state ).all():
-                    index = N
-            return CH + prefac_arr[index,0]*CW \
-                      + prefac_arr[index,1]*CS \
-                      + prefac_arr[index,2]*CO
-        return C_func
-    
+            Py_ssize_t index
+            np.ndarray t_arr=self.times, prefac_arr=self.interventions
+        index = np.argmin( t_arr < t)
+        if index == 0:
+            if t >= t_arr[len(t_arr)-1]:
+                index = -1
+        return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
+
+cdef class ThresholdProtocol(Protocol):
+    cdef:
+        np.ndarray thresholds, interventions
+
+    def __init__(self, np.ndarray thresholds, np.ndarray interventions):
+        self.thresholds = thresholds
+        self.interventions = interventions
+
+    def __call__(self, double t, S=None, Ia=None, Is=None):
+        cdef:
+            np.ndarray[DTYPE_t, ndim=1] state
+            np.ndarray thresholds=self.thresholds, prefac_arr=self.interventions
+            Py_ssize_t index
+        state = np.concatenate((S, Ia, Is))
+        index = np.argmin((thresholds <= state ).all(axis=1))
+        if index == 0:
+            N = len(thresholds)
+            if (thresholds[N-1] <= state ).all():
+                index = N
+        return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
 
 
+cdef class CustomTemporalProtocol(Protocol):
+    cdef:
+        object intervention_func
+        dict kwargs
+
+    def __init__(self, intervention_func, **kwargs):
+        self.intervention_func = intervention_func
+        self.kwargs = kwargs
+
+    def __call__(self, double t):
+        return self.intervention_func(t, **self.kwargs)
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR(ContactMatrixFunction):
-    
+
 
     def basicReproductiveRatio(self, data, state='constant'):
         C = self.CH + self.CW + self.CS + self.CO
@@ -127,8 +218,8 @@ cdef class SIR(ContactMatrixFunction):
 
         L0 = np.zeros((M, M))
         L  = np.zeros((2*M, 2*M))
-        
-        if state=='constant': 
+
+        if state=='constant':
             for i in range(M):
                 for j in range(M):
                     L0[i,j]=C[i,j]*Ni[i]/Ni[j]
@@ -138,18 +229,18 @@ cdef class SIR(ContactMatrixFunction):
             L[M:2*M, 0:M]   = ((1-alpha)*beta/gIa)*L0
             L[M:2*M, M:2*M] = fsa*((1-alpha)*beta/gIs)*L0
             r0 = np.max(np.linalg.eigvals(L))
-        
-        else: 
+
+        else:
             t = data.get('t');
             Nt = t.size
             r0 = np.zeros((Nt))
 
-            for tt in range(Nt): 
+            for tt in range(Nt):
                 S = np.array((data['X'][tt,0:M]))
                 for i in range(M):
                     for j in range(M):
                         L0[i,j]=C[i,j]*S[i]/Ni[j]
-                
+
                 L[0:M, 0:M]     = alpha*beta/gIa*L0
                 L[0:M, M:2*M]   = fsa*alpha*beta/gIs*L0
                 L[M:2*M, 0:M]   = ((1-alpha)*beta/gIa)*L0
@@ -169,23 +260,23 @@ cdef class SIR(ContactMatrixFunction):
 ---
 KreissPy
 https://gitlab.com/AustenBolitho/kreisspy
-sublibrary dedicated to calculating the transient effects of non-normal 
+sublibrary dedicated to calculating the transient effects of non-normal
 contact matricies
 ---
-"""  
+"""
 def _epsilon_eval(z, A, ord=2):
     """
     Finds the value of \epsilon for a given complex number and matrix.
     Uses the first definition of the pseudospectrum in Trfethen & Embree
     ord="svd" uses fourth definition (may be faster)
-    
+
 
     inputs:
     z: length 2 array representing a complex number
     A: an MxM matrix
     order: order of the matrix norm given from associated vector norm
     default is regular L2 norm -> returns maximum singular value.
-    accepted inputs are any in spl.norm or "svd"  
+    accepted inputs are any in spl.norm or "svd"
     """
     z=np.array(z)
     A=np.array(A)
@@ -205,14 +296,14 @@ def _inv_epsilon_eval(z, A, ord=2):
     Finds the value of 1/\epsilon for a given complex number and matrix.
     Uses the first definition of the pseudospectrum in Trfethen & Embree
     ord="svd" uses fourth definition (may be faster)
-    
+
 
     inputs:
     z: length 2 array representing a complex number
     A: an MxM matrix
     order: order of the matrix norm given from associated vector norm
     default is regular L2 norm -> returns maximum singular value.
-    accepted inputs are any in spl.norm or "svd"  
+    accepted inputs are any in spl.norm or "svd"
     """
     z=np.array(z)
     A=np.array(A)
@@ -258,7 +349,7 @@ def _inv_kreiss_eval(z, A, theta=0, ord=2):
     ikg = _epsilon_eval(z, A, ord=ord)/np.real(z[0]-theta) if z[0]-theta > 0 else np.inf
     # print(z[0]-theta)
     return ikg
-    
+
 
 def _transient_properties(guess, A, theta=0, ord=2):
     """
@@ -299,7 +390,7 @@ def _transient_properties(guess, A, theta=0, ord=2):
 def _first_estimate( A, tol=0.001):
     """
     Takes the eigenvalue with the largest real part
-    
+
     returns a first guess of the
     maximal pseudoeigenvalue in the complex plane
     """
@@ -334,7 +425,7 @@ def characterise_transient(A, tol=0.001, theta=0, ord=2):
 
     returns: [spectral abcissa, numerical abcissa, Kreiss constant ,
               duration of transient, henrici's departure from normalcy']
-    
+
     """
     guesses = _first_estimate(A, tol)
     transient_properties = [1, 0, 0]
@@ -356,12 +447,12 @@ def characterise_transient(A, tol=0.001, theta=0, ord=2):
 
 '''
 ---
-Contact structure: Projecting social contact matrices in 152 countries using 
-contact surveys and demographic data, 
+Contact structure: Projecting social contact matrices in 152 countries using
+contact surveys and demographic data,
 Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017)
 
 ---
-Below we provide the contact matrix for some of the countries using 
+Below we provide the contact matrix for some of the countries using
 data from above
 '''
 
@@ -431,7 +522,7 @@ def China():
         0.10655955, 0.12608649, 0.2690276 , 0.30844247, 0.30876886,
         0.31492335, 0.14027073, 0.05369849, 0.09421629, 0.06909398,
         0.17735295]])
-    
+
     CW=np.array([[0.00000000e+000, 0.00000000e+000, 0.00000000e+000,
         0.00000000e+000, 0.00000000e+000, 0.00000000e+000,
         0.00000000e+000, 0.00000000e+000, 0.00000000e+000,
@@ -625,7 +716,7 @@ def China():
         8.56906259e-060, 4.69700127e-042, 1.59939884e-046,
         2.21076487e-083, 8.85961526e-107, 1.02042962e-080,
         6.61414633e-113]])
-    
+
     CO=np.array([[0.58532239, 0.25010009, 0.12864745, 0.11996247, 0.26376152,
         0.33189934, 0.37388734, 0.38380709, 0.29222448, 0.19850351,
         0.16119892, 0.18468299, 0.10981365, 0.08488349, 0.05152729,
@@ -761,8 +852,8 @@ def Denmark():
        [1.62028482e-01, 2.08477596e-01, 3.19002969e-01, 2.54787827e-01,
         6.10183705e-02, 6.30528510e-02, 7.70854142e-02, 1.61189359e-01,
         2.18260476e-01, 1.68968387e-01, 2.89429691e-01, 1.27433303e-01,
-        4.53693140e-02, 9.00501873e-02, 9.49768097e-02, 3.81399543e-01]])           
-                                                   
+        4.53693140e-02, 9.00501873e-02, 9.49768097e-02, 3.81399543e-01]])
+
     CW = np.array([[0.00000000e+000, 0.00000000e+000, 0.00000000e+000,
         0.00000000e+000, 0.00000000e+000, 0.00000000e+000,
         0.00000000e+000, 0.00000000e+000, 0.00000000e+000,
@@ -858,8 +949,8 @@ def Denmark():
         4.69316082e-005, 8.42184044e-005, 2.77788168e-005,
         1.03294378e-005, 1.06803618e-005, 7.26341826e-075,
         1.10073971e-065, 1.02831671e-005, 5.16902994e-049,
-        8.28040509e-043]])                         
-                                                   
+        8.28040509e-043]])
+
     CS = np.array([[2.06141581e+000, 2.90316108e-001, 5.42489211e-002,
         6.84260312e-002, 1.61192955e-002, 6.73889239e-002,
         1.35421936e-001, 1.11604162e-001, 5.43498964e-002,
@@ -956,7 +1047,7 @@ def Denmark():
         8.57011074e-060, 4.69957119e-042, 1.59988088e-046,
         2.21103428e-083, 8.85901381e-107, 1.02043012e-080,
         6.61414849e-113]])
-                                                   
+
     CO = np.array([[0.5862964 , 0.27482419, 0.14202343, 0.10966706, 0.17463361,
         0.24291186, 0.30887191, 0.30576237, 0.21792972, 0.17194928,
         0.19781965, 0.18652441, 0.14721075, 0.16829656, 0.08647878,
@@ -1421,7 +1512,7 @@ def India():
         0.12615806, 0.17539846, 0.3821743 , 0.34732236, 0.26841461,
         0.24477724, 0.10866985, 0.03683059, 0.08899639, 0.06074283,
         0.01474225]])
-                                    
+
     CW = np.array([[1.95422817e-055, 7.41487361e-080, 3.51348387e-058,
         2.07681587e-106, 1.91129849e-059, 4.90845732e-003,
         1.81194115e-007, 5.55435897e-003, 5.24421256e-003,
@@ -1517,8 +1608,8 @@ def India():
         4.69316082e-005, 8.42184044e-005, 2.77788168e-005,
         1.03294378e-005, 1.06803618e-005, 7.26341826e-075,
         1.10073971e-065, 1.02831671e-005, 5.16902994e-049,
-        8.28040509e-043]])                        
-                                    
+        8.28040509e-043]])
+
     CS = np.array([[3.21888548e-001, 4.34609554e-002, 7.89876562e-003,
         8.11032636e-003, 5.35680688e-003, 2.18490676e-002,
         4.02081492e-002, 2.99769390e-002, 1.40860630e-002,
@@ -1614,8 +1705,8 @@ def India():
         9.77036844e-069, 2.23073834e-060, 1.43696784e-048,
         8.55924513e-060, 4.69429331e-042, 1.59814657e-046,
         2.20973349e-083, 8.85874749e-107, 1.02042792e-080,
-        6.61413811e-113]])                        
-                                    
+        6.61413811e-113]])
+
     CO = np.array([[1.69499683, 0.75693289, 0.3989942 , 0.29686159, 0.46864971,
         0.6195553 , 0.66127614, 0.52277579, 0.32669025, 0.2097554 ,
         0.22951757, 0.18040128, 0.11033282, 0.09386833, 0.05533687,
@@ -2272,7 +2363,7 @@ def UK():
         1.70979948e-133, 2.32792123e-102, 7.42127342e-124,
         4.68662514e-136, 1.26541787e-131, 1.97909543e-091,
         1.02301794e-133, 8.92335236e-124, 6.57361457e-126,
-        9.04895761e-118]])    
+        9.04895761e-118]])
     CO=np.array([[2.57847576e-01, 1.00135168e-01, 4.58036774e-02, 1.27084549e-01,
         1.87303683e-01, 2.57979215e-01, 1.93228849e-01, 3.36594917e-01,
         3.09223290e-01, 7.05385230e-02, 1.52218422e-01, 1.13554852e-01,
