@@ -162,37 +162,34 @@
 <dl class="class">
 <dt id="pyross.contactMatrix.ContactMatrixFunction">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.contactMatrix.</code><code class="sig-name descname">ContactMatrixFunction</code><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computed a time dependent function of the contact matrix</p>
-<p>Takes as input
-CH:  constant matrix at home
-CW:  constant matrix at work
-CS:  constant matrix at school
-CO:  constant matrix at other locations</p>
-<dl class="method">
-<dt>
-<code class="sig-name descname">constant_CM : returns, CH, CW, CS, CO</code></dt>
-<dd></dd></dl>
-
-<dl class="simple">
-<dt>interventions_temporal: returns the sum of CH, CW, CS, CO</dt><dd><p>given times and interventions_temporal</p>
+<dd><p>Generates a time dependent contact matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>CH</strong> (<em>2d np.array</em>) – Contact matrix at home</p></li>
+<li><p><strong>CW</strong> (<em>2d np.array</em>) – Contact matrix at work</p></li>
+<li><p><strong>CS</strong> (<em>2d np.array</em>) – Contact matrix at school</p></li>
+<li><p><strong>CO</strong> (<em>2d np.array</em>) – Contact matrix at other locations</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="method">
 <dt id="pyross.contactMatrix.ContactMatrixFunction.constant_contactMatrix">
 <code class="sig-name descname">constant_contactMatrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.constant_contactMatrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constant contact matrix
-:param aW: Scale factor for work contacts.
-:type aW: float, optional
-:param aS: Scale factor for school contacts.
-:type aS: float, optional
-:param aO: Scale factor for other contacts.
-:type aO: float, optional</p>
+<dd><p>Constant contact matrix</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aW</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale factor for work contacts.</p></li>
+<li><p><strong>aS</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale factor for school contacts.</p></li>
+<li><p><strong>aO</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale factor for other contacts.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>callable</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>callable</p>
 </dd>
 </dl>
 </dd></dl>
@@ -204,7 +201,7 @@ CO:  constant matrix at other locations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>intervention_func</strong> (<em>callable</em>) – The calling signature is intervention_func(t, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs), where t is time and kwargs are other keyword arguments for the function.
+<li><p><strong>intervention_func</strong> (<em>callable</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>, where t is time and kwargs are other keyword arguments for the function.
 The function must return (aW, aS, aO).</p></li>
 <li><p><strong>kwargs</strong> (<em>dict</em>) – Keyword arguments for the function.</p></li>
 </ul>
@@ -218,11 +215,10 @@ The function must return (aW, aS, aO).</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>An example for an custom temporal intervetion that allows for some anticipation and reaction time</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">intervention_func</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># using keyword arguments for parameters of the intervention</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># using keyword arguments for parameters of the intervention</span>
 <span class="go">        a = (1-np.tanh((t-loc)/width))/2</span>
 <span class="go">        return a, a, a</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">width</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">loc</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># setting the keyword arguments</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">contactMatrix</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">intervention_custom_temporal</span><span class="p">(</span><span class="n">intervention_func</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contactMatrix</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">intervention_custom_temporal</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -230,19 +226,20 @@ The function must return (aW, aS, aO).</p></li>
 <dl class="method">
 <dt id="pyross.contactMatrix.ContactMatrixFunction.interventions_temporal">
 <code class="sig-name descname">interventions_temporal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.interventions_temporal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Temporal interventions
-:param time: Ordered array with temporal boundaries between the different interventions.
-:type time: np.array
-:param interventions: Ordered matrix with prefactors of CW, CS, CO matrices during the different time intervals.</p>
-<blockquote>
-<div><p>Note that len(interventions) = len(times) + 1</p>
-</div></blockquote>
+<dd><p>Temporal interventions</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>np.array</em>) – Ordered array with temporal boundaries between the different interventions.</p></li>
+<li><p><strong>interventions</strong> (<em>np.array</em>) – Ordered matrix with prefactors of CW, CS, CO matrices during the different time intervals.
+Note that len(interventions) = len(times) + 1</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>callable</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>contactMatrix</strong> – A function that takes t as an argument and outputs the contact matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>callable</p>
 </dd>
 </dl>
 </dd></dl>

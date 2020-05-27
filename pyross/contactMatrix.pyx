@@ -15,24 +15,20 @@ ctypedef np.float_t DTYPE_t
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class ContactMatrixFunction:
+    """Generates a time dependent contact matrix
+
+    Parameters
+    ----------
+    CH: 2d np.array
+        Contact matrix at home
+    CW: 2d np.array
+        Contact matrix at work
+    CS: 2d np.array
+        Contact matrix at school
+    CO: 2d np.array
+        Contact matrix at other locations
     """
-    Computed a time dependent function of the contact matrix
 
-    Takes as input
-    CH:  constant matrix at home
-    CW:  constant matrix at work
-    CS:  constant matrix at school
-    CO:  constant matrix at other locations
-
-
-    Methods
-    -------
-    constant_CM : returns, CH, CW, CS, CO
-
-
-    interventions_temporal: returns the sum of CH, CW, CS, CO
-                            given times and interventions_temporal
-    """
     cdef:
         np.ndarray CH, CW, CS, CO
         double aW, aS, aO
@@ -52,6 +48,7 @@ cdef class ContactMatrixFunction:
 
     def constant_contactMatrix(self, aW=1, aS=1, aO=1):
         '''Constant contact matrix
+
         Parameters
         ----------
         aW: float, optional
@@ -72,6 +69,7 @@ cdef class ContactMatrixFunction:
 
     def interventions_temporal(self,times,interventions):
         '''Temporal interventions
+
         Parameters
         ----------
         time: np.array
@@ -115,7 +113,7 @@ cdef class ContactMatrixFunction:
         Parameters
         ----------
         intervention_func: callable
-            The calling signature is intervention_func(t, **kwargs), where t is time and kwargs are other keyword arguments for the function.
+            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
             The function must return (aW, aS, aO).
         kwargs: dict
             Keyword arguments for the function.
