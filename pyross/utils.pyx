@@ -203,6 +203,7 @@ def make_log_norm_dist(means, stds):
 
 
 DTYPE = np.float
+ctypedef np.float_t DTYPE_t
 
 cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
     cdef:
@@ -240,6 +241,46 @@ cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
         for j in range(size):
             sol[i, j] = sol[i-1, j] + 0.5*(k1[j] + dt*fx[j])
     return sol
+
+cpdef nearest_positive_definite(double [:, :] B):
+    """Find the nearest positive-definite matrix to input
+
+    [1] https://gist.github.com/fasiha/fdb5cec2054e6f1c6ae35476045a0bbd
+
+    [2] https://www.mathworks.com/matlabcentral/fileexchange/42885-nearestspd
+
+    [3] N.J. Higham, "Computing a nearest symmetric positive semidefinite
+    matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
+    """
+    cdef:
+        np.ndarray[DTYPE_t, ndim=2] V, s, H, A2, A3, I
+        double spacing, mineig
+        int k
+
+    _, s, V = np.linalg.svd(B)
+    H = np.dot(V.T, np.dot(np.diag(s), V))
+    A2 = np.add(B, H) / 2
+    A3 = (A2 + A2.T) / 2
+
+    if is_positive_definite(A3):
+        return A3
+    else:
+        spacing = np.spacing(np.linalg.norm(B))
+        I = np.eye(B.shape[0])
+        k = 1
+        while not is_positive_definite(A3):
+            mineig = np.min(np.real(np.linalg.eigvals(A3)))
+            A3 += I * (-mineig * k**2 + spacing)
+            k += 1
+        return A3
+
+cpdef is_positive_definite(double [:, :] B):
+    """Returns true when input is positive-definite, via Cholesky"""
+    try:
+        _ = np.linalg.cholesky(B)
+        return True
+    except np.linalg.LinAlgError:
+        return False
 
 def plotSIR(data, showPlot=True):
     t = data['t']

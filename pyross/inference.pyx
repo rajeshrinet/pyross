@@ -1229,6 +1229,7 @@ cdef class SIR_type:
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
             np.ndarray[BOOL_t, ndim=1, cast=True] full_fltr
+            np.ndarray[DTYPE_t, ndim=2] cov_red, full_cov
 
         xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = np.tile(fltr, (Nf-1))
@@ -1238,9 +1239,7 @@ cdef class SIR_type:
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv=np.linalg.inv(cov_red)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
-        sign,ldet=np.linalg.slogdet(cov_red)
-        if sign < 0:
-            raise ValueError('Cov has negative determinant')
+        _,ldet=np.linalg.slogdet(cov_red)
         log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
@@ -1250,6 +1249,7 @@ cdef class SIR_type:
             Py_ssize_t reduced_dim=(Nf-1)*fltr.shape[0]
             double [:, :] xm
             double [:] xm_red, dev, obs_flattened
+            np.ndarray[DTYPE_t, ndim=2] cov_red, full_cov
         if tangent:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, model, contactMatrix)
         else:
@@ -1261,9 +1261,7 @@ cdef class SIR_type:
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv=np.linalg.inv(cov_red)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
-        sign,ldet=np.linalg.slogdet(cov_red)
-        if sign <0:
-            raise ValueError('Cov has negative determinant')
+        _, ldet=np.linalg.slogdet(cov_red)
         log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
@@ -1291,9 +1289,7 @@ cdef class SIR_type:
             double log_cond_p
             double det
         invcov = np.linalg.inv(cov)
-        sign, ldet = np.linalg.slogdet(cov)
-        if sign < 0:
-            raise ValueError('Cov has negative determinant')
+        _, ldet = np.linalg.slogdet(cov)
         log_cond_p = - np.dot(x, np.dot(invcov, x))*(self.N/2) - (self.dim/2)*log(2*PI)
         log_cond_p -= (ldet - self.dim*log(self.N))/2
         return log_cond_p
@@ -1302,7 +1298,7 @@ cdef class SIR_type:
         cdef:
             double [:, :] cov_array
             double [:] cov
-            double [:, :] x
+            double [:, :] x, cov_mat
             np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
             Py_ssize_t steps = self.steps
             double [:] time_points = np.linspace(t1, t2, steps)
@@ -1329,7 +1325,11 @@ cdef class SIR_type:
             cov = cov_array[steps-1]
         else:
             raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
-        return x[steps-1], self.convert_vec_to_mat(cov)
+
+        cov_mat = self.convert_vec_to_mat(cov)
+        if not pyross.utils.is_positive_definite(cov_mat):
+            cov_mat = pyross.utils.nearest_positive_definite(cov_mat)
+        return x[steps-1], cov_mat
 
     cdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
         cdef:
@@ -1340,6 +1340,8 @@ cdef class SIR_type:
         dx_det = np.multiply(dt/self.N, model.dxdt)
         self.compute_tangent_space_variables(xt, t, contactMatrix)
         cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
+        if not pyross.utils.is_positive_definite(cov):
+            cov = pyross.utils.nearest_positive_definite(cov)
         return dx_det, cov
 
     cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
@@ -1474,7 +1476,7 @@ cdef class SIR_type:
         """
         def rhs0(t, xt):
             model.set_contactMatrix(t, contactMatrix)
-            model.rhs(xt*self.N, t)
+            model.rhs(np.multiply(xt, self.N), t)
             return model.dxdt/self.N
         if self.det_method=='LSODA':
             time_points = np.linspace(t1, t2, steps)
