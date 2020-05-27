@@ -15,7 +15,7 @@ cdef class IntegratorsClass:
     List of all integrator used by various deterministic models listed below.
     """
 
-    def simulateRHS(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
+    def _integrate(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
         """
         Performs numerical integration
 
@@ -134,7 +134,7 @@ cdef class IntegratorsClass:
             self.rhs(xt, t)
             return self.dxdt
 
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data     = {'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M}
         data_out = data.copy()
@@ -261,7 +261,7 @@ cdef class SIR(IntegratorsClass):
             return self.dxdt
 
         x0 = np.concatenate((S0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'fsa':self.fsa, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
@@ -436,7 +436,7 @@ cdef class SIkR(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI }
         return data
@@ -617,7 +617,7 @@ cdef class SEIR(IntegratorsClass):
             return self.dxdt
 
         x0 = np.concatenate((S0, E0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'fsa':self.fsa,
                          'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
@@ -828,7 +828,7 @@ cdef class SEkIkR(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, E0, I0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI, 'kE':self.kE }
         return data
@@ -1061,7 +1061,7 @@ cdef class SEkIkIkR(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, E0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI,
             'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE }
@@ -1380,7 +1380,7 @@ cdef class SEI8R(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                      'fsa':self.fsa, 'fh':self.fh,
@@ -1666,7 +1666,7 @@ cdef class SEAIR(IntegratorsClass):
             self.rhs(xt, t)
             return self.dxdt
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'fsa':self.fsa,
                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
@@ -1986,7 +1986,7 @@ cdef class SEAI8R(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                      'fsa':self.fsa, 'fh':self.fh,
@@ -2309,7 +2309,7 @@ cdef class SEAIRQ(IntegratorsClass):
             return self.dxdt
 
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                      'beta':self.beta,'gIa':self.gIa, 'fsa':self.fsa, 'gIs':self.gIs,
@@ -2594,7 +2594,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
             return self.dxdt
 
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                      'beta':self.beta,'gIa':self.gIa, 'fsa':self.fsa, 'gIs':self.gIs,
@@ -2858,7 +2858,7 @@ cdef class SIRS(IntegratorsClass):
             return self.dxdt
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'fsa':self.fsa, 'ep':self.ep,
@@ -3134,7 +3134,7 @@ cdef class Spp(IntegratorsClass):
             self.rhs(xt, t)
             return self.dxdt
 
-        X, time_points = self.simulateRHS(rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         ## add parameters as a dictionary to this
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M }
@@ -3382,7 +3382,7 @@ cdef class SEI5R(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                      'fsa':self.fsa, 'fh':self.fh,
@@ -3730,7 +3730,7 @@ cdef class SEAI5R(IntegratorsClass):
             return self.dxdt
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self.simulateRHS(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
+        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
 
         data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                      'fsa':self.fsa, 'fh':self.fh,
