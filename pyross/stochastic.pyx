@@ -1780,6 +1780,7 @@ cdef class SEI5R(stochastic_integration):
     cdef:
         readonly double beta, gE, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm, alpha
+        int nClass_
 
     def __init__(self, parameters, M, Ni):
         cdef:
@@ -1806,7 +1807,8 @@ cdef class SEI5R(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = np.array(Ni.copy(),dtype=long)
 
-        self.nClass = 8
+        self.nClass = 7  # number of classes (used in unit tests)
+        self.nClass_ = 8 # number of explicit classes used in this function
         # explicit states per age group:
         # 1. S    susceptibles
         # 2. E    exposed
@@ -1819,7 +1821,7 @@ cdef class SEI5R(stochastic_integration):
 
         self.nReactions_per_agegroup = 11
         self.nReactions = self.M * self.nReactions_per_agegroup
-        self.dim_state_vec = self.nClass * self.M
+        self.dim_state_vec = self.nClass_ * self.M
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
@@ -2313,6 +2315,7 @@ cdef class SEAI5R(stochastic_integration):
     cdef:
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm, alpha
+        int nClass_
 
     def __init__(self, parameters, M, Ni):
         cdef:
@@ -2340,7 +2343,8 @@ cdef class SEAI5R(stochastic_integration):
         #self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = np.array( Ni.copy(), dtype=long)
 
-        self.nClass = 9
+        self.nClass = 8  # number of classes (used in unit tests)
+        self.nClass_ = 9 # number of explicit classes used in this function
         # explicit states per age group:
         # 1. S    susceptibles
         # 2. E    exposed
@@ -2354,7 +2358,7 @@ cdef class SEAI5R(stochastic_integration):
 
         self.nReactions_per_agegroup = 12
         self.nReactions = self.M * self.nReactions_per_agegroup
-        self.dim_state_vec = self.nClass * self.M
+        self.dim_state_vec = self.nClass_ * self.M
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate matrix
@@ -2541,6 +2545,7 @@ cdef class SEAI5R(stochastic_integration):
         cdef:
             int M = self.M, i
             long [:] xt = self.xt
+
         R_0 = self.Ni-(S0+E0+A0+Ia0+Is0+Ih0+Ic0)
         # write initial condition to xt
         for i in range(M):
