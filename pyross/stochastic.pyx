@@ -5,7 +5,7 @@ import numpy as np
 cimport numpy as np
 import os, time
 cimport cpython
-#from cython.parallel import prange
+import pyross.utils
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 from numpy.math cimport INFINITY
@@ -568,7 +568,7 @@ cdef class stochastic_integration:
         Tau leaping algorithm for producing stochastically correct trajectories
         https://doi.org/10.1063/1.2159468
         This method can run much faster than the Gillespie algorithm
-        
+
         1. Rates for each reaction channel r_i calculated from current state.
         2. Timestep \tau chosen such that \Delta r_i < epsilon \Sum r_i
         3. Number of reactions that occur in channel i ~Poisson(r_i \tau)
@@ -3607,3 +3607,334 @@ cdef class SEAIRQ_testing(stochastic_integration):
         X  = data['X']
         Is = X[:, 5*self.M:6*self.M]
         return Is
+
+
+
+
+
+cdef class Spp(stochastic_integration):
+    """
+    Susceptible, Infected, Removed (SIR)
+    Ia: asymptomatic
+    Is: symptomatic
+
+    ...
+
+    Parameters
+    ----------
+    parameters: dict
+        Contains the following keys:
+            alpha: float, np.array (M,)
+                fraction of infected who are asymptomatic.
+            beta: float
+                rate of spread of infection.
+            gIa: float
+                rate of removal from asymptomatic individuals.
+            gIs: float
+                rate of removal from symptomatic individuals.
+            fsa: float
+                fraction by which symptomatic individuals self isolate.
+            seed: long
+                seed for pseudo-random number generator (optional).
+    M: int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(3*M, )
+        Initial number in each compartment and class
+
+    Methods
+    -------
+    rate_vector:
+        Calculates the rate constant for each reaction channel.
+    simulate:
+        Performs stochastic numerical integration.
+    """
+    cdef:
+        readonly double beta, gIa, gIs, fsa
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
+        np.ndarray parameters
+        np.ndarray constant_terms, linear_terms, infection_terms
+        np.ndarray _lambdas
+        list param_keys
+        dict class_index_dict
+
+    def __init__(self, model_spec, parameters, M, Ni):
+        cdef:
+            int i
+            int nRpa # short for number of reactions per age group
+            int nClass, offset
+            Py_ssize_t S_index, infection_index,
+            Py_ssize_t reagent_index, product_index
+            int sign
+
+
+        self.N = np.sum(Ni)
+        self.M = M
+        self.Ni = np.array(Ni, dtype=long)
+
+        self.param_keys = list(parameters.keys())
+        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
+        self.nClass = res[0]
+        nClass = self.nClass
+        self.class_index_dict = res[1]
+        self.constant_terms = res[2]
+        self.linear_terms = res[3]
+        self.infection_terms = res[4]
+        self.update_model_parameters(parameters)
+        self._lambdas = np.zeros((self.infection_terms.shape[0], M))
+
+        #
+        self.nReactions_per_agegroup = len(self.constant_terms) + \
+                    + len(self.linear_terms) + \
+                    + len(self.infection_terms)
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate vector
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
+
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        S_index=self.class_index_dict['S']
+        for m in range(M):
+            #
+            if self.constant_terms.size > 0:
+                for i in range(self.constant_terms.shape[0]):
+                    #rate_index = constant_terms[i, 0]
+                    class_index = self.constant_terms[i, 1]
+                    sign = self.constant_terms[i, 2]
+                    #term = parameters[rate_index, m]*sign
+                    #
+                    self.vectors_of_change[i + m*nRpa,m + M*class_index] = sign
+                    self.vectors_of_change[i + m*nRpa,m + M*(nClass-1)] = sign
+
+            offset = len(self.constant_terms)
+            for i in range(self.linear_terms.shape[0]):
+                #rate_index = linear_terms[i, 0]
+                reagent_index = self.linear_terms[i, 1]
+                product_index = self.linear_terms[i, 2]
+                #term = parameters[rate_index, m] * xt[m + M*reagent_index]
+                self.vectors_of_change[offset + i + m*nRpa,m + M*reagent_index] -= 1
+                if product_index != -1:
+                    self.vectors_of_change[offset + i + m*nRpa,m + M*product_index] += 1
+                    #dxdt[m + M*product_index] += term
+
+            offset += len(self.linear_terms)
+            for i in range(self.infection_terms.shape[0]):
+                #rate_index = infection_terms[i, 0]
+                reagent_index = self.infection_terms[i, 1]
+                product_index = self.infection_terms[i, 2]
+                #term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
+                self.vectors_of_change[offset + i + m*nRpa,m+M*S_index] -= 1
+                if product_index != -1:
+                    self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
+
+
+
+    cdef rate_vector(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, m, n, i, j, index
+            long [:] Ni   = self.Ni
+            double [:] ld   = self.lld
+            double [:,:] CM = self.CM
+            double [:] rates = self.rates
+            int nRpa = self.nReactions_per_agegroup
+            int [:, :] constant_terms=self.constant_terms
+            int [:, :] linear_terms=self.linear_terms
+            int [:, :] infection_terms=self.infection_terms
+            double [:, :] parameters=self.parameters
+            double [:,:] lambdas = self._lambdas
+            int offset, nClass = self.nClass
+            int S_index=self.class_index_dict['S']
+
+        # Compute lambda
+        if constant_terms.size > 0:
+            for i in range(M):
+                Ni[i] = xt[(nClass-1)*M + i]  # update Ni
+
+        for i in range(infection_terms.shape[0]):
+            infective_index = infection_terms[i, 1]
+            for m in range(M):
+                lambdas[i, m] = 0
+                for n in range(M):
+                    index = n + M*infective_index
+                    lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
+
+
+        for m in range(M):
+            if constant_terms.size > 0:
+                for i in range(constant_terms.shape[0]):
+                    rate_index = constant_terms[i, 0]
+                    rate = parameters[rate_index, m]
+                    #
+                    rates[i + m*nRpa] = rate
+
+            offset = len(constant_terms)
+            for i in range(linear_terms.shape[0]):
+                rate_index = linear_terms[i, 0]
+                reagent_index = linear_terms[i, 1]
+                rate = parameters[rate_index, m] * xt[m + M*reagent_index]
+                rates[offset + i + m*nRpa] = rate
+
+            offset += len(linear_terms)
+            for i in range(infection_terms.shape[0]):
+                rate_index = infection_terms[i, 0]
+                rate = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
+                rates[offset + i + m*nRpa] = rate
+
+        return
+
+
+    def update_model_parameters(self, parameters):
+        nParams = len(self.param_keys)
+        self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        try:
+            for (i, key) in enumerate(self.param_keys):
+                param = parameters[key]
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+        except KeyError:
+            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
+
+
+    def make_parameters_dict(self):
+        param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
+        return param_dict
+
+    def model_class_data(self, model_class_key, data):
+        """
+        Parameters
+        ----------
+        data: dict
+            The object returned by `simulate`.
+
+        Returns
+        -------
+            The population of class `model_class_key` as a time series
+        """
+        X = data['X']
+
+        if model_class_key != 'R':
+            class_index = self.class_index_dict[model_class_key]
+            Os = X[:, class_index*self.M:(class_index+1)*self.M]
+        else:
+            if self.constant_terms.size > 0:
+                x = X[:, :(self.nClass-1)*self.M]
+                x_reshaped = x.reshape((X.shape[0], (self.nClass-1), self.M))
+                Os = X[:, (self.nClass-1)*self.M:] - np.sum(x_reshaped, axis=1)
+            else:
+                X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+                Os = self.Ni - np.sum(X_reshaped, axis=1)
+        return Os
+
+
+    cpdef simulate(self, x0, contactMatrix, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                ):
+        """
+        Performs the Stochastic Simulation Algorithm (SSA)
+
+        Parameters
+        ----------
+        x0: np.array
+            Initial condition.
+        contactMatrix: python function(t)
+            The social contact matrix C_{ij} denotes the
+            average number of contacts made per day by an
+            individual in class i with an individual in class j
+        Tf: float
+            Final time of integrator
+        Nf: Int
+            Number of time points to evaluate.
+        method: str, optional
+            SSA to use, either 'gillespie' or 'tau_leaping'.
+            The default is 'gillespie'.
+        nc: TYPE, optional
+        epsilon: TYPE, optional
+        tau_update_frequency: TYPE, optional
+
+        Returns
+        -------
+        dict
+             X: output path from integrator, 't': time points evaluated at,
+            'event_occured' , 'param': input param to integrator.
+
+        """
+
+        cdef:
+            int M = self.M, i, n_class_for_init
+            long [:] xt = self.xt
+            list class_list, skipped_classes
+            dict param_dict
+
+        if type(x0) == list:
+            x0 = np.array(x0)
+
+        if type(x0) == np.ndarray:
+
+            n_class_for_init = self.nClass
+            if self.constant_terms.size > 0:
+                n_class_for_init -= 1
+            if x0.size != n_class_for_init*M:
+                raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
+                    % ( n_class_for_init*M) )
+        elif type(x0) == dict:
+            # Check if any classes are not included in x0
+
+            class_list = list(self.class_index_dict.keys())
+            if self.constant_terms.size > 0:
+                class_list.remove('Ni')
+
+            skipped_classes = []
+            for O in class_list:
+                if not O in x0:
+                    skipped_classes.append(O)
+            if len(skipped_classes) > 0:
+                raise Exception("Missing classes in initial conditions: %s" % skipped_classes)
+
+            # Construct initial condition array
+            x0_arr = np.zeros(0)
+
+            for O in class_list:
+                x0_arr = np.concatenate( [x0_arr, x0[O]] )
+            x0 = x0_arr
+
+        for i in range(len(x0)):
+            xt[i] = x0[i]
+
+        # add Ni to x0
+        if self.constant_terms.size > 0:
+            for i in range(len(x0),self.dim_state_vec):
+                xt[i] = self.Ni[i-len(x0)]
+            #x0 = np.concatenate([x0, self.Ni])
+
+
+        if method.lower() == 'gillespie':
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix=contactMatrix,
+                                     Tf= Tf, Nf= Nf)
+        else:
+            t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix=contactMatrix,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency)
+
+        out_dict = {'X':out_arr, 't':t_arr,
+                     'Ni':self.Ni, 'M':self.M}
+        param_dict = self.make_parameters_dict()
+        out_dict.update(param_dict)
+        return out_dict
