@@ -253,7 +253,8 @@ cpdef nearest_positive_definite(double [:, :] B):
     matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
     """
     cdef:
-        np.ndarray[DTYPE_t, ndim=2] V, s, H, A2, A3, I
+        np.ndarray[DTYPE_t, ndim=2] V, H, A2, A3, I
+        np.ndarray[DTYPE_t, ndim=1] s
         double spacing, mineig
         int k
 
