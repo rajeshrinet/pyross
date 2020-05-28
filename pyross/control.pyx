@@ -508,7 +508,7 @@ cdef class SEkIkIkR(control_integration):
 
         Returns
         -------
-            'Is': symptomatics population time series
+             Is : symptomatics population time series
         """
         kI = data['kI']
         kE = data['kE']
@@ -525,7 +525,7 @@ cdef class SEkIkIkR(control_integration):
 
         Returns
         -------
-            'Is': symptomatics population time series
+             Is : symptomatics population time series
         """
         kI = data['kI']
         kE = data['kE']
