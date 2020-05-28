@@ -290,23 +290,27 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
-    def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
-                                   s=None, scale=None):
+    def _infer_control_to_minimize(self, params, grad=0, keys=None, bounds=None, x=None, Tf=None, Nf=None, generator=None,
+                                   intervention_fun=None, tangent=None, s=None, scale=None):
         """Objective function for minimization call in infer_control."""
-        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-            return INFINITY
-
         parameters = self.make_params_dict()
         model =self.make_det_model(parameters)
-        times = [Tf+1]
-        interventions = [params]
-        contactMatrix = generator.interventions_temporal(times, interventions)
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        kwargs = {k:params[i] for (i, k) in enumerate(keys)}
+        if intervention_fun is None:
+            contactMatrix=generator.constant_contactMatrix(**kwargs)
+        else:
+            contactMatrix=generator.intervention_custom_temporal(intervention_fun, **kwargs)
+        if tangent:
+            minus_logp = self.obtain_log_p_for_traj_tangent_space(x, Tf, Nf, model, contactMatrix)
+        else:
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
 
-    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5,
+    def infer_control(self, keys, guess, stds, x, Tf, Nf, generator, bounds,
+                      intervention_fun=None, tangent=False,
+                      verbose=False, ftol=1e-6,
                       global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """
@@ -333,6 +337,11 @@ cdef class SIR_type:
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2).
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: double
@@ -362,12 +371,12 @@ cdef class SIR_type:
             MAP estimate of the control parameters
         """
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
 
-        minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale}
+        minimize_args = {'keys':keys, 'bounds':bounds, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale,
+                          'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -764,24 +773,26 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
-    def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
-                                          obs=None, fltr=None, Tf=None, Nf=None, s=None, scale=None):
+    def _latent_infer_control_to_minimize(self, params, grad = 0, keys=None, bounds=None, generator=None, x0=None,
+                                          obs=None, fltr=None, Tf=None, Nf=None,
+                                          intervention_fun=None, tangent=None,
+                                          s=None, scale=None):
         """Objective function for minimization call in latent_infer_control."""
-        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-            return INFINITY
-
         parameters = self.make_params_dict()
         model = self.make_det_model(parameters)
-        times = [Tf+1]
-        interventions = [params]
-        contactMatrix = generator.interventions_temporal(times, interventions)
-        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        kwargs = {k:params[i] for (i, k) in enumerate(keys)}
+        if intervention_fun is None:
+            contactMatrix = generator.constant_contactMatrix(**kwargs)
+        else:
+            contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
-    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+    def latent_infer_control(self, keys, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
-                            verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
+                            intervention_fun=None, tangent=False,
+                            verbose=False, double ftol=1e-5, global_max_iter=100,
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None, full_output=False):
         """
@@ -792,6 +803,8 @@ cdef class SIR_type:
 
         Parameters
         ----------
+        keys: list
+            A list of keys for the control parameters to be inferred.
         guess: numpy.array
             Prior expectation (and initial guess) for the control parameter values.
         stds: numpy.array
@@ -813,12 +826,15 @@ cdef class SIR_type:
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2).
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: double
             Relative tolerance of logp
-        eps: double
-            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
         global_max_iter: int, optional
             Number of global optimisations performed.
         local_max_iter: int, optional
@@ -842,8 +858,8 @@ cdef class SIR_type:
         -------
         params: numpy.array
             MAP estimate of control parameters
-        res: OptimizeResult object
-            returned if full_output is True
+        y_result: float (returned if full_output is True)
+            logp for MAP estimates
 
         """
 
@@ -853,8 +869,8 @@ cdef class SIR_type:
             # Use prior standard deviations here
             cma_stds = stds
 
-        minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
-                         'Nf':Nf, 's':s, 'scale':scale}
+        minimize_args = {'keys':keys, 'bounds':bounds, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
+                         'Nf':Nf, 's':s, 'scale':scale, 'intervention_fun':intervention_fun, 'tangent': tangent}
         res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,

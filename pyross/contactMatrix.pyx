@@ -148,7 +148,7 @@ cdef class ConstantProtocol(Protocol):
     cdef:
         double aW, aS, aO
 
-    def __init__(self, double aW=1, double aS=1, double aO=1):
+    def __init__(self, aW=1, aS=1, aO=1):
         self.aW = aW
         self.aS = aS
         self.aO = aO

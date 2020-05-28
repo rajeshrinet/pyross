@@ -215,7 +215,7 @@ cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_
     for j in range(size):
         sol[0, j] = x[j]
     for i in range(1, steps):
-        fx = f(t, x)
+        fx = f(t, sol[i-1])
         for j in range(size):
             sol[i, j] = sol[i-1, j] + fx[j]*dt
         t += dt
@@ -232,7 +232,7 @@ cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
     for j in range(size):
         sol[0, j] = x[j]
     for i in range(1, steps):
-        fx = f(t, x)
+        fx = f(t, sol[i-1])
         for j in range(size):
             k1[j] = dt*fx[j]
             temp[j] = sol[i-1, j] + k1[j]
