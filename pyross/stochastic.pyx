@@ -223,11 +223,11 @@ cdef class stochastic_integration:
 
         1. Rates for each reaction channel r_i calculated from current state.
         2. The timestep tau is chosen randomly from an
-        exponential distribution P ~ e^-W\tau.
+        exponential distribution P ~ e^(-W tau).
         3. A single reaction occurs with probablity proportional to its fractional
         rate constant r_i/W.
         4. The state is updated to reflect this reaction occuring and time is
-        propagated forward by \tau
+        propagated forward by tau
         Stops if population becomes too small.
 
 
@@ -570,8 +570,8 @@ cdef class stochastic_integration:
         This method can run much faster than the Gillespie algorithm
 
         1. Rates for each reaction channel r_i calculated from current state.
-        2. Timestep \tau chosen such that \Delta r_i < epsilon \Sum r_i
-        3. Number of reactions that occur in channel i ~Poisson(r_i \tau)
+        2. Timestep tau chosen such that \Delta r_i < epsilon \Sum r_i
+        3. Number of reactions that occur in channel i ~Poisson(r_i tau)
         4. Update state by this amount
 
         Parameters
@@ -868,18 +868,19 @@ cdef class SIR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1169,16 +1170,17 @@ cdef class SIkR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            beta: float
-                rate of spread of infection.
-            gI: float
-                rate of removal from infectives.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            kI: int
-                number of stages of infection.
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        beta: float
+            rate of spread of infection.
+        gI: float
+            rate of removal from infectives.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        kI: int
+            number of stages of infection.
+        seed: long
+            seed for pseudo-random number generator (optional).
 
     M: int
         Number of compartments of individual for each class.
@@ -1414,20 +1416,21 @@ cdef class SEIR(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            gE: float
-                rate of removal from exposed individuals.
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposed individuals.
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1721,35 +1724,36 @@ cdef class SEI5R(stochastic_integration):
     ----------
      parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gE: float
-                rate of removal from exposeds individuals.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gIh: float
-                rate of removal for hospitalised individuals.
-            gIc: float
-                rate of removal for idividuals in intensive care.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            fh  : float
-                fraction by which hospitalised individuals are isolated.
-            sa: float, np.array (M,)
-                daily arrival of new susceptables.
-                sa is rate of additional/removal of population by birth etc
-            hh: float, np.array (M,)
-                fraction hospitalised from Is
-            cc: float, np.array (M,)
-                fraction sent to intensive care from hospitalised.
-            mm: float, np.array (M,)
-                mortality rate in intensive care
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gE: float
+            rate of removal from exposeds individuals.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gIh: float
+            rate of removal for hospitalised individuals.
+        gIc: float
+            rate of removal for idividuals in intensive care.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        fh  : float
+            fraction by which hospitalised individuals are isolated.
+        sa: float, np.array (M,)
+            daily arrival of new susceptables.
+            sa is rate of additional/removal of population by birth etc
+        hh: float, np.array (M,)
+            fraction hospitalised from Is
+        cc: float, np.array (M,)
+            fraction sent to intensive care from hospitalised.
+        mm: float, np.array (M,)
+            mortality rate in intensive care
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2249,6 +2253,7 @@ cdef class SEAI5R(stochastic_integration):
     """
     Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
     The infected class has 5 groups:
+
     * Ia: asymptomatic
     * Is: symptomatic
     * Ih: hospitalized
@@ -2261,30 +2266,32 @@ cdef class SEAI5R(stochastic_integration):
     Is ---> Ih, R
     Ih ---> Ic, R
     Ic ---> Im, R
+
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            gE: float
-                rate of removal from exposeds individuals.
-            gA: float
-                rate of removal from activated individuals.
-            gIh: float
-                rate of hospitalisation of infected individuals.
-            gIc: float
-                rate hospitalised individuals are moved to intensive care.
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        gE: float
+            rate of removal from exposeds individuals.
+        gA: float
+            rate of removal from activated individuals.
+        gIh: float
+            rate of hospitalisation of infected individuals.
+        gIc: float
+            rate hospitalised individuals are moved to intensive care.
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2807,51 +2814,49 @@ cdef class SEAI5R(stochastic_integration):
 cdef class SEAIRQ(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A: Asymptomatic and infectious
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+    * Q: quarantined
 
     Parameters
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array(M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gE: float
-                rate of removal from exposed individuals.
-            gA: float
-                rate of removal from activated individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            tE  : float
-                testing rate and contact tracing of exposeds
-            tA  : float
-                testing rate and contact tracing of activateds
-            tIa: float
-                testing rate and contact tracing of asymptomatics
-            tIs: float
-                testing rate and contact tracing of symptomatics
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array(M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        tE  : float
+            testing rate and contact tracing of exposeds
+        tA  : float
+            testing rate and contact tracing of activateds
+        tIa: float
+            testing rate and contact tracing of asymptomatics
+        tIs: float
+            testing rate and contact tracing of symptomatics
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(6*M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    rate_matrix:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
+
     cdef:
         readonly double beta, gIa, gIs, gE, gA, fsa
         readonly double tE, tA, tIa, tIs #, tS
@@ -3207,26 +3212,27 @@ cdef class SEAIRQ_testing(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array(M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            gE: float
-                rate of removal from exposed individuals.
-            gA: float
-                rate of removal from activated individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            ars: float
-                fraction of population admissible for random and symptomatic tests
-            kapE: float
-                fraction of positive tests for exposed individuals
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array(M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        ars: float
+            fraction of population admissible for random and symptomatic tests
+        kapE: float
+            fraction of positive tests for exposed individuals
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -3234,13 +3240,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
         Initial number in each compartment and class
     testRate: python function(t)
         number of tests per day and age group
-
-    Methods
-    -------
-    rate_matrix:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
 
 
@@ -3624,31 +3623,26 @@ cdef class Spp(stochastic_integration):
     ----------
     parameters: dict
         Contains the following keys:
-            alpha: float, np.array (M,)
-                fraction of infected who are asymptomatic.
-            beta: float
-                rate of spread of infection.
-            gIa: float
-                rate of removal from asymptomatic individuals.
-            gIs: float
-                rate of removal from symptomatic individuals.
-            fsa: float
-                fraction by which symptomatic individuals self isolate.
-            seed: long
-                seed for pseudo-random number generator (optional).
+
+        alpha: float, np.array (M,)
+            fraction of infected who are asymptomatic.
+        beta: float
+            rate of spread of infection.
+        gIa: float
+            rate of removal from asymptomatic individuals.
+        gIs: float
+            rate of removal from symptomatic individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        seed: long
+            seed for pseudo-random number generator (optional).
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    rate_vector:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
+    
     cdef:
         readonly double beta, gIa, gIs, fsa
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
