@@ -25,7 +25,12 @@ cdef class IntegratorsClass:
             Input function of current state and time x, t
             returns dx/dt
         x0: np.array
-            Initial state vector.
+            Initial state vector (number of compartment values).
+            An array of size M*(model_dimension-1), 
+            where x0[i+j*M] should be the initial
+            value of model class i of age group j. 
+            The removed R class must be left out. 
+            If Ni is dynamical, then the last M points store Ni.
         Ti: float
             Start time for integrator.
         Tf: float
@@ -103,7 +108,12 @@ cdef class IntegratorsClass:
         Parameters
         ----------
         x0: np.array
-            Initial number of compartment values.
+            Initial state vector (number of compartment values).
+            An array of size M*(model_dimension-1), 
+            where x0[i+j*M] should be the initial
+            value of model class i of age group j. 
+            The removed R class must be left out. 
+            If Ni is dynamical, then the last M points store Ni.
         contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
@@ -243,7 +253,7 @@ cdef class SIR(IntegratorsClass):
         integrator: TYPE, optional
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
-        maxNumSteps: int, optional (DEPRICATED)
+        maxNumSteps: int, optional
             maximum number of steps the integrator can take. The default is 100000.
         **kwargs: kwargs for integrator
 
