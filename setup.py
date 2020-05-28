@@ -6,6 +6,7 @@ from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
 
+
 if 'darwin' == (sys.platform).lower():
     extension = Extension("pyross/*", ["pyross/*.pyx"],
         include_dirs=[numpy.get_include()],
@@ -17,15 +18,18 @@ else:
         include_dirs=[numpy.get_include()],
     )
 
+    
 setup(
     name='PyRoss',
     version='1.0.0',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     license='MIT',
-    description='python library for numerical simulation of infectious disease',
-    long_description='pyross is a library for numerical simulation of infectious disease',
-    platforms='works on all platforms (such as LINUX, macOS, and Microsoft Windows)',
+    description='PyRoss: Infectious disease models in Python',
+    long_description='PyRoss is a numerical library that offers an integrated platform for \
+                      inference, prediction and non-pharmaceutical interventions in \
+                      age- and contact-structured epidemiological compartment models.',
+    platforms='works on LINUX and macOS',
     ext_modules=cythonize([ extension ],
         compiler_directives={"language_level": sys.version_info[0]},
         ),
