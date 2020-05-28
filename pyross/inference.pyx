@@ -1272,6 +1272,8 @@ cdef class SIR_type:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = sparse.block_diag([fltr,]*(Nf-1))
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+        if not pyross.utils.is_positive_definite(cov_red):
+            cov_red = pyross.utils.nearest_positive_definite(cov_red)
         obs_flattened = np.ravel(obs)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
@@ -1422,10 +1424,10 @@ cdef class SIR_type:
         cdef:
             double [:, :] U=self.U
             double epsilon=1./self.N
-            Py_ssize_t i, j
+            Py_ssize_t i, j, steps=self.steps
         for i in range(self.dim):
             x0[i] += epsilon
-            pos = self.integrate(x0, t1, t2, 2, model, contactMatrix)[1]
+            pos = self.integrate(x0, t1, t2, steps, model, contactMatrix)[steps-1]
             for j in range(self.dim):
                 U[j, i] = (pos[j]-xf[j])/(epsilon)
             x0[i] -= epsilon
