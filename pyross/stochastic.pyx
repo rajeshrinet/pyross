@@ -3642,7 +3642,7 @@ cdef class Spp(stochastic_integration):
     Ni: np.array(3*M, )
         Initial number in each compartment and class
     """
-    
+
     cdef:
         readonly double beta, gIa, gIs, fsa
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
@@ -3654,12 +3654,12 @@ cdef class Spp(stochastic_integration):
 
     def __init__(self, model_spec, parameters, M, Ni):
         cdef:
-            int i
+            int i, m
             int nRpa # short for number of reactions per age group
             int nClass, offset
             Py_ssize_t S_index, infection_index,
             Py_ssize_t reagent_index, product_index
-            int sign
+            int sign, class_index
 
 
         self.N = np.sum(Ni)
@@ -3740,7 +3740,7 @@ cdef class Spp(stochastic_integration):
 
     cdef rate_vector(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, m, n, i, j, index
+            int N=self.N, M=self.M, m, n, i, j, index, rate_index
             long [:] Ni   = self.Ni
             double [:] ld   = self.lld
             double [:,:] CM = self.CM
