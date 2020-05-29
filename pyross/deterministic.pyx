@@ -174,13 +174,13 @@ cdef class SIR(IntegratorsClass):
 
         alpha: float, np.array (M,)
             fraction of infected who are asymptomatic.
-        beta: float
+        beta: float, np.array (M,)
             rate of spread of infection.
-        gIa: float
+        gIa: float, np.array (M,)
             rate of removal from asymptomatic individuals.
-        gIs: float
+        gIs: float, np.array (M,)
             rate of removal from symptomatic individuals.
-        fsa: float
+        fsa: float, np.array (M,)
             fraction by which symptomatic individuals self isolate.
     M: int
         Number of compartments of individual for each class.
@@ -570,16 +570,16 @@ cdef class SEIR(IntegratorsClass):
 
         alpha: float, np.array (M,)
             fraction of infected who are asymptomatic.
-        beta: float
+        beta: float, np.array (M,)
             rate of spread of infection.
-        gIa: float
-            rate of removal from asymptomatic individuals.
-        gIs: float
-            rate of removal from symptomatic individuals.
-        fsa: float
-            fraction by which symptomatic individuals self isolate.
-        gE: float
+        gE: float, np.array (M,)
             rate of removal from exposed individuals.
+        gIa: float, np.array (M,)
+            rate of removal from asymptomatic individuals.
+        gIs: float, np.array (M,)
+            rate of removal from symptomatic individuals.
+        fsa: float, np.array (M,)
+            fraction by which symptomatic individuals self isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -605,6 +605,7 @@ cdef class SEIR(IntegratorsClass):
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+
 
     cpdef rhs(self, xt, tt):
         cdef:
@@ -2290,25 +2291,25 @@ cdef class SEAIRQ(IntegratorsClass):
 
         alpha: float
             fraction of infected who are asymptomatic.
-        beta: float
+        beta: float, np.array (M,)
             rate of spread of infection.
-        gIa: float
+        gIa: float, np.array (M,)
             rate of removal from asymptomatic individuals.
-        gIs: float
+        gIs: float, np.array (M,)
             rate of removal from symptomatic individuals.
-        gE: float
+        gE: float, np.array (M,)
             rate of removal from exposed individuals.
-        gA: float
+        gA: float, np.array (M,)
             rate of removal from activated individuals.
-        fsa: float
+        fsa: float, np.array (M,)
             fraction by which symptomatic individuals self isolate.
-        tE: float
+        tE: float, np.array (M,)
             testing rate and contact tracing of exposeds
-        tA: float
+        tA: float, np.array (M,)
             testing rate and contact tracing of activateds
-        tIa: float
+        tIa: float, np.array (M,)
             testing rate and contact tracing of asymptomatics
-        tIs: float
+        tIs: float, np.array (M,)
             testing rate and contact tracing of symptomatics
     M: int
         Number of compartments of individual for each class.
