@@ -103,7 +103,7 @@ cdef class IntegratorsClass:
         self.CM=contactMatrix(t)
 
 
-    def simulator(self, x0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint', maxNumSteps=100000, **kwargs):
+    def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', Ti=0, maxNumSteps=100000, **kwargs):
         """
         Parameters
         ----------
@@ -306,16 +306,8 @@ cdef class SIR(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0 = np.concatenate((S0, Ia0, Is0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                        'fsa':self.fsa, 'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -485,15 +477,8 @@ cdef class SIkR(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, I0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI }
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -674,16 +659,8 @@ cdef class SEIR(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0 = np.concatenate((S0, E0, Ia0, Is0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'fsa':self.fsa,
-                         'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -889,15 +866,8 @@ cdef class SEkIkR(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, E0, I0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'kI':self.kI, 'kE':self.kE }
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -1129,16 +1099,8 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, E0, Ia0, Is0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI,
-            'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE }
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
 
         return data
 
@@ -1463,17 +1425,8 @@ cdef class SEI8R(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                     'fsa':self.fsa, 'fh':self.fh,
-                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -1759,15 +1712,8 @@ cdef class SEAIR(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'fsa':self.fsa,
-                    'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2093,17 +2039,8 @@ cdef class SEAI8R(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                     'fsa':self.fsa, 'fh':self.fh,
-                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2424,17 +2361,8 @@ cdef class SEAIRQ(IntegratorsClass):
             * 'param': input param to integrator.
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                     'beta':self.beta,'gIa':self.gIa, 'fsa':self.fsa, 'gIs':self.gIs,
-                     'gE':self.gE,'gA':self.gA,'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2718,18 +2646,8 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.TR = testRate(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                     'beta':self.beta,'gIa':self.gIa, 'fsa':self.fsa, 'gIs':self.gIs,
-                     'gE':self.gE,'gA':self.gA,'ars':self.ars,'kapE':self.kapE}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2924,6 +2842,8 @@ cdef class SIRS(IntegratorsClass):
             self.iaa = iaa
         else:
             raise Exception('iaa can be a number or an array of size M')
+        
+        self.paramList = parameters
 
 
     cpdef rhs(self, xt, tt):
@@ -2990,17 +2910,8 @@ cdef class SIRS(IntegratorsClass):
 
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                        'fsa':self.fsa, 'ep':self.ep,
-                        'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -3295,22 +3206,15 @@ cdef class Spp(IntegratorsClass):
         if self.constant_terms.size > 0:
             x0 = np.concatenate([x0, self.Ni])
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
-        X, time_points = self._integrate(rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        ## add parameters as a dictionary to this
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M }
-        param_dict = self.make_parameters_dict()
-        data.update(param_dict)
+        self.paramList = self.make_parameters_dict()
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
+
 
     def make_parameters_dict(self):
         param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
         return param_dict
+
 
     def model_class_data(self, model_class_key, data):
         """
@@ -3553,17 +3457,8 @@ cdef class SEI5R(IntegratorsClass):
             'param': input param to integrator.
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                     'fsa':self.fsa, 'fh':self.fh,
-                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -3912,17 +3807,8 @@ cdef class SEAI5R(IntegratorsClass):
             'param': input param to integrator.
         """
 
-        def rhs0(xt, t):
-            self.CM = contactMatrix(t)
-            self.rhs(xt, t)
-            return self.dxdt
-
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        X, time_points = self._integrate(rhs0, x0 , Ti, Tf, Nf, integrator, maxNumSteps, **kwargs)
-
-        data={'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
-                     'fsa':self.fsa, 'fh':self.fh,
-                     'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
+        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
