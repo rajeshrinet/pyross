@@ -4,11 +4,14 @@ WORKDIR /pyross
 
 COPY . .
 
-RUN make env && conda activate pyross && make
+RUN apt update -y\
+	&& apt install gcc g++ -y\
+	&& conda env create --file environment.yml
 
 SHELL ["conda", "run", "-n", "pyross", "/bin/bash", "-c"]
 
-ENTRYPOINT ["/home"]
+RUN python setup.py install \
+	&& cp .githooks/pre-push .git/hooks/ \
+	&& chmod +x .git/hooks/pre-push
 
-# This ensures that the default behavior is to run the tests and then create a release
-FROM release
+ENTRYPOINT ["cd /home && conda activate pyross"]
