@@ -222,12 +222,10 @@ cdef class stochastic_integration:
         Performs the stochastic simulation using the Gillespie algorithm.
 
         1. Rates for each reaction channel r_i calculated from current state.
-        2. The timestep tau is chosen randomly from an
-        exponential distribution P ~ e^(-W tau).
-        3. A single reaction occurs with probablity proportional to its fractional
-        rate constant r_i/W.
-        4. The state is updated to reflect this reaction occuring and time is
-        propagated forward by tau
+        2. The timestep tau is chosen randomly from an exponential distribution P ~ e^(-W tau).
+        3. A single reaction occurs with probablity proportional to its fractional rate constant r_i/W.
+        4. The state is updated to reflect this reaction occuring and time is propagated forward by tau
+
         Stops if population becomes too small.
 
 
@@ -1164,8 +1162,8 @@ cdef class SIR(stochastic_integration):
 
 cdef class SIkR(stochastic_integration):
     """
-    Susceptible, Infected, Removed (SIkR)
-    method of k-stages of I
+    Susceptible, Infected, Removed (SIkR). Method of k-stages of I
+
     Parameters
     ----------
     parameters: dict
@@ -1181,20 +1179,13 @@ cdef class SIkR(stochastic_integration):
             number of stages of infection.
         seed: long
             seed for pseudo-random number generator (optional).
-
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array((kI + 1)*M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    rate_matrix:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
+
     cdef:
         readonly int kk
         readonly double beta
@@ -1410,8 +1401,11 @@ cdef class SIkR(stochastic_integration):
 cdef class SEIR(stochastic_integration):
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
-    Ia: asymptomatic
-    Is: symptomatic
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+
     Parameters
     ----------
     parameters: dict
@@ -1436,14 +1430,8 @@ cdef class SEIR(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(4*M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    rate_matrix:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
+
     cdef:
         readonly double beta, fsa, gIa, gIs, gE
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
@@ -1759,14 +1747,8 @@ cdef class SEI5R(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(8*M, )
         Initial number in each compartment and class
-
-    Methods
-    -------
-    rate_matrix:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
+
     cdef:
         readonly double beta, gE, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm, alpha
@@ -2297,14 +2279,8 @@ cdef class SEAI5R(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(9*M, )
         Initial number in each compartment and class.
-
-    Methods
-    -------
-    rate_matrix:
-        Calculates the rate constant for each reaction channel.
-    simulate:
-        Performs stochastic numerical integration.
     """
+
     cdef:
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
         readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm, alpha
@@ -3204,9 +3180,12 @@ cdef class SEAIRQ(stochastic_integration):
 cdef class SEAIRQ_testing(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
-    Ia: asymptomatic
-    Is: symptomatic
-    A: Asymptomatic and infectious
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * A: Asymptomatic and infectious
+    * E: exposed
+    * Q: quarantined
 
     Parameters
     ----------
@@ -3612,35 +3591,41 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 
 cdef class Spp(stochastic_integration):
-    """
-    Susceptible, Infected, Removed (SIR)
-    Ia: asymptomatic
-    Is: symptomatic
-
-    ...
+    """User-defined epidemic model.
 
     Parameters
     ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
     parameters: dict
-        Contains the following keys:
-
-        alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
-        beta: float
-            rate of spread of infection.
-        gIa: float
-            rate of removal from asymptomatic individuals.
-        gIs: float
-            rate of removal from symptomatic individuals.
-        fsa: float
-            fraction by which symptomatic individuals self isolate.
-        seed: long
-            seed for pseudo-random number generator (optional).
+        A dictionary containing the model parameters.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
         Initial number in each compartment and class
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "constant"  : [ ["k"] ],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'k': 1,
+        }
     """
 
     cdef:

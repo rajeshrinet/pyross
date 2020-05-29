@@ -26,10 +26,10 @@ cdef class IntegratorsClass:
             returns dx/dt
         x0: np.array
             Initial state vector (number of compartment values).
-            An array of size M*(model_dimension-1), 
+            An array of size M*(model_dimension-1),
             where x0[i+j*M] should be the initial
-            value of model class i of age group j. 
-            The removed R class must be left out. 
+            value of model class i of age group j.
+            The removed R class must be left out.
             If Ni is dynamical, then the last M points store Ni.
         Ti: float
             Start time for integrator.
@@ -109,10 +109,10 @@ cdef class IntegratorsClass:
         ----------
         x0: np.array
             Initial state vector (number of compartment values).
-            An array of size M*(model_dimension-1), 
+            An array of size M*(model_dimension-1),
             where x0[i+j*M] should be the initial
-            value of model class i of age group j. 
-            The removed R class must be left out. 
+            value of model class i of age group j.
+            The removed R class must be left out.
             If Ni is dynamical, then the last M points store Ni.
         contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
@@ -2963,13 +2963,37 @@ cdef class Spp(IntegratorsClass):
     """
     Parameters
     ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
     parameters: dict
         Contains the values for the parameters given in the model specification.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "constant"  : [ ["k"] ],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'k': 1,
+        }
     """
 
     def __init__(self, model_spec, parameters, M, Ni):

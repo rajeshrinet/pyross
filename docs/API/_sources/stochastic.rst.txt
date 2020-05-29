@@ -8,6 +8,12 @@ stochastic_integration
 .. autoclass:: pyross.stochastic.stochastic_integration
     :members:
 
+Spp
+--------------------------------------
+.. autoclass:: pyross.stochastic.Spp
+    :members:
+
+
 SIR
 ----------------------
 .. autoclass:: pyross.stochastic.SIR

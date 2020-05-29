@@ -395,6 +395,9 @@ on all classes is available (with latent variables, use SIR_type.latent_infer_co
 parameters.</p></li>
 <li><p><strong>bounds</strong> (<em>2d numpy.array</em>) – Bounds for the parameters (number of parameters x 2).
 Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p></li>
+<li><p><strong>intervention_fun</strong> (<em>callable</em><em>, </em><em>optional</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>, where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO). If not set, assume intervention that’s constant in time and infer (aW, aS, aO).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
@@ -510,6 +513,7 @@ all age groups. This function infers the scaling parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> (<em>list</em>) – A list of keys for the control parameters to be inferred.</p></li>
 <li><p><strong>guess</strong> (<em>numpy.array</em>) – Prior expectation (and initial guess) for the control parameter values.</p></li>
 <li><p><strong>stds</strong> (<em>numpy.array</em>) – Standard deviations for the log normal prior of the control parameters</p></li>
 <li><p><strong>x0</strong> (<em>numpy.array</em>) – Initial conditions.</p></li>
@@ -522,9 +526,11 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 parameters.</p></li>
 <li><p><strong>bounds</strong> (<em>2d numpy.array</em>) – Bounds for the parameters (number of parameters x 2).
 Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p></li>
+<li><p><strong>intervention_fun</strong> (<em>callable</em><em>, </em><em>optional</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>, where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO). If not set, assume intervention that’s constant in time and infer (aW, aS, aO).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
 <li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
 <li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
@@ -539,7 +545,7 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>params</strong> (<em>numpy.array</em>) – MAP estimate of control parameters</p></li>
-<li><p><strong>res</strong> (<em>OptimizeResult object</em>) – returned if full_output is True</p></li>
+<li><p><strong>y_result</strong> (<em>float (returned if full_output is True)</em>) – logp for MAP estimates</p></li>
 </ul>
 </p>
 </dd>
