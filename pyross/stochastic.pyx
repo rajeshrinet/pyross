@@ -857,8 +857,9 @@ cdef class stochastic_integration:
 cdef class SIR(stochastic_integration):
     """
     Susceptible, Infected, Removed (SIR)
-    Ia: asymptomatic
-    Is: symptomatic
+    
+    * Ia: asymptomatic
+    * Is: symptomatic
 
     ...
 
@@ -1164,6 +1165,8 @@ cdef class SIkR(stochastic_integration):
     """
     Susceptible, Infected, Removed (SIkR). Method of k-stages of I
 
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -1405,6 +1408,8 @@ cdef class SEIR(stochastic_integration):
     * Ia: asymptomatic
     * Is: symptomatic
     * E: exposed
+
+    ...
 
     Parameters
     ----------
@@ -1701,12 +1706,7 @@ cdef class SEI5R(stochastic_integration):
     * Ic: ICU
     * Im: Mortality
 
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
+    ...
 
     Parameters
     ----------
@@ -2242,12 +2242,7 @@ cdef class SEAI5R(stochastic_integration):
     * Ic: ICU
     * Im: Mortality
 
-    S  ---> E
-    E  ---> Ia, Is
-    Ia ---> R
-    Is ---> Ih, R
-    Ih ---> Ic, R
-    Ic ---> Im, R
+    ...
 
     Parameters
     ----------
@@ -2795,7 +2790,9 @@ cdef class SEAIRQ(stochastic_integration):
     * Is: symptomatic
     * E: exposed
     * A: asymptomatic and infectious
-    * Q: quarantined
+    * Q: quarantined 
+
+    ...
 
     Parameters
     ----------
@@ -3185,7 +3182,9 @@ cdef class SEAIRQ_testing(stochastic_integration):
     * Is: symptomatic
     * A: Asymptomatic and infectious
     * E: exposed
-    * Q: quarantined
+    * Q: quarantined 
+
+    ...
 
     Parameters
     ----------
@@ -3592,7 +3591,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 cdef class Spp(stochastic_integration):
     """
-    Generic sser-defined epidemic model.
+    Generic user-defined epidemic model.
 
     ...
 

@@ -187,7 +187,42 @@ cdef class SIR(IntegratorsClass):
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
+    
+    Examples
+    --------
+    An example of the SIR class  
+
+    >>> M = 1                   # the SIR model has no age structure
+    >>> Ni = 1000*np.ones(M)    # so there is only one age group
+    >>> N = np.sum(Ni)          # and the total population is the size of this age group
+    >>> 
+    >>> beta  = 0.2             # infection rate
+    >>> gIa   = 0.1             # removal rate of asymptomatic infectives
+    >>> gIs   = 0.1             # removal rate of symptomatic infectives
+    >>> alpha = 0               # fraction of asymptomatic infectives
+    >>> fsa   = 1               # self-isolation of symtomatic infectives
+    >>> 
+    >>> Ia0 = np.array([0])     # the SIR model has only one kind of infective
+    >>> Is0 = np.array([1])     # we take these to be symptomatic
+    >>> R0  = np.array([0])     # and assume there are no removed individuals initially
+    >>> S0  = N-(Ia0+Is0+R0)    # so that the initial susceptibles are obtained from S + Ia + Is + R = N
+    >>> 
+    >>> # there is no contact structure
+    >>> def contactMatrix(t):
+    >>>     return np.identity(M)
+    >>> 
+    >>> # duration of simulation and data file
+    >>> Tf = 160;  Nt=160;
+    >>> 
+    >>> # instantiate model
+    >>> parameters = {'alpha':alpha, 'beta':beta, 'gIa':gIa, 'gIs':gIs,'fsa':fsa}
+    >>> model = pyross.deterministic.SIR(parameters, M, Ni)
+    >>> 
+    >>> # simulate model using two possible ways
+    >>> data1 = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)                    
+    >>> data2 = model.simulator(np.concatenate((S0, Ia0, Is0)), contactMatrix, Tf, Nt) 
     """
+
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 3
