@@ -63,11 +63,7 @@ Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/e
 >> conda activate pyross
 >> make
 ```
-#### Pip
 
-```
-pip install -e https://github.com/rajeshrinet/pyross.git#egg=pyross
-```
 
 
 #### Testing
@@ -79,7 +75,7 @@ make test
 Long test of all example notebooks. Optionally can specify path and recursion
 to test a certain subset of notebooks.
 ```
-make nbtest -e path=examples recursive=false
+make nbtest -e path=examples/deterministic/
 ```
 
 **Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website
