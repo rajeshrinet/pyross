@@ -3591,7 +3591,10 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 
 cdef class Spp(stochastic_integration):
-    """User-defined epidemic model.
+    """
+    Generic sser-defined epidemic model.
+
+    ...
 
     Parameters
     ----------

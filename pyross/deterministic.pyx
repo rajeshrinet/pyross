@@ -12,7 +12,7 @@ from libc.stdlib cimport malloc, free
 
 cdef class IntegratorsClass:
     """
-    List of all integrator used by various deterministic models listed below.
+    Integrators used by various deterministic models listed below.
     """
 
     def _integrate(self, rhs0, x0, Ti, Tf, Nf, integrator, maxNumSteps, **kwargs):
@@ -160,6 +160,12 @@ cdef class IntegratorsClass:
 @cython.nonecheck(False)
 cdef class SIR(IntegratorsClass):
     """
+    Susceptible, Infected, Removed (SIR)
+    
+    * Ia: asymptomatic
+    * Is: symptomatic 
+
+    ...
 
     Parameters
     ----------
@@ -346,6 +352,10 @@ cdef class SIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIkR(IntegratorsClass):
     """
+    Susceptible, Infected, Removed (SIkR). Method of k-stages of I
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -511,6 +521,13 @@ cdef class SIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEIR(IntegratorsClass):
     """
+    Susceptible, Exposed, Infected, Removed (SEIR)
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -717,6 +734,10 @@ cdef class SEIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkR(IntegratorsClass):
     """
+    Susceptible, Exposed, Infected, Removed (SEkIkR). Method of k-stages of E and I
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -924,6 +945,13 @@ cdef class SEkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEkIkIkR(IntegratorsClass):
     """
+    Susceptible, Exposed, Infected, Removed (SEkIkR). Method of k-stages of E, Ia, and Is
+    
+    * Ia: asymptomatic
+    * Is: symptomatic
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -1178,6 +1206,21 @@ cdef class SEkIkIkR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEI8R(IntegratorsClass):
     """
+    Susceptible, Exposed, Infected, Removed (SEAI8R)
+    The infected class has 8 groups:
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    Is ---> Ih, Is'-> R
+    Ih ---> Ic, Ih'-> R
+    Ic ---> Im, Ic'-> R
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -1545,6 +1588,15 @@ cdef class SEI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIR(IntegratorsClass):
     """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -1780,6 +1832,21 @@ cdef class SEAIR(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAI8R(IntegratorsClass):
     """
+    Susceptible, Exposed, Activated, Infected, Removed (SEAI5R)
+    The infected class has 8 groups:
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    Is ---> Ih, Is'-> R
+    Ih ---> Ic, Ih'-> R
+    Ic ---> Im, Ic'-> R
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -2171,7 +2238,15 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
-    To initialise the SEAIRQ class,
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+    * Q: quarantined 
+
+    ...
 
     Parameters
     ----------
@@ -2442,6 +2517,16 @@ cdef class SEAIRQ(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ_testing(IntegratorsClass):
     """
+    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+    * Q: quarantined 
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -2725,6 +2810,13 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SIRS(IntegratorsClass):
     """
+    Susceptible, Infected, Removed, Susceptible (SIRS). 
+    
+    * Ia: asymptomatic
+    * Is: symptomatic
+
+    ...
+
     Parameters
     ----------
     parameters: dict
@@ -2961,6 +3053,10 @@ cdef class SIRS(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class Spp(IntegratorsClass):
     """
+    Generic user-defined epidemic model.
+
+    ...
+
     Parameters
     ----------
     model_spec: dict
@@ -3220,6 +3316,17 @@ cdef class SEI5R(IntegratorsClass):
     warnings.warn('SEI5R not supported', DeprecationWarning)
     """
     DEPRECATED.
+    
+    Susceptible, Exposed, Infected, Removed (SEI5R)
+    The infected class has 5 groups:
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    ...
 
     Parameters
     ----------
@@ -3562,6 +3669,17 @@ cdef class SEAI5R(IntegratorsClass):
     warnings.warn('SEAI5R not supported', DeprecationWarning)
     """
     DEPRECATED.
+    Susceptible, Exposed, Activated, Infected, Removed (SEAI5R)
+    The infected class has 5 groups:
+
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+
+    ...
+
 
     Parameters
     ----------
