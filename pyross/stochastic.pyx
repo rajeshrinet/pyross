@@ -353,19 +353,20 @@ cdef class stochastic_integration:
 
     cpdef simulate_gillespie_events(self, events, contactMatrices,
                                 Tf, Nf,
-                                events_repeat=False,events_subsequent=True):
+                                events_repeat=False,events_subsequent=True,
+                                stop_at_event=False):
         cdef:
             int M=self.M
             int nReactions = self.nReactions
             int dim_state_vec = self.dim_state_vec
             int i
-            double t, dt, W, t_previous
+            double t, dt, W, t_previous, t_last_event
             long [:] xt = self.xt
             long [:] xtminus1 = self.xtminus1
             double [:] rates = self.rates
             #
             list list_of_available_events, events_out
-            int N_events, current_protocol_index
+            int N_events, current_protocol_index, event_function_return
 
         t = 0
         if Nf <= 0:
@@ -394,7 +395,8 @@ cdef class stochastic_integration:
         events_out = []
         #print('list_of_available_events =',list_of_available_events)
         current_protocol_index = 0 # start with first contact matrix in list
-        self.CM = contactMatrices[current_protocol_index]
+        t_last_event = 0
+        #self.CM = contactMatrices[current_protocol_index]
         #print("contactMatrices[current_protocol_index] =",contactMatrices[current_protocol_index])
 
         while t < Tf:
@@ -409,6 +411,10 @@ cdef class stochastic_integration:
                 break
 
             # calculate current rate vector
+            try:
+                self.CM = contactMatrices[current_protocol_index](t-t_last_event)
+            except:
+                self.CM = contactMatrices[current_protocol_index]
             self.rate_vector(xt, t)
 
             # calculate total rate
@@ -434,10 +440,11 @@ cdef class stochastic_integration:
             #print("t= {0:3.3f}\tt_p ={1:3.3f}".format(t,t_previous))
 
             # check for event, and update parameters if an event happened
-            current_protocol_index = self.check_for_event(t=t,t_previous=t_previous,
+            event_function_return = self.check_for_event(t=t,t_previous=t_previous,
                               events=events,
                             list_of_available_events=list_of_available_events)
-            if current_protocol_index > -0.5: # this means an event has happened
+            if event_function_return > -0.5: # this means an event has happened
+                current_protocol_index = event_function_return
                 #
                 #print("current_protocol_index =",current_protocol_index)
                 #print("list_of_available_events =",list_of_available_events)
@@ -457,7 +464,8 @@ cdef class stochastic_integration:
                             list_of_available_events.remove(current_protocol_index)
                 # add event to list, and update contact matrix
                 events_out.append([t, current_protocol_index ])
-                self.CM = contactMatrices[current_protocol_index]
+                t_last_event = t
+                #self.CM = contactMatrices[current_protocol_index]
 
             if Nf <= 0:
                 t_arr.append(t)
@@ -468,6 +476,17 @@ cdef class stochastic_integration:
                         break
                     trajectory[next_writeout] = xt
                     next_writeout += 1
+
+            # if we stop once an event has occured
+            if stop_at_event:
+                if len(events_out) > 0:
+                    if Nf <= 0:
+                        t_arr = np.array(t_arr)
+                        out_arr = np.array(trajectory,dtype=long)
+                    else:
+                        t_arr = t_arr[:next_writeout]
+                        out_arr = trajectory[:next_writeout]
+                    return t_arr, out_arr, events_out
 
         out_arr = np.array(trajectory,dtype=long)
         t_arr = np.array(t_arr)
@@ -700,7 +719,8 @@ cdef class stochastic_integration:
                             Tf, Nf,
                           int nc = 30, double epsilon = 0.03,
                           int tau_update_frequency = 1,
-                          events_repeat=False,events_subsequent=True):
+                          events_repeat=False,events_subsequent=True,
+                          stop_at_event=False):
         cdef:
             int M=self.M
             int i
@@ -709,14 +729,14 @@ cdef class stochastic_integration:
             double t, dt, W
             double [:] rates = self.rates
             long [:] xt = self.xt
-            double cur_tau
+            double cur_tau, t_last_event
             int SSA_steps_left = 0
             int steps_until_tau_update = 0
             double verbose = 1.
             # needed for event-driven simulation:
             long [:] xtminus1 = self.xtminus1
             list list_of_available_events, events_out
-            int N_events, current_protocol_index
+            int N_events, current_protocol_index, event_function_return
 
         t = 0
         if Nf <= 0:
@@ -744,7 +764,8 @@ cdef class stochastic_integration:
         events_out = []
 
         current_protocol_index = 0 # start with first contact matrix in list
-        self.CM = contactMatrices[current_protocol_index]
+        t_last_event = 0
+        #self.CM = contactMatrices[current_protocol_index]
 
         while t < Tf:
             # stop if nobody is infected
@@ -758,6 +779,10 @@ cdef class stochastic_integration:
                 break
 
             # calculate current rate vector
+            try:
+                self.CM = contactMatrices[current_protocol_index](t-t_last_event)
+            except:
+                self.CM = contactMatrices[current_protocol_index]
             self.rate_vector(xt, t)
 
             # calculate total rate
@@ -816,10 +841,11 @@ cdef class stochastic_integration:
             steps_until_tau_update -= 1
 
             # check for event, and update parameters if an event happened
-            current_protocol_index = self.check_for_event(t=t,t_previous=t_previous,
+            event_function_return = self.check_for_event(t=t,t_previous=t_previous,
                                 events=events,
                             list_of_available_events=list_of_available_events)
-            if current_protocol_index > -0.5: # this means an event has happened
+            if event_function_return > -0.5: # this means an event has happened
+                current_protocol_index = event_function_return
                 #
                 if events_repeat:
                     list_of_available_events = []
@@ -837,7 +863,8 @@ cdef class stochastic_integration:
                             list_of_available_events.remove(current_protocol_index)
                 # add event to list, and update contact matrix
                 events_out.append([t, current_protocol_index ])
-                self.CM = contactMatrices[current_protocol_index]
+                t_last_event = t
+                #self.CM = contactMatrices[current_protocol_index]
 
             if Nf <= 0:
                 t_arr.append(t)
@@ -849,6 +876,17 @@ cdef class stochastic_integration:
                     trajectory[next_writeout] = xt
                     next_writeout += 1
 
+            # if we stop once an event has occured
+            if stop_at_event:
+                if len(events_out) > 0:
+                    if Nf <= 0:
+                        t_arr = np.array(t_arr)
+                        out_arr = np.array(trajectory,dtype=long)
+                    else:
+                        t_arr = t_arr[:next_writeout]
+                        out_arr = trajectory[:next_writeout]
+                    return t_arr, out_arr, events_out
+
         out_arr = np.array(trajectory,dtype=long)
         t_arr = np.array(t_arr)
         return t_arr, out_arr, events_out
@@ -857,7 +895,7 @@ cdef class stochastic_integration:
 cdef class SIR(stochastic_integration):
     """
     Susceptible, Infected, Removed (SIR)
-    
+
     * Ia: asymptomatic
     * Is: symptomatic
 
@@ -1062,6 +1100,7 @@ cdef class SIR(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i
@@ -1080,7 +1119,8 @@ cdef class SIR(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1089,7 +1129,8 @@ cdef class SIR(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                      'Ni':self.Ni, 'M':self.M,
@@ -1317,6 +1358,7 @@ cdef class SIkR(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i, j
@@ -1336,7 +1378,8 @@ cdef class SIkR(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1345,7 +1388,8 @@ cdef class SIkR(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'Ni':self.Ni, 'M':self.M,
@@ -1581,6 +1625,7 @@ cdef class SEIR(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i
@@ -1600,7 +1645,8 @@ cdef class SEIR(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -1609,7 +1655,8 @@ cdef class SEIR(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'Ni':self.Ni, 'M':self.M,
@@ -1622,7 +1669,6 @@ cdef class SEIR(stochastic_integration):
     def S(self,  data):
         """
         Parameters
-        ----------
         data: data files
 
         Returns
@@ -2034,6 +2080,7 @@ cdef class SEI5R(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i
@@ -2065,7 +2112,8 @@ cdef class SEI5R(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -2074,7 +2122,8 @@ cdef class SEI5R(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'Ni':self.Ni, 'M':self.M,
@@ -2563,6 +2612,7 @@ cdef class SEAI5R(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i
@@ -2593,7 +2643,8 @@ cdef class SEAI5R(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -2602,7 +2653,8 @@ cdef class SEAI5R(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         # Instead of the removed population, which is stored in the last compartment,
         # we want to output the total alive population (whose knowledge is mathematically
         # equivalent to knowing the removed population).
@@ -2790,7 +2842,7 @@ cdef class SEAIRQ(stochastic_integration):
     * Is: symptomatic
     * E: exposed
     * A: asymptomatic and infectious
-    * Q: quarantined 
+    * Q: quarantined
 
     ...
 
@@ -3026,6 +3078,7 @@ cdef class SEAIRQ(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i
@@ -3047,7 +3100,8 @@ cdef class SEAIRQ(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -3056,7 +3110,8 @@ cdef class SEAIRQ(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                   'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,
@@ -3182,7 +3237,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
     * Is: symptomatic
     * A: Asymptomatic and infectious
     * E: exposed
-    * Q: quarantined 
+    * Q: quarantined
 
     ...
 
@@ -3436,6 +3491,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
                   events_repeat=False,events_subsequent=True,
+                  stop_at_event=False,
                 ):
         cdef:
             int M = self.M, i
@@ -3459,7 +3515,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
                                   contactMatrices=contactMatrices,
                                   Tf=Tf, Nf=Nf,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             t_arr, out_arr, events_out =  self.simulate_tau_leaping_events(events=events,
                                   contactMatrices=contactMatrices,
@@ -3468,7 +3525,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
                                   epsilon= epsilon,
                                   tau_update_frequency=tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                   'Ni':self.Ni, 'M':self.M,'fsa':self.fsa,

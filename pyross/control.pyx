@@ -25,6 +25,8 @@ cdef class control_integration:
         int nClass
         double beta
         np.ndarray Ni, CM, dxdt
+        double t_last_event
+        int current_protocol_index
 
     cdef rhs(self, rp, tt):
         return
@@ -33,7 +35,8 @@ cdef class control_integration:
                 events, contactMatrices,
                          Tf, Nf, Ti=0,
                          events_repeat=False,
-                         events_subsequent=True): # only relevant of repeat_events = False
+                         events_subsequent=True, # only relevant of repeat_events = False
+                         stop_at_event=False):
         """
         Performs detemrinistic numerical integration
 
@@ -69,16 +72,21 @@ cdef class control_integration:
 
         """
         cdef:
-            int cur_index_i = 0,  current_protocol_index
+            int cur_index_i = 0
             double t_i, cur_t_f
             int M = self.M, i, j, N_events
             #double [:,:] CM = self.CM
             list cur_list, events_out = [], list_of_available_events
             np.ndarray cur_y0 = y0.copy()
+            int current_protocol_index
 
         from scipy.integrate import solve_ivp
 
         def rhs0(t,rp):
+            try:
+                self.CM = contactMatrices[self.current_protocol_index](t-self.t_last_event)
+            except:
+                self.CM = contactMatrices[self.current_protocol_index]
             self.rhs(rp, t)
             return self.dxdt
 
@@ -102,8 +110,9 @@ cdef class control_integration:
         cur_t_f = 0 # final time of current iteration
         cur_t_eval = t_eval # time interval for current iteration
 
-        current_protocol_index = 0 # start with first contact matrix in list
-        self.CM = contactMatrices[current_protocol_index]
+        self.current_protocol_index = 0 # start with first contact matrix in list
+        self.t_last_event = 0
+        #self.CM = contactMatrices[current_protocol_index]
 
         while (cur_t_f < Tf):
             # Ceate a list with the available events
@@ -146,7 +155,9 @@ cdef class control_integration:
                     events_out.append([sol.t_events[i][0], current_protocol_index ])
                     #print('At time {0:3.2f}, event {1} occured.'.format(sol.t_events[current_protocol_index][0],
                     #                     current_protocol_index))
-                    self.CM = contactMatrices[current_protocol_index]
+                    self.t_last_event = sol.t_events[i][0]
+                    self.current_protocol_index = current_protocol_index
+                    #self.CM = contactMatrices[current_protocol_index]
                     break
             # Add current simulational result to trajectory
             if sol.t[-1] == Tf:
@@ -169,6 +180,9 @@ cdef class control_integration:
                                           num= len(t_eval[cur_index_i:]))
                 # initial condition for next iteration
                 cur_y0 = np.array( sol.y[:,-1] )
+                # if desired, terminate once an event has happened
+                if stop_at_event:
+                    return y_eval[:cur_index_f], t_eval[:cur_index_f], events_out
 
         return y_eval, t_eval, events_out
 
@@ -279,6 +293,7 @@ cdef class SIR(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -292,7 +307,8 @@ cdef class SIR(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
@@ -306,7 +322,8 @@ cdef class SIR(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
 
 
@@ -437,6 +454,7 @@ cdef class SEkIkIkR(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -450,7 +468,8 @@ cdef class SEkIkIkR(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                       'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE ,
@@ -687,6 +706,7 @@ cdef class SIRS(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -699,7 +719,8 @@ cdef class SIRS(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
@@ -823,6 +844,7 @@ cdef class SEIR(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -835,7 +857,8 @@ cdef class SEIR(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
                 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
@@ -849,7 +872,8 @@ cdef class SEIR(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
 
 
@@ -1034,6 +1058,7 @@ cdef class SEI5R(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -1046,7 +1071,8 @@ cdef class SEI5R(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
                   'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                   'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
@@ -1061,7 +1087,8 @@ cdef class SEI5R(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
 
 
@@ -1135,8 +1162,8 @@ cdef class SIkR(control_integration):
                 for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa        
-            X[i+M]   = aa - gI*I[i]        
+            X[i]     = -aa
+            X[i+M]   = aa - gI*I[i]
 
             for j in range(ki-1):
                 X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
@@ -1150,6 +1177,7 @@ cdef class SIkR(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -1162,7 +1190,8 @@ cdef class SIkR(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
               'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             return data
@@ -1175,7 +1204,8 @@ cdef class SIkR(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
 
 
@@ -1258,12 +1288,12 @@ cdef class SEkIkR(control_integration):
                 for j in range(M):
                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             aa = bb*S[i]
-            X[i]     = -aa         
+            X[i]     = -aa
 
             # If there is any E stage...
             if 0 != ke :
                 # People removed from S are put in E[0]
-                X[i+M+0] = aa - gE*E[i]         
+                X[i+M+0] = aa - gE*E[i]
 
                 # Propagate cases along the E stages
                 for j in range(ke - 1) :
@@ -1290,6 +1320,7 @@ cdef class SEkIkR(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -1303,7 +1334,8 @@ cdef class SEkIkR(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")
 
@@ -1423,6 +1455,7 @@ cdef class SEAIR(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -1436,7 +1469,8 @@ cdef class SEAIR(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
         else:
             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")
 
@@ -1625,6 +1659,7 @@ cdef class SEAI5R(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -1637,7 +1672,8 @@ cdef class SEAI5R(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                           'Ni':self.Ni, 'M':self.M,
                           'alpha':self.alpha, 'beta':self.beta,
@@ -1659,7 +1695,8 @@ cdef class SEAI5R(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
 
 
 
@@ -1794,6 +1831,7 @@ cdef class SEAIRQ(control_integration):
                          method='deterministic',
                          events_repeat=False,
                          events_subsequent=True,
+                         stop_at_event=False,
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
@@ -1806,7 +1844,8 @@ cdef class SEAIRQ(control_integration):
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
                     'fsa':self.fsa,
                     'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
@@ -1823,4 +1862,5 @@ cdef class SEAIRQ(control_integration):
                                 nc=nc,epsilon = epsilon,
                                 tau_update_frequency = tau_update_frequency,
                                   events_repeat=events_repeat,
-                                  events_subsequent=events_subsequent)
+                                  events_subsequent=events_subsequent,
+                                  stop_at_event=stop_at_event)
