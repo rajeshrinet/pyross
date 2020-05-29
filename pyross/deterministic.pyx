@@ -17,6 +17,12 @@ cdef class IntegratorsClass:
 
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', Ti=0, maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        
+        ...
+
         Parameters
         ----------
         x0: np.array
@@ -226,6 +232,13 @@ cdef class SIR(IntegratorsClass):
     def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, integrator='odeint',
                  Ti=0, maxNumSteps=10000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -399,6 +412,13 @@ cdef class SIkR(IntegratorsClass):
     def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
                  maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -577,6 +597,13 @@ cdef class SEIR(IntegratorsClass):
     def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
                         maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -786,6 +813,13 @@ cdef class SEkIkR(IntegratorsClass):
     def simulate(self, S0, E0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
             maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -1017,6 +1051,13 @@ cdef class SEkIkIkR(IntegratorsClass):
     def simulate(self, S0, E0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
             maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -1337,6 +1378,13 @@ cdef class SEI8R(IntegratorsClass):
     def simulate(self, S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0,
                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -1628,6 +1676,13 @@ cdef class SEAIR(IntegratorsClass):
     def simulate(self, S0, E0, A0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0,
              integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -1951,6 +2006,13 @@ cdef class SEAI8R(IntegratorsClass):
     def simulate(self, S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0,
                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -2273,6 +2335,13 @@ cdef class SEAIRQ(IntegratorsClass):
     def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, Tf, Nf, Ti=0,
                      integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -2558,6 +2627,13 @@ cdef class SEAIRQ_testing(IntegratorsClass):
     def simulate(self, S0, E0, A0, Ia0, Is0, Q0, contactMatrix, testRate, Tf, Nf, Ti=0,
                      integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -2830,6 +2906,13 @@ cdef class SIRS(IntegratorsClass):
     def simulate(self, S0, Ia0, Is0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
                      maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -3084,6 +3167,13 @@ cdef class Spp(IntegratorsClass):
     def simulate(self, x0, contactMatrix, Tf, Nf, Ti=0,
                      integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         x0: np.array or dict
@@ -3371,6 +3461,13 @@ cdef class SEI5R(IntegratorsClass):
     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0,
                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
@@ -3719,6 +3816,13 @@ cdef class SEAI5R(IntegratorsClass):
     def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, contactMatrix, Tf, Nf, Ti=0,
                  integrator='odeint', maxNumSteps=100000, **kwargs):
         """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internaly calls the method 'simulator' of IntegratorsClass
+        
+        ...
+
         Parameters
         ----------
         S0: np.array
