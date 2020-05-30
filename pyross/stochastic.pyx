@@ -52,7 +52,8 @@ cdef class stochastic_integration:
         readonly int dim_state_vec
         np.ndarray rates, xt, xtminus1, vectors_of_change, CM
         mt19937 gen
-        long seed
+        long seed 
+        dict readData
 
 
     cdef random_choice(self,weights):
@@ -892,6 +893,206 @@ cdef class stochastic_integration:
         return t_arr, out_arr, events_out
 
 
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             S: Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             E: Exposed population time series
+        """
+        X = data['X'];  Ei=self.readData['Ei']
+        E = X[:, Ei[0]*self.M:Ei[1]*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             A: Activated population time series
+        """
+        X = data['X'];  Ai=self.readData['Ai']
+        A = X[:, Ai[0]*self.M:Ai[1]*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ia : Asymptomatics population time series
+        """
+        X  = data['X'];  Iai=self.readData['Iai']
+        Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
+        return Ia
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ia : Asymptomatics population time series
+        """
+        X  = data['X'];  Ii=self.readData['Ii']
+        I = X[:, Ii[0]*self.M:Ii[1]*self.M]
+        return I
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Is : symptomatics population time series
+        """
+        X  = data['X'];  Isi=self.readData['Isi']
+        Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
+        return Is
+
+
+    def Isp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Isp : (intermediate stage between symptomatics 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Ispi=self.readData['Ispi']
+        Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
+        return Isp
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ic : hospitalized population time series
+        """
+        X  = data['X'];  Ihi=self.readData['Isi']
+        Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
+        return Ih
+
+
+    def Ihp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ihp : (intermediate stage between symptomatics 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Ihpi=self.readData['Ihpi']
+        Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
+        return Ihp
+
+
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ic : ICU hospitalized population time series
+        """
+        X  = data['X'];  Ici=self.readData['Isi']
+        Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
+        return Ic
+
+
+    def Icp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Icp : (intermediate stage between ICU 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Icpi=self.readData['Icpi']
+        Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
+        return Icp
+
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ic : mortality time series
+        """
+        X  = data['X'];  Imi=self.readData['Isi']
+        Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
+        return Im
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             R: Removed population time series
+        """
+        X = data['X'];  Rind=self.readData['Rind']
+        R = self.population
+        for i in range(Rind):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
+        return R
+
+
 cdef class SIR(stochastic_integration):
     """
     Susceptible, Infected, Removed (SIR)
@@ -933,7 +1134,7 @@ cdef class SIR(stochastic_integration):
     """
     cdef:
         readonly double beta, gIa, gIs, fsa
-        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha, population
 
     def __init__(self, parameters, M, Ni):
         cdef:
@@ -997,6 +1198,9 @@ cdef class SIR(stochastic_integration):
             # reaction Is -> R at age group i:
             # population of Is decreases by 1
             self.vectors_of_change[3+i*nRpa,i+2*M] = -1
+        
+        self.readData = {'Iai':[1,2], 'Isi':[2,3], 'Rind':3}
+        self.population = self.Ni
 
     cdef rate_vector(self, xt, tt):
         cdef:
@@ -1140,66 +1344,6 @@ cdef class SIR(stochastic_integration):
         return out_dict
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, self.M:2*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 2*self.M:3*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
-        return R
-
-
 
 
 cdef class SIkR(stochastic_integration):
@@ -1231,22 +1375,22 @@ cdef class SIkR(stochastic_integration):
     """
 
     cdef:
-        readonly int kk
+        readonly int kI
         readonly double beta
-        readonly np.ndarray xt0, Ni, dxtdt, CC, gIvec, gI
+        readonly np.ndarray xt0, Ni, dxtdt, CC, gIvec, gI, population
 
     def __init__(self, parameters, M, Ni):
         cdef:
             int nRpa # short for number of reactions per age group
 
-        self.kk = parameters['kI']
-        self.nClass = 1 + self.kk
+        self.kI = parameters['kI']
+        self.nClass = 1 + self.kI
         self.beta  = parameters['beta']                     # infection rate
 
         gI    = parameters['gI']                     # removal rate of I
         self.gI    = np.zeros( self.M, dtype = DTYPE)
         if np.size(gI)==1:
-            self.gI = gI*np.ones(self.kk)
+            self.gI = gI*np.ones(self.kI)
         elif np.size(gI)==M:
             self.gI= gI
         else:
@@ -1257,7 +1401,7 @@ cdef class SIkR(stochastic_integration):
         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
         self.Ni    = Ni
 
-        self.nReactions_per_agegroup = 1 + self.kk
+        self.nReactions_per_agegroup = 1 + self.kI
         self.nReactions = self.M * self.nReactions_per_agegroup
         self.dim_state_vec = self.nClass * self.M
 
@@ -1289,20 +1433,24 @@ cdef class SIkR(stochastic_integration):
             # reaction I_k -> I_{k+1} at age group i:
             # population of k-th  stage by 1, population of (k+1)-th
             # stage is increases by 1
-            for j in range(self.kk - 1):
+            for j in range(self.kI - 1):
                 self.vectors_of_change[1+j+i*nRpa, i+(j+1)*M] = -1
                 self.vectors_of_change[1+j+i*nRpa, i+(j+2)*M] = +1
             #
-            # reaction I_{kk} -> R} at age group i:
+            # reaction I_{kI} -> R} at age group i:
             # population of last stage decreases by 1
-            self.vectors_of_change[self.kk+i*nRpa,i+self.kk*M] = -1
+            self.vectors_of_change[self.kI+i*nRpa,i+self.kI*M] = -1
+        
+        self.readData = {'Ii':[1,self.kI+1], 'Rind':self.kI+1}
+        self.population = self.Ni
+
 
     cdef rate_vector(self, xt, tt):
         cdef:
-            int N=self.N, M=self.M, i, j, jj, kk=self.kk
+            int N=self.N, M=self.M, i, j, jj, kI=self.kI
             double beta=self.beta, rateS, lmda
             long [:] S    = xt[0  :M]
-            long [:] I    = xt[M  :(kk+1)*M]
+            long [:] I    = xt[M  :(kI+1)*M]
             double [:] gI = self.gI
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
@@ -1311,15 +1459,15 @@ cdef class SIkR(stochastic_integration):
 
         for i in range(M): #, nogil=False):
             lmda=0
-            for jj in range(kk):
+            for jj in range(kI):
                 for j in range(M):
                     lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
             rateS = lmda*S[i]
             #
             rates[i*nRpa] =  rateS  # rate S -> I1
-            for j in range(kk-1):
-                rates[1+j+i*nRpa] = kk * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
-            rates[kk+i*nRpa] = kk * gI[kk-1] * I[i+(kk-1)*M] # rate I_{k} -> R
+            for j in range(kI-1):
+                rates[1+j+i*nRpa] = kI * gI[j] * I[i+j*M] # rate I_{j} -> I_{j+1}
+            rates[kI+i*nRpa] = kI * gI[kI-1] * I[i+(kI-1)*M] # rate I_{k} -> R
         return
 
     cpdef simulate(self, S0, I0, contactMatrix, Tf, Nf,
@@ -1329,13 +1477,13 @@ cdef class SIkR(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i, j
-            int kk = self.kk
+            int kI = self.kI
             long [:] xt = self.xt
 
         # write initial condition to xt
         for i in range(M):
             xt[i] = S0[i]
-            for j in range(kk):
+            for j in range(kI):
               xt[i+(j+1)*M] = I0[j]
 
         if method.lower() == 'gillespie':
@@ -1349,7 +1497,7 @@ cdef class SIkR(stochastic_integration):
         out_dict = {'X':out_arr, 't':t_arr,
                       'Ni':self.Ni, 'M':self.M,
                        'beta':self.beta,
-                      'gI':self.gI, 'kI':self.kk }
+                      'gI':self.gI, 'kI':self.kI }
         return out_dict
 
     cpdef simulate_events(self, S0, I0, events,
@@ -1362,7 +1510,7 @@ cdef class SIkR(stochastic_integration):
                 ):
         cdef:
             int M = self.M, i, j
-            int kk = self.kk
+            int kI = self.kI
             long [:] xt = self.xt
             list events_out
             np.ndarray out_arr, t_arr
@@ -1370,7 +1518,7 @@ cdef class SIkR(stochastic_integration):
         # write initial condition to xt
         for i in range(M):
             xt[i] = S0[i]
-            for j in range(kk):
+            for j in range(kI):
               xt[i+(j+1)*M] = I0[j]
 
         if method.lower() == 'gillespie':
@@ -1394,53 +1542,8 @@ cdef class SIkR(stochastic_integration):
         out_dict = {'X':out_arr, 't':t_arr,  'events_occured':events_out,
                     'Ni':self.Ni, 'M':self.M,
                      'beta':self.beta,
-                    'gI':self.gI, 'kI':self.kk }
+                    'gI':self.gI, 'kI':self.kI }
         return out_dict
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def I(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M]
-        return R
 
 
 
@@ -1483,7 +1586,7 @@ cdef class SEIR(stochastic_integration):
 
     cdef:
         readonly double beta, fsa, gIa, gIs, gE
-        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha, population
 
     def __init__(self, parameters, M, Ni):
         cdef:
@@ -1555,6 +1658,9 @@ cdef class SEIR(stochastic_integration):
             # reaction Is -> R at age group i:
             # population of Ia decreases by 1
             self.vectors_of_change[4+i*nRpa,i+3*M] = -1
+
+        self.readData = {'Ei':[1,2], 'Iai':[2,3], 'Isi':[3,4], 'Rind':4}
+        self.population = self.Ni
 
 
     cdef rate_vector(self, xt, tt):
@@ -1666,79 +1772,6 @@ cdef class SEIR(stochastic_integration):
         return out_dict
 
 
-    def S(self,  data):
-        """
-        Parameters
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 2*self.M:3*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 3*self.M:4*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
-        return R
-
 
 
 cdef class SEI5R(stochastic_integration):
@@ -1797,7 +1830,7 @@ cdef class SEI5R(stochastic_integration):
 
     cdef:
         readonly double beta, gE, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm, alpha
+        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, iaa, hh, cc, mm, alpha, population
         int nClass_
 
     def __init__(self, parameters, M, Ni):
@@ -1956,6 +1989,12 @@ cdef class SEI5R(stochastic_integration):
             # reaction Ic -> Im at age group i:
             self.vectors_of_change[10+i*nRpa,i+5*M] = -1
             self.vectors_of_change[10+i*nRpa,i+6*M] = +1
+        
+        self.readData = {'Ei':[1,2], 'Iai':[2,3], 
+                        'Isi':[3,4], 
+                        'Ihi':[4,5], 
+                        'Ici':[5,6], 
+                        'Imi':[6,7], 'Rind':6}
 
     cdef rate_vector(self, xt, tt):
         cdef:
@@ -2071,6 +2110,7 @@ cdef class SEI5R(stochastic_integration):
                       'mm':self.mm,'cc':self.cc,
                       'iaa':self.iaa,
                       }
+        self.population = (out_dict['X'])[:,7*self.M:8*self.M]
         return out_dict
 
 
@@ -2136,145 +2176,9 @@ cdef class SEI5R(stochastic_integration):
                     'mm':self.mm,'cc':self.cc,
                     'iaa':self.iaa,
                     }
+
+        self.population = (out_dict['X'])[:,7*self.M:8*self.M]
         return out_dict
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 2*self.M:3*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 3*self.M:4*self.M]
-        return Is
-
-
-    def Ih(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        X  = data['X']
-        Ih = X[:, 4*self.M:5*self.M]
-        return Ih
-
-
-    def Ic(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        X  = data['X']
-        Ic = X[:, 5*self.M:6*self.M]
-        return Ic
-
-
-    def Im(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        X  = data['X']
-        Im = X[:, 6*self.M:7*self.M]
-        return Im
-
-
-    def population(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-            population
-        """
-        X = data['X']
-        ppln  = X[:,7*self.M:8*self.M]
-        return ppln
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-            R = N(t) - (S + E + Ia + Is + Ih + Ic)
-        """
-        X = data['X']
-        R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
-
-        return R
 
 
 
@@ -2327,7 +2231,7 @@ cdef class SEAI5R(stochastic_integration):
 
     cdef:
         readonly double beta, gE, gA, gIa, gIs, gIh, gIc, fsa, fh
-        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm, alpha
+        readonly np.ndarray xt0, Ni, dxtdt, CC, sa, hh, cc, mm, alpha, population
         int nClass_
 
     def __init__(self, parameters, M, Ni):
@@ -2485,6 +2389,12 @@ cdef class SEAI5R(stochastic_integration):
             # reaction Ic -> Im at age group i:
             self.vectors_of_change[11+i*nRpa,i+6*M] = -1
             self.vectors_of_change[11+i*nRpa,i+7*M] = +1
+        
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 
+                        'Isi':[4,5], 
+                        'Ihi':[5,6], 
+                        'Ici':[6,7], 
+                        'Imi':[7,8], 'Rind':7}
 
     cdef rate_vector(self, xt, tt):
         cdef:
@@ -2602,6 +2512,7 @@ cdef class SEAI5R(stochastic_integration):
                       'mm':self.mm,'cc':self.cc,
                       #'iaa':self.iaa,
                       }
+        self.population = (out_dict['X'])[:,8*self.M:9*self.M]
         return out_dict
 
 
@@ -2674,162 +2585,8 @@ cdef class SEAI5R(stochastic_integration):
                     'mm':self.mm,'cc':self.cc,
                     #'iaa':self.iaa,
                     }
+        self.population = (out_dict['X'])[:,8*self.M:9*self.M]
         return out_dict
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def Ih(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        X  = data['X']
-        Ih = X[:, 5*self.M:6*self.M]
-        return Ih
-
-
-    def Ic(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        X  = data['X']
-        Ic = X[:, 6*self.M:7*self.M]
-        return Ic
-
-
-    def Im(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        X  = data['X']
-        Im = X[:, 7*self.M:8*self.M]
-        return Im
-
-
-    def population(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-            population
-        """
-        X = data['X']
-        ppln = X[:, 8*self.M:9*self.M]
-        return ppln
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-            R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
-        """
-        X = data['X']
-        R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M]
-        return R
-
-
-
 
 
 
@@ -2885,7 +2642,7 @@ cdef class SEAIRQ(stochastic_integration):
     cdef:
         readonly double beta, gIa, gIs, gE, gA, fsa
         readonly double tE, tA, tIa, tIs #, tS
-        readonly np.ndarray xt0, Ni, dxtdt, CC, alpha
+        readonly np.ndarray xt0, Ni, dxtdt, CC, alpha, population
 
     def __init__(self, parameters, M, Ni):
         cdef:
@@ -2989,6 +2746,10 @@ cdef class SEAIRQ(stochastic_integration):
             # reaction Is -> Q at age group i:
             self.vectors_of_change[9+i*nRpa,i+4*M] = -1
             self.vectors_of_change[9+i*nRpa,i+5*M] = +1
+        
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
+                        'Qi':[5,6], 'Rind':6}
+        self.population = self.Ni
 
     cdef rate_vector(self, xt, tt):
         cdef:
@@ -3122,111 +2883,6 @@ cdef class SEAIRQ(stochastic_integration):
         return out_dict
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
-        return R
-
-
-
-    def Q(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Q: Quarantined population time series
-        """
-        X  = data['X']
-        Is = X[:, 5*self.M:6*self.M]
-        return Is
 
 
 cdef class SEAIRQ_testing(stochastic_integration):
@@ -3279,7 +2935,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
     cdef:
         readonly double beta, gIa, gIs, gE, gA, fsa
         readonly double ars, kapE
-        readonly np.ndarray xt0, Ni, dxtdt, CC, alpha
+        readonly np.ndarray xt0, Ni, dxtdt, CC, alpha, population
         readonly object testRate
 
 
@@ -3385,6 +3041,10 @@ cdef class SEAIRQ_testing(stochastic_integration):
             # reaction Is -> Q at age group i:
             self.vectors_of_change[9+i*nRpa,i+4*M] = -1
             self.vectors_of_change[9+i*nRpa,i+5*M] = +1
+        
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
+                        'Qi':[5,6], 'Rind':6}
+        self.population = self.Ni
 
     cdef rate_vector(self, xt, tt):
         cdef:
@@ -3535,114 +3195,6 @@ cdef class SEAIRQ_testing(stochastic_integration):
                   'gE':self.gE,'gA':self.gA,
                   'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
         return out_dict
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
-        return R
-
-
-
-    def Q(self,  data):
-        """
-        Parameters
-        ----------
-        data: data files
-
-        Returns
-        -------
-             Q: Quarantined population time series
-        """
-        X  = data['X']
-        Is = X[:, 5*self.M:6*self.M]
-        return Is
-
 
 
 
