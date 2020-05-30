@@ -211,60 +211,16 @@ cdef class SIR_type:
         estimates: numpy.array
             The MAP parameter estimate
         '''
-        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
-        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
-        # (infer_scale_parameter is True).
-        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
-        n_age_dep = np.sum(age_dependent)
-        if not hasattr(infer_scale_parameter, "__len__"):
-            # infer_scale_parameter can be either set for all age-dependent parameters or individually
-            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
-        is_scale_parameter = np.zeros(len(guess), dtype=np.bool)
-        k = 0
-        for j in range(len(guess)):
-            if age_dependent[j]:
-                is_scale_parameter[j] = infer_scale_parameter[k]
-                k += 1
-
-        n_scaled_age_dep = np.sum(infer_scale_parameter)
-        flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
-
-        # Define a new flat guess and a list of slices that correspond to the intitial guess
-        flat_guess       = np.zeros(flat_guess_size)
-        flat_stds        = np.zeros(flat_guess_size)
-        flat_bounds      = np.zeros((flat_guess_size, 2))
-        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
-        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
-        i = 0; j = 0
-        while i < flat_guess_size:
-            if age_dependent[j] and is_scale_parameter[j]:
-                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
-                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
-                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
-                scaled_guesses.append(guess[j])
-                flat_guess_range.append(i)
-                i += 1
-            elif age_dependent[j]:
-                flat_guess[i:i+self.M]    = guess[j]
-                flat_stds[i:i+self.M]     = stds[j]
-                flat_bounds[i:i+self.M,:] = bounds[j,:]
-                flat_guess_range.append(list(range(i, i+self.M)))
-                i += self.M
-            else:
-                flat_guess[i]    = guess[j]
-                flat_stds[i]     = stds[j]
-                flat_bounds[i,:] = bounds[j,:]
-                flat_guess_range.append(i)
-                i += 1
-            j += 1
-
+        # Transfer the guesses, stds, ... which can contain arrays as entries for age-dependend rates to a flat vector for inference.
+        flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
         s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
             flat_cma_stds = flat_stds
         else:
-            flat_cma_stds = np.zeros(flat_guess_size)
+            flat_cma_stds = np.zeros(len(flat_guess))
             for i in range(len(guess)):
                 flat_cma_stds[flat_guess_range[i]] = cma_stds[i]
 
@@ -275,15 +231,8 @@ cdef class SIR_type:
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
         params = res[0]
-        # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(len(flat_guess_range)):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(params[flat_guess_range[j]])
+        # Get the parameters (in their original structure) from the flattened parameter vector.
+        orig_params = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
         if full_output:
             return np.array(orig_params), res[1]
         else:
@@ -676,97 +625,50 @@ cdef class SIR_type:
         assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
         assert len(guess) == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
 
+        # Transfer the parameter parts of guess, stds, ... which can contain arrays as entries for age-dependent rates to a flat list
+        flat_param_guess, flat_param_stds, flat_param_bounds, flat_param_guess_range, is_scale_parameter, scaled_param_guesses \
+            = self._flatten_parameters(guess[:param_dim], stds[:param_dim], bounds[:param_dim], infer_scale_parameter)
 
-        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
-        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
-        # (infer_scale_parameter is True).
-        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
-        n_age_dep = np.sum(age_dependent)
-        if not hasattr(infer_scale_parameter, "__len__"):
-            # infer_scale_parameter can be either set for all age-dependent parameters or individually
-            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
-        is_scale_parameter = np.zeros(param_dim, dtype=np.bool)
-        k = 0
-        for j in range(param_dim):
-            if age_dependent[j]:
-                is_scale_parameter[j] = infer_scale_parameter[k]
-                k += 1
-
-        n_scaled_age_dep = np.sum(infer_scale_parameter)
-        flat_param_guess_size  = param_dim - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
-
-        # Define a new flat guess and a list of slices that correspond to the intitial guess
-        flat_guess       = np.zeros(flat_param_guess_size)
-        flat_stds        = np.zeros(flat_param_guess_size)
-        flat_bounds      = np.zeros((flat_param_guess_size, 2))
-        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
-        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
-        i = 0; j = 0
-        while i < flat_param_guess_size:
-            if age_dependent[j] and is_scale_parameter[j]:
-                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
-                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
-                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
-                scaled_guesses.append(guess[j])
-                flat_guess_range.append(i)
-                i += 1
-            elif age_dependent[j]:
-                flat_guess[i:i+self.M]    = guess[j]
-                flat_stds[i:i+self.M]     = stds[j]
-                flat_bounds[i:i+self.M,:] = bounds[j,:]
-                flat_guess_range.append(list(range(i, i+self.M)))
-                i += self.M
-            else:
-                flat_guess[i]    = guess[j]
-                flat_stds[i]     = stds[j]
-                flat_bounds[i,:] = bounds[j,:]
-                flat_guess_range.append(i)
-                i += 1
-            j += 1
-
-        # concatenate the flattend param guess with init guess
+        # Concatenate the flattend parameter guess with init guess
         init_guess = guess[param_dim:]
         init_stds = stds[param_dim:]
         init_bounds = bounds[param_dim:]
-        guess = np.concatenate([flat_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([flat_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([flat_bounds, init_bounds], axis=0).astype(DTYPE)
+        flat_guess = np.concatenate([flat_param_guess, init_guess]).astype(DTYPE)
+        flat_stds = np.concatenate([flat_param_stds,init_stds]).astype(DTYPE)
+        flat_bounds = np.concatenate([flat_param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
-            flat_cma_stds = stds
+            flat_cma_stds = flat_stds
         else:
-            flat_cma_stds_params = np.zeros(flat_param_guess_size)
+            flat_cma_stds_params = np.zeros(len(flat_param_guess))
             cma_stds_init = cma_stds[param_dim:]
             for i in range(param_dim):
-                flat_cma_stds_params[flat_guess_range[i]] = cma_stds[i]
+                flat_cma_stds_params[flat_param_guess_range[i]] = cma_stds[i]
             flat_cma_stds = np.concatenate([flat_cma_stds_params, cma_stds_init])
 
         minimize_args = {'param_keys':param_keys, 'init_fltr':init_fltr,
                         'is_scale_parameter':is_scale_parameter,
-                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                        'flat_param_guess_size':flat_param_guess_size,
+                        'scaled_guesses':scaled_param_guesses, 'flat_guess_range':flat_param_guess_range,
+                        'flat_param_guess_size':len(flat_param_guess),
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
                          's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
-        res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+        res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, 
+                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
 
         estimates = res[0]
-        # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(param_dim):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([estimates[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(estimates[flat_guess_range[j]])
-        orig_params += list(estimates[flat_param_guess_size:])
+
+        # Get the parameters (in their original structure) from the flattened parameter vector.
+        flat_param_estimates = estimates[:len(flat_param_guess)]
+        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter, 
+                                                 scaled_param_guesses)
+        orig_params = [*orig_params, *estimates[len(flat_param_guess):]]
+
         if full_output:
             return np.array(orig_params), res[1]
         else:
@@ -1509,6 +1411,70 @@ cdef class SIR_type:
         else:
             raise Exception("Error: det_method not found. use set_det_method to reset.")
         return sol
+
+    def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
+        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
+        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
+        # (infer_scale_parameter is True).
+        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
+        n_age_dep = np.sum(age_dependent)
+        if not hasattr(infer_scale_parameter, "__len__"):
+            # infer_scale_parameter can be either set for all age-dependent parameters or individually
+            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
+        is_scale_parameter = np.zeros(len(guess), dtype=np.bool)
+        k = 0
+        for j in range(len(guess)):
+            if age_dependent[j]:
+                is_scale_parameter[j] = infer_scale_parameter[k]
+                k += 1
+
+        n_scaled_age_dep = np.sum(infer_scale_parameter)
+        flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
+
+        # Define a new flat guess and a list of slices that correspond to the intitial guess
+        flat_guess       = np.zeros(flat_guess_size)
+        flat_stds        = np.zeros(flat_guess_size)
+        flat_bounds      = np.zeros((flat_guess_size, 2))
+        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
+        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
+        i = 0; j = 0
+        while i < flat_guess_size:
+            if age_dependent[j] and is_scale_parameter[j]:
+                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
+                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
+                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
+                scaled_guesses.append(guess[j])
+                flat_guess_range.append(i)
+                i += 1
+            elif age_dependent[j]:
+                flat_guess[i:i+self.M]    = guess[j]
+                flat_stds[i:i+self.M]     = stds[j]
+                flat_bounds[i:i+self.M,:] = bounds[j,:]
+                flat_guess_range.append(list(range(i, i+self.M)))
+                i += self.M
+            else:
+                flat_guess[i]    = guess[j]
+                flat_stds[i]     = stds[j]
+                flat_bounds[i,:] = bounds[j,:]
+                flat_guess_range.append(i)
+                i += 1
+            j += 1
+
+        return flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses
+
+    def _unflatten_parameters(self, params, flat_guess_range, is_scale_parameter, scaled_guesses):
+        # Restore parameters from flattened parameters
+        orig_params = []
+        k=0
+        for j in range(len(flat_guess_range)):
+            if is_scale_parameter[j]:
+                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
+                k += 1
+            else:
+                orig_params.append(params[flat_guess_range[j]])
+        
+        return orig_params
+
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
