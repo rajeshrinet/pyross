@@ -8,14 +8,15 @@ DTYPE   = np.float
 from libc.stdlib cimport malloc, free
 
 
-
+                                                                      
 
 cdef class IntegratorsClass:
     """
     Integrators used by various deterministic models listed below.
     """
 
-    def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', Ti=0, maxNumSteps=100000, **kwargs):
+    def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
+        Ti=0, maxNumSteps=100000, **kwargs):
         """
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
@@ -33,7 +34,7 @@ cdef class IntegratorsClass:
             The removed R class must be left out.
             If Ni is dynamical, then the last M points store Ni.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -46,7 +47,8 @@ cdef class IntegratorsClass:
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -64,42 +66,49 @@ cdef class IntegratorsClass:
 
         if integrator=='odeint':
             from scipy.integrate import odeint
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf)   
             X = odeint(dxdtEval, x0, time_points, mxstep=maxNumSteps, **kwargs)
 
         elif integrator=='solve_ivp':
             from scipy.integrate import solve_ivp
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            X = solve_ivp(lambda t, xt: dxdtEval(xt,t), [Ti,Tf], x0, t_eval=time_points, **kwargs).y.T
+            time_points=np.linspace(Ti, Tf, Nf)                                                          
+            X = solve_ivp(lambda t, xt: dxdtEval(xt,t), [Ti,Tf], x0, 
+                         t_eval=time_points, **kwargs).y.T
 
         elif integrator=='odespy' or integrator=='odespy-vode':
             import odespy
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
-            solver = odespy.Vode(dxdtEval, method = 'bdf', atol=1E-7, rtol=1E-6, order=5, nsteps=maxNumSteps)
+            time_points=np.linspace(Ti, Tf, Nf)                                                          
+            solver = odespy.Vode(dxdtEval, method = 'bdf', 
+                    atol=1E-7, rtol=1E-6, order=5, nsteps=maxNumSteps)
             solver.set_initial_condition(x0)
             X, time_points = solver.solve(time_points, **kwargs)
 
         elif integrator=='odespy-rkf45':
             import odespy
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf)                                                          
             solver = odespy.RKF45(dxdtEval)
             solver.set_initial_condition(x0)
             X, time_points = solver.solve(time_points, **kwargs)
 
         elif integrator=='odespy-rk4':
             import odespy
-            time_points=np.linspace(Ti, Tf, Nf);  ## intervals at which output is returned by integrator.
+            time_points=np.linspace(Ti, Tf, Nf)
             solver = odespy.RK4(dxdtEval)
             solver.set_initial_condition(x0)
             X, time_points = solver.solve(time_points, **kwargs)
 
         else:
             raise Exception("Error: Integration method not found! \n \
-                            Please set integrator='odeint' to use the scipy's odeint (Default). \n \
-                            Use integrator='odespy-vode' to use vode from odespy (github.com/rajeshrinet/odespy). \n \
-                            Use integrator='odespy-rkf45' to use RKF45 from odespy (github.com/rajeshrinet/odespy). \n \
-                            Use integrator='odespy-rk4' to use RK4 from odespy (github.com/rajeshrinet/odespy). \n \
-                            Alternatively, write your own integrator to evolve the system in time \n")
+                            Please set integrator='odeint' to use the \n  \
+                            scipy's odeint (Default). \n \
+                            Use integrator='odespy-vode' to use vode \
+                            from odespy (github.com/rajeshrinet/odespy). \n \
+                            Use integrator='odespy-rkf45' to use RKF45 from \
+                            odespy (github.com/rajeshrinet/odespy). \n \
+                            Use integrator='odespy-rk4' to use RK4 from \
+                            odespy (github.com/rajeshrinet/odespy). \n \
+                            Alternatively, write your own integrator to \
+                            evolve the system in time \n")
 
         data     = {'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M}
         data_out = data.copy()
@@ -132,15 +141,15 @@ cdef class SIR(IntegratorsClass):
         Contains the following keys:
 
         alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float, np.array (M,)
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float, np.array (M,)
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float, np.array (M,)
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         fsa: float, np.array (M,)
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -151,20 +160,20 @@ cdef class SIR(IntegratorsClass):
     --------
     An example of the SIR class  
 
-    >>> M = 1                   # the SIR model has no age structure
-    >>> Ni = 1000*np.ones(M)    # so there is only one age group
-    >>> N = np.sum(Ni)          # and the total population is the size of this age group
+    >>> M = 1                   # SIR model with no age structure
+    >>> Ni = 1000*np.ones(M)    # only one age group
+    >>> N = np.sum(Ni)          # total population 
     >>> 
-    >>> beta  = 0.2             # infection rate
-    >>> gIa   = 0.1             # removal rate of asymptomatic infectives
-    >>> gIs   = 0.1             # removal rate of symptomatic infectives
-    >>> alpha = 0               # fraction of asymptomatic infectives
+    >>> beta  = 0.2             # Infection rate
+    >>> gIa   = 0.1             # Removal rate of asymptomatic infectives
+    >>> gIs   = 0.1             # Removal rate of symptomatic infectives
+    >>> alpha = 0               # Fraction of asymptomatic infectives
     >>> fsa   = 1               # self-isolation of symtomatic infectives
     >>> 
-    >>> Ia0 = np.array([0])     # the SIR model has only one kind of infective
-    >>> Is0 = np.array([1])     # we take these to be symptomatic
-    >>> R0  = np.array([0])     # and assume there are no removed individuals initially
-    >>> S0  = N-(Ia0+Is0+R0)    # so that the initial susceptibles are obtained from S + Ia + Is + R = N
+    >>> Ia0 = np.array([0])     # Intial asymptomatic infectives
+    >>> Is0 = np.array([1])     # Initial symptomatic
+    >>> R0  = np.array([0])     # No removed individuals initially
+    >>> S0  = N-(Ia0+Is0+R0)    # S + Ia + Is + R = N
     >>> 
     >>> # there is no contact structure
     >>> def contactMatrix(t):
@@ -193,11 +202,11 @@ cdef class SIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  #Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 3*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 3*self.M, dtype=DTYPE)           # Right hand side
 
         self.paramList = parameters
 
@@ -223,9 +232,9 @@ cdef class SIR(IntegratorsClass):
                  lmda += CM[i,j]*(Ia[j]+fsa[j]*Is[j])/Ni[j]
             rateS = lmda*S[i]*beta[i]
             #
-            dxdt[i]     = -rateS                                                   # \dot S
-            dxdt[i+M]   = alpha[i]*rateS     - gIa[i]*Ia[i]                           # \dot Ia
-            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs[i]*Is[i]                           # \dot Is
+            dxdt[i]     = -rateS                              # \dot S
+            dxdt[i+M]   = alpha[i]*rateS     - gIa[i]*Ia[i]   # \dot Ia
+            dxdt[i+2*M] = (1-alpha[i])*rateS - gIs[i]*Is[i]   # \dot Is
         return
 
 
@@ -248,7 +257,7 @@ cdef class SIR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -261,7 +270,8 @@ cdef class SIR(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -273,7 +283,8 @@ cdef class SIR(IntegratorsClass):
         """
 
         x0 = np.concatenate((S0, Ia0, Is0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -281,7 +292,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -296,7 +307,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -311,7 +322,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -326,7 +337,7 @@ cdef class SIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -355,9 +366,9 @@ cdef class SIkR(IntegratorsClass):
         Contains the following keys:
 
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gI: float
-            rate of removal from infectives.
+            Rate of removal from infectives.
         kI: int
             number of stages of infection.
     M: int
@@ -368,18 +379,18 @@ cdef class SIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # infection rate
-        self.gI    = parameters['gI']                           # removal rate of I
+        self.beta  = parameters['beta']              # Infection rate
+        self.gI    = parameters['gI']                # Removal rate of I
         self.kI    = parameters['kI']
         self.nClass= self.kI + 1
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # Right hand side
 
         self.paramList = parameters
 
@@ -426,7 +437,7 @@ cdef class SIkR(IntegratorsClass):
         I0: np.array
             Initial number of  infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -439,7 +450,8 @@ cdef class SIkR(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -451,7 +463,8 @@ cdef class SIkR(IntegratorsClass):
         """
 
         x0=np.concatenate((S0, I0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -459,7 +472,7 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -474,7 +487,7 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -490,7 +503,7 @@ cdef class SIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -527,17 +540,17 @@ cdef class SEIR(IntegratorsClass):
         Contains the following keys:
 
         alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float, np.array (M,)
-            rate of spread of infection.
+            Rate of spread of infection.
         gE: float, np.array (M,)
-            rate of removal from exposed individuals.
+            Rate of removal from exposed individuals.
         gIa: float, np.array (M,)
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float, np.array (M,)
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         fsa: float, np.array (M,)
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -558,11 +571,11 @@ cdef class SEIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # Right hand side
 
 
     cpdef rhs(self, xt, tt):
@@ -615,7 +628,7 @@ cdef class SEIR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -628,7 +641,8 @@ cdef class SEIR(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -640,7 +654,8 @@ cdef class SEIR(IntegratorsClass):
         """
 
         x0 = np.concatenate((S0, E0, Ia0, Is0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -648,7 +663,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -663,7 +678,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -678,7 +693,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -693,7 +708,7 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -708,14 +723,16 @@ cdef class SEIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
              R: Removed population time series
         """
         X = data['X']
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M]
+        R = self.Ni 
+        for i in range(4):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
         return R
 
 
@@ -737,11 +754,11 @@ cdef class SEkIkR(IntegratorsClass):
         Contains the following keys:
 
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gI: float
-            rate of removal from infected individuals.
+            Rate of removal from infected individuals.
         gE: float
-            rate of removal from exposed individuals.
+            Rate of removal from exposed individuals.
         kI: int
             number of stages of infectives.
         kE: int
@@ -754,9 +771,9 @@ cdef class SEkIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # infection rate
-        self.gE    = parameters['gE']                           # removal rate of E
-        self.gI    = parameters['gI']                           # removal rate of I
+        self.beta  = parameters['beta']                         # Infection rate
+        self.gE    = parameters['gE']                           # Removal rate of E
+        self.gI    = parameters['gI']                           # Removal rate of I
         self.kI    = parameters['kI']                           # number of stages
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kE + 1
@@ -765,11 +782,11 @@ cdef class SEkIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( (self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( (self.kI + self.kE + 1)*self.M, dtype=DTYPE)  #Right hand side
 
         if self.kE==0:
             raise Exception('number of E stages should be greater than zero, kE>0')
@@ -829,7 +846,7 @@ cdef class SEkIkR(IntegratorsClass):
         I0: np.array
             Initial number of  infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -842,7 +859,8 @@ cdef class SEkIkR(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -854,7 +872,8 @@ cdef class SEkIkR(IntegratorsClass):
         """
 
         x0=np.concatenate((S0, E0, I0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -862,7 +881,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -877,7 +896,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -894,7 +913,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -911,7 +930,7 @@ cdef class SEkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -951,15 +970,15 @@ cdef class SEkIkIkR(IntegratorsClass):
         Contains the following keys:
 
         alpha: float
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float
-            rate of removal from asymptomatic infected individuals.
+            Rate of removal from asymptomatic infected individuals.
         gIs: float
-            rate of removal from symptomatic infected individuals.
+            Rate of removal from symptomatic infected individuals.
         gE: float
-            rate of removal from exposed individuals.
+            Rate of removal from exposed individuals.
         kI: int
             number of stages of asymptomatic infectives.
         kI: int
@@ -974,12 +993,12 @@ cdef class SEkIkIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # infection rate
-        self.gE    = parameters['gE']                           # removal rate of E
-        self.gIa   = parameters['gIa']                           # removal rate of Ia
-        self.gIs   = parameters['gIs']                           # removal rate of Is
-        self.kI    = parameters['kI']                           # number of stages
-        self.fsa   = parameters['fsa']                          # the self-isolation parameter
+        self.beta  = parameters['beta']            # Infection rate
+        self.gE    = parameters['gE']              # Removal rate of E
+        self.gIa   = parameters['gIa']             # Removal rate of Ia
+        self.gIs   = parameters['gIs']             # Removal rate of Is
+        self.kI    = parameters['kI']              # number of stages
+        self.fsa   = parameters['fsa']             # The self-isolation parameter
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kI + self.kE + 1
 
@@ -987,18 +1006,18 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)    # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)   # Right hand side
 
         if self.kE==0:
             raise Exception('number of E stages should be greater than zero, kE>0')
         elif self.kI==0:
             raise Exception('number of I stages should be greater than zero, kI>0')
 
-        alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
+        alpha      = parameters['alpha']                        # Fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -1069,7 +1088,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1082,7 +1101,8 @@ cdef class SEkIkIkR(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -1094,8 +1114,8 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
 
         x0=np.concatenate((S0, E0, Ia0, Is0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
-
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -1103,7 +1123,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1118,7 +1138,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1134,7 +1154,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1151,7 +1171,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1168,7 +1188,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1219,36 +1239,36 @@ cdef class SEI8R(IntegratorsClass):
         Contains the following keys:
 
         alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gE: float
-            rate of removal from exposeds individuals.
+            Rate of removal from exposeds individuals.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         gIsp: float
-            rate of removal from symptomatic individuals towards buffer.
+            Rate of removal from symptomatic individuals towards buffer.
         gIh: float
-            rate of removal for hospitalised individuals.
+            Rate of removal for hospitalised individuals.
         gIhp: float
-            rate of removal from hospitalised individuals towards buffer.
+            Rate of removal from hospitalised individuals towards buffer.
         gIc: float
-            rate of removal for idividuals in intensive care.
+            Rate of removal for idividuals in intensive care.
         gIcp: float
-            rate of removal from ICU individuals towards buffer.
+            Rate of removal from ICU individuals towards buffer.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         fh  : float
-            fraction by which hospitalised individuals are isolated.
+            Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
             daily arrival of new susceptables.
             sa is rate of additional/removal of population by birth etc
         hh: float, np.array (M,)
-            fraction hospitalised from Is
+            Fraction hospitalised from Is
         cc: float, np.array (M,)
-            fraction sent to intensive care from hospitalised.
+            Fraction sent to intensive care from hospitalised.
         mm: float, np.array (M,)
             mortality rate in intensive care
     M: int
@@ -1259,32 +1279,32 @@ cdef class SEI8R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass= 10  # only 7 input classes
-        self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # removal rate of E class
-        self.gIa   = parameters['gIa']                      # removal rate of Ia
-        self.gIs   = parameters['gIs']                      # removal rate of Is
-        self.gIsp  = parameters['gIsp']                     # removal rate of Isp
-        self.gIh   = parameters['gIh']                      # removal rate of Is
-        self.gIhp  = parameters['gIhp']                     # removal rate of Ihp
-        self.gIc   = parameters['gIc']                      # removal rate of Ih
-        self.gIcp  = parameters['gIcp']                     # removal rate of Ixp
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
-        alpha      = parameters['alpha']                    # fraction of asymptomatics
-        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
-        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
-        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
-        mm         = parameters['mm']                       # mortality fraction from ICU
+        self.nClass= 10                           # only 7 input classes
+        self.beta  = parameters['beta']           # Infection rate
+        self.gE    = parameters['gE']             # Removal rate of E class
+        self.gIa   = parameters['gIa']            # Removal rate of Ia
+        self.gIs   = parameters['gIs']            # Removal rate of Is
+        self.gIsp  = parameters['gIsp']           # Removal rate of Isp
+        self.gIh   = parameters['gIh']            # Removal rate of Is
+        self.gIhp  = parameters['gIhp']           # Removal rate of Ihp
+        self.gIc   = parameters['gIc']            # Removal rate of Ih
+        self.gIcp  = parameters['gIcp']           # Removal rate of Ixp
+        self.fsa   = parameters['fsa']            # The self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']             # The self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha']          # Fraction of asymptomatics
+        sa         = parameters['sa']             # Rate of additional/removal of population by birth etc
+        hh         = parameters['hh']             # Fraction of infected who gets hospitalized
+        cc         = parameters['cc']             # Fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']             # Mortality fraction from ICU
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 11*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 11*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1375,7 +1395,8 @@ cdef class SEI8R(IntegratorsClass):
         return
 
 
-    def simulate(self, S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0,
+    def simulate(self, S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, 
+                    contactMatrix, Tf, Nf, Ti=0,
                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Simulates a compartment model given initial conditions,
@@ -1402,7 +1423,7 @@ cdef class SEI8R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1415,7 +1436,8 @@ cdef class SEI8R(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -1426,8 +1448,10 @@ cdef class SEI8R(IntegratorsClass):
 
         """
 
-        x0=np.concatenate((S0, E0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        x0=np.concatenate((S0, E0, Ia0, Is0, Isp0, Ih0, 
+                           Ihp0, Ic0, Icp0, Im0, self.Ni))
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -1435,7 +1459,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1450,7 +1474,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1465,7 +1489,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1480,7 +1504,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1495,7 +1519,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1510,7 +1534,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1525,7 +1549,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1540,7 +1564,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1555,7 +1579,7 @@ cdef class SEI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1563,9 +1587,9 @@ cdef class SEI8R(IntegratorsClass):
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
-        R =  X[:, 10*self.M:11*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:,6*self.M:7*self.M] \
-                                                       - X[:,7*self.M:8*self.M] - X[:,8*self.M:9*self.M] - X[:,9*self.M:10*self.M]
+        R =  X[:, 10*self.M:11*self.M] 
+        for i in range(10):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
 
         return R
 
@@ -1593,19 +1617,19 @@ cdef class SEAIR(IntegratorsClass):
         Contains the following keys:
 
         alpha: float
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         gE: float
-            rate of removal from exposeds individuals.
+            Rate of removal from exposeds individuals.
         gA: float
-            rate of removal from activated individuals.
+            Rate of removal from activated individuals.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1615,23 +1639,23 @@ cdef class SEAIR(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 5
-        self.beta  = parameters['beta']                         # infection rate
-        self.gIa   = parameters['gIa']                          # removal rate of Ia
-        self.gIs   = parameters['gIs']                          # removal rate of Is
-        self.gE    = parameters['gE']                           # removal rate of E
-        self.gA    = parameters['gA']                           # rate to go from A to Ia, Is
-        self.fsa   = parameters['fsa']                          # the self-isolation parameter
-        alpha      = parameters['alpha']
+        self.beta  = parameters['beta']          # Infection rate
+        self.gIa   = parameters['gIa']           # Removal rate of Ia
+        self.gIs   = parameters['gIs']           # Removal rate of Is
+        self.gE    = parameters['gE']            # Removal rate of E
+        self.gA    = parameters['gA']            # rate to go from A to Ia, Is
+        self.fsa   = parameters['fsa']           # The self-isolation parameter
+        alpha      = parameters['alpha']         # Fraction of asymptomatics
 
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE) # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 5*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 5*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -1665,11 +1689,11 @@ cdef class SEAIR(IntegratorsClass):
                  lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS                                  # \dot S
-            dxdt[i+M]   =  rateS   - gE*E[i]                   # \dot E
-            dxdt[i+2*M] = gE* E[i] - gA*A[i]                      # \dot A
-            dxdt[i+3*M] = gAA*A[i] - gIa     *Ia[i]               # \dot Ia
-            dxdt[i+4*M] = gAS*A[i] - gIs     *Is[i]               # \dot Is
+            dxdt[i]     = -rateS                           # \dot S
+            dxdt[i+M]   =  rateS   - gE*E[i]               # \dot E
+            dxdt[i+2*M] = gE* E[i] - gA*A[i]               # \dot A
+            dxdt[i+3*M] = gAA*A[i] - gIa     *Ia[i]        # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - gIs     *Is[i]        # \dot Is
         return
 
 
@@ -1696,7 +1720,7 @@ cdef class SEAIR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1709,7 +1733,8 @@ cdef class SEAIR(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -1721,7 +1746,8 @@ cdef class SEAIR(IntegratorsClass):
         """
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -1729,7 +1755,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1744,7 +1770,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1759,7 +1785,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1774,7 +1800,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1789,7 +1815,7 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -1804,15 +1830,16 @@ cdef class SEAIR(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
              R: Removed population time series
         """
         X = data['X']
-        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-             -X[:,4*self.M:5*self.M]
+        R = self.Ni 
+        for i in range(5):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
         return R
 
 
@@ -1843,36 +1870,36 @@ cdef class SEAI8R(IntegratorsClass):
         Contains the following keys:
 
         alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gE: float
-            rate of removal from exposeds individuals.
+            Rate of removal from exposeds individuals.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         gIsp: float
-            rate of removal from symptomatic individuals towards buffer.
+            Rate of removal from symptomatic individuals towards buffer.
         gIh: float
-            rate of removal for hospitalised individuals.
+            Rate of removal for hospitalised individuals.
         gIhp: float
-            rate of removal from hospitalised individuals towards buffer.
+            Rate of removal from hospitalised individuals towards buffer.
         gIc: float
-            rate of removal for idividuals in intensive care.
+            Rate of removal for idividuals in intensive care.
         gIcp: float
-            rate of removal from ICU individuals towards buffer.
+            Rate of removal from ICU individuals towards buffer.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         fh  : float
-            fraction by which hospitalised individuals are isolated.
+            Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
             daily arrival of new susceptables.
             sa is rate of additional/removal of population by birth etc
         hh: float, np.array (M,)
-            fraction hospitalised from Is
+            Fraction hospitalised from Is
         cc: float, np.array (M,)
-            fraction sent to intensive care from hospitalised.
+            Fraction sent to intensive care from hospitalised.
         mm: float, np.array (M,)
             mortality rate in intensive care
     M: int
@@ -1884,33 +1911,33 @@ cdef class SEAI8R(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 11
-        self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # removal rate of E class
-        self.gA    = parameters['gA']                       # removal rate of A class
-        self.gIa   = parameters['gIa']                      # removal rate of Ia
-        self.gIs   = parameters['gIs']                      # removal rate of Is
-        self.gIsp  = parameters['gIsp']                     # removal rate of Isp
-        self.gIh   = parameters['gIh']                      # removal rate of Is
-        self.gIhp  = parameters['gIhp']                     # removal rate of Ihp
-        self.gIc   = parameters['gIc']                      # removal rate of Ih
-        self.gIcp  = parameters['gIcp']                     # removal rate of Ixp
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
-        alpha      = parameters['alpha']                    # fraction of asymptomatics
-        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
-        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
-        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
-        mm         = parameters['mm']                       # mortality fraction from ICU
+        self.beta  = parameters['beta']        # Infection rate
+        self.gE    = parameters['gE']          # Removal rate of E class
+        self.gA    = parameters['gA']          # Removal rate of A class
+        self.gIa   = parameters['gIa']         # Removal rate of Ia
+        self.gIs   = parameters['gIs']         # Removal rate of Is
+        self.gIsp  = parameters['gIsp']        # Removal rate of Isp
+        self.gIh   = parameters['gIh']         # Removal rate of Is
+        self.gIhp  = parameters['gIhp']        # Removal rate of Ihp
+        self.gIc   = parameters['gIc']         # Removal rate of Ih
+        self.gIcp  = parameters['gIcp']        # Removal rate of Ixp
+        self.fsa   = parameters['fsa']         # The self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']          # The self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha']       # Fraction of asymptomatics
+        sa         = parameters['sa']          # Rate of additional/removal of population by birth etc
+        hh         = parameters['hh']          # Fraction of infected who gets hospitalized
+        cc         = parameters['cc']          # Fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']          # Mortality fraction from ICU
 
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 12*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 12*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2003,7 +2030,8 @@ cdef class SEAI8R(IntegratorsClass):
         return
 
 
-    def simulate(self, S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, contactMatrix, Tf, Nf, Ti=0,
+    def simulate(self, S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, 
+                    contactMatrix, Tf, Nf, Ti=0,
                     integrator='odeint', maxNumSteps=100000, **kwargs):
         """
         Simulates a compartment model given initial conditions,
@@ -2030,7 +2058,7 @@ cdef class SEAI8R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -2043,7 +2071,8 @@ cdef class SEAI8R(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -2054,8 +2083,10 @@ cdef class SEAI8R(IntegratorsClass):
 
         """
 
-        x0=np.concatenate((S0, E0, A0, Ia0, Is0, Isp0, Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        x0=np.concatenate((S0, E0, A0, Ia0, Is0, Isp0,
+                           Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2063,7 +2094,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2078,7 +2109,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2093,7 +2124,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2108,7 +2139,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2123,7 +2154,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2138,7 +2169,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2153,7 +2184,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2168,7 +2199,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2183,7 +2214,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2198,7 +2229,7 @@ cdef class SEAI8R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2206,10 +2237,9 @@ cdef class SEAI8R(IntegratorsClass):
             R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)
         """
         X = data['X']
-        R =  X[:, 11*self.M:12*self.M] - X[:, 0:self.M]- X[:, self.M:2*self.M]  - X[:,2*self.M:3*self.M] - X[:,3*self.M:4*self.M] \
-                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:,6*self.M:7*self.M] \
-                                                       - X[:,7*self.M:8*self.M] - X[:,8*self.M:9*self.M] - X[:,9*self.M:10*self.M] \
-                                                       - X[:,10*self.M:11*self.M]
+        R =  X[:, 11*self.M:12*self.M] 
+        for i in range(11):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
 
         return R
 
@@ -2226,7 +2256,8 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.nonecheck(False)
 cdef class SEAIRQ(IntegratorsClass):
     """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+    Susceptible, Exposed, Asymptomatic and infected, 
+    Infected, Removed, Quarantined (SEAIRQ)
 
     * Ia: asymptomatic
     * Is: symptomatic
@@ -2242,19 +2273,19 @@ cdef class SEAIRQ(IntegratorsClass):
         Contains the following keys:
 
         alpha: float
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float, np.array (M,)
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float, np.array (M,)
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float, np.array (M,)
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         gE: float, np.array (M,)
-            rate of removal from exposed individuals.
+            Rate of removal from exposed individuals.
         gA: float, np.array (M,)
-            rate of removal from activated individuals.
+            Rate of removal from activated individuals.
         fsa: float, np.array (M,)
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         tE: float, np.array (M,)
             testing rate and contact tracing of exposeds
         tA: float, np.array (M,)
@@ -2287,13 +2318,13 @@ cdef class SEAIRQ(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
         self.paramList = parameters
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # Right hand side
 
 
     cpdef rhs(self, xt, tt):
@@ -2323,12 +2354,12 @@ cdef class SEAIRQ(IntegratorsClass):
                  lmda += beta[i]*CM[i,j]*(A[j]+Ia[j]+fsa[j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS                                      # \dot S
-            dxdt[i+M]   = rateS    - (gE[i]+tE[i])     *E[i]                # \dot E
+            dxdt[i]     = -rateS                                          # \dot S
+            dxdt[i+M]   = rateS    - (gE[i]+tE[i])     *E[i]              # \dot E
             dxdt[i+2*M] = gE[i]* E[i] - (gA[i]+tA[i])*A[i]                # \dot A
-            dxdt[i+3*M] = gAA*A[i] - (gIa[i]+tIa[i])*Ia[i]               # \dot Ia
-            dxdt[i+4*M] = gAS*A[i] - (gIs[i]+tIs[i])*Is[i]               # \dot Is
-            dxdt[i+5*M] = tE[i]*E[i]+tA[i]*A[i]+tIa[i]*Ia[i]+tIs[i]*Is[i]         # \dot Q
+            dxdt[i+3*M] = gAA*A[i] - (gIa[i]+tIa[i])*Ia[i]                # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - (gIs[i]+tIs[i])*Is[i]                # \dot Is
+            dxdt[i+5*M] = tE[i]*E[i]+tA[i]*A[i]+tIa[i]*Ia[i]+tIs[i]*Is[i] # \dot Q
         return
 
 
@@ -2357,7 +2388,7 @@ cdef class SEAIRQ(IntegratorsClass):
         Q0: np.array
             Initial number of quarantineds.
         contactMatrix: python function(t)
-            The social contact matrix C_{ij} denotes the
+            The social Contact matrix C_{ij} denotes the
             average number of contacts made per day by an
             individual in class i with an individual in class j
         Tf: float
@@ -2370,7 +2401,8 @@ cdef class SEAIRQ(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -2384,7 +2416,8 @@ cdef class SEAIRQ(IntegratorsClass):
         """
 
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2392,7 +2425,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2408,7 +2441,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2424,7 +2457,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2439,7 +2472,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2454,7 +2487,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2469,15 +2502,17 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
              R: Removed population time series
         """
         X = data['X']
-        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+        R = self.Ni  
+        for i in range(6):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
+
         return R
 
 
@@ -2485,7 +2520,7 @@ cdef class SEAIRQ(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2519,23 +2554,23 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         Contains the following keys:
 
         alpha: float
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         gE: float
-            rate of removal from exposed individuals.
+            Rate of removal from exposed individuals.
         gA: float
-            rate of removal from activated individuals.
+            Rate of removal from activated individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         ars: float
-            fraction of population admissible for random and symptomatic tests
+            Fraction of population admissible for random and symptomatic tests
         kapE: float
-            fraction of positive tests for exposed individuals
+            Fraction of positive tests for exposed individuals
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -2545,15 +2580,15 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 6
-        self.beta  = parameters['beta']                     # infection rate
-        self.gIa   = parameters['gIa']                      # removal rate of Ia
-        self.gIs   = parameters['gIs']                      # removal rate of Is
-        self.gE    = parameters['gE']                       # removal rate of E
-        self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter
+        self.beta  = parameters['beta']       # Infection rate
+        self.gIa   = parameters['gIa']        # Removal rate of Ia
+        self.gIs   = parameters['gIs']        # Removal rate of Is
+        self.gE    = parameters['gE']         # Removal rate of E
+        self.gA    = parameters['gA']         # rate to go from A to Ia and Is
+        self.fsa   = parameters['fsa']        # The self-isolation parameter
 
-        self.ars    = parameters['ars']                     # fraction of population admissible for testing
-        self.kapE    = parameters['kapE']                   # fraction of positive tests for exposed
+        self.ars    = parameters['ars']       # Fraction of population admissible for testing
+        self.kapE    = parameters['kapE']     # Fraction of positive tests for exposed
 
         alpha      = parameters['alpha']
 
@@ -2561,12 +2596,12 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix
         self.TR    = np.zeros( self.M, dtype = DTYPE)           # test rate
-        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # right hand side
+        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2649,7 +2684,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         Q0: np.array
             Initial number of quarantineds.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         testRate: python function(t)
@@ -2664,7 +2699,8 @@ cdef class SEAIRQ_testing(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -2676,7 +2712,8 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
 
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2684,7 +2721,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2699,7 +2736,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2714,7 +2751,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2729,7 +2766,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2744,7 +2781,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2759,15 +2796,17 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
              R: Removed population time series
         """
         X = data['X']
-        R = self.Ni - X[:, 0:self.M] -  X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-             -X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+        R = self.Ni 
+        for i in range(6):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
+
         return R
 
 
@@ -2775,7 +2814,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2806,17 +2845,17 @@ cdef class SIRS(IntegratorsClass):
         Contains the following keys:
 
         alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         ep  : float
-            fraction of removed who become susceptable again
+            Fraction of removed who become susceptable again
         sa  : float, np.array (M,)
             daily arrival of new susceptables
         iaa: float, np.array (M,)
@@ -2831,22 +2870,22 @@ cdef class SIRS(IntegratorsClass):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 3
-        self.beta  = parameters['beta']                         # infection rate
-        self.gIa   = parameters['gIa']                          # removal rate of Ia
-        self.gIs   = parameters['gIs']                          # removal rate of Is
-        self.fsa   = parameters['fsa']                          # the self-isolation parameter of symptomatics
+        self.beta  = parameters['beta']               # Infection rate
+        self.gIa   = parameters['gIa']                # Removal rate of Ia
+        self.gIs   = parameters['gIs']                # Removal rate of Is
+        self.fsa   = parameters['fsa']                # The self-isolation parameter of symptomatics
         alpha      = parameters['alpha']
-        self.ep    = parameters['ep']                           # fraction of removed who is susceptible
-        sa         = parameters['sa']                           # daily arrival of new susceptibles
-        iaa        = parameters['iaa']                          # daily arrival of new asymptomatics
+        self.ep    = parameters['ep']                 # Fraction of removed who is susceptible
+        sa         = parameters['sa']                 # Daily arrival of new susceptibles
+        iaa        = parameters['iaa']                # Daily arrival of new asymptomatics
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)   # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -2922,7 +2961,7 @@ cdef class SIRS(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -2935,7 +2974,8 @@ cdef class SIRS(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -2947,7 +2987,8 @@ cdef class SIRS(IntegratorsClass):
         """
 
         x0 = np.concatenate((S0, Ia0, Is0, self.Ni))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -2955,7 +2996,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2970,7 +3011,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -2985,7 +3026,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -3000,14 +3041,15 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
              R: Removed population time series
         """
         X = data['X']
-        R =  X[:, 3*self.M:4*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
+        R =  X[:,3*self.M:4*self.M] - X[:, 0:self.M] \
+                - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
         return R
 
 
@@ -3015,7 +3057,7 @@ cdef class SIRS(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
 
         Returns
         -------
@@ -3089,7 +3131,7 @@ cdef class Spp(IntegratorsClass):
         self.linear_terms = res[3]
         self.infection_terms = res[4]
         self.update_model_parameters(parameters)
-        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
 
@@ -3102,14 +3144,17 @@ cdef class Spp(IntegratorsClass):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
-            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
+            raise Exception('The parameters passed does not contain certain keys.\
+                             The keys are {}'.format(self.param_keys))
 
     cpdef rhs(self, xt_arr, tt):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
-            Py_ssize_t S_index=self.class_index_dict['S'], infection_index, reagent_index, product_index, rate_index
+            Py_ssize_t S_index=self.class_index_dict['S'], infection_index
+            Py_ssize_t reagent_index, product_index, rate_index
             int sign
-            int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms, infection_terms=self.infection_terms
+            int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
+            int [:, :]  infection_terms=self.infection_terms
             double [:, :] parameters=self.parameters
             double term
             double [:] xt = xt_arr
@@ -3187,7 +3232,7 @@ cdef class Spp(IntegratorsClass):
             in which case its initial values will be inferred from the
             others.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -3200,7 +3245,8 @@ cdef class Spp(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
 
         Returns
@@ -3250,7 +3296,8 @@ cdef class Spp(IntegratorsClass):
             x0 = np.concatenate([x0, self.Ni])
 
         self.paramList = self.make_parameters_dict()
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -3317,30 +3364,30 @@ cdef class SEI5R(IntegratorsClass):
         Contains the following keys:
 
         alpha: float, np.array (M,)
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gE: float
-            rate of removal from exposeds individuals.
+            Rate of removal from exposeds individuals.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         gIh: float
-            rate of removal for hospitalised individuals.
+            Rate of removal for hospitalised individuals.
         gIc: float
-            rate of removal for idividuals in intensive care.
+            Rate of removal for idividuals in intensive care.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         fh  : float
-            fraction by which hospitalised individuals are isolated.
+            Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
             daily arrival of new susceptables.
             sa is rate of additional/removal of population by birth etc
         hh: float, np.array (M,)
-            fraction hospitalised from Is
+            Fraction hospitalised from Is
         cc: float, np.array (M,)
-            fraction sent to intensive care from hospitalised.
+            Fraction sent to intensive care from hospitalised.
         mm: float, np.array (M,)
             mortality rate in intensive care
     M: int
@@ -3351,30 +3398,30 @@ cdef class SEI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass= 8 -1  # only 7 input classes
-        self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # removal rate of E class
-        self.gIa   = parameters['gIa']                      # removal rate of Ia
-        self.gIs   = parameters['gIs']                      # removal rate of Is
-        self.gIh   = parameters['gIh']                      # removal rate of Is
-        self.gIc   = parameters['gIc']                      # removal rate of Ih
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
-        alpha      = parameters['alpha']                    # fraction of asymptomatics
-        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
-        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
-        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
-        mm         = parameters['mm']                       # mortality fraction from ICU
+        self.nClass= 8 -1                     # Only 7 input classes
+        self.beta  = parameters['beta']       # Infection rate
+        self.gE    = parameters['gE']         # Removal rate of E class
+        self.gIa   = parameters['gIa']        # Removal rate of Ia
+        self.gIs   = parameters['gIs']        # Removal rate of Is
+        self.gIh   = parameters['gIh']        # Removal rate of Is
+        self.gIc   = parameters['gIc']        # Removal rate of Ih
+        self.fsa   = parameters['fsa']        # The self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']         # The self-isolation parameter of hospitalizeds
+        alpha      = parameters['alpha']      # Fraction of asymptomatics
+        sa         = parameters['sa']         # Rate of additional/removal of population by birth etc
+        hh         = parameters['hh']         # Fraction of infected who gets hospitalized
+        cc         = parameters['cc']         # Fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']         # Mortality fraction from ICU
 
         self.paramList = parameters
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 8*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -3485,7 +3532,7 @@ cdef class SEI5R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -3498,7 +3545,8 @@ cdef class SEI5R(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take.
+            The default is 100000.
         **kwargs: kwargs for integrator
         Returns
         -------
@@ -3508,7 +3556,8 @@ cdef class SEI5R(IntegratorsClass):
         """
 
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -3516,7 +3565,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              S: Susceptible population time series
@@ -3530,7 +3579,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              E: Exposed population time series
@@ -3544,7 +3593,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ia : Asymptomatics population time series
@@ -3558,7 +3607,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Is : symptomatics population time series
@@ -3572,7 +3621,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ic : hospitalized population time series
@@ -3586,7 +3635,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ic : ICU hospitalized population time series
@@ -3600,7 +3649,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ic : mortality time series
@@ -3614,7 +3663,7 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
             population
@@ -3628,15 +3677,16 @@ cdef class SEI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              R: Removed population time series
             R = N(t) - (S + E + Ia + Is + Ih + Ic)
         """
         X = data['X']
-        R =  X[:, 7*self.M:8*self.M] - X[:, 0:self.M]  - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                       - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M]
+        R =  X[:, 7*self.M:8*self.M] 
+        for i in range(6):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
 
         return R
 
@@ -3668,30 +3718,30 @@ cdef class SEAI5R(IntegratorsClass):
         Contains the following keys:
 
         alpha: float
-            fraction of infected who are asymptomatic.
+            Fraction of infected who are asymptomatic.
         beta: float
-            rate of spread of infection.
+            Rate of spread of infection.
         gIa: float
-            rate of removal from asymptomatic individuals.
+            Rate of removal from asymptomatic individuals.
         gIs: float
-            rate of removal from symptomatic individuals.
+            Rate of removal from symptomatic individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals self isolate.
         gE: float
-            rate of removal from exposeds individuals.
+            Rate of removal from exposeds individuals.
         gA: float
-            rate of removal from activated individuals.
+            Rate of removal from activated individuals.
         gIh: float
-            rate of hospitalisation of infected individuals.
+            Rate of hospitalisation of infected individuals.
         gIc: float
             rate hospitalised individuals are moved to intensive care.
         sa: float, np.array (M,)
             daily arrival of new susceptables.
             sa is rate of additional/removal of population by birth etc
         hh: float, np.array (M,)
-            fraction hospitalised from Is
+            Fraction hospitalised from Is
         cc: float, np.array (M,)
-            fraction sent to intensive care from hospitalised.
+            Fraction sent to intensive care from hospitalised.
         mm: float, np.array (M,)
             mortality rate in intensive care
     M: int
@@ -3702,32 +3752,32 @@ cdef class SEAI5R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass= 9 - 1#only 8 input classes
-        self.beta  = parameters['beta']                     # infection rate
-        self.gE    = parameters['gE']                       # removal rate of E class
-        self.gA    = parameters['gA']                       # removal rate of A class
-        self.gIa   = parameters['gIa']                      # removal rate of Ia
-        self.gIs   = parameters['gIs']                      # removal rate of Is
-        self.gIh   = parameters['gIh']                      # removal rate of Is
-        self.gIc   = parameters['gIc']                      # removal rate of Ih
-        self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
+        self.nClass= 9 - 1                 # Only 8 input classes
+        self.beta  = parameters['beta']    # Infection rate
+        self.gE    = parameters['gE']      # Removal rate of E class
+        self.gA    = parameters['gA']      # Removal rate of A class
+        self.gIa   = parameters['gIa']     # Removal rate of Ia
+        self.gIs   = parameters['gIs']     # Removal rate of Is
+        self.gIh   = parameters['gIh']     # Removal rate of Is
+        self.gIc   = parameters['gIc']     # Removal rate of Ih
+        self.fsa   = parameters['fsa']     # The self-isolation parameter of symptomatics
+        self.fh    = parameters['fh']      # The self-isolation parameter of hospitalizeds
 
         self.paramList = parameters
 
-        alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
-        sa         = parameters['sa']                       # rate of additional/removal of population by birth etc
-        hh         = parameters['hh']                       # fraction of infected who gets hospitalized
-        cc         = parameters['cc']                       # fraction of hospitalized who endup in ICU
-        mm         = parameters['mm']                       # mortality fraction from ICU
+        alpha      = parameters['alpha']   # Fraction of asymptomatic infectives
+        sa         = parameters['sa']      # Constant rate of of population change by birth etc
+        hh         = parameters['hh']      # Fraction of infected who gets hospitalized
+        cc         = parameters['cc']      # Fraction of hospitalized who endup in ICU
+        mm         = parameters['mm']      # Mortality fraction from ICU
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)    # Number individuals in each age-group
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.dxdt  = np.zeros( 9*self.M, dtype=DTYPE)           # right hand side
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 9*self.M, dtype=DTYPE)           # Right hand side
 
         self.alpha    = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
@@ -3842,7 +3892,7 @@ cdef class SEAI5R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
+             The social Contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -3855,7 +3905,8 @@ cdef class SEAI5R(IntegratorsClass):
             Integrator to use either from scipy.integrate or odespy.
             The default is 'odeint'.
         maxNumSteps: int, optional
-            maximum number of steps the integrator can take. The default is 100000.
+            maximum number of steps the integrator can take. 
+            The default is 100000.
         **kwargs: kwargs for integrator
         Returns
         -------
@@ -3865,7 +3916,8 @@ cdef class SEAI5R(IntegratorsClass):
         """
 
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, integrator, Ti, maxNumSteps, **kwargs)
+        data = self.simulator(x0, contactMatrix, Tf, Nf, 
+                              integrator, Ti, maxNumSteps, **kwargs)
         return data
 
 
@@ -3873,7 +3925,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              S: Susceptible population time series
@@ -3887,7 +3939,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              E: Exposed population time series
@@ -3901,7 +3953,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              A: Activated population time series
@@ -3915,7 +3967,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ia : Asymptomatics population time series
@@ -3929,7 +3981,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Is : symptomatics population time series
@@ -3943,7 +3995,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ic : hospitalized population time series
@@ -3957,7 +4009,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ic : ICU hospitalized population time series
@@ -3971,7 +4023,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              Ic : mortality time series
@@ -3985,7 +4037,7 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
             population
@@ -3999,13 +4051,14 @@ cdef class SEAI5R(IntegratorsClass):
         """
         Parameters
         ----------
-        data: data files
+        data: Data dict
         Returns
         -------
              R: Removed population time series
             R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
         """
         X = data['X']
-        R = X[:,8*self.M:9*self.M] - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M] - X[:, 3*self.M:4*self.M] \
-                                                    - X[:,4*self.M:5*self.M] - X[:,5*self.M:6*self.M] - X[:, 6*self.M:7*self.M]
+        R = X[:,8*self.M:9*self.M] 
+        for i in range(8):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
         return R
