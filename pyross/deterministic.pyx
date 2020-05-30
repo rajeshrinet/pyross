@@ -319,10 +319,10 @@ cdef class CommonMethods:
         """
         if None != Ici:
             X  = data['X'] 
-            Ici=self.readData['Isi']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         else:
             X  = data['X'] 
+            Ici=self.readData['Isi']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         return Ic
 

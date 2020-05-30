@@ -1049,7 +1049,7 @@ cdef class stochastic_integration:
             Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
         else:
             X  = data['X']
-            Ihi=self.readData['Isi']
+            Ihi=self.readData['Ihi']
             Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
         return Ih
 
@@ -1087,10 +1087,10 @@ cdef class stochastic_integration:
         """
         if None != Ici:
             X  = data['X'] 
-            Ici=self.readData['Isi']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         else:
             X  = data['X'] 
+            Ici=self.readData['Ici']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         return Ic
 
@@ -1131,7 +1131,7 @@ cdef class stochastic_integration:
             Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
         else:
             X  = data['X']
-            Imi=self.readData['Isi']
+            Imi=self.readData['Imi']
             Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
         return Im
 
