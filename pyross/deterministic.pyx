@@ -322,7 +322,7 @@ cdef class CommonMethods:
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         else:
             X  = data['X'] 
-            Ici=self.readData['Isi']
+            Ici=self.readData['Ici']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         return Ic
 
@@ -363,7 +363,7 @@ cdef class CommonMethods:
             Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
         else:
             X  = data['X']
-            Imi=self.readData['Isi']
+            Imi=self.readData['Imi']
             Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
         return Im
 
