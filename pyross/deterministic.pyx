@@ -134,12 +134,13 @@ cdef class CommonMethods:
         -------
              S: Susceptible population time series
         """
+        
         X = data['X']
         S = X[:, 0:self.M]
         return S
 
 
-    def E(self,  data):
+    def E(self,  data, Ei=None):
         """
         Parameters
         ----------
@@ -149,12 +150,18 @@ cdef class CommonMethods:
         -------
              E: Exposed population time series
         """
-        X = data['X'];  Ei=self.readData['Ei']
-        E = X[:, Ei[0]*self.M:Ei[1]*self.M]
+        
+        if None != Ei:
+            X = data['X']  
+            E = X[:, Ei[0]*self.M:Ei[1]*self.M]
+        else:
+            X = data['X']  
+            Ei=self.readData['Ei']
+            E = X[:, Ei[0]*self.M:Ei[1]*self.M]
         return E
 
 
-    def A(self,  data):
+    def A(self,  data, Ai=None):
         """
         Parameters
         ----------
@@ -164,12 +171,18 @@ cdef class CommonMethods:
         -------
              A: Activated population time series
         """
-        X = data['X'];  Ai=self.readData['Ai']
-        A = X[:, Ai[0]*self.M:Ai[1]*self.M]
+        
+        if None != Ai:
+            X = data['X']  
+            A = X[:, Ai[0]*self.M:Ai[1]*self.M]
+        else:
+            X = data['X']  
+            Ai=self.readData['Ai']
+            A = X[:, Ai[0]*self.M:Ai[1]*self.M]
         return A
 
 
-    def Ia(self,  data):
+    def I(self,  data, Ii=None):
         """
         Parameters
         ----------
@@ -179,27 +192,40 @@ cdef class CommonMethods:
         -------
              Ia : Asymptomatics population time series
         """
-        X  = data['X'];  Iai=self.readData['Iai']
-        Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
-        return Ia
 
-
-    def I(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X'];  Ii=self.readData['Ii']
-        I = X[:, Ii[0]*self.M:Ii[1]*self.M]
+        if None != Ii:
+            X  = data['X']
+            Ii=self.readData['Ii']
+            I = X[:, Ii[0]*self.M:Ii[1]*self.M]
+        else:
+            X  = data['X']  
+            Ii=self.readData['Ii']
+            I = X[:, Ii[0]*self.M:Ii[1]*self.M]
         return I
 
 
-    def Is(self,  data):
+    def Ia(self,  data, Iai=None):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ia : Asymptomatics population time series
+        """
+        
+        if None != Iai:
+            X  = data['X']
+            Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
+        else:
+            X  = data['X'] 
+            Iai=self.readData['Iai']
+            Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
+        return Ia
+
+
+    def Is(self,  data, Isi=None):
         """
         Parameters
         ----------
@@ -209,12 +235,17 @@ cdef class CommonMethods:
         -------
              Is : symptomatics population time series
         """
-        X  = data['X'];  Isi=self.readData['Isi']
-        Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
+        if None != Isi:
+            X  = data['X']
+            Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
+        else:
+            X  = data['X']  
+            Isi=self.readData['Isi']
+            Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
         return Is
 
 
-    def Isp(self,  data):
+    def Isp(self,  data, Ispi):
         """
         Parameters
         ----------
@@ -225,12 +256,17 @@ cdef class CommonMethods:
              Isp : (intermediate stage between symptomatics 
                    and recovered) population time series
         """
-        X  = data['X'];  Ispi=self.readData['Ispi']
-        Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
+        if None != Ispi:
+            X  = data['X']
+            Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
+        else:
+            X  = data['X']  
+            Ispi=self.readData['Ispi']
+            Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
         return Isp
 
 
-    def Ih(self,  data):
+    def Ih(self,  data, Ihi=None):
         """
         Parameters
         ----------
@@ -240,12 +276,17 @@ cdef class CommonMethods:
         -------
              Ic : hospitalized population time series
         """
-        X  = data['X'];  Ihi=self.readData['Isi']
-        Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
+        if None != Ihi:
+            X  = data['X']
+            Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
+        else:
+            X  = data['X']
+            Ihi=self.readData['Isi']
+            Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
         return Ih
 
 
-    def Ihp(self,  data):
+    def Ihp(self,  data, Ihpi=None):
         """
         Parameters
         ----------
@@ -256,12 +297,17 @@ cdef class CommonMethods:
              Ihp : (intermediate stage between symptomatics 
                    and recovered) population time series
         """
-        X  = data['X'];  Ihpi=self.readData['Ihpi']
-        Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
+        if None != Ihpi:
+            X  = data['X']
+            Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
+        else:
+            X  = data['X']
+            Ihpi=self.readData['Ihpi']
+            Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
         return Ihp
 
 
-    def Ic(self,  data):
+    def Ic(self,  data, Ici=None):
         """
         Parameters
         ----------
@@ -271,12 +317,17 @@ cdef class CommonMethods:
         -------
              Ic : ICU hospitalized population time series
         """
-        X  = data['X'];  Ici=self.readData['Isi']
-        Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
+        if None != Ici:
+            X  = data['X'] 
+            Ici=self.readData['Isi']
+            Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
+        else:
+            X  = data['X'] 
+            Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         return Ic
 
 
-    def Icp(self,  data):
+    def Icp(self,  data, Icpi=None):
         """
         Parameters
         ----------
@@ -287,12 +338,17 @@ cdef class CommonMethods:
              Icp : (intermediate stage between ICU 
                    and recovered) population time series
         """
-        X  = data['X'];  Icpi=self.readData['Icpi']
-        Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
+        if None != Icpi:
+            X  = data['X']
+            Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
+        else:
+            X  = data['X']
+            Icpi=self.readData['Icpi']
+            Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
         return Icp
 
 
-    def Im(self,  data):
+    def Im(self,  data, Imi=None):
         """
         Parameters
         ----------
@@ -302,12 +358,17 @@ cdef class CommonMethods:
         -------
              Ic : mortality time series
         """
-        X  = data['X'];  Imi=self.readData['Isi']
-        Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
+        if None != Imi:
+            X  = data['X']
+            Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
+        else:
+            X  = data['X']
+            Imi=self.readData['Isi']
+            Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
         return Im
 
 
-    def R(self,  data):
+    def R(self,  data, Rind=None):
         """
         Parameters
         ----------
@@ -318,11 +379,34 @@ cdef class CommonMethods:
              R: Removed population time series
              For SEAI8R: R=N(t)-(S+E+Ia+Is+Is'+Ih+Ih'+Ic+Ic')
         """
-        X = data['X'];  Rind=self.readData['Rind']
-        R = self.population
+        if None != Rind:
+            X = data['X']  
+            R = self.population
+        else:
+            X = data['X']  
+            Rind=self.readData['Rind']
+            R = self.population
         for i in range(Rind):
             R  = R - X[:, i*self.M:(i+1)*self.M] 
         return R
+   
+
+    def Sx(self,  data, Sxi):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+            Generic compartment Sx 
+        """
+        X  = data['X']
+        Im = X[:, Sxi[0]*self.M:Sxi[1]*self.M ]
+        Sx = X[:, Sxi[0]*self.M:Sxi[1]*self.M ]
+        return Sx
+
+
 
 
 
