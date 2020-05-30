@@ -9,6 +9,12 @@ cimport numpy as np
 cimport cython
 import time
 
+try:
+    # Optional support for nested sampling.
+    import nestle
+except ImportError:
+    nestle = None
+
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
@@ -230,6 +236,63 @@ cdef class SIR_type:
             return np.array(orig_params), res[1]
         else:
             return np.array(orig_params)
+
+
+    def nested_sampling_inference(self, keys, guess, stds, bounds, np.ndarray x, double Tf, Py_ssize_t Nf, contactMatrix,
+                                  tangent=True, infer_scale_parameter=False, return_samples=True, verbose=False,
+                                  npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
+        '''Compute the evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on 
+        all classes is available.
+        '''
+
+        if nestle is None:
+            raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+
+        flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
+
+        k = len(flat_guess)
+        ppf_bounds = np.zeros((k, 2))
+        ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
+        ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
+        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+
+        def prior_transform(x):
+            # Tranform into bounded region
+            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
+            return lognorm.ppf(y, s, scale=scale)
+
+        def to_sample(params):
+            params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
+            parameters = self.fill_params_dict(keys, params_unflat)
+            logP = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=False)
+            logP += np.sum(lognorm.logpdf(params, s, scale=scale))
+            return logP
+
+        if verbose:
+            def callback(d):
+                if d["it"] % 100 == 0:
+                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
+        else:
+            callback=None
+
+        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
+                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+
+        log_evidence = result.logz
+
+        if return_samples:
+            unflattened_samples = []
+            for sample in result.samples:
+                sample_unflat = self._unflatten_parameters(sample, flat_guess_range, is_scale_parameter, scaled_guesses)
+                unflattened_samples.append(sample)
+            weighted_samples = (unflattened_samples, result.weights)
+            
+            return log_evidence, weighted_samples
+
+        return log_evidence
 
 
     def _infer_control_to_minimize(self, params, grad=0, keys=None, bounds=None, x=None, Tf=None, Nf=None, generator=None,
