@@ -13,8 +13,10 @@ from libc.stdlib cimport malloc, free
 cdef class CommonMethods:
     """
     Parent class used for all classes listed below. 
-    It includeds:
+    It includes:
         * Integrators used by various deterministic models listed below.
+        * Method to get time series of S, etc by passing a dict of data
+        * Method to set the contactMatrix array, CM
     """
 
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
@@ -101,16 +103,16 @@ cdef class CommonMethods:
 
         else:
             raise Exception("Error: Integration method not found! \n \
-                            Please set integrator='odeint' to use the \n  \
-                            scipy's odeint (Default). \n \
+                            Please set integrator='odeint' to use \n \
+                            the scipy.integrate's odeint (Default)\n \
                             Use integrator='odespy-vode' to use vode \
-                            from odespy (github.com/rajeshrinet/odespy). \n \
-                            Use integrator='odespy-rkf45' to use RKF45 from \
-                            odespy (github.com/rajeshrinet/odespy). \n \
+                            from odespy (github.com/rajeshrinet/odespy).\n \
+                            Use integrator='odespy-rkf45' to use RKF45  \
+                            from odespy (github.com/rajeshrinet/odespy).\n \
                             Use integrator='odespy-rk4' to use RK4 from \
-                            odespy (github.com/rajeshrinet/odespy). \n \
+                            odespy (github.com/rajeshrinet/odespy).     \n \
                             Alternatively, write your own integrator to \
-                            evolve the system in time \n")
+                            evolve the system in time and store the data.\n")
 
         data     = {'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M}
         data_out = data.copy()
@@ -212,6 +214,22 @@ cdef class CommonMethods:
         return Is
 
 
+    def Isp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Isp : (intermediate stage between symptomatics 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Ispi=self.readData['Ispi']
+        Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
+        return Isp
+
+
     def Ih(self,  data):
         """
         Parameters
@@ -227,6 +245,21 @@ cdef class CommonMethods:
         return Ih
 
 
+    def Ihp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ihp : (intermediate stage between symptomatics 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Ihpi=self.readData['Ihpi']
+        Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
+        return Ihp
+
 
     def Ic(self,  data):
         """
@@ -241,6 +274,22 @@ cdef class CommonMethods:
         X  = data['X'];  Ici=self.readData['Isi']
         Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         return Ic
+
+
+    def Icp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Icp : (intermediate stage between ICU 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Icpi=self.readData['Icpi']
+        Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
+        return Icp
 
 
     def Im(self,  data):
@@ -449,7 +498,6 @@ cdef class SIR(CommonMethods):
 
 
 
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -653,10 +701,10 @@ cdef class SEIR(CommonMethods):
                  lmda += beta[i]*CM[i,j]*(Ia[j]+fsa[j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS                                     # \dot S
-            dxdt[i+M]   = rateS       - gE[i]*  E[i]                    # \dot E
-            dxdt[i+2*M] = ce1*E[i] - gIa[i]*Ia[i]                       # \dot Ia
-            dxdt[i+3*M] = ce2*E[i] - gIs[i]*Is[i]                       # \dot Is
+            dxdt[i]     = -rateS                          # \dot S
+            dxdt[i+M]   = rateS       - gE[i]*  E[i]      # \dot E
+            dxdt[i+2*M] = ce1*E[i] - gIa[i]*Ia[i]         # \dot Ia
+            dxdt[i+3*M] = ce2*E[i] - gIs[i]*Is[i]         # \dot Is
         return
 
 
@@ -720,7 +768,8 @@ cdef class SEIR(CommonMethods):
 @cython.nonecheck(False)
 cdef class SEkIkR(CommonMethods):
     """
-    Susceptible, Exposed, Infected, Removed (SEkIkR). Method of k-stages of E and I
+    Susceptible, Exposed, Infected, Removed (SEkIkR). 
+    Method of k-stages of E and I
 
     ...
 
@@ -747,10 +796,10 @@ cdef class SEkIkR(CommonMethods):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # Infection rate
-        self.gE    = parameters['gE']                           # Removal rate of E
-        self.gI    = parameters['gI']                           # Removal rate of I
-        self.kI    = parameters['kI']                           # number of stages
+        self.beta  = parameters['beta']            # Infection rate
+        self.gE    = parameters['gE']              # Removal rate of E
+        self.gI    = parameters['gI']              # Removal rate of I
+        self.kI    = parameters['kI']              # number of stages
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kE + 1
 
@@ -769,7 +818,8 @@ cdef class SEkIkR(CommonMethods):
         elif self.kI==0:
             raise Exception('number of I stages should be greater than zero, kI>0')
         
-        self.readData = {'Ei':[1,self.kE+1], 'Ii':[self.kE+1,self.kE+self.kI+1], 'Rind':self.kE+self.kI+1}
+        self.readData = {'Ei':[1,self.kE+1], 'Ii':[self.kE+1,self.kE+self.kI+1], 
+                        'Rind':self.kE+self.kI+1}
         self.population = self.Ni
 
 
@@ -865,7 +915,8 @@ cdef class SEkIkR(CommonMethods):
 @cython.nonecheck(False)
 cdef class SEkIkIkR(CommonMethods):
     """
-    Susceptible, Exposed, Infected, Removed (SEkIkR). Method of k-stages of E, Ia, and Is
+    Susceptible, Exposed, Infected, Removed (SEkIkR). 
+    Method of k-stages of E, Ia, and Is
     
     * Ia: asymptomatic
     * Is: symptomatic
@@ -918,14 +969,14 @@ cdef class SEkIkIkR(CommonMethods):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
-        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)   # Right hand side
+        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)  
 
         if self.kE==0:
             raise Exception('number of E stages should be greater than zero, kE>0')
         elif self.kI==0:
             raise Exception('number of I stages should be greater than zero, kI>0')
 
-        alpha      = parameters['alpha']                        # Fraction of asymptomatic infectives
+        alpha      = parameters['alpha']           # Fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -2645,7 +2696,7 @@ cdef class SEI5R(CommonMethods):
         self.fsa   = parameters['fsa']        # Self-isolation of symptomatics
         self.fh    = parameters['fh']         # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']      # Fraction of asymptomatics
-        sa         = parameters['sa']         # Rate of additional/removal of population by birth etc
+        sa         = parameters['sa']         # Rate of addition in susceptables
         hh         = parameters['hh']         # Fraction of infected who gets hospitalized
         cc         = parameters['cc']         # Fraction of hospitalized who endup in ICU
         mm         = parameters['mm']         # Mortality fraction from ICU
