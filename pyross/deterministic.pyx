@@ -34,7 +34,7 @@ cdef class IntegratorsClass:
             The removed R class must be left out.
             If Ni is dynamical, then the last M points store Ni.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -257,7 +257,7 @@ cdef class SIR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -386,7 +386,7 @@ cdef class SIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -437,7 +437,7 @@ cdef class SIkR(IntegratorsClass):
         I0: np.array
             Initial number of  infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -571,7 +571,7 @@ cdef class SEIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -628,7 +628,7 @@ cdef class SEIR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -782,7 +782,7 @@ cdef class SEkIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -846,7 +846,7 @@ cdef class SEkIkR(IntegratorsClass):
         I0: np.array
             Initial number of  infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1006,7 +1006,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)    # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)    
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -1088,7 +1088,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1263,8 +1263,7 @@ cdef class SEI8R(IntegratorsClass):
         fh  : float
             Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
-            daily arrival of new susceptables.
-            sa is rate of additional/removal of population by birth etc
+            Daily arrival of new susceptables.
         hh: float, np.array (M,)
             Fraction hospitalised from Is
         cc: float, np.array (M,)
@@ -1279,7 +1278,7 @@ cdef class SEI8R(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.nClass= 10                           # only 7 input classes
+        self.nClass= 10                           # number of input classes
         self.beta  = parameters['beta']           # Infection rate
         self.gE    = parameters['gE']             # Removal rate of E class
         self.gIa   = parameters['gIa']            # Removal rate of Ia
@@ -1289,8 +1288,8 @@ cdef class SEI8R(IntegratorsClass):
         self.gIhp  = parameters['gIhp']           # Removal rate of Ihp
         self.gIc   = parameters['gIc']            # Removal rate of Ih
         self.gIcp  = parameters['gIcp']           # Removal rate of Ixp
-        self.fsa   = parameters['fsa']            # The self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']             # The self-isolation parameter of hospitalizeds
+        self.fsa   = parameters['fsa']            # Self-isolation of symptomatics
+        self.fh    = parameters['fh']             # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']          # Fraction of asymptomatics
         sa         = parameters['sa']             # Rate of additional/removal of population by birth etc
         hh         = parameters['hh']             # Fraction of infected who gets hospitalized
@@ -1300,7 +1299,7 @@ cdef class SEI8R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -1423,7 +1422,7 @@ cdef class SEI8R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1584,11 +1583,11 @@ cdef class SEI8R(IntegratorsClass):
         Returns
         -------
              R: Removed population time series
-            R = N(t) - (S + E + Ia + Is + Ih + Ic)
+             R = N(t) - (S + E + Ia + Is + Is' + Ih + Ih' + Ic + Ic')
         """
         X = data['X']
         R =  X[:, 10*self.M:11*self.M] 
-        for i in range(10):
+        for i in range(9):
             R  = R - X[:, i*self.M:(i+1)*self.M] 
 
         return R
@@ -1651,7 +1650,7 @@ cdef class SEAIR(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE) # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE) 
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -1720,7 +1719,7 @@ cdef class SEAIR(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -1894,8 +1893,7 @@ cdef class SEAI8R(IntegratorsClass):
         fh  : float
             Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
-            daily arrival of new susceptables.
-            sa is rate of additional/removal of population by birth etc
+            Daily arrival of new susceptables.
         hh: float, np.array (M,)
             Fraction hospitalised from Is
         cc: float, np.array (M,)
@@ -1921,8 +1919,8 @@ cdef class SEAI8R(IntegratorsClass):
         self.gIhp  = parameters['gIhp']        # Removal rate of Ihp
         self.gIc   = parameters['gIc']         # Removal rate of Ih
         self.gIcp  = parameters['gIcp']        # Removal rate of Ixp
-        self.fsa   = parameters['fsa']         # The self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']          # The self-isolation parameter of hospitalizeds
+        self.fsa   = parameters['fsa']         # Self-isolation of symptomatics
+        self.fh    = parameters['fh']          # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']       # Fraction of asymptomatics
         sa         = parameters['sa']          # Rate of additional/removal of population by birth etc
         hh         = parameters['hh']          # Fraction of infected who gets hospitalized
@@ -1933,7 +1931,7 @@ cdef class SEAI8R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -2058,7 +2056,7 @@ cdef class SEAI8R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -2234,11 +2232,11 @@ cdef class SEAI8R(IntegratorsClass):
         Returns
         -------
              R: Removed population time series
-            R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)
+             R = N(t) - (S+E+A+Ia+Is+Is'+Ih+Ih'+Ic+Ic')
         """
         X = data['X']
         R =  X[:, 11*self.M:12*self.M] 
-        for i in range(11):
+        for i in range(10):
             R  = R - X[:, i*self.M:(i+1)*self.M] 
 
         return R
@@ -2318,7 +2316,7 @@ cdef class SEAIRQ(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.paramList = parameters
@@ -2388,7 +2386,7 @@ cdef class SEAIRQ(IntegratorsClass):
         Q0: np.array
             Initial number of quarantineds.
         contactMatrix: python function(t)
-            The social Contact matrix C_{ij} denotes the
+            The social contact matrix C_{ij} denotes the
             average number of contacts made per day by an
             individual in class i with an individual in class j
         Tf: float
@@ -2596,7 +2594,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix
@@ -2684,7 +2682,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         Q0: np.array
             Initial number of quarantineds.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         testRate: python function(t)
@@ -2873,7 +2871,7 @@ cdef class SIRS(IntegratorsClass):
         self.beta  = parameters['beta']               # Infection rate
         self.gIa   = parameters['gIa']                # Removal rate of Ia
         self.gIs   = parameters['gIs']                # Removal rate of Is
-        self.fsa   = parameters['fsa']                # The self-isolation parameter of symptomatics
+        self.fsa   = parameters['fsa']                # Self-isolation of symptomatics
         alpha      = parameters['alpha']
         self.ep    = parameters['ep']                 # Fraction of removed who is susceptible
         sa         = parameters['sa']                 # Daily arrival of new susceptibles
@@ -2881,7 +2879,7 @@ cdef class SIRS(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)   # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)   
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -2961,7 +2959,7 @@ cdef class SIRS(IntegratorsClass):
         Is0: np.array
             Initial number of symptomatic infectives.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -3232,7 +3230,7 @@ cdef class Spp(IntegratorsClass):
             in which case its initial values will be inferred from the
             others.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -3382,8 +3380,7 @@ cdef class SEI5R(IntegratorsClass):
         fh  : float
             Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
-            daily arrival of new susceptables.
-            sa is rate of additional/removal of population by birth etc
+            Daily arrival of new susceptables.
         hh: float, np.array (M,)
             Fraction hospitalised from Is
         cc: float, np.array (M,)
@@ -3405,8 +3402,8 @@ cdef class SEI5R(IntegratorsClass):
         self.gIs   = parameters['gIs']        # Removal rate of Is
         self.gIh   = parameters['gIh']        # Removal rate of Is
         self.gIc   = parameters['gIc']        # Removal rate of Ih
-        self.fsa   = parameters['fsa']        # The self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']         # The self-isolation parameter of hospitalizeds
+        self.fsa   = parameters['fsa']        # Self-isolation of symptomatics
+        self.fh    = parameters['fh']         # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']      # Fraction of asymptomatics
         sa         = parameters['sa']         # Rate of additional/removal of population by birth etc
         hh         = parameters['hh']         # Fraction of infected who gets hospitalized
@@ -3417,7 +3414,7 @@ cdef class SEI5R(IntegratorsClass):
 
         self.N     = np.sum(Ni)
         self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  # Number of individuals in each age-group
+        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
@@ -3532,7 +3529,7 @@ cdef class SEI5R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -3736,8 +3733,7 @@ cdef class SEAI5R(IntegratorsClass):
         gIc: float
             rate hospitalised individuals are moved to intensive care.
         sa: float, np.array (M,)
-            daily arrival of new susceptables.
-            sa is rate of additional/removal of population by birth etc
+            Daily arrival of new susceptables.
         hh: float, np.array (M,)
             Fraction hospitalised from Is
         cc: float, np.array (M,)
@@ -3760,8 +3756,8 @@ cdef class SEAI5R(IntegratorsClass):
         self.gIs   = parameters['gIs']     # Removal rate of Is
         self.gIh   = parameters['gIh']     # Removal rate of Is
         self.gIc   = parameters['gIc']     # Removal rate of Ih
-        self.fsa   = parameters['fsa']     # The self-isolation parameter of symptomatics
-        self.fh    = parameters['fh']      # The self-isolation parameter of hospitalizeds
+        self.fsa   = parameters['fsa']     # Self-isolation of symptomatics
+        self.fh    = parameters['fh']      # Self-isolation of hospitalizeds
 
         self.paramList = parameters
 
@@ -3892,7 +3888,7 @@ cdef class SEAI5R(IntegratorsClass):
         Im0: np.array
             Initial number of mortality.
         contactMatrix: python function(t)
-             The social Contact matrix C_{ij} denotes the
+             The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
              individual in class i with an individual in class j
         Tf: float
@@ -4059,6 +4055,6 @@ cdef class SEAI5R(IntegratorsClass):
         """
         X = data['X']
         R = X[:,8*self.M:9*self.M] 
-        for i in range(8):
+        for i in range(7):
             R  = R - X[:, i*self.M:(i+1)*self.M] 
         return R
