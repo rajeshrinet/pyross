@@ -245,7 +245,7 @@ cdef class CommonMethods:
         return Is
 
 
-    def Isp(self,  data, Ispi):
+    def Isp(self,  data, Ispi=None):
         """
         Parameters
         ----------
@@ -281,7 +281,7 @@ cdef class CommonMethods:
             Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
         else:
             X  = data['X']
-            Ihi=self.readData['Isi']
+            Ihi=self.readData['Ihi']
             Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
         return Ih
 

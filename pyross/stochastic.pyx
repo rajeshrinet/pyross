@@ -1013,7 +1013,7 @@ cdef class stochastic_integration:
         return Is
 
 
-    def Isp(self,  data, Ispi):
+    def Isp(self,  data, Ispi=None):
         """
         Parameters
         ----------
