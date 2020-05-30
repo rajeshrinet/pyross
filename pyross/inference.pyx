@@ -123,14 +123,7 @@ cdef class SIR_type:
                                contactMatrix=None, s=None, scale=None, tangent=None):
         """Objective function for minimization call in infer_parameters."""
         # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(len(flat_guess_range)):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(params[flat_guess_range[j]])
+        orig_params = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
 
         parameters = self.fill_params_dict(keys, orig_params)
         self.set_params(parameters)
@@ -362,7 +355,8 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
+    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False, 
+                        infer_scale_parameter=False):
         '''
         Computes the Hessian of the MAP estimatesself.
 
@@ -392,41 +386,55 @@ cdef class SIR_type:
         hess: 2d numpy.array
             The Hessian
         '''
-        cdef:
-            Py_ssize_t k=maps.shape[0], i, j
-            double xx0
-            np.ndarray g1, g2, s, scale, hess = np.empty((k, k))
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
+        bounds = np.zeros((len(maps), 2)) # This does not matter here.
+        flat_maps, _, _, flat_maps_range, is_scale_parameter, scaled_maps \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
         def minuslogP(y):
-            parameters = self.fill_params_dict(keys, y)
-            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
+            parameters = self.fill_params_dict(keys, y_unflat)
+            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
-        g1 = approx_fprime(maps, minuslogP, eps)
+        
+        k = len(flat_maps)
+        hess = np.empty((k, k))
+        g1 = approx_fprime(flat_maps, minuslogP, eps)
         for j in range(k):
-            xx0 = maps[j]
-            maps[j] += eps
-            g2 = approx_fprime(maps, minuslogP, eps)
+            xx0 = flat_maps[j]
+            flat_maps[j] += eps
+            g2 = approx_fprime(flat_maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
-            maps[j] = xx0
+            flat_maps[j] = xx0
         return hess
 
-    def error_bars(self, keys, maps, prior_mean, prior_stds,
-                        x, Tf, Nf, contactMatrix, eps=1.e-3):
-        hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds,
-                                x,Tf,Nf,contactMatrix,eps)
+    def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, 
+                   tangent=False, infer_scale_parameter=False):
+        hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps,
+                                       tangent, infer_scale_parameter)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
-    def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
-        # M variate process, M=3 for SIIR model
+    def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
+                       tangent=False, infer_scale_parameter=False):
         cdef double logP_MAPs
         cdef Py_ssize_t k
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
+
+        bounds = np.zeros((len(maps), 2)) # Create dummy bounds to pass to flatten function.
+        flat_maps, _, _, _, _, _ \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
         parameters = self.fill_params_dict(keys, maps)
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-        logP_MAPs += np.sum(lognorm.logpdf(maps, s, scale=scale))
-        k = maps.shape[0]
-        A = self.hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
+        logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
+        k = flat_prior_mean.shape[0]
+        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent, 
+                                 infer_scale_parameter)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix, tangent=False):
@@ -502,14 +510,7 @@ cdef class SIR_type:
         inits =  np.copy(params[flat_param_guess_size:])
 
         # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(len(flat_guess_range)):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(params[flat_guess_range[j]])
+        orig_params = self._unflatten_parameters(params[:flat_param_guess_size], flat_guess_range, is_scale_parameter, scaled_guesses)
 
         parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
