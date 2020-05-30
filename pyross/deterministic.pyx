@@ -10,9 +10,13 @@ from libc.stdlib cimport malloc, free
 
                                                                       
 
-cdef class IntegratorsClass:
+cdef class CommonMethods:
     """
-    Integrators used by various deterministic models listed below.
+    Parent class used for all classes listed below. 
+    It includes:
+        * Integrators used by various deterministic models listed below.
+        * Method to get time series of S, etc by passing a dict of data
+        * Method to set the contactMatrix array, CM
     """
 
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
@@ -99,16 +103,16 @@ cdef class IntegratorsClass:
 
         else:
             raise Exception("Error: Integration method not found! \n \
-                            Please set integrator='odeint' to use the \n  \
-                            scipy's odeint (Default). \n \
+                            Please set integrator='odeint' to use \n \
+                            the scipy.integrate's odeint (Default)\n \
                             Use integrator='odespy-vode' to use vode \
-                            from odespy (github.com/rajeshrinet/odespy). \n \
-                            Use integrator='odespy-rkf45' to use RKF45 from \
-                            odespy (github.com/rajeshrinet/odespy). \n \
+                            from odespy (github.com/rajeshrinet/odespy).\n \
+                            Use integrator='odespy-rkf45' to use RKF45  \
+                            from odespy (github.com/rajeshrinet/odespy).\n \
                             Use integrator='odespy-rk4' to use RK4 from \
-                            odespy (github.com/rajeshrinet/odespy). \n \
+                            odespy (github.com/rajeshrinet/odespy).     \n \
                             Alternatively, write your own integrator to \
-                            evolve the system in time \n")
+                            evolve the system in time and store the data.\n")
 
         data     = {'X':X, 't':time_points, 'Ni':self.Ni, 'M':self.M}
         data_out = data.copy()
@@ -120,13 +124,214 @@ cdef class IntegratorsClass:
         self.CM=contactMatrix(t)
 
 
+    def S(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             S: Susceptible population time series
+        """
+        X = data['X']
+        S = X[:, 0:self.M]
+        return S
+
+
+    def E(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             E: Exposed population time series
+        """
+        X = data['X'];  Ei=self.readData['Ei']
+        E = X[:, Ei[0]*self.M:Ei[1]*self.M]
+        return E
+
+
+    def A(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             A: Activated population time series
+        """
+        X = data['X'];  Ai=self.readData['Ai']
+        A = X[:, Ai[0]*self.M:Ai[1]*self.M]
+        return A
+
+
+    def Ia(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ia : Asymptomatics population time series
+        """
+        X  = data['X'];  Iai=self.readData['Iai']
+        Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
+        return Ia
+
+
+    def I(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ia : Asymptomatics population time series
+        """
+        X  = data['X'];  Ii=self.readData['Ii']
+        I = X[:, Ii[0]*self.M:Ii[1]*self.M]
+        return I
+
+
+    def Is(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Is : symptomatics population time series
+        """
+        X  = data['X'];  Isi=self.readData['Isi']
+        Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
+        return Is
+
+
+    def Isp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Isp : (intermediate stage between symptomatics 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Ispi=self.readData['Ispi']
+        Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
+        return Isp
+
+
+    def Ih(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ic : hospitalized population time series
+        """
+        X  = data['X'];  Ihi=self.readData['Isi']
+        Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
+        return Ih
+
+
+    def Ihp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ihp : (intermediate stage between symptomatics 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Ihpi=self.readData['Ihpi']
+        Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
+        return Ihp
+
+
+    def Ic(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ic : ICU hospitalized population time series
+        """
+        X  = data['X'];  Ici=self.readData['Isi']
+        Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
+        return Ic
+
+
+    def Icp(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Icp : (intermediate stage between ICU 
+                   and recovered) population time series
+        """
+        X  = data['X'];  Icpi=self.readData['Icpi']
+        Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
+        return Icp
+
+
+    def Im(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             Ic : mortality time series
+        """
+        X  = data['X'];  Imi=self.readData['Isi']
+        Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
+        return Im
+
+
+    def R(self,  data):
+        """
+        Parameters
+        ----------
+        data: Data dict
+
+        Returns
+        -------
+             R: Removed population time series
+             For SEAI8R: R=N(t)-(S+E+Ia+Is+Is'+Ih+Ih'+Ic+Ic')
+        """
+        X = data['X'];  Rind=self.readData['Rind']
+        R = self.population
+        for i in range(Rind):
+            R  = R - X[:, i*self.M:(i+1)*self.M] 
+        return R
+
+
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR(IntegratorsClass):
+cdef class SIR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIR)
     
@@ -210,6 +415,9 @@ cdef class SIR(IntegratorsClass):
 
         self.paramList = parameters
 
+        self.readData = {'Iai':[1,2], 'Isi':[2,3], 'Rind':3}
+        self.population = self.Ni
+
 
     cpdef rhs(self, xt, tt):
 
@@ -244,7 +452,7 @@ cdef class SIR(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -288,73 +496,13 @@ cdef class SIR(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, self.M:2*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 2*self.M:3*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni - X[:, 0:self.M] - X[:, self.M:2*self.M] - X[:, 2*self.M:3*self.M]
-        return R
-
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIkR(IntegratorsClass):
+cdef class SIkR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIkR). Method of k-stages of I
 
@@ -393,6 +541,8 @@ cdef class SIkR(IntegratorsClass):
         self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # Right hand side
 
         self.paramList = parameters
+        self.readData = {'Ii':[1,self.kI+1], 'Rind':self.kI+1}
+        self.population = self.Ni
 
 
     cpdef rhs(self, xt, tt):
@@ -426,7 +576,7 @@ cdef class SIkR(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -468,64 +618,13 @@ cdef class SIkR(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def I(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        kI = data['kI']
-        X = data['X']
-        I = X[:, self.M:(kI+1)*self.M]
-        return I
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        kI = data['kI']
-
-        I0 = np.zeros(self.M)
-        for i in range(kI):
-            I0 += X[:, (i+1)*self.M : (i+2)*self.M]
-        R = self.Ni - X[:, 0:self.M] - I0
-        return R
-
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEIR(IntegratorsClass):
+cdef class SEIR(CommonMethods):
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
 
@@ -577,6 +676,8 @@ cdef class SEIR(IntegratorsClass):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self.dxdt  = np.zeros( 4*self.M, dtype=DTYPE)           # Right hand side
 
+        self.readData = {'Ei':[1,2], 'Iai':[2,3], 'Isi':[3,4], 'Rind':4}
+        self.population = self.Ni
 
     cpdef rhs(self, xt, tt):
         cdef:
@@ -600,10 +701,10 @@ cdef class SEIR(IntegratorsClass):
                  lmda += beta[i]*CM[i,j]*(Ia[j]+fsa[j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
             #
-            dxdt[i]     = -rateS                                     # \dot S
-            dxdt[i+M]   = rateS       - gE[i]*  E[i]                    # \dot E
-            dxdt[i+2*M] = ce1*E[i] - gIa[i]*Ia[i]                       # \dot Ia
-            dxdt[i+3*M] = ce2*E[i] - gIs[i]*Is[i]                       # \dot Is
+            dxdt[i]     = -rateS                          # \dot S
+            dxdt[i+M]   = rateS       - gE[i]*  E[i]      # \dot E
+            dxdt[i+2*M] = ce1*E[i] - gIa[i]*Ia[i]         # \dot Ia
+            dxdt[i+3*M] = ce2*E[i] - gIs[i]*Is[i]         # \dot Is
         return
 
 
@@ -613,7 +714,7 @@ cdef class SEIR(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -659,92 +760,16 @@ cdef class SEIR(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 2*self.M:3*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 3*self.M:4*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni 
-        for i in range(4):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-        return R
-
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkR(IntegratorsClass):
+cdef class SEkIkR(CommonMethods):
     """
-    Susceptible, Exposed, Infected, Removed (SEkIkR). Method of k-stages of E and I
+    Susceptible, Exposed, Infected, Removed (SEkIkR). 
+    Method of k-stages of E and I
 
     ...
 
@@ -771,10 +796,10 @@ cdef class SEkIkR(IntegratorsClass):
     """
 
     def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']                         # Infection rate
-        self.gE    = parameters['gE']                           # Removal rate of E
-        self.gI    = parameters['gI']                           # Removal rate of I
-        self.kI    = parameters['kI']                           # number of stages
+        self.beta  = parameters['beta']            # Infection rate
+        self.gE    = parameters['gE']              # Removal rate of E
+        self.gI    = parameters['gI']              # Removal rate of I
+        self.kI    = parameters['kI']              # number of stages
         self.kE    = parameters['kE']
         self.nClass= self.kI + self.kE + 1
 
@@ -792,6 +817,11 @@ cdef class SEkIkR(IntegratorsClass):
             raise Exception('number of E stages should be greater than zero, kE>0')
         elif self.kI==0:
             raise Exception('number of I stages should be greater than zero, kI>0')
+        
+        self.readData = {'Ei':[1,self.kE+1], 'Ii':[self.kE+1,self.kE+self.kI+1], 
+                        'Rind':self.kE+self.kI+1}
+        self.population = self.Ni
+
 
 
     cpdef rhs(self, xt, tt):
@@ -833,7 +863,7 @@ cdef class SEkIkR(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -877,87 +907,16 @@ cdef class SEkIkR(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        kI = data['kI']
-        kE = data['kE']
-        X = data['X']
-        E = X[:, self.M:(1+self.kE)*self.M]
-        return E
-
-
-    def I(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        kI = data['kI']
-        kE = data['kE']
-        X  = data['X']
-        Is = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        kI = data['kI']
-        kE = data['kE']
-        I0 = np.zeros(self.M)
-        E0 = np.zeros(self.M)
-        for i in range(kE):
-            E0 += X[:, (i+1)*self.M : (i+2)*self.M]
-        for i in range(kI):
-            I0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
-        R = self.Ni - X[:, 0:self.M] - I0 - E0
-        return R
-
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkIkR(IntegratorsClass):
+cdef class SEkIkIkR(CommonMethods):
     """
-    Susceptible, Exposed, Infected, Removed (SEkIkR). Method of k-stages of E, Ia, and Is
+    Susceptible, Exposed, Infected, Removed (SEkIkR). 
+    Method of k-stages of E, Ia, and Is
     
     * Ia: asymptomatic
     * Is: symptomatic
@@ -1010,14 +969,14 @@ cdef class SEkIkIkR(IntegratorsClass):
         self.Ni    = Ni
 
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
-        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)   # Right hand side
+        self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)  
 
         if self.kE==0:
             raise Exception('number of E stages should be greater than zero, kE>0')
         elif self.kI==0:
             raise Exception('number of I stages should be greater than zero, kI>0')
 
-        alpha      = parameters['alpha']                        # Fraction of asymptomatic infectives
+        alpha      = parameters['alpha']           # Fraction of asymptomatic infectives
         self.alpha = np.zeros( self.M, dtype = DTYPE)
         if np.size(alpha)==1:
             self.alpha = alpha*np.ones(M)
@@ -1026,6 +985,10 @@ cdef class SEkIkIkR(IntegratorsClass):
         else:
             raise Exception('alpha can be a number or an array of size M')
 
+        self.readData = {'Ei':[1,self.kE+1], 'Iai':[self.kE+1,self.kE+self.kI+1], 
+                        'Isi':[self.kI+self.kE+1,self.kE+2*self.kI+1],
+                        'Rind':self.kE+2*self.kI+1}
+        self.population = self.Ni
 
     cpdef rhs(self, xt, tt):
         cdef:
@@ -1073,7 +1036,7 @@ cdef class SEkIkIkR(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1119,106 +1082,15 @@ cdef class SEkIkIkR(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        kE = data['kE']
-        X = data['X']
-        E = X[:, self.M:(1+self.kE)*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        kI = data['kI']
-        kE = data['kE']
-        X  = data['X']
-        Ia = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        kI = data['kI']
-        kE = data['kE']
-        X  = data['X']
-        Is = X[:, (1+self.kE+self.kI)*self.M:(1+self.kE+self.kI+self.kI)*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        kI = data['kI']
-        kE = data['kE']
-        Ia0= np.zeros(self.M)
-        Is0= np.zeros(self.M)
-        E0 = np.zeros(self.M)
-        for i in range(kE):
-            E0 += X[:, (i+1)*self.M : (i+2)*self.M]
-        for i in range(kI):
-            Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
-        for i in range(kI):
-            Is0 += X[:, (kE+kI+1)*self.M : (kE+1+2*kI)*self.M]
-        R = self.Ni - X[:, 0:self.M] - Ia0 - Is0 - E0
-        return R
-
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI8R(IntegratorsClass):
+cdef class SEI8R(CommonMethods):
     """
-    Susceptible, Exposed, Infected, Removed (SEAI8R)
+    Susceptible, Exposed, Infected, Removed (SEI8R)
     The infected class has 8 groups:
 
     * Ia: asymptomatic
@@ -1345,6 +1217,11 @@ cdef class SEI8R(IntegratorsClass):
         else:
             raise Exception('mm can be a number or an array of size M')
 
+        self.readData = {'Ei':[1,2], 'Iai':[2,3], 
+                        'Isi':[3,4], 'Ispi':[4,5],
+                        'Ihi':[5,6], 'Ihpi':[6,7],
+                        'Ici':[7,8], 'Icpi':[8,9],
+                        'Imi':[9,10], 'Rind':9}
 
     cpdef rhs(self, xt, tt):
         cdef:
@@ -1401,7 +1278,7 @@ cdef class SEI8R(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1451,146 +1328,8 @@ cdef class SEI8R(IntegratorsClass):
                            Ihp0, Ic0, Icp0, Im0, self.Ni))
         data = self.simulator(x0, contactMatrix, Tf, Nf, 
                               integrator, Ti, maxNumSteps, **kwargs)
+        self.population = (data['X'])[:,10*self.M:11*self.M]
         return data
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 2*self.M:3*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 3*self.M:4*self.M]
-        return Is
-
-
-    def Ih(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        X  = data['X']
-        Ih = X[:, 5*self.M:6*self.M]
-        return Ih
-
-
-    def Ic(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        X  = data['X']
-        Ic = X[:, 7*self.M:8*self.M]
-        return Ic
-
-
-    def Im(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        X  = data['X']
-        Im = X[:, 9*self.M:10*self.M]
-        return Im
-
-
-    def population(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-            population
-        """
-        X = data['X']
-        ppln  = X[:,10*self.M:11*self.M]
-        return ppln
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-             R = N(t) - (S + E + Ia + Is + Is' + Ih + Ih' + Ic + Ic')
-        """
-        X = data['X']
-        R =  X[:, 10*self.M:11*self.M] 
-        for i in range(9):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-
-        return R
 
 
 
@@ -1599,7 +1338,7 @@ cdef class SEI8R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIR(IntegratorsClass):
+cdef class SEAIR(CommonMethods):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
 
@@ -1663,6 +1402,9 @@ cdef class SEAIR(IntegratorsClass):
             self.alpha= alpha
         else:
             raise Exception('alpha can be a number or an array of size M')
+        
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 'Rind':5}
+        self.population = self.Ni
 
     cpdef rhs(self, xt, tt):
         cdef:
@@ -1702,7 +1444,7 @@ cdef class SEAIR(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1750,103 +1492,13 @@ cdef class SEAIR(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni 
-        for i in range(5):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-        return R
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI8R(IntegratorsClass):
+cdef class SEAI8R(CommonMethods):
     """
     Susceptible, Exposed, Activated, Infected, Removed (SEAI5R)
     The infected class has 8 groups:
@@ -1976,6 +1628,12 @@ cdef class SEAI8R(IntegratorsClass):
             self.mm= mm
         else:
             raise Exception('mm can be a number or an array of size M')
+        
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 
+                        'Isi':[4,5], 'Ispi':[5,6],
+                        'Ihi':[6,7], 'Ihpi':[7,8],
+                        'Ici':[8,9], 'Icpi':[9,10],
+                        'Imi':[10,11], 'Rind':10}
 
 
     cpdef rhs(self, xt, tt):
@@ -2035,7 +1693,7 @@ cdef class SEAI8R(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -2085,165 +1743,8 @@ cdef class SEAI8R(IntegratorsClass):
                            Ih0, Ihp0, Ic0, Icp0, Im0, self.Ni))
         data = self.simulator(x0, contactMatrix, Tf, Nf, 
                               integrator, Ti, maxNumSteps, **kwargs)
+        self.population = (data['X'])[:,11*self.M:12*self.M]
         return data
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             A: Activates population time series
-        """
-        X = data['X']
-        E = X[:, 2*self.M:3*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def Ih(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        X  = data['X']
-        Ih = X[:, 6*self.M:7*self.M]
-        return Ih
-
-
-    def Ic(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        X  = data['X']
-        Ic = X[:, 8*self.M:9*self.M]
-        return Ic
-
-
-    def Im(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        X  = data['X']
-        Im = X[:, 10*self.M:11*self.M]
-        return Im
-
-
-    def population(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-            population
-        """
-        X = data['X']
-        ppln  = X[:,11*self.M:12*self.M]
-        return ppln
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-             R = N(t) - (S+E+A+Ia+Is+Is'+Ih+Ih'+Ic+Ic')
-        """
-        X = data['X']
-        R =  X[:, 11*self.M:12*self.M] 
-        for i in range(10):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-
-        return R
-
-
-
-
 
 
 
@@ -2252,7 +1753,7 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ(IntegratorsClass):
+cdef class SEAIRQ(CommonMethods):
     """
     Susceptible, Exposed, Asymptomatic and infected, 
     Infected, Removed, Quarantined (SEAIRQ)
@@ -2324,6 +1825,9 @@ cdef class SEAIRQ(IntegratorsClass):
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # Right hand side
 
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
+                        'Qi':[5,6], 'Rind':6}
+        self.population = self.Ni
 
     cpdef rhs(self, xt, tt):
         cdef:
@@ -2367,7 +1871,7 @@ cdef class SEAIRQ(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -2419,122 +1923,13 @@ cdef class SEAIRQ(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-        S: np.array
-            Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-        E: np.array
-            Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni  
-        for i in range(6):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-
-        return R
-
-
-    def Q(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Q: Quarantined population time series
-        """
-        X  = data['X']
-        Is = X[:, 5*self.M:6*self.M]
-        return Is
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ_testing(IntegratorsClass):
+cdef class SEAIRQ_testing(CommonMethods):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 
@@ -2609,6 +2004,9 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         else:
             raise Exception('alpha can be a number or an array of size M')
 
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
+                        'Qi':[5,6], 'Rind':6}
+        self.population = self.Ni
 
 
     cpdef rhs(self, xt, tt):
@@ -2663,7 +2061,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -2715,120 +2113,13 @@ cdef class SEAIRQ_testing(IntegratorsClass):
         return data
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-        """
-        X = data['X']
-        R = self.Ni 
-        for i in range(6):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-
-        return R
-
-
-    def Q(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Q: Quarantined population time series
-        """
-        X  = data['X']
-        Is = X[:, 5*self.M:6*self.M]
-        return Is
-
 
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIRS(IntegratorsClass):
+cdef class SIRS(CommonMethods):
     """
     Susceptible, Infected, Removed, Susceptible (SIRS). 
     
@@ -2946,7 +2237,7 @@ cdef class SIRS(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -3074,7 +2365,7 @@ cdef class SIRS(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class Spp(IntegratorsClass):
+cdef class Spp(CommonMethods):
     """
     Generic user-defined epidemic model.
 
@@ -3213,7 +2504,7 @@ cdef class Spp(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -3340,7 +2631,7 @@ cdef class Spp(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI5R(IntegratorsClass):
+cdef class SEI5R(CommonMethods):
     warnings.warn('SEI5R not supported', DeprecationWarning)
     """
     DEPRECATED.
@@ -3405,7 +2696,7 @@ cdef class SEI5R(IntegratorsClass):
         self.fsa   = parameters['fsa']        # Self-isolation of symptomatics
         self.fh    = parameters['fh']         # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']      # Fraction of asymptomatics
-        sa         = parameters['sa']         # Rate of additional/removal of population by birth etc
+        sa         = parameters['sa']         # Rate of addition in susceptables
         hh         = parameters['hh']         # Fraction of infected who gets hospitalized
         cc         = parameters['cc']         # Fraction of hospitalized who endup in ICU
         mm         = parameters['mm']         # Mortality fraction from ICU
@@ -3459,6 +2750,12 @@ cdef class SEI5R(IntegratorsClass):
             self.mm= mm
         else:
             raise Exception('mm can be a number or an array of size M')
+        
+        self.readData = {'Ei':[1,2], 'Iai':[2,3], 
+                        'Isi':[3,4], 
+                        'Ihi':[4,5], 
+                        'Ici':[5,6], 
+                        'Imi':[6,7], 'Rind':6}
 
 
     cpdef rhs(self, xt, tt):
@@ -3508,7 +2805,7 @@ cdef class SEI5R(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -3555,137 +2852,9 @@ cdef class SEI5R(IntegratorsClass):
         x0=np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
         data = self.simulator(x0, contactMatrix, Tf, Nf, 
                               integrator, Ti, maxNumSteps, **kwargs)
+        self.population = (data['X'])[:,7*self.M:8*self.M]
         return data
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 2*self.M:3*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 3*self.M:4*self.M]
-        return Is
-
-
-    def Ih(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        X  = data['X']
-        Ih = X[:, 4*self.M:5*self.M]
-        return Ih
-
-
-    def Ic(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        X  = data['X']
-        Ic = X[:, 5*self.M:6*self.M]
-        return Ic
-
-
-    def Im(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        X  = data['X']
-        Im = X[:, 6*self.M:7*self.M]
-        return Im
-
-
-    def population(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-            population
-        """
-        X = data['X']
-        ppln  = X[:,7*self.M:8*self.M]
-        return ppln
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             R: Removed population time series
-            R = N(t) - (S + E + Ia + Is + Ih + Ic)
-        """
-        X = data['X']
-        R =  X[:, 7*self.M:8*self.M] 
-        for i in range(6):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-
-        return R
+ 
 
 
 
@@ -3693,7 +2862,7 @@ cdef class SEI5R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI5R(IntegratorsClass):
+cdef class SEAI5R(CommonMethods):
     warnings.warn('SEAI5R not supported', DeprecationWarning)
     """
     DEPRECATED.
@@ -3814,6 +2983,12 @@ cdef class SEAI5R(IntegratorsClass):
             self.mm= mm
         else:
             raise Exception('mm can be a number or an array of size M')
+        
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 
+                        'Isi':[4,5], 
+                        'Ihi':[5,6], 
+                        'Ici':[6,7], 
+                        'Imi':[7,8], 'Rind':7}
 
 
     cpdef rhs(self, xt, tt):
@@ -3865,7 +3040,7 @@ cdef class SEAI5R(IntegratorsClass):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of IntegratorsClass
+        Internaly calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -3914,147 +3089,5 @@ cdef class SEAI5R(IntegratorsClass):
         x0=np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni))
         data = self.simulator(x0, contactMatrix, Tf, Nf, 
                               integrator, Ti, maxNumSteps, **kwargs)
+        self.population = (data['X'])[:,8*self.M:9*self.M]
         return data
-
-
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        X = data['X']
-        E = X[:, self.M:2*self.M]
-        return E
-
-
-    def A(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             A: Activated population time series
-        """
-        X = data['X']
-        A = X[:, 2*self.M:3*self.M]
-        return A
-
-
-    def Ia(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        X  = data['X']
-        Ia = X[:, 3*self.M:4*self.M]
-        return Ia
-
-
-    def Is(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        X  = data['X']
-        Is = X[:, 4*self.M:5*self.M]
-        return Is
-
-
-    def Ih(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        X  = data['X']
-        Ih = X[:, 5*self.M:6*self.M]
-        return Ih
-
-
-    def Ic(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        X  = data['X']
-        Ic = X[:, 6*self.M:7*self.M]
-        return Ic
-
-
-    def Im(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        X  = data['X']
-        Im = X[:, 7*self.M:8*self.M]
-        return Im
-
-
-    def population(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-            population
-        """
-        X = data['X']
-        ppln = X[:, 8*self.M:9*self.M]
-        return ppln
-
-
-    def R(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-        Returns
-        -------
-             R: Removed population time series
-            R = N(t) - (S + E + A + Ia + Is + Ih + Ic)
-        """
-        X = data['X']
-        R = X[:,8*self.M:9*self.M] 
-        for i in range(7):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-        return R

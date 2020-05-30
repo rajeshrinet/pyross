@@ -141,7 +141,7 @@ class DeterministicTest(unittest.TestCase):
             if name.startswith('S') and not name in skip:
                 m = model(self.parameters, self.M, self.N)
                 x0 = np.array([*self.N, *np.ones(self.M),
-                               *np.zeros(m.nClass -2)], dtype=np.float64).reshape((m.nClass,1))
+                               *np.zeros(m.nClass-2)], dtype=np.float64).reshape((m.nClass,1))
                 traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
 
 
