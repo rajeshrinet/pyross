@@ -1,8 +1,7 @@
 import numpy
 import os, sys
-from distutils.core import setup
 from Cython.Build import cythonize
-from distutils.extension import Extension
+from setuptools import setup, Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
 
@@ -24,6 +23,7 @@ setup(
     version='1.0.0',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
+    author_email = 'pyross@googlegroups.com',
     license='MIT',
     description='PyRoss: Infectious disease models in Python',
     long_description='PyRoss is a numerical library that offers an integrated platform for \
