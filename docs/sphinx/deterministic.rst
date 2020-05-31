@@ -3,9 +3,9 @@ Deterministic simulations
 
 Deterministic simulations with compartment models and age structure.
 
-IntegratorsClass
+CommonMethods
 ----------------------------------------
-.. autoclass:: pyross.deterministic.IntegratorsClass
+.. autoclass:: pyross.deterministic.CommonMethods
     :members:
 
 
