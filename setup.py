@@ -20,13 +20,13 @@ else:
 
 
 setup(
-    name='PyRoss',
-    version='1.0.0',
+    name='pyross',
+    version='1.1.1',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
-    description='PyRoss: Infectious disease models in Python',
+    description='Infectious disease models in Python: inference, prediction and NPI',
     long_description='PyRoss is a numerical library that offers an integrated platform for \
                       inference, prediction and non-pharmaceutical interventions in \
                       age- and contact-structured epidemiological compartment models.',
