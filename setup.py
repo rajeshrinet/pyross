@@ -21,6 +21,8 @@ else:
 
 setup(
     name='pyross',
+    packages=['pyross'],
+    package_dir = {'': 'core'},
     version='1.1.4',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
@@ -35,7 +37,6 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
-    package_dir = {'': 'core'},
     install_requires=['cython','numpy','scipy','cma','pathos','nlopt'],
     package_data={'core': ['*.pxd']},
 )
