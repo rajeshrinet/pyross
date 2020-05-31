@@ -64,6 +64,12 @@ Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/e
 >> make
 ```
 
+### Pip
+
+```
+pip install PyRoss
+```
+
 
 
 #### Testing
