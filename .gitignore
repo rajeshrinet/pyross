@@ -5,10 +5,10 @@
 *.swp
 *.mat
 *.swo
-core/*.html
-core/*.c
-core/*.so
-core/*.cpp
+pyross/*.html
+pyross/*.c
+pyross/*.so
+pyross/*.cpp
 *.c
 *egg-info*
 dist

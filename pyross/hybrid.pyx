@@ -8,8 +8,8 @@ cimport cpython
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 
-import core.stochastic as stochastic
-import core.deterministic as deterministic
+import pyross.stochastic as stochastic
+import pyross.deterministic as deterministic
 
 cdef class SIR:
     """

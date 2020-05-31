@@ -1,7 +1,7 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
-import core.utils
+import pyross.utils
 import warnings
 
 DTYPE   = np.float
@@ -473,7 +473,7 @@ cdef class SIR(CommonMethods):
     >>> 
     >>> # instantiate model
     >>> parameters = {'alpha':alpha, 'beta':beta, 'gIa':gIa, 'gIs':gIs,'fsa':fsa}
-    >>> model = core.deterministic.SIR(parameters, M, Ni)
+    >>> model = pyross.deterministic.SIR(parameters, M, Ni)
     >>> 
     >>> # simulate model using two possible ways
     >>> data1 = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)                    
@@ -483,11 +483,11 @@ cdef class SIR(CommonMethods):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 3
-        self.beta  = core.utils.age_dep_rates(parameters['beta'],  M, 'beta')
-        self.gIa   = core.utils.age_dep_rates(parameters['gIa'],   M, 'gIa')
-        self.gIs   = core.utils.age_dep_rates(parameters['gIs'],   M, 'gIs')
-        self.fsa   = core.utils.age_dep_rates(parameters['fsa'],   M, 'fsa')
-        self.alpha = core.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
+        self.beta  = pyross.utils.age_dep_rates(parameters['beta'],  M, 'beta')
+        self.gIa   = pyross.utils.age_dep_rates(parameters['gIa'],   M, 'gIa')
+        self.gIs   = pyross.utils.age_dep_rates(parameters['gIs'],   M, 'gIs')
+        self.fsa   = pyross.utils.age_dep_rates(parameters['fsa'],   M, 'fsa')
+        self.alpha = pyross.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -743,12 +743,12 @@ cdef class SEIR(CommonMethods):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 4
-        self.beta = core.utils.age_dep_rates(parameters['beta'], M, 'beta')
-        self.gE = core.utils.age_dep_rates(parameters['gE'], M, 'gE')
-        self.gIa = core.utils.age_dep_rates(parameters['gIa'], M, 'gIa')
-        self.gIs = core.utils.age_dep_rates(parameters['gIs'], M, 'gIs')
-        self.fsa = core.utils.age_dep_rates(parameters['fsa'], M, 'fsa')
-        self.alpha = core.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
+        self.beta = pyross.utils.age_dep_rates(parameters['beta'], M, 'beta')
+        self.gE = pyross.utils.age_dep_rates(parameters['gE'], M, 'gE')
+        self.gIa = pyross.utils.age_dep_rates(parameters['gIa'], M, 'gIa')
+        self.gIs = pyross.utils.age_dep_rates(parameters['gIs'], M, 'gIs')
+        self.fsa = pyross.utils.age_dep_rates(parameters['fsa'], M, 'fsa')
+        self.alpha = pyross.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
 
         self.paramList = parameters
 
@@ -1886,18 +1886,18 @@ cdef class SEAIRQ(CommonMethods):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 6
-        self.alpha = core.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
-        self.beta = core.utils.age_dep_rates(parameters['beta'], M, 'beta')
-        self.gIa = core.utils.age_dep_rates(parameters['gIa'], M, 'gIa')
-        self.gIs = core.utils.age_dep_rates(parameters['gIs'], M, 'gIs')
-        self.gE = core.utils.age_dep_rates(parameters['gE'], M, 'gE')
-        self.gA = core.utils.age_dep_rates(parameters['gA'], M, 'gA')
-        self.fsa = core.utils.age_dep_rates(parameters['fsa'], M, 'fsa')
+        self.alpha = pyross.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
+        self.beta = pyross.utils.age_dep_rates(parameters['beta'], M, 'beta')
+        self.gIa = pyross.utils.age_dep_rates(parameters['gIa'], M, 'gIa')
+        self.gIs = pyross.utils.age_dep_rates(parameters['gIs'], M, 'gIs')
+        self.gE = pyross.utils.age_dep_rates(parameters['gE'], M, 'gE')
+        self.gA = pyross.utils.age_dep_rates(parameters['gA'], M, 'gA')
+        self.fsa = pyross.utils.age_dep_rates(parameters['fsa'], M, 'fsa')
 
-        self.tE = core.utils.age_dep_rates(parameters['tE'], M, 'tE')
-        self.tA = core.utils.age_dep_rates(parameters['tA'], M, 'tA')
-        self.tIa = core.utils.age_dep_rates(parameters['tIa'], M, 'tIa')
-        self.tIs = core.utils.age_dep_rates(parameters['tIs'], M, 'tIs')
+        self.tE = pyross.utils.age_dep_rates(parameters['tE'], M, 'tE')
+        self.tA = pyross.utils.age_dep_rates(parameters['tA'], M, 'tA')
+        self.tIa = pyross.utils.age_dep_rates(parameters['tIa'], M, 'tIa')
+        self.tIs = pyross.utils.age_dep_rates(parameters['tIs'], M, 'tIs')
 
         self.N     = np.sum(Ni)
         self.M     = M
@@ -2497,7 +2497,7 @@ cdef class Spp(CommonMethods):
         self.Ni = np.array(Ni, dtype=DTYPE)
 
         self.param_keys = list(parameters.keys())
-        res = core.utils.parse_model_spec(model_spec, self.param_keys)
+        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
         self.constant_terms = res[2]
@@ -2515,7 +2515,7 @@ cdef class Spp(CommonMethods):
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
-                self.parameters[i] = core.utils.age_dep_rates(param, self.M, key)
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
             raise Exception('The parameters passed does not contain certain keys.\
                              The keys are {}'.format(self.param_keys))

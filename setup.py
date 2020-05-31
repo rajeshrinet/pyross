@@ -7,13 +7,13 @@ Cython.Compiler.Options.annotate=True
 
 
 if 'darwin' == (sys.platform).lower():
-    extension = Extension("core/*", ["core/*.pyx"],
+    extension = Extension("pyross/*", ["pyross/*.pyx"],
         include_dirs=[numpy.get_include()],
         extra_compile_args=['-mmacosx-version-min=10.9'],
         extra_link_args=['-mmacosx-version-min=10.9'],
     )
 else:
-    extension = Extension("core/*", ["core/*.pyx"],
+    extension = Extension("pyross/*", ["pyross/*.pyx"],
         include_dirs=[numpy.get_include()],
     )
 
@@ -21,9 +21,7 @@ else:
 
 setup(
     name='pyross',
-    packages=['pyross'],
-    package_dir = {'': 'core'},
-    version='1.1.4',
+    version='1.1.2',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
@@ -37,6 +35,7 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
+    packages=['pyross'],
     install_requires=['cython','numpy','scipy','cma','pathos','nlopt'],
-    package_data={'core': ['*.pxd']},
+    package_data={'pyross': ['*.pxd']},
 )

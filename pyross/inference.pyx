@@ -15,10 +15,10 @@ try:
 except ImportError:
     nestle = None
 
-import core.deterministic
-cimport core.deterministic
-import core.contactMatrix
-from core.utils_python import minimization
+import pyross.deterministic
+cimport pyross.deterministic
+import pyross.contactMatrix
+from pyross.utils_python import minimization
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -108,7 +108,7 @@ cdef class SIR_type:
         bounds[1] *= beta_rescale
         stds[1] *= beta_rescale
 
-        s, scale = core.utils.make_log_norm_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -213,7 +213,7 @@ cdef class SIR_type:
         # Transfer the guesses, stds, ... which can contain arrays as entries for age-dependend rates to a flat vector for inference.
         flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
-        s, scale = core.utils.make_log_norm_dist(flat_guess, flat_stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -251,7 +251,7 @@ cdef class SIR_type:
 
         flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
-        s, scale = core.utils.make_log_norm_dist(flat_guess, flat_stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         k = len(flat_guess)
         ppf_bounds = np.zeros((k, 2))
@@ -336,8 +336,8 @@ cdef class SIR_type:
             Total time of the trajectory
         Nf: float
             Number of data points along the trajectory
-        generator: core.contactMatrix
-            A core.contactMatrix object that generates a contact matrix function with specified lockdown
+        generator: pyross.contactMatrix
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
             parameters.
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2).
@@ -375,7 +375,7 @@ cdef class SIR_type:
         res: numpy.array
             MAP estimate of the control parameters
         """
-        s, scale = core.utils.make_log_norm_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
@@ -398,7 +398,7 @@ cdef class SIR_type:
             Py_ssize_t k=maps.shape[0], i, j
             double xx0
             np.ndarray g1, g2, s, scale, hess = np.empty((k, k))
-        s, scale = core.utils.make_log_norm_dist(prior_mean, prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         def minuslogP(y):
             y[1] /= beta_rescale
             parameters = self.make_params_dict(y)
@@ -455,7 +455,7 @@ cdef class SIR_type:
         flat_prior_mean, flat_prior_stds, _, _, _, _ \
             = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
 
-        s, scale = core.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
         def minuslogP(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
             parameters = self.fill_params_dict(keys, y_unflat)
@@ -491,7 +491,7 @@ cdef class SIR_type:
         flat_prior_mean, flat_prior_stds, _, _, _, _ \
             = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
 
-        s, scale = core.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
         parameters = self.fill_params_dict(keys, maps)
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
         logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
@@ -546,7 +546,7 @@ cdef class SIR_type:
         bounds[1, :] *= beta_rescale
         stds[param_dim:] *= rescale_factor
         stds[1] *= beta_rescale
-        s, scale = core.utils.make_log_norm_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -701,7 +701,7 @@ cdef class SIR_type:
         flat_stds = np.concatenate([flat_param_stds,init_stds]).astype(DTYPE)
         flat_bounds = np.concatenate([flat_param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = core.utils.make_log_norm_dist(flat_guess, flat_stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -786,8 +786,8 @@ cdef class SIR_type:
             Total time of the trajectory
         Nf: float
             Number of data points along the trajectory
-        generator: core.contactMatrix
-            A core.contactMatrix object that generates a contact matrix function with specified lockdown
+        generator: pyross.contactMatrix
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
             parameters.
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2).
@@ -829,7 +829,7 @@ cdef class SIR_type:
 
         """
 
-        s, scale = core.utils.make_log_norm_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
@@ -883,7 +883,7 @@ cdef class SIR_type:
             The Hessian over initial conditions
         '''
 
-        s, scale = core.utils.make_log_norm_dist(prior_mean, prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
         map_params = maps[:param_dim]
@@ -912,7 +912,7 @@ cdef class SIR_type:
         '''
         DEPRECATED. Use `compute_hessian_latent` instead.
         '''
-        s, scale = core.utils.make_log_norm_dist(prior_mean, prior_stds)
+        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
         dim = maps.shape[0]
         param_dim = dim - self.dim
         map_params = maps[:param_dim]
@@ -1106,7 +1106,7 @@ cdef class SIR_type:
 
         Returns
         -------
-        det_model: a class in core.deterministic
+        det_model: a class in pyross.deterministic
             A determinisitic model of the same epidemiological class and same parameters
         '''
         pass # to be implemented in subclass
@@ -1180,11 +1180,11 @@ cdef class SIR_type:
         Can use `fill_params_dict` to generate the full dictionary if only a few parameters are changed
         '''
 
-        self.beta = core.utils.age_dep_rates(parameters['beta'], self.M, 'beta')
-        self.gIa = core.utils.age_dep_rates(parameters['gIa'], self.M, 'gIa')
-        self.gIs = core.utils.age_dep_rates(parameters['gIs'], self.M, 'gIs')
-        self.fsa = core.utils.age_dep_rates(parameters['fsa'], self.M, 'fsa')
-        self.alpha = core.utils.age_dep_rates(parameters['alpha'], self.M, 'alpha')
+        self.beta = pyross.utils.age_dep_rates(parameters['beta'], self.M, 'beta')
+        self.gIa = pyross.utils.age_dep_rates(parameters['gIa'], self.M, 'gIa')
+        self.gIs = pyross.utils.age_dep_rates(parameters['gIs'], self.M, 'gIs')
+        self.fsa = pyross.utils.age_dep_rates(parameters['fsa'], self.M, 'fsa')
+        self.alpha = pyross.utils.age_dep_rates(parameters['alpha'], self.M, 'alpha')
 
 
     cdef double obtain_log_p_for_traj(self, double [:, :] x, double Tf, int Nf, model, contactMatrix):
@@ -1238,8 +1238,8 @@ cdef class SIR_type:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = sparse.block_diag([fltr,]*(Nf-1))
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
-        if not core.utils.is_positive_definite(cov_red):
-            cov_red = core.utils.nearest_positive_definite(cov_red)
+        if not pyross.utils.is_positive_definite(cov_red):
+            cov_red = pyross.utils.nearest_positive_definite(cov_red)
         obs_flattened = np.ravel(obs)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
@@ -1296,7 +1296,7 @@ cdef class SIR_type:
             return self.dsigmadt
 
         if self.lyapunov_method=='euler':
-            cov_array = core.utils.forward_euler_integration(rhs, sigma0, t1, t2, steps)
+            cov_array = pyross.utils.forward_euler_integration(rhs, sigma0, t1, t2, steps)
             cov = cov_array[steps-1]
         elif self.lyapunov_method=='RK45':
             res = solve_ivp(rhs, (t1, t2), sigma0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
@@ -1305,14 +1305,14 @@ cdef class SIR_type:
             res = solve_ivp(rhs, (t1, t2), sigma0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
             cov = res.y[0]
         elif self.lyapunov_method=='RK2':
-            cov_array = core.utils.RK2_integration(rhs, sigma0, t1, t2, steps)
+            cov_array = pyross.utils.RK2_integration(rhs, sigma0, t1, t2, steps)
             cov = cov_array[steps-1]
         else:
             raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
 
         cov_mat = self.convert_vec_to_mat(cov)
-        if not core.utils.is_positive_definite(cov_mat):
-            cov_mat = core.utils.nearest_positive_definite(cov_mat)
+        if not pyross.utils.is_positive_definite(cov_mat):
+            cov_mat = pyross.utils.nearest_positive_definite(cov_mat)
         return x[steps-1], cov_mat
 
     cdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
@@ -1324,8 +1324,8 @@ cdef class SIR_type:
         dx_det = np.multiply(dt/self.N, model.dxdt)
         self.compute_tangent_space_variables(xt, t, contactMatrix)
         cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-        if not core.utils.is_positive_definite(cov):
-            cov = core.utils.nearest_positive_definite(cov)
+        if not pyross.utils.is_positive_definite(cov):
+            cov = pyross.utils.nearest_positive_definite(cov)
         return dx_det, cov
 
     cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
@@ -1432,7 +1432,7 @@ cdef class SIR_type:
 
 
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        """An light weight integrate method similar to `simulate` in core.deterministic
+        """An light weight integrate method similar to `simulate` in pyross.deterministic
 
         Parameters
         ----------
@@ -1444,8 +1444,8 @@ cdef class SIR_type:
             Final time of integrator
         steps: int
             Number of time steps for numerical integrator evaluation.
-        model: core model
-            Model to integrate (core.deterministic.SIR etc)
+        model: pyross model
+            Model to integrate (pyross.deterministic.SIR etc)
         contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
@@ -1469,9 +1469,9 @@ cdef class SIR_type:
             time_points = np.linspace(t1, t2, steps)
             sol = solve_ivp(rhs0, [t1,t2], x0, method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
         elif self.det_method=='euler':
-            sol = core.utils.forward_euler_integration(rhs0, x0, t1, t2, steps)
+            sol = pyross.utils.forward_euler_integration(rhs0, x0, t1, t2, steps)
         elif self.det_method=='RK2':
-            sol = core.utils.RK2_integration(rhs0, x0, t1, t2, steps)
+            sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
         else:
             raise Exception("Error: det_method not found. use set_det_method to reset.")
         return sol
@@ -1592,7 +1592,7 @@ cdef class SIR(SIR_type):
         super().__init__(parameters, 3, M, fi, N, steps, det_method, lyapunov_method)
 
     def make_det_model(self, parameters):
-        return core.deterministic.SIR(parameters, self.M, self.fi*self.N)
+        return pyross.deterministic.SIR(parameters, self.M, self.fi*self.N)
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1736,10 +1736,10 @@ cdef class SEIR(SIR_type):
 
     def set_params(self, parameters):
         super().set_params(parameters)
-        self.gE = core.utils.age_dep_rates(parameters['gE'], self.M, 'gE')
+        self.gE = pyross.utils.age_dep_rates(parameters['gE'], self.M, 'gE')
 
     def make_det_model(self, parameters):
-        return core.deterministic.SEIR(parameters, self.M, self.fi*self.N)
+        return pyross.deterministic.SEIR(parameters, self.M, self.fi*self.N)
 
 
     def make_params_dict(self, params=None):
@@ -1907,15 +1907,15 @@ cdef class SEAIRQ(SIR_type):
 
     def set_params(self, parameters):
         super().set_params(parameters)
-        self.gE = core.utils.age_dep_rates(parameters['gE'], self.M, 'gE')
-        self.gA = core.utils.age_dep_rates(parameters['gA'], self.M, 'gA')
-        self.tE = core.utils.age_dep_rates(parameters['tE'], self.M, 'tE')
-        self.tA = core.utils.age_dep_rates(parameters['tA'], self.M, 'tA')
-        self.tIa = core.utils.age_dep_rates(parameters['tIa'], self.M, 'tIa')
-        self.tIs = core.utils.age_dep_rates(parameters['tIs'], self.M, 'tIs')
+        self.gE = pyross.utils.age_dep_rates(parameters['gE'], self.M, 'gE')
+        self.gA = pyross.utils.age_dep_rates(parameters['gA'], self.M, 'gA')
+        self.tE = pyross.utils.age_dep_rates(parameters['tE'], self.M, 'tE')
+        self.tA = pyross.utils.age_dep_rates(parameters['tA'], self.M, 'tA')
+        self.tIa = pyross.utils.age_dep_rates(parameters['tIa'], self.M, 'tIa')
+        self.tIs = pyross.utils.age_dep_rates(parameters['tIs'], self.M, 'tIs')
 
     def make_det_model(self, parameters):
-        return core.deterministic.SEAIRQ(parameters, self.M, self.fi*self.N)
+        return pyross.deterministic.SEAIRQ(parameters, self.M, self.fi*self.N)
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -2125,7 +2125,7 @@ cdef class SEAIRQ_testing(SIR_type):
         self.testRate=testRate
 
     def make_det_model(self, parameters):
-        return core.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
+        return pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
 
 
     def make_params_dict(self, params=None):
@@ -2337,19 +2337,19 @@ cdef class Spp(SIR_type):
         readonly np.ndarray parameters
         readonly list param_keys
         readonly dict class_index_dict
-        readonly core.deterministic.Spp det_model
+        readonly pyross.deterministic.Spp det_model
 
 
     def __init__(self, model_spec, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
-        res = core.utils.parse_model_spec(model_spec, self.param_keys)
+        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
         super().__init__(parameters, self.nClass, M, fi, N, steps, det_method, lyapunov_method)
-        self.det_model = core.deterministic.Spp(model_spec, parameters, M, fi*N)
+        self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*N)
 
 
     def set_params(self, parameters):
@@ -2358,7 +2358,7 @@ cdef class Spp(SIR_type):
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
-                self.parameters[i] = core.utils.age_dep_rates(param, self.M, key)
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
             raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
 

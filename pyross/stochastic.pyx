@@ -5,7 +5,7 @@ import numpy as np
 cimport numpy as np
 import os, time
 cimport cpython
-import core.utils
+import pyross.utils
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 from numpy.math cimport INFINITY
@@ -3348,7 +3348,7 @@ cdef class Spp(stochastic_integration):
         self.Ni = np.array(Ni, dtype=long)
 
         self.param_keys = list(parameters.keys())
-        res = core.utils.parse_model_spec(model_spec, self.param_keys)
+        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         nClass = self.nClass
         self.class_index_dict = res[1]
@@ -3479,7 +3479,7 @@ cdef class Spp(stochastic_integration):
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
-                self.parameters[i] = core.utils.age_dep_rates(param, self.M, key)
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
             raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
 
