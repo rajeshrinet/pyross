@@ -35,6 +35,7 @@ setup(
         compiler_directives={"language_level": sys.version_info[0]},
         ),
     libraries=[],
+    package_dir = {'': 'lib'}
     packages=['core'],
     install_requires=['cython','numpy','scipy','cma','pathos','nlopt'],
     package_data={'core': ['*.pxd']},
