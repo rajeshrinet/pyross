@@ -225,7 +225,7 @@ cdef class SpatialContactMatrix:
 
     where
     .. math::
-        a_{ij} = \sum_{\mu\nu} k^{\mu\nu}_{ij} g^{\mu\nu}_{ij} \sqrt{ \frac{ N_i^\mu N_j^\nu} {N_i N_j}} \\
+        a_{ij} = \sum_{\mu\nu} k^{\mu\nu}_{ij} g^{\mu\nu}_{ij} \sqrt{ \frac{ N_i^\mu N_j^\nu} {N_i N_j}}
         k^{\mu \nu} = \exp ( - b_{\mu\nu} | r^\mu - r^\nu |) \\
         b_{\mu, \nv} = (\rho^\mu \rho^\nu)^{-c} \\
         g^{\mu\nu}_{ij} = (\rho^\mu_i \rho^\nu_j)^b \\
@@ -254,7 +254,7 @@ cdef class SpatialContactMatrix:
     coordinates: np.array(n_loc, 2)
         The GPS coordinates of each geographical region.
     '''
-    
+
     cdef:
         Py_ssize_t n_loc, M
         np.ndarray Ni, spatial_kernel, density_factor, rescale_factor, normalisation_factor
