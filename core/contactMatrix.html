@@ -387,10 +387,10 @@ body.cython { font-family: courier; font-size: 12; }
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_spl, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 3, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-</pre><pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0004</span>: <span class="k">import</span> <span class="nn">pyross.utils</span></pre>
-<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_pyross_utils, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 4, __pyx_L1_error)</span>
+</pre><pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0004</span>: <span class="k">import</span> <span class="nn">core.utils</span></pre>
+<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_core_utils, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 4, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_pyross, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 4, __pyx_L1_error)</span>
+  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_core, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 4, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0005</span>: <span class="k">from</span> <span class="nn">libc.math</span> <span class="k">cimport</span> <span class="n">exp</span><span class="p">,</span> <span class="nb">pow</span><span class="p">,</span> <span class="n">sqrt</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0006</span>: <span class="k">cimport</span> <span class="nn">cython</span></pre>
@@ -3677,8 +3677,8 @@ static PyObject *__pyx_pf_4core_13contactMatrix_20SpatialContactMatrix_2spatial_
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
       <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_rho_j, __pyx_t_6);
       __pyx_t_6 = 0;
-</pre><pre class="cython line score-68" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0308</span>:                 <span class="n">d</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">distance_on_Earth</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">j</span><span class="p">])</span></pre>
-<pre class='cython code score-68 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_3, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 308, __pyx_L1_error)</span>
+</pre><pre class="cython line score-68" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0308</span>:                 <span class="n">d</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">distance_on_Earth</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">j</span><span class="p">])</span></pre>
+<pre class='cython code score-68 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_3, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 308, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
       __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_3, __pyx_n_s_utils);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 308, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
@@ -35544,7 +35544,7 @@ static PyObject *__pyx_pf_4core_13contactMatrix_26RepublicOfKorea(CYTHON_UNUSED 
 <pre class="cython line score-0">&#xA0;<span class="">2923</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">2924</span>: <span class="sd">&#39;&#39;&#39;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">2925</span>: <span class="sd">used pandas to read the files using</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">2926</span>: <span class="sd">curDir=&#39;/Users/rsingh/Dropbox/repos/github/pyross/examples/&#39;</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">2926</span>: <span class="sd">curDir=&#39;/Users/rsingh/Dropbox/repos/github/core/examples/&#39;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">2927</span>: <span class="sd">np.array(pd.read_excel(os.path.join(curDir,&#39;data/contact_matrices_152_countries/MUestimates_school_1.xlsx&#39;), sheet_name=&#39;India&#39;))</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">2928</span>: <span class="sd">&#39;&#39;&#39;</span></pre>
 </div></body></html>

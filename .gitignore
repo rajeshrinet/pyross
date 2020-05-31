@@ -5,10 +5,10 @@
 *.swp
 *.mat
 *.swo
-pyross/*.html
-pyross/*.c
-pyross/*.so
-pyross/*.cpp
+core/*.html
+core/*.c
+core/*.so
+core/*.cpp
 *.c
 *egg-info*
 dist
@@ -78,6 +78,6 @@ build/
 *.pvsm
 *.npz
 *.pvd
-build/ 
+build/
 .DS_Store
 *.npy
