@@ -9,8 +9,8 @@ DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 from numpy.math cimport INFINITY
 
-import core.deterministic
-import core.stochastic
+import pyross.deterministic
+import pyross.stochastic
 
 from timeit import default_timer as timer
 import time
@@ -176,7 +176,7 @@ cdef class SIR:
                         'gIa':sample_parameters[i,2],'gIs':sample_parameters[i,3]}
             #
             if control:
-                model = core.control.SIR(parameters, M, self.Ni)
+                model = pyross.control.SIR(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, Ia0, Is0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -186,12 +186,12 @@ cdef class SIR:
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SIR(parameters, M, self.Ni)
+                    model = pyross.deterministic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SIR(parameters, M, self.Ni)
+                    model = pyross.stochastic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
@@ -394,7 +394,7 @@ cdef class SIR_latent:
             Is0 = (sample_inits[i, 2*M:3*M] * self.N).astype('int')
             #
             if control:
-                model = core.control.SIR(parameters, M, self.Ni)
+                model = pyross.control.SIR(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, Ia0, Is0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -404,12 +404,12 @@ cdef class SIR_latent:
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SIR(parameters, M, self.Ni)
+                    model = pyross.deterministic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SIR(parameters, M, self.Ni)
+                    model = pyross.stochastic.SIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
                                   tau_update_frequency=tau_update_frequency,
@@ -604,7 +604,7 @@ cdef class SEIR:
                         'gE':sample_parameters[i,4]}
             #
             if control:
-                model = core.control.SEIR(parameters, M, self.Ni)
+                model = pyross.control.SEIR(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, E0, Ia0, Is0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -614,12 +614,12 @@ cdef class SEIR:
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SEIR(parameters, M, self.Ni)
+                    model = pyross.deterministic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SEIR(parameters, M, self.Ni)
+                    model = pyross.stochastic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                   contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
@@ -834,7 +834,7 @@ cdef class SEIR_latent:
             Is0 = ( sample_inits[i,3*M:4*M] * self.N ).astype('int')
             #
             if control:
-                model = core.control.SEIR(parameters, M, self.Ni)
+                model = pyross.control.SEIR(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, E0, Ia0, Is0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -844,12 +844,12 @@ cdef class SEIR_latent:
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SEIR(parameters, M, self.Ni)
+                    model = pyross.deterministic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SEIR(parameters, M, self.Ni)
+                    model = pyross.stochastic.SEIR(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, Ia0, Is0,
                                   contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
@@ -1076,7 +1076,7 @@ cdef class SEAIRQ():
                         'tIs':self.tIs}
             #
             if control:
-                model = core.control.SEAIRQ(parameters, M, self.Ni)
+                model = pyross.control.SEAIRQ(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -1086,12 +1086,12 @@ cdef class SEAIRQ():
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SEAIRQ(parameters, M, self.Ni)
+                    model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SEAIRQ(parameters, M, self.Ni)
+                    model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                   contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
@@ -1340,7 +1340,7 @@ cdef class SEAIRQ_latent():
             Q0 =  (sample_inits[i,5*M: 6*M]* self.N).astype('int')
             #
             if control:
-                model = core.control.SEAIRQ(parameters, M, self.Ni)
+                model = pyross.control.SEAIRQ(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -1350,12 +1350,12 @@ cdef class SEAIRQ_latent():
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SEAIRQ(parameters, M, self.Ni)
+                    model = pyross.deterministic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SEAIRQ(parameters, M, self.Ni)
+                    model = pyross.stochastic.SEAIRQ(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Q0,
                                   contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
@@ -1638,7 +1638,7 @@ cdef class SEAI5R():
                           }
             #
             if control:
-                model = core.control.SEAI5R(parameters, M, self.Ni)
+                model = pyross.control.SEAI5R(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -1648,12 +1648,12 @@ cdef class SEAI5R():
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SEAI5R(parameters, M, self.Ni)
+                    model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SEAI5R(parameters, M, self.Ni)
+                    model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                   contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,
@@ -1948,7 +1948,7 @@ cdef class SEAI5R_latent():
             Im0 = (sample_inits[i, 7*M: 8*M]* self.N).astype('int')
             #
             if control:
-                model = core.control.SEAI5R(parameters, M, self.Ni)
+                model = pyross.control.SEAI5R(parameters, M, self.Ni)
                 cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                               events, contactMatrices, Tf, Nf,
                               events_repeat=events_repeat,
@@ -1958,12 +1958,12 @@ cdef class SEAI5R_latent():
                               method=method)
             else:
                 if method == 'deterministic':
-                    model = core.deterministic.SEAI5R(parameters, M, self.Ni)
+                    model = pyross.deterministic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                     contactMatrix,
                                     Tf, Nf)
                 else:
-                    model = core.stochastic.SEAI5R(parameters, M, self.Ni)
+                    model = pyross.stochastic.SEAI5R(parameters, M, self.Ni)
                     cur_result = model.simulate(S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,
                                   contactMatrix, Tf, Nf,
                                   nc=nc,epsilon=epsilon,

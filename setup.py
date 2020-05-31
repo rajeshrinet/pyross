@@ -18,7 +18,6 @@ else:
     )
 
 
-
 setup(
     name='pyross',
     version='1.1.2',
