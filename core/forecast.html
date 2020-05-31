@@ -390,15 +390,15 @@ body.cython { font-family: courier; font-size: 12; }
 </pre><pre class="cython line score-0">&#xA0;<span class="">0009</span>: <span class="k">ctypedef</span> <span class="n">np</span><span class="o">.</span><span class="n">float_t</span> <span class="n">DTYPE_t</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0010</span>: <span class="k">from</span> <span class="nn">numpy.math</span> <span class="k">cimport</span> <span class="n">INFINITY</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0011</span>: </pre>
-<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0012</span>: <span class="k">import</span> <span class="nn">pyross.deterministic</span></pre>
-<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_pyross_deterministic, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)</span>
+<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0012</span>: <span class="k">import</span> <span class="nn">core.deterministic</span></pre>
+<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_core_deterministic, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_pyross, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 12, __pyx_L1_error)</span>
+  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_core, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 12, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
-</pre><pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0013</span>: <span class="k">import</span> <span class="nn">pyross.stochastic</span></pre>
-<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_pyross_stochastic, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 13, __pyx_L1_error)</span>
+</pre><pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0013</span>: <span class="k">import</span> <span class="nn">core.stochastic</span></pre>
+<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_core_stochastic, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 13, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_pyross, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 13, __pyx_L1_error)</span>
+  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_core, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 13, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0014</span>: </pre>
 <pre class="cython line score-19" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0015</span>: <span class="k">from</span> <span class="nn">timeit</span> <span class="k">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span></pre>
@@ -2240,8 +2240,8 @@ static PyObject *__pyx_pf_4core_8forecast_3SIR_2simulate(struct __pyx_obj_4core_
 /* … */
       goto __pyx_L12;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0179</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 179, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0179</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 179, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
       __pyx_t_15 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_6, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 179, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
@@ -2369,8 +2369,8 @@ static PyObject *__pyx_pf_4core_8forecast_3SIR_2simulate(struct __pyx_obj_4core_
 /* … */
         goto __pyx_L13;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0189</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 189, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0189</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 189, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 189, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -2497,9 +2497,9 @@ static PyObject *__pyx_pf_4core_8forecast_3SIR_2simulate(struct __pyx_obj_4core_
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_15);
         __pyx_t_15 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0193</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0194</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0194</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 194, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 194, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 194, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -5212,8 +5212,8 @@ static PyObject *__pyx_pf_4core_8forecast_10SIR_latent_2simulate(struct __pyx_ob
 /* … */
       goto __pyx_L14;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0397</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 397, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0397</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 397, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
       __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_6, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 397, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
@@ -5341,8 +5341,8 @@ static PyObject *__pyx_pf_4core_8forecast_10SIR_latent_2simulate(struct __pyx_ob
 /* … */
         goto __pyx_L15;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0407</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 407, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0407</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 407, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 407, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -5469,9 +5469,9 @@ static PyObject *__pyx_pf_4core_8forecast_10SIR_latent_2simulate(struct __pyx_ob
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_4);
         __pyx_t_4 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0411</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0412</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0412</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 412, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 412, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 412, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -7746,8 +7746,8 @@ static PyObject *__pyx_pf_4core_8forecast_4SEIR_2simulate(struct __pyx_obj_4core
 /* … */
       goto __pyx_L12;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0607</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 607, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0607</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 607, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
       __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 607, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -7878,8 +7878,8 @@ static PyObject *__pyx_pf_4core_8forecast_4SEIR_2simulate(struct __pyx_obj_4core
 /* … */
         goto __pyx_L13;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0617</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 617, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0617</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 617, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_15 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 617, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
@@ -8009,9 +8009,9 @@ static PyObject *__pyx_pf_4core_8forecast_4SEIR_2simulate(struct __pyx_obj_4core
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_6);
         __pyx_t_6 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0621</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0622</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0622</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 622, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 622, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_15 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 622, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
@@ -10953,8 +10953,8 @@ static PyObject *__pyx_pf_4core_8forecast_11SEIR_latent_2simulate(struct __pyx_o
 /* … */
       goto __pyx_L14;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0837</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 837, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0837</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 837, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
       __pyx_t_12 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_4, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 837, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
@@ -11085,8 +11085,8 @@ static PyObject *__pyx_pf_4core_8forecast_11SEIR_latent_2simulate(struct __pyx_o
 /* … */
         goto __pyx_L15;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0847</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 847, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0847</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 847, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 847, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
@@ -11216,9 +11216,9 @@ static PyObject *__pyx_pf_4core_8forecast_11SEIR_latent_2simulate(struct __pyx_o
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_12);
         __pyx_t_12 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0851</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0852</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0852</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 852, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 852, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 852, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
@@ -13872,8 +13872,8 @@ static PyObject *__pyx_pf_4core_8forecast_6SEAIRQ_2simulate(struct __pyx_obj_4co
 /* … */
       goto __pyx_L12;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1079</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1079, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1079</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1079, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
       __pyx_t_15 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_6, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1079, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
@@ -14010,8 +14010,8 @@ static PyObject *__pyx_pf_4core_8forecast_6SEAIRQ_2simulate(struct __pyx_obj_4co
 /* … */
         goto __pyx_L13;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1089</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1089, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1089</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1089, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1089, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -14147,9 +14147,9 @@ static PyObject *__pyx_pf_4core_8forecast_6SEAIRQ_2simulate(struct __pyx_obj_4co
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_15);
         __pyx_t_15 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1093</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1094</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1094</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1094, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1094, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1094, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -17710,8 +17710,8 @@ static PyObject *__pyx_pf_4core_8forecast_13SEAIRQ_latent_2simulate(struct __pyx
 /* … */
       goto __pyx_L14;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1343</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1343, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1343</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1343, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
       __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_4, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1343, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -17848,8 +17848,8 @@ static PyObject *__pyx_pf_4core_8forecast_13SEAIRQ_latent_2simulate(struct __pyx
 /* … */
         goto __pyx_L15;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1353</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1353, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1353</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1353, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1353, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
@@ -17985,9 +17985,9 @@ static PyObject *__pyx_pf_4core_8forecast_13SEAIRQ_latent_2simulate(struct __pyx
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_6);
         __pyx_t_6 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1357</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1358</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1358</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1358, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1358, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1358, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
@@ -21421,8 +21421,8 @@ static PyObject *__pyx_pf_4core_8forecast_6SEAI5R_2simulate(struct __pyx_obj_4co
 /* … */
       goto __pyx_L12;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1641</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1641, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1641</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_6, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1641, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
       __pyx_t_15 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_6, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1641, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
@@ -21565,8 +21565,8 @@ static PyObject *__pyx_pf_4core_8forecast_6SEAI5R_2simulate(struct __pyx_obj_4co
 /* … */
         goto __pyx_L13;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1651</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1651, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1651</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1651, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1651, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -21708,9 +21708,9 @@ static PyObject *__pyx_pf_4core_8forecast_6SEAI5R_2simulate(struct __pyx_obj_4co
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_15);
         __pyx_t_15 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1655</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1656</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1656</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1656, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_12, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1656, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
         __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_12, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1656, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -26122,8 +26122,8 @@ static PyObject *__pyx_pf_4core_8forecast_13SEAI5R_latent_2simulate(struct __pyx
 /* … */
       goto __pyx_L14;
     }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1951</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1951, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1951</span>:                 <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>      <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_4, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1951, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
       __pyx_t_6 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_4, __pyx_n_s_control);<span class='error_goto'> if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1951, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_6);
@@ -26266,8 +26266,8 @@ static PyObject *__pyx_pf_4core_8forecast_13SEAI5R_latent_2simulate(struct __pyx
 /* … */
         goto __pyx_L15;
       }
-</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1961</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
-<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1961, __pyx_L1_error)</span>
+</pre><pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1961</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class='cython code score-51 '>        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1961, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_deterministic);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1961, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
@@ -26409,9 +26409,9 @@ static PyObject *__pyx_pf_4core_8forecast_13SEAI5R_latent_2simulate(struct __pyx
         <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_cur_result, __pyx_t_6);
         __pyx_t_6 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1965</span>:                 <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1966</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-51" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1966</span>:                     <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-51 '>      /*else*/ {
-        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1966, __pyx_L1_error)</span>
+        <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_15, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 1966, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
         __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1966, __pyx_L1_error)</span>
         <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);

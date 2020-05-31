@@ -7,7 +7,7 @@ cimport cython
 
 DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
-import pyross.stochastic
+import core.stochastic
 
 
 
@@ -314,7 +314,7 @@ cdef class SIR(control_integration):
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
         else:
-            model = pyross.stochastic.SIR(self.params, self.M, self.Ni)
+            model = core.stochastic.SIR(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
                                 events=events,contactMatrices=contactMatrices,
                                 Tf=Tf, Nf=Nf,
@@ -477,7 +477,7 @@ cdef class SEkIkIkR(control_integration):
             return data
         else:
             raise RuntimeError("Stochastic control not yet implemented for SEkIkIkR model.")
-            #model = pyross.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
+            #model = core.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
             #return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
             #                    events=events,contactMatrices=contactMatrices,
             #                    Tf=Tf, Nf=Nf,
@@ -728,7 +728,7 @@ cdef class SIRS(control_integration):
         else:
             raise RuntimeError("Stochastic control not yet implemented for SIRS model.")
             '''
-            model = pyross.stochastic.SIRS(self.params, self.M, self.Ni)
+            model = core.stochastic.SIRS(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
                                 events=events,contactMatrices=contactMatrices,
                                 Tf=Tf, Nf=Nf,
@@ -864,7 +864,7 @@ cdef class SEIR(control_integration):
                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
         else:
-            model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)
+            model = core.stochastic.SEIR(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
                                 events=events,contactMatrices=contactMatrices,
                                 Tf=Tf, Nf=Nf,
@@ -1078,7 +1078,7 @@ cdef class SEI5R(control_integration):
                   'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
         else:
-            model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)
+            model = core.stochastic.SEI5R(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,
                                 events=events,contactMatrices=contactMatrices,
@@ -1196,7 +1196,7 @@ cdef class SIkR(control_integration):
               'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             return data
         else:
-            model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
+            model = core.stochastic.SIkR(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0,I0=I0,
                                 events=events,contactMatrices=contactMatrices,
                                 Tf=Tf, Nf=Nf,
@@ -1686,7 +1686,7 @@ cdef class SEAI5R(control_integration):
                           }
             return data
         else:
-            model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)
+            model = core.stochastic.SEAI5R(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,
                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,
                                 events=events,contactMatrices=contactMatrices,
@@ -1853,7 +1853,7 @@ cdef class SEAIRQ(control_integration):
                       'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
             return data
         else:
-            model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)
+            model = core.stochastic.SEAIRQ(self.params, self.M, self.Ni)
             return model.simulate_events(S0=S0,E0=E0, A0=A0,
                                 Ia0=Ia0, Is0=Is0,Q0=Q0,
                                 events=events,contactMatrices=contactMatrices,
