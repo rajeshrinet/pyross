@@ -17,7 +17,8 @@ else:
         include_dirs=[numpy.get_include()],
     )
 
-    
+
+
 setup(
     name='PyRoss',
     version='1.0.0',
@@ -35,5 +36,6 @@ setup(
         ),
     libraries=[],
     packages=['pyross'],
+    install_requires=['cython','numpy','scipy','cma','pathos','nlopt'],
     package_data={'pyross': ['*.pxd']},
 )
