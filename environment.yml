@@ -16,3 +16,4 @@ dependencies:
   - nbconvert
   - pip:
     - cma
+    - pyross
