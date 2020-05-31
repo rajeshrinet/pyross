@@ -388,18 +388,18 @@ body.cython { font-family: courier; font-size: 12; }
   if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 8, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0009</span>: <span class="k">ctypedef</span> <span class="n">np</span><span class="o">.</span><span class="n">float_t</span> <span class="n">DTYPE_t</span></pre>
-<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0010</span>: <span class="k">import</span> <span class="nn">pyross.stochastic</span></pre>
-<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_pyross_stochastic, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)</span>
+<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0010</span>: <span class="k">import</span> <span class="nn">core.stochastic</span></pre>
+<pre class='cython code score-8 '>  __pyx_t_2 = <span class='pyx_c_api'>__Pyx_Import</span>(__pyx_n_s_core_stochastic, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
-  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_pyross, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 10, __pyx_L1_error)</span>
+  if (<span class='py_c_api'>PyDict_SetItem</span>(__pyx_d, __pyx_n_s_core, __pyx_t_2) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 10, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0011</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">0012</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">0013</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0014</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">control_integration</span><span class="p">:</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_control_integration {
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_control_integration {
   PyObject_HEAD
-  struct __pyx_vtabstruct_6pyross_7control_control_integration *__pyx_vtab;
+  struct __pyx_vtabstruct_4core_7control_control_integration *__pyx_vtab;
   int N;
   int M;
   int nClass;
@@ -411,10 +411,10 @@ body.cython { font-family: courier; font-size: 12; }
   int current_protocol_index;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_control_integration {
-  PyObject *(*rhs)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *);
+struct __pyx_vtabstruct_4core_7control_control_integration {
+  PyObject *(*rhs)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *);
 };
-static struct __pyx_vtabstruct_6pyross_7control_control_integration *__pyx_vtabptr_6pyross_7control_control_integration;
+static struct __pyx_vtabstruct_4core_7control_control_integration *__pyx_vtabptr_4core_7control_control_integration;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0015</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0016</span>: <span class="sd">    Integrator class to implement control through changing the contact matrix</span></pre>
@@ -427,19 +427,19 @@ static struct __pyx_vtabstruct_6pyross_7control_control_integration *__pyx_vtabp
 <pre class="cython line score-0">&#xA0;<span class="">0023</span>:     <span class="k">cdef</span><span class="p">:</span></pre>
 <pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0024</span>:         <span class="n">readonly</span> <span class="nb">int</span> <span class="n">N</span><span class="p">,</span> <span class="n">M</span></pre>
 <pre class='cython code score-12 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_1N___get__(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_1N___get__(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_19control_integration_1N___get__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
@@ -453,7 +453,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(stru
   /* function exit code */
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.N.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.N.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
@@ -462,19 +462,19 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(stru
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_1M___get__(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_1M___get__(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_19control_integration_1M___get__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
@@ -488,7 +488,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(stru
   /* function exit code */
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.M.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.M.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
@@ -502,7 +502,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(stru
 <pre class="cython line score-0">&#xA0;<span class="">0029</span>:         <span class="nb">int</span> <span class="n">current_protocol_index</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0030</span>: </pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0031</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>static PyObject *__pyx_f_6pyross_7control_19control_integration_rhs(CYTHON_UNUSED struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-0 '>static PyObject *__pyx_f_4core_7control_19control_integration_rhs(CYTHON_UNUSED struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("rhs", 0);
@@ -520,9 +520,9 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(stru
 </pre><pre class="cython line score-0">&#xA0;<span class="">0033</span>: </pre>
 <pre class="cython line score-23" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0034</span>:     <span class="k">def</span> <span class="nf">simulate_deterministic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span></pre>
 <pre class='cython code score-23 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pyross_7control_19control_integration_simulate_deterministic[] = "\n        Performs detemrinistic numerical integration\n\n        Parameters\n        ----------\n        y0: np.array\n            Inital state of the system.\n        events: list\n            List of events that the current state can satisfy to change behaviour\n            of the contact matrix.\n            contactMatricies\n        contactMatricies: list of python functions\n            New contact matrix after the corresponding event occurs\n        Tf: float\n            End time for integrator.\n        Nf: Int\n            Number of time points to evaluate at.\n        Ti: float, optional\n            Start time for integrator. The default is 0.\n        events_repeat: bool, optional\n            Wheither events is periodic in time. The default is false.\n        events_subsequent : bool, optional\n            TODO\n\n        Returns\n        -------\n        y_eval : np.array(len(t), len(y0))\n            Numerical integration solution.\n        t_eval : np.array\n            Corresponding times at which X is evaluated at.\n        event_out : list\n            List of events that occured during the run.\n\n        ";
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_4core_7control_19control_integration_simulate_deterministic[] = "\n        Performs detemrinistic numerical integration\n\n        Parameters\n        ----------\n        y0: np.array\n            Inital state of the system.\n        events: list\n            List of events that the current state can satisfy to change behaviour\n            of the contact matrix.\n            contactMatricies\n        contactMatricies: list of python functions\n            New contact matrix after the corresponding event occurs\n        Tf: float\n            End time for integrator.\n        Nf: Int\n            Number of time points to evaluate at.\n        Ti: float, optional\n            Start time for integrator. The default is 0.\n        events_repeat: bool, optional\n            Wheither events is periodic in time. The default is false.\n        events_subsequent : bool, optional\n            TODO\n\n        Returns\n        -------\n        y_eval : np.array(len(t), len(y0))\n            Numerical integration solution.\n        t_eval : np.array\n            Corresponding times at which X is evaluated at.\n        event_out : list\n            List of events that occured during the run.\n\n        ";
+static PyObject *__pyx_pw_4core_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_y0 = 0;
   PyObject *__pyx_v_events = 0;
   PyObject *__pyx_v_contactMatrices = 0;
@@ -545,8 +545,8 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
   return __pyx_r;
 }
 /* … */
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_deterministic(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, PyObject *__pyx_v_y0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event) {
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
+static PyObject *__pyx_pf_4core_7control_19control_integration_simulate_deterministic(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, PyObject *__pyx_v_y0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event) {
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
   int __pyx_v_cur_index_i;
   double __pyx_v_cur_t_f;
   CYTHON_UNUSED int __pyx_v_M;
@@ -570,9 +570,9 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("simulate_deterministic", 0);
-  __pyx_cur_scope = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)__pyx_tp_new_6pyross_7control___pyx_scope_struct__simulate_deterministic(__pyx_ptype_6pyross_7control___pyx_scope_struct__simulate_deterministic, __pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)__pyx_tp_new_4core_7control___pyx_scope_struct__simulate_deterministic(__pyx_ptype_4core_7control___pyx_scope_struct__simulate_deterministic, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)Py_None);
     <span class='pyx_macro_api'>__Pyx_INCREF</span>(Py_None);
     <span class='error_goto'>__PYX_ERR(0, 34, __pyx_L1_error)</span>
   } else {
@@ -591,7 +591,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_10);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_cur_list);
@@ -613,10 +613,10 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   return __pyx_r;
 }
 /* … */
-struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic {
+struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic {
   PyObject_HEAD
   PyObject *__pyx_v_contactMatrices;
-  struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self;
+  struct __pyx_obj_4core_7control_control_integration *__pyx_v_self;
 };
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0035</span>:                 <span class="n">events</span><span class="p">,</span> <span class="n">contactMatrices</span><span class="p">,</span></pre>
@@ -742,11 +742,11 @@ struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic {
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate_deterministic", 0, 5, 9, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 34, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_simulate_deterministic(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self), __pyx_v_y0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event);
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_simulate_deterministic(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self), __pyx_v_y0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event);
 </pre><pre class="cython line score-0">&#xA0;<span class="">0040</span>:         <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0041</span>: <span class="sd">        Performs detemrinistic numerical integration</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0042</span>: </pre>
@@ -835,9 +835,9 @@ struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic {
 </pre><pre class="cython line score-0">&#xA0;<span class="">0084</span>: </pre>
 <pre class="cython line score-41" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0085</span>:         <span class="k">def</span> <span class="nf">rhs0</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">rp</span><span class="p">):</span></pre>
 <pre class='cython code score-41 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0 = {"rhs0", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_19control_integration_22simulate_deterministic_1rhs0 = {"rhs0", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_19control_integration_22simulate_deterministic_1rhs0, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_t = 0;
   PyObject *__pyx_v_rp = 0;
   PyObject *__pyx_r = 0;
@@ -885,24 +885,24 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_22simulate_dete
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("rhs0", 1, 2, 2, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 85, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_22simulate_deterministic_rhs0(__pyx_self, __pyx_v_t, __pyx_v_rp);
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_22simulate_deterministic_rhs0(__pyx_self, __pyx_v_t, __pyx_v_rp);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_deterministic_rhs0(PyObject *__pyx_self, PyObject *__pyx_v_t, PyObject *__pyx_v_rp) {
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_outer_scope;
+static PyObject *__pyx_pf_4core_7control_19control_integration_22simulate_deterministic_rhs0(PyObject *__pyx_self, PyObject *__pyx_v_t, PyObject *__pyx_v_rp) {
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_outer_scope;
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("rhs0", 0);
-  __pyx_outer_scope = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *) <span class='pyx_c_api'>__Pyx_CyFunction_GetClosure</span>(__pyx_self);
+  __pyx_outer_scope = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *) <span class='pyx_c_api'>__Pyx_CyFunction_GetClosure</span>(__pyx_self);
   __pyx_cur_scope = __pyx_outer_scope;
 /* … */
   /* function exit code */
@@ -911,7 +911,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_7);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
@@ -923,11 +923,11 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple_);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple_);
 /* … */
-  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_CyFunction_New</span>(&amp;__pyx_mdef_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0, 0, __pyx_n_s_simulate_deterministic_locals_rh, ((PyObject*)__pyx_cur_scope), __pyx_n_s_pyross_control, __pyx_d, ((PyObject *)__pyx_codeobj__2));<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 85, __pyx_L1_error)</span>
+  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_CyFunction_New</span>(&amp;__pyx_mdef_4core_7control_19control_integration_22simulate_deterministic_1rhs0, 0, __pyx_n_s_simulate_deterministic_locals_rh, ((PyObject*)__pyx_cur_scope), __pyx_n_s_core_control, __pyx_d, ((PyObject *)__pyx_codeobj__2));<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 85, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
   __pyx_v_rhs0 = __pyx_t_3;
   __pyx_t_3 = 0;
-  __pyx_codeobj__2 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pyross_control_pyx, __pyx_n_s_rhs0, 85, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 85, __pyx_L1_error)</span>
+  __pyx_codeobj__2 = (PyObject*)<span class='pyx_c_api'>__Pyx_PyCode_New</span>(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_core_control_pyx, __pyx_n_s_rhs0, 85, __pyx_empty_bytes);<span class='error_goto'> if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 85, __pyx_L1_error)</span>
 </pre><pre class="cython line score-11" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0086</span>:             <span class="k">try</span><span class="p">:</span></pre>
 <pre class='cython code score-11 '>  {
     /*try:*/ {
@@ -991,7 +991,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
       __pyx_t_4 = 0;
 </pre><pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0088</span>:             <span class="k">except</span><span class="p">:</span></pre>
 <pre class='cython code score-4 '>    /*except:*/ {
-      <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
       if (<span class='pyx_c_api'>__Pyx_GetException</span>(&amp;__pyx_t_4, &amp;__pyx_t_5, &amp;__pyx_t_7) &lt; 0) <span class='error_goto'>__PYX_ERR(0, 88, __pyx_L5_except_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
@@ -1016,7 +1016,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
     __pyx_L5_except_error:;
 </pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0090</span>:             <span class="bp">self</span><span class="o">.</span><span class="n">rhs</span><span class="p">(</span><span class="n">rp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></pre>
 <pre class='cython code score-3 '>  if (unlikely(!__pyx_cur_scope-&gt;__pyx_v_self)) { <span class='pyx_c_api'>__Pyx_RaiseClosureNameError</span>("self"); <span class='error_goto'>__PYX_ERR(0, 90, __pyx_L1_error)</span> }
-  __pyx_t_7 = ((struct __pyx_vtabstruct_6pyross_7control_control_integration *)__pyx_cur_scope-&gt;__pyx_v_self-&gt;__pyx_vtab)-&gt;rhs(__pyx_cur_scope-&gt;__pyx_v_self, __pyx_v_rp, __pyx_v_t);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)</span>
+  __pyx_t_7 = ((struct __pyx_vtabstruct_4core_7control_control_integration *)__pyx_cur_scope-&gt;__pyx_v_self-&gt;__pyx_vtab)-&gt;rhs(__pyx_cur_scope-&gt;__pyx_v_self, __pyx_v_rp, __pyx_v_t);<span class='error_goto'> if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_7);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_7); __pyx_t_7 = 0;
 </pre><pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0091</span>:             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dxdt</span></pre>
@@ -1653,8 +1653,8 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
 <pre class="cython line score-0">&#xA0;<span class="">0197</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0198</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0199</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SIR</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SIR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SIR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double fsa;
@@ -1662,10 +1662,10 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SIR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SIR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIR *__pyx_vtabptr_6pyross_7control_SIR;
+static struct __pyx_vtabstruct_4core_7control_SIR *__pyx_vtabptr_4core_7control_SIR;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0200</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0201</span>: <span class="sd">    Susceptible, Infected, Removed (SIR)</span></pre>
@@ -1705,8 +1705,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SIR *__pyx_vtabptr_6pyross_7cont
 <pre class="cython line score-0">&#xA0;<span class="">0235</span>: </pre>
 <pre class="cython line score-37" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0236</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-37 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -1765,18 +1765,18 @@ static int __pyx_pw_6pyross_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyOb
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 236, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_3SIR___init__(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_3SIR___init__(((struct __pyx_obj_4core_7control_SIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_3SIR___init__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -1790,7 +1790,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -2122,7 +2122,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
 <pre class="cython line score-0">&#xA0;<span class="">0263</span>:         <span class="c">#</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0264</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0265</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_3SIR_rhs(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -2149,7 +2149,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -2283,8 +2283,8 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
 <pre class="cython line score-0">&#xA0;<span class="">0289</span>: </pre>
 <pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0290</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
   PyObject *__pyx_v_Is0 = 0;
@@ -2314,7 +2314,7 @@ static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_3SIR_2simulate(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -2332,7 +2332,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -2545,11 +2545,11 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 7, 15, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 290, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_3SIR_2simulate(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_3SIR_2simulate(((struct __pyx_obj_4core_7control_SIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">0297</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0298</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0299</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -2735,9 +2735,9 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0316</span>:         <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0317</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0317</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-50 '>  /*else*/ {
-    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 317, __pyx_L1_error)</span>
+    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 317, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
     __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_5, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 317, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
@@ -2855,8 +2855,8 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
 <pre class="cython line score-0">&#xA0;<span class="">0334</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0335</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0336</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEkIkIkR</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEkIkIkR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEkIkIkR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gIa;
   double gIs;
@@ -2867,10 +2867,10 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEkIkIkR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR *__pyx_vtabptr_6pyross_7control_SEkIkIkR;
+static struct __pyx_vtabstruct_4core_7control_SEkIkIkR *__pyx_vtabptr_4core_7control_SEkIkIkR;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0337</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0338</span>: <span class="sd">    Susceptible, Exposed, Infected, Removed (SEIR)</span></pre>
@@ -2914,8 +2914,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR *__pyx_vtabptr_6pyross_
 <pre class="cython line score-0">&#xA0;<span class="">0376</span>: </pre>
 <pre class="cython line score-37" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0377</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-37 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -2974,18 +2974,18 @@ static int __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self,
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 377, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR___init__(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR___init__(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_8SEkIkIkR___init__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -2999,7 +2999,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -3366,7 +3366,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
 </pre><pre class="cython line score-0">&#xA0;<span class="">0408</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">0409</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0410</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xt</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_xt, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_8SEkIkIkR_rhs(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_xt, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -3400,7 +3400,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -3611,8 +3611,8 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
 <pre class="cython line score-0">&#xA0;<span class="">0450</span>: </pre>
 <pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0451</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span></pre>
 <pre class='cython code score-12 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
@@ -3643,7 +3643,7 @@ static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_2simulate(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -3660,7 +3660,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -3882,11 +3882,11 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 8, 16, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 451, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_2simulate(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">0458</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0459</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0460</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -4100,7 +4100,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   __pyx_tuple__8 = <span class='py_c_api'>PyTuple_Pack</span>(1, __pyx_kp_u_Stochastic_control_not_yet_imple);<span class='error_goto'> if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 479, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__8);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__8);
-</pre><pre class="cython line score-0">&#xA0;<span class="">0480</span>:             <span class="c">#model = pyross.stochastic.SEkIkIkR(self.params, self.M, self.Ni)</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">0480</span>:             <span class="c">#model = core.stochastic.SEkIkIkR(self.params, self.M, self.Ni)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0481</span>:             <span class="c">#return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0482</span>:             <span class="c">#                    events=events,contactMatrices=contactMatrices,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0483</span>:             <span class="c">#                    Tf=Tf, Nf=Nf,</span></pre>
@@ -4113,20 +4113,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
 <pre class="cython line score-0">&#xA0;<span class="">0490</span>: </pre>
 <pre class="cython line score-6" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0491</span>:     <span class="k">def</span> <span class="nf">S</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">data</span><span class="p">):</span></pre>
 <pre class='cython code score-6 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_4S[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             S: Susceptible population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_4S[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             S: Susceptible population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("S (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_4S(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_4S(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_4S(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_v_X = NULL;
   PyObject *__pyx_v_S = NULL;
   PyObject *__pyx_r = NULL;
@@ -4137,7 +4137,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.S", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.S", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_X);
@@ -4188,20 +4188,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
 <pre class="cython line score-0">&#xA0;<span class="">0505</span>: </pre>
 <pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0506</span>:     <span class="k">def</span> <span class="nf">E</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">data</span><span class="p">):</span></pre>
 <pre class='cython code score-8 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_6E[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             E: Exposed population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_6E[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             E: Exposed population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("E (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_6E(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_6E(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_6E(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   CYTHON_UNUSED PyObject *__pyx_v_kE = NULL;
   PyObject *__pyx_v_X = NULL;
   PyObject *__pyx_v_E = NULL;
@@ -4214,7 +4214,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.E", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.E", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_kE);
@@ -4274,20 +4274,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
 <pre class="cython line score-0">&#xA0;<span class="">0521</span>: </pre>
 <pre class="cython line score-9" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0522</span>:     <span class="k">def</span> <span class="nf">Ia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">data</span><span class="p">):</span></pre>
 <pre class='cython code score-9 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_8Ia[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_8Ia[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("Ia (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_8Ia(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_8Ia(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   CYTHON_UNUSED PyObject *__pyx_v_kI = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_kE = NULL;
   PyObject *__pyx_v_X = NULL;
@@ -4301,7 +4301,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.Ia", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.Ia", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_kI);
@@ -4367,20 +4367,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
 <pre class="cython line score-0">&#xA0;<span class="">0538</span>: </pre>
 <pre class="cython line score-9" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0539</span>:     <span class="k">def</span> <span class="nf">Is</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">data</span><span class="p">):</span></pre>
 <pre class='cython code score-9 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_10Is[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_10Is[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("Is (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_10Is(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_10Is(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_10Is(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   CYTHON_UNUSED PyObject *__pyx_v_kI = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_kE = NULL;
   PyObject *__pyx_v_X = NULL;
@@ -4394,7 +4394,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.Is", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.Is", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_kI);
@@ -4460,20 +4460,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
 <pre class="cython line score-0">&#xA0;<span class="">0555</span>: </pre>
 <pre class="cython line score-15" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0556</span>:     <span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">data</span><span class="p">):</span></pre>
 <pre class='cython code score-15 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_12R[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             R: Removed population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_12R[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             R: Removed population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("R (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_12R(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_12R(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_12R(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_v_X = NULL;
   PyObject *__pyx_v_kI = NULL;
   PyObject *__pyx_v_kE = NULL;
@@ -4493,7 +4493,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_7);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkIkR.R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkIkR.R", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_X);
@@ -4923,8 +4923,8 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
 <pre class="cython line score-0">&#xA0;<span class="">0587</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0588</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0589</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SIRS</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SIRS {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SIRS {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double fsa;
@@ -4935,10 +4935,10 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SIRS {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SIRS {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIRS *__pyx_vtabptr_6pyross_7control_SIRS;
+static struct __pyx_vtabstruct_4core_7control_SIRS *__pyx_vtabptr_4core_7control_SIRS;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0590</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0591</span>: <span class="sd">    Susceptible, Infected, Removed, Susceptible (SIRS)</span></pre>
@@ -4981,8 +4981,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SIRS *__pyx_vtabptr_6pyross_7con
 <pre class="cython line score-0">&#xA0;<span class="">0628</span>: </pre>
 <pre class="cython line score-39" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0629</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-39 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -5041,18 +5041,18 @@ static int __pyx_pw_6pyross_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyO
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 629, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIRS___init__(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_4SIRS___init__(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_4SIRS___init__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_sa = NULL;
   PyObject *__pyx_v_iaa = NULL;
   PyObject *__pyx_v_alpha = NULL;
@@ -5068,7 +5068,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_sa);
@@ -5695,7 +5695,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
 </pre><pre class="cython line score-0">&#xA0;<span class="">0674</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">0675</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0676</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_4SIRS_rhs(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -5725,7 +5725,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIRS.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIRS.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -5891,8 +5891,8 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
 <pre class="cython line score-0">&#xA0;<span class="">0702</span>: </pre>
 <pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0703</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span></pre>
 <pre class='cython code score-12 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
   PyObject *__pyx_v_Is0 = 0;
@@ -5922,7 +5922,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_4SIRS_2simulate(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -5939,7 +5939,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -6151,11 +6151,11 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 7, 15, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 703, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIRS_2simulate(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_4SIRS_2simulate(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">0710</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0711</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0712</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -6353,7 +6353,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__11);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__11);
 </pre><pre class="cython line score-0">&#xA0;<span class="">0730</span>:             <span class="sd">&#39;&#39;&#39;</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">0731</span>: <span class="sd">            model = pyross.stochastic.SIRS(self.params, self.M, self.Ni)</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">0731</span>: <span class="sd">            model = core.stochastic.SIRS(self.params, self.M, self.Ni)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0732</span>: <span class="sd">            return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0733</span>: <span class="sd">                                events=events,contactMatrices=contactMatrices,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0734</span>: <span class="sd">                                Tf=Tf, Nf=Nf,</span></pre>
@@ -6375,8 +6375,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
 <pre class="cython line score-0">&#xA0;<span class="">0750</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0751</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0752</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEIR</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEIR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEIR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double gE;
@@ -6385,10 +6385,10 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEIR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEIR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEIR *__pyx_vtabptr_6pyross_7control_SEIR;
+static struct __pyx_vtabstruct_4core_7control_SEIR *__pyx_vtabptr_4core_7control_SEIR;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0753</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0754</span>: <span class="sd">    Susceptible, Exposed, Infected, Removed (SEIR)</span></pre>
@@ -6427,8 +6427,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEIR *__pyx_vtabptr_6pyross_7con
 <pre class="cython line score-0">&#xA0;<span class="">0787</span>: </pre>
 <pre class="cython line score-37" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0788</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-37 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -6487,18 +6487,18 @@ static int __pyx_pw_6pyross_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyO
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 788, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SEIR___init__(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_4SEIR___init__(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_4SEIR___init__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -6512,7 +6512,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -6843,7 +6843,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_L3:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0814</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0815</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_4SEIR_rhs(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -6874,7 +6874,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -7028,8 +7028,8 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
 <pre class="cython line score-0">&#xA0;<span class="">0840</span>: </pre>
 <pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0841</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
@@ -7060,7 +7060,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_4SEIR_2simulate(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -7078,7 +7078,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -7301,11 +7301,11 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 8, 16, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 841, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SEIR_2simulate(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_4SEIR_2simulate(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">0848</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0849</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0850</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -7497,9 +7497,9 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0866</span>:         <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0867</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0867</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEIR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-50 '>  /*else*/ {
-    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 867, __pyx_L1_error)</span>
+    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 867, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
     __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_5, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
@@ -7616,8 +7616,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
 <pre class="cython line score-0">&#xA0;<span class="">0882</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0883</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0884</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEI5R</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEI5R {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEI5R {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double gIh;
@@ -7633,10 +7633,10 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEI5R {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEI5R {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEI5R *__pyx_vtabptr_6pyross_7control_SEI5R;
+static struct __pyx_vtabstruct_4core_7control_SEI5R *__pyx_vtabptr_4core_7control_SEI5R;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">0885</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">0886</span>: <span class="sd">    Susceptible, Exposed, Infected, Removed (SEIR)</span></pre>
@@ -7702,8 +7702,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEI5R *__pyx_vtabptr_6pyross_7co
 <pre class="cython line score-0">&#xA0;<span class="">0946</span>: </pre>
 <pre class="cython line score-41" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0947</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-41 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -7762,18 +7762,18 @@ static int __pyx_pw_6pyross_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, Py
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 947, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEI5R___init__(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_5SEI5R___init__(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_5SEI5R___init__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   PyObject *__pyx_v_sa = NULL;
   PyObject *__pyx_v_hh = NULL;
@@ -7791,7 +7791,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -8725,7 +8725,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
 </pre><pre class="cython line score-0">&#xA0;<span class="">1012</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">1013</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1014</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_5SEI5R_rhs(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -8766,7 +8766,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -9026,8 +9026,8 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
 <pre class="cython line score-0">&#xA0;<span class="">1054</span>: </pre>
 <pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1055</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span> <span class="n">Ih0</span><span class="p">,</span> <span class="n">Ic0</span><span class="p">,</span> <span class="n">Im0</span><span class="p">,</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
@@ -9061,7 +9061,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_se
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_5SEI5R_2simulate(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -9079,7 +9079,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -9332,11 +9332,11 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 11, 19, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1055, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEI5R_2simulate(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_5SEI5R_2simulate(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">1062</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1063</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1064</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -9540,9 +9540,9 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1080</span>:         <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1081</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEI5R</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1081</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEI5R</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-50 '>  /*else*/ {
-    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1081, __pyx_L1_error)</span>
+    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1081, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
     __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_5, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1081, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
@@ -9665,17 +9665,17 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
 <pre class="cython line score-0">&#xA0;<span class="">1099</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1100</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1101</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SIkR</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SIkR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SIkR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gI;
   int ki;
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SIkR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SIkR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIkR *__pyx_vtabptr_6pyross_7control_SIkR;
+static struct __pyx_vtabstruct_4core_7control_SIkR *__pyx_vtabptr_4core_7control_SIkR;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">1102</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1103</span>: <span class="sd">    Susceptible, Infected, Removed (SIkR)</span></pre>
@@ -9709,8 +9709,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SIkR *__pyx_vtabptr_6pyross_7con
 <pre class="cython line score-0">&#xA0;<span class="">1131</span>: </pre>
 <pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1132</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-36 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -9769,18 +9769,18 @@ static int __pyx_pw_6pyross_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyO
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1132, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIkR___init__(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_4SIkR___init__(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_4SIkR___init__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__init__", 0);
@@ -9793,7 +9793,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
@@ -9970,7 +9970,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
 </pre><pre class="cython line score-0">&#xA0;<span class="">1147</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">1148</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1149</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_4SIkR_rhs(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -9995,7 +9995,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -10119,8 +10119,8 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
 <pre class="cython line score-0">&#xA0;<span class="">1173</span>: </pre>
 <pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1174</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">S0</span><span class="p">,</span> <span class="n">I0</span><span class="p">,</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_I0 = 0;
   PyObject *__pyx_v_events = 0;
@@ -10149,7 +10149,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_4SIkR_2simulate(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -10167,7 +10167,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -10370,11 +10370,11 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 6, 14, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1174, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIkR_2simulate(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_4SIkR_2simulate(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">1181</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1182</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1183</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -10554,9 +10554,9 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1198</span>:         <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1199</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIkR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1199</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SIkR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-50 '>  /*else*/ {
-    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1199, __pyx_L1_error)</span>
+    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1199, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
     __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_5, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1199, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
@@ -10673,8 +10673,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
 <pre class="cython line score-0">&#xA0;<span class="">1216</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1217</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1218</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEkIkR</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEkIkR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEkIkR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gI;
   double fsa;
@@ -10683,10 +10683,10 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEkIkR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEkIkR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEkIkR *__pyx_vtabptr_6pyross_7control_SEkIkR;
+static struct __pyx_vtabstruct_4core_7control_SEkIkR *__pyx_vtabptr_4core_7control_SEkIkR;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">1219</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1220</span>: <span class="sd">    Susceptible, Infected, Removed (SIkR)</span></pre>
@@ -10725,8 +10725,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEkIkR *__pyx_vtabptr_6pyross_7c
 <pre class="cython line score-0">&#xA0;<span class="">1253</span>: </pre>
 <pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1254</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-36 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -10785,18 +10785,18 @@ static int __pyx_pw_6pyross_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1254, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEkIkR___init__(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_6SEkIkR___init__(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_6SEkIkR___init__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__init__", 0);
@@ -10809,7 +10809,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
@@ -10998,7 +10998,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
 </pre><pre class="cython line score-0">&#xA0;<span class="">1271</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">1272</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1273</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_6SEkIkR_rhs(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -11026,7 +11026,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -11212,8 +11212,8 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
 <pre class="cython line score-0">&#xA0;<span class="">1316</span>: </pre>
 <pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1317</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">I0</span><span class="p">,</span></pre>
 <pre class='cython code score-12 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_I0 = 0;
@@ -11243,7 +11243,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_2simulate(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -11260,7 +11260,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -11472,11 +11472,11 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 7, 15, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1317, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEkIkR_2simulate(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_6SEkIkR_2simulate(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">1324</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1325</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1326</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -11684,8 +11684,8 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
 <pre class="cython line score-0">&#xA0;<span class="">1351</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1352</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1353</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEAIR</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEAIR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEAIR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gA;
   double gIa;
@@ -11697,10 +11697,10 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEAIR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEAIR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAIR *__pyx_vtabptr_6pyross_7control_SEAIR;
+static struct __pyx_vtabstruct_4core_7control_SEAIR *__pyx_vtabptr_4core_7control_SEAIR;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">1354</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1355</span>: <span class="sd">    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)</span></pre>
@@ -11742,8 +11742,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEAIR *__pyx_vtabptr_6pyross_7co
 <pre class="cython line score-0">&#xA0;<span class="">1391</span>: </pre>
 <pre class="cython line score-37" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1392</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-37 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -11802,18 +11802,18 @@ static int __pyx_pw_6pyross_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, Py
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1392, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEAIR___init__(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_5SEAIR___init__(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_5SEAIR___init__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -11827,7 +11827,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -12164,7 +12164,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_L3:;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1419</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1420</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_5SEAIR_rhs(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -12197,7 +12197,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -12376,8 +12376,8 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
 <pre class="cython line score-0">&#xA0;<span class="">1451</span>: </pre>
 <pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1452</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">A0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span></pre>
 <pre class='cython code score-12 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_A0 = 0;
@@ -12409,7 +12409,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_se
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_5SEAIR_2simulate(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -12426,7 +12426,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -12658,11 +12658,11 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 9, 17, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1452, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEAIR_2simulate(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_5SEAIR_2simulate(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">1459</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1460</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1461</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -12894,8 +12894,8 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
 <pre class="cython line score-0">&#xA0;<span class="">1491</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1492</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1493</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEAI5R</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEAI5R {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEAI5R {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gA;
   double gIa;
@@ -12912,10 +12912,10 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEAI5R {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEAI5R {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAI5R *__pyx_vtabptr_6pyross_7control_SEAI5R;
+static struct __pyx_vtabstruct_4core_7control_SEAI5R *__pyx_vtabptr_4core_7control_SEAI5R;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">1494</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1495</span>: <span class="sd">    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)</span></pre>
@@ -12971,8 +12971,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEAI5R *__pyx_vtabptr_6pyross_7c
 <pre class="cython line score-0">&#xA0;<span class="">1545</span>: </pre>
 <pre class="cython line score-41" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1546</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-41 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -13031,18 +13031,18 @@ static int __pyx_pw_6pyross_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1546, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAI5R___init__(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_6SEAI5R___init__(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_6SEAI5R___init__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   PyObject *__pyx_v_sa = NULL;
   PyObject *__pyx_v_hh = NULL;
@@ -13060,7 +13060,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -14004,7 +14004,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
 </pre><pre class="cython line score-0">&#xA0;<span class="">1613</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">1614</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1615</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_6SEAI5R_rhs(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -14047,7 +14047,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -14326,8 +14326,8 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
 </pre><pre class="cython line score-0">&#xA0;<span class="">1655</span>: </pre>
 <pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1656</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">A0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span> <span class="n">Ih0</span><span class="p">,</span> <span class="n">Ic0</span><span class="p">,</span> <span class="n">Im0</span><span class="p">,</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_A0 = 0;
@@ -14362,7 +14362,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_2simulate(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -14380,7 +14380,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -14643,11 +14643,11 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 12, 20, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1656, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAI5R_2simulate(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_6SEAI5R_2simulate(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">1663</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1664</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1665</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -14885,9 +14885,9 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1688</span>:         <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1689</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1689</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAI5R</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-50 '>  /*else*/ {
-    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1689, __pyx_L1_error)</span>
+    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1689, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
     __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_5, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1689, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
@@ -15010,8 +15010,8 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
 <pre class="cython line score-0">&#xA0;<span class="">1706</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">cdivision</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1707</span>: <span class="nd">@cython</span><span class="o">.</span><span class="n">nonecheck</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></pre>
 <pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1708</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">SEAIRQ</span><span class="p">(</span><span class="n">control_integration</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>struct __pyx_obj_6pyross_7control_SEAIRQ {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+<pre class='cython code score-0 '>struct __pyx_obj_4core_7control_SEAIRQ {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double gE;
@@ -15025,10 +15025,10 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
   PyObject *params;
 };
 /* … */
-struct __pyx_vtabstruct_6pyross_7control_SEAIRQ {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEAIRQ {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAIRQ *__pyx_vtabptr_6pyross_7control_SEAIRQ;
+static struct __pyx_vtabstruct_4core_7control_SEAIRQ *__pyx_vtabptr_4core_7control_SEAIRQ;
 
 </pre><pre class="cython line score-0">&#xA0;<span class="">1709</span>:     <span class="sd">&quot;&quot;&quot;</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1710</span>: <span class="sd">    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)</span></pre>
@@ -15080,8 +15080,8 @@ static struct __pyx_vtabstruct_6pyross_7control_SEAIRQ *__pyx_vtabptr_6pyross_7c
 <pre class="cython line score-0">&#xA0;<span class="">1756</span>: </pre>
 <pre class="cython line score-37" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1757</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">):</span></pre>
 <pre class='cython code score-37 '>/* Python wrapper */
-static int __pyx_pw_6pyross_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -15140,18 +15140,18 @@ static int __pyx_pw_6pyross_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 1, 3, 3, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1757, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAIRQ___init__(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_6SEAIRQ___init__(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_6SEAIRQ___init__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -15165,7 +15165,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_alpha);
@@ -15530,7 +15530,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
 <pre class="cython line score-0">&#xA0;<span class="">1791</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">1792</span>: </pre>
 <pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1793</span>:     <span class="k">cdef</span> <span class="nf">rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">tt</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+<pre class='cython code score-3 '>static PyObject *__pyx_f_4core_7control_6SEAIRQ_rhs(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -15568,7 +15568,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&amp;__pyx_t_5, 1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIRQ.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIRQ.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&amp;__pyx_v_S, 1);
@@ -15777,8 +15777,8 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
 <pre class="cython line score-0">&#xA0;<span class="">1827</span>: </pre>
 <pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1828</span>:     <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S0</span><span class="p">,</span> <span class="n">E0</span><span class="p">,</span> <span class="n">A0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span> <span class="n">Q0</span><span class="p">,</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_A0 = 0;
@@ -15811,7 +15811,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Q0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_2simulate(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Q0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -15829,7 +15829,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>((PyObject *)__pyx_v_y_eval);
@@ -16072,11 +16072,11 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
   __pyx_L5_argtuple_error:;
   <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("simulate", 0, 10, 18, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(0, 1828, __pyx_L3_error)</span>
   __pyx_L3_error:;
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("pyross.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("core.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAIRQ_2simulate(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Q0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_6SEAIRQ_2simulate(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Q0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 </pre><pre class="cython line score-0">&#xA0;<span class="">1835</span>:                          <span class="nb">int</span> <span class="n">nc</span><span class="o">=</span><span class="mf">30</span><span class="p">,</span> <span class="n">double</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.03</span><span class="p">,</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1836</span>:                         <span class="nb">int</span> <span class="n">tau_update_frequency</span> <span class="o">=</span> <span class="mf">1</span><span class="p">):</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">1837</span>:         <span class="k">cdef</span><span class="p">:</span></pre>
@@ -16296,9 +16296,9 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">1855</span>:         <span class="k">else</span><span class="p">:</span></pre>
-<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1856</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
+<pre class="cython line score-50" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">1856</span>:             <span class="n">model</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">stochastic</span><span class="o">.</span><span class="n">SEAIRQ</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ni</span><span class="p">)</span></pre>
 <pre class='cython code score-50 '>  /*else*/ {
-    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_pyross);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1856, __pyx_L1_error)</span>
+    <span class='pyx_c_api'>__Pyx_GetModuleGlobalName</span>(__pyx_t_5, __pyx_n_s_core);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1856, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
     __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_5, __pyx_n_s_stochastic);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1856, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);

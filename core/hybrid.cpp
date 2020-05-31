@@ -18,12 +18,12 @@
             "/Users/rsingh/software/anaconda/lib/python3.7/site-packages/numpy/core/include"
         ],
         "language": "c++",
-        "name": "pyross.hybrid",
+        "name": "core.hybrid",
         "sources": [
-            "pyross/hybrid.pyx"
+            "core/hybrid.pyx"
         ]
     },
-    "module_name": "pyross.hybrid"
+    "module_name": "core.hybrid"
 }
 END: Cython Metadata */
 
@@ -633,8 +633,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__pyross__hybrid
-#define __PYX_HAVE_API__pyross__hybrid
+#define __PYX_HAVE__core__hybrid
+#define __PYX_HAVE_API__core__hybrid
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -871,7 +871,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "pyross/hybrid.pyx",
+  "core/hybrid.pyx",
   "stringsource",
   "__init__.pxd",
   "type.pxd",
@@ -1068,14 +1068,14 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "pyross/hybrid.pyx":9
+/* "core/hybrid.pyx":9
  * #from cython.parallel import prange
  * DTYPE   = np.float
  * ctypedef np.float_t DTYPE_t             # <<<<<<<<<<<<<<
  * 
- * import pyross.stochastic as stochastic
+ * import core.stochastic as stochastic
  */
-typedef __pyx_t_5numpy_float_t __pyx_t_6pyross_6hybrid_DTYPE_t;
+typedef __pyx_t_5numpy_float_t __pyx_t_4core_6hybrid_DTYPE_t;
 /* Declarations.proto */
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
@@ -1102,7 +1102,7 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 
 /*--- Type declarations ---*/
-struct __pyx_obj_6pyross_6hybrid_SIR;
+struct __pyx_obj_4core_6hybrid_SIR;
 
 /* "../../../../software/anaconda/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":815
  * ctypedef npy_longdouble longdouble_t
@@ -1139,16 +1139,16 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
  * cdef inline object PyArray_MultiIterNew1(a):
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
-struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate;
+struct __pyx_opt_args_4core_6hybrid_3SIR_simulate;
 
-/* "pyross/hybrid.pyx":82
+/* "core/hybrid.pyx":82
  * 
  * 
  *     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, long Tf,             # <<<<<<<<<<<<<<
  *                                 dict thresholds,
  *                                 double dt_stoch = 20,double dt_det = 300,
  */
-struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate {
+struct __pyx_opt_args_4core_6hybrid_3SIR_simulate {
   int __pyx_n;
   double dt_stoch;
   double dt_det;
@@ -1158,16 +1158,16 @@ struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate {
   int tau_update_frequency;
 };
 
-/* "pyross/hybrid.pyx":14
- * import pyross.deterministic as deterministic
+/* "core/hybrid.pyx":14
+ * import core.deterministic as deterministic
  * 
  * cdef class SIR:             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Infected, Removed (SIR)
  */
-struct __pyx_obj_6pyross_6hybrid_SIR {
+struct __pyx_obj_4core_6hybrid_SIR {
   PyObject_HEAD
-  struct __pyx_vtabstruct_6pyross_6hybrid_SIR *__pyx_vtab;
+  struct __pyx_vtabstruct_4core_6hybrid_SIR *__pyx_vtab;
   int N;
   int M;
   double alpha;
@@ -1181,12 +1181,12 @@ struct __pyx_obj_6pyross_6hybrid_SIR {
 
 
 
-struct __pyx_vtabstruct_6pyross_6hybrid_SIR {
-  PyObject *(*below_threshold)(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *, PyObject *);
-  PyObject *(*find_passing_index)(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *, PyObject *);
-  PyObject *(*simulate)(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *, PyObject *, PyObject *, PyObject *, long, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate *__pyx_optional_args);
+struct __pyx_vtabstruct_4core_6hybrid_SIR {
+  PyObject *(*below_threshold)(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *, PyObject *);
+  PyObject *(*find_passing_index)(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *, PyObject *);
+  PyObject *(*simulate)(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *, PyObject *, PyObject *, PyObject *, long, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_4core_6hybrid_3SIR_simulate *__pyx_optional_args);
 };
-static struct __pyx_vtabstruct_6pyross_6hybrid_SIR *__pyx_vtabptr_6pyross_6hybrid_SIR;
+static struct __pyx_vtabstruct_4core_6hybrid_SIR *__pyx_vtabptr_4core_6hybrid_SIR;
 
 /* --- Runtime support code (head) --- */
 /* Refnanny.proto */
@@ -1768,9 +1768,9 @@ static int __Pyx_check_binary_version(void);
 /* InitStrings.proto */
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_populations, PyObject *__pyx_v_thresholds); /* proto*/
-static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_trajectory, PyObject *__pyx_v_thresholds); /* proto*/
-static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, int __pyx_skip_dispatch, struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate *__pyx_optional_args); /* proto*/
+static PyObject *__pyx_f_4core_6hybrid_3SIR_below_threshold(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_populations, PyObject *__pyx_v_thresholds); /* proto*/
+static PyObject *__pyx_f_4core_6hybrid_3SIR_find_passing_index(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_trajectory, PyObject *__pyx_v_thresholds); /* proto*/
+static PyObject *__pyx_f_4core_6hybrid_3SIR_simulate(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, int __pyx_skip_dispatch, struct __pyx_opt_args_4core_6hybrid_3SIR_simulate *__pyx_optional_args); /* proto*/
 
 /* Module declarations from 'cpython.buffer' */
 
@@ -1865,14 +1865,14 @@ static PyTypeObject *__pyx_ptype_5numpy_ndarray = 0;
 static PyTypeObject *__pyx_ptype_5numpy_ufunc = 0;
 static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, char *, char *, int *); /*proto*/
 
-/* Module declarations from 'pyross.hybrid' */
-static PyTypeObject *__pyx_ptype_6pyross_6hybrid_SIR = 0;
-static PyObject *__pyx_f_6pyross_6hybrid___pyx_unpickle_SIR__set_state(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *); /*proto*/
-#define __Pyx_MODULE_NAME "pyross.hybrid"
-extern int __pyx_module_is_main_pyross__hybrid;
-int __pyx_module_is_main_pyross__hybrid = 0;
+/* Module declarations from 'core.hybrid' */
+static PyTypeObject *__pyx_ptype_4core_6hybrid_SIR = 0;
+static PyObject *__pyx_f_4core_6hybrid___pyx_unpickle_SIR__set_state(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *); /*proto*/
+#define __Pyx_MODULE_NAME "core.hybrid"
+extern int __pyx_module_is_main_core__hybrid;
+int __pyx_module_is_main_core__hybrid = 0;
 
-/* Implementation of 'pyross.hybrid' */
+/* Implementation of 'core.hybrid' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
@@ -1935,19 +1935,19 @@ static const char __pyx_k_thresholds[] = "thresholds";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_concatenate[] = "concatenate";
+static const char __pyx_k_core_hybrid[] = "core.hybrid";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_contactMatrix[] = "contactMatrix";
 static const char __pyx_k_deterministic[] = "deterministic";
-static const char __pyx_k_pyross_hybrid[] = "pyross.hybrid";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
+static const char __pyx_k_core_stochastic[] = "core.stochastic";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_pyx_unpickle_SIR[] = "__pyx_unpickle_SIR";
-static const char __pyx_k_pyross_stochastic[] = "pyross.stochastic";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
-static const char __pyx_k_pyross_deterministic[] = "pyross.deterministic";
+static const char __pyx_k_core_deterministic[] = "core.deterministic";
 static const char __pyx_k_tau_update_frequency[] = "tau_update_frequency";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
@@ -1985,6 +1985,9 @@ static PyObject *__pyx_n_u_beta;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_concatenate;
 static PyObject *__pyx_n_s_contactMatrix;
+static PyObject *__pyx_n_s_core_deterministic;
+static PyObject *__pyx_n_s_core_hybrid;
+static PyObject *__pyx_n_s_core_stochastic;
 static PyObject *__pyx_n_s_deterministic;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_dt_det;
@@ -2016,9 +2019,6 @@ static PyObject *__pyx_kp_u_numpy_core_multiarray_failed_to;
 static PyObject *__pyx_kp_u_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_parameters;
 static PyObject *__pyx_n_s_pickle;
-static PyObject *__pyx_n_s_pyross_deterministic;
-static PyObject *__pyx_n_s_pyross_hybrid;
-static PyObject *__pyx_n_s_pyross_stochastic;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_result;
@@ -2043,23 +2043,23 @@ static PyObject *__pyx_n_s_thresholds;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_zeros;
-static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2simulate(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, double __pyx_v_dt_stoch, double __pyx_v_dt_det, PyObject *__pyx_v_method, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1N___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1M___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_5alpha___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4beta___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIa___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIs___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2Ni___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_10parameters___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4__reduce_cython__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_6__setstate_cython__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_6hybrid_3SIR___init__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_2simulate(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, double __pyx_v_dt_stoch, double __pyx_v_dt_det, PyObject *__pyx_v_method, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_1N___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_1M___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_5alpha___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_4beta___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_3gIa___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_3gIs___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_2Ni___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_10parameters___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_4__reduce_cython__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_6__setstate_cython__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
-static PyObject *__pyx_tp_new_6pyross_6hybrid_SIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_6hybrid_SIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_get = {0, &__pyx_n_s_get, 0, 0, 0};
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
@@ -2077,7 +2077,7 @@ static PyObject *__pyx_tuple__10;
 static PyObject *__pyx_codeobj__11;
 /* Late includes */
 
-/* "pyross/hybrid.pyx":52
+/* "core/hybrid.pyx":52
  *         readonly dict parameters
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -2086,8 +2086,8 @@ static PyObject *__pyx_codeobj__11;
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_6hybrid_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_6hybrid_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_6hybrid_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_6hybrid_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -2146,18 +2146,18 @@ static int __pyx_pw_6pyross_6hybrid_3SIR_1__init__(PyObject *__pyx_v_self, PyObj
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 52, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.hybrid.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR___init__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR___init__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_6hybrid_3SIR___init__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2167,7 +2167,7 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/hybrid.pyx":54
+  /* "core/hybrid.pyx":54
  *     def __init__(self, parameters, M, Ni):
  * 
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -2177,7 +2177,7 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
   __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L1_error)
   __pyx_v_self->M = __pyx_t_1;
 
-  /* "pyross/hybrid.pyx":55
+  /* "core/hybrid.pyx":55
  * 
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # <<<<<<<<<<<<<<
@@ -2214,7 +2214,7 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
   __pyx_v_self->Ni = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pyross/hybrid.pyx":56
+  /* "core/hybrid.pyx":56
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -2230,7 +2230,7 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
   __pyx_v_self->Ni = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pyross/hybrid.pyx":57
+  /* "core/hybrid.pyx":57
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)
  *         self.Ni    = Ni
  *         self.parameters = parameters             # <<<<<<<<<<<<<<
@@ -2246,7 +2246,7 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
   __pyx_v_self->parameters = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pyross/hybrid.pyx":52
+  /* "core/hybrid.pyx":52
  *         readonly dict parameters
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -2262,14 +2262,14 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":59
+/* "core/hybrid.pyx":59
  *         self.parameters = parameters
  * 
  *     cdef below_threshold(self,populations,thresholds):             # <<<<<<<<<<<<<<
@@ -2277,7 +2277,7 @@ static int __pyx_pf_6pyross_6hybrid_3SIR___init__(struct __pyx_obj_6pyross_6hybr
  *             int M = self.M
  */
 
-static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_populations, PyObject *__pyx_v_thresholds) {
+static PyObject *__pyx_f_4core_6hybrid_3SIR_below_threshold(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_populations, PyObject *__pyx_v_thresholds) {
   int __pyx_v_M;
   long __pyx_v_i;
   int __pyx_v_j;
@@ -2293,7 +2293,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("below_threshold", 0);
 
-  /* "pyross/hybrid.pyx":61
+  /* "core/hybrid.pyx":61
  *     cdef below_threshold(self,populations,thresholds):
  *         cdef:
  *             int M = self.M             # <<<<<<<<<<<<<<
@@ -2303,7 +2303,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
   __pyx_t_1 = __pyx_v_self->M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/hybrid.pyx":62
+  /* "core/hybrid.pyx":62
  *         cdef:
  *             int M = self.M
  *         for i in range(3):             # <<<<<<<<<<<<<<
@@ -2313,7 +2313,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
   for (__pyx_t_2 = 0; __pyx_t_2 < 3; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "pyross/hybrid.pyx":63
+    /* "core/hybrid.pyx":63
  *             int M = self.M
  *         for i in range(3):
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -2325,7 +2325,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_v_j = __pyx_t_4;
 
-      /* "pyross/hybrid.pyx":64
+      /* "core/hybrid.pyx":64
  *         for i in range(3):
  *             for j in range(M):
  *                 if (populations[i][j] < thresholds[i][j]):             # <<<<<<<<<<<<<<
@@ -2349,7 +2349,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (__pyx_t_8) {
 
-        /* "pyross/hybrid.pyx":65
+        /* "core/hybrid.pyx":65
  *             for j in range(M):
  *                 if (populations[i][j] < thresholds[i][j]):
  *                     return True             # <<<<<<<<<<<<<<
@@ -2361,7 +2361,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
         __pyx_r = Py_True;
         goto __pyx_L0;
 
-        /* "pyross/hybrid.pyx":64
+        /* "core/hybrid.pyx":64
  *         for i in range(3):
  *             for j in range(M):
  *                 if (populations[i][j] < thresholds[i][j]):             # <<<<<<<<<<<<<<
@@ -2372,7 +2372,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
     }
   }
 
-  /* "pyross/hybrid.pyx":66
+  /* "core/hybrid.pyx":66
  *                 if (populations[i][j] < thresholds[i][j]):
  *                     return True
  *         return False             # <<<<<<<<<<<<<<
@@ -2384,7 +2384,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
   __pyx_r = Py_False;
   goto __pyx_L0;
 
-  /* "pyross/hybrid.pyx":59
+  /* "core/hybrid.pyx":59
  *         self.parameters = parameters
  * 
  *     cdef below_threshold(self,populations,thresholds):             # <<<<<<<<<<<<<<
@@ -2397,7 +2397,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.below_threshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.below_threshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2405,7 +2405,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":68
+/* "core/hybrid.pyx":68
  *         return False
  * 
  *     cdef find_passing_index(self,trajectory,thresholds):             # <<<<<<<<<<<<<<
@@ -2413,7 +2413,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_below_threshold(struct __pyx_obj_6
  *             int min_index = 0
  */
 
-static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_trajectory, PyObject *__pyx_v_thresholds) {
+static PyObject *__pyx_f_4core_6hybrid_3SIR_find_passing_index(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_trajectory, PyObject *__pyx_v_thresholds) {
   int __pyx_v_min_index;
   int __pyx_v_length_of_traj;
   int __pyx_v_M;
@@ -2438,7 +2438,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   int __pyx_t_13;
   __Pyx_RefNannySetupContext("find_passing_index", 0);
 
-  /* "pyross/hybrid.pyx":70
+  /* "core/hybrid.pyx":70
  *     cdef find_passing_index(self,trajectory,thresholds):
  *         cdef:
  *             int min_index = 0             # <<<<<<<<<<<<<<
@@ -2447,7 +2447,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
  */
   __pyx_v_min_index = 0;
 
-  /* "pyross/hybrid.pyx":71
+  /* "core/hybrid.pyx":71
  *         cdef:
  *             int min_index = 0
  *             int length_of_traj = len(trajectory)             # <<<<<<<<<<<<<<
@@ -2457,7 +2457,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   __pyx_t_1 = PyObject_Length(__pyx_v_trajectory); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 71, __pyx_L1_error)
   __pyx_v_length_of_traj = __pyx_t_1;
 
-  /* "pyross/hybrid.pyx":72
+  /* "core/hybrid.pyx":72
  *             int min_index = 0
  *             int length_of_traj = len(trajectory)
  *             int M = self.M             # <<<<<<<<<<<<<<
@@ -2467,7 +2467,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   __pyx_t_2 = __pyx_v_self->M;
   __pyx_v_M = __pyx_t_2;
 
-  /* "pyross/hybrid.pyx":73
+  /* "core/hybrid.pyx":73
  *             int length_of_traj = len(trajectory)
  *             int M = self.M
  *         for i in range(length_of_traj-1):             # <<<<<<<<<<<<<<
@@ -2522,7 +2522,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/hybrid.pyx":74
+    /* "core/hybrid.pyx":74
  *             int M = self.M
  *         for i in range(length_of_traj-1):
  *             for j in range(3):             # <<<<<<<<<<<<<<
@@ -2535,7 +2535,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
       __Pyx_XDECREF_SET(__pyx_v_j, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "pyross/hybrid.pyx":75
+      /* "core/hybrid.pyx":75
  *         for i in range(length_of_traj-1):
  *             for j in range(3):
  *                 for k in range(M):             # <<<<<<<<<<<<<<
@@ -2590,7 +2590,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
         __Pyx_XDECREF_SET(__pyx_v_k, __pyx_t_7);
         __pyx_t_7 = 0;
 
-        /* "pyross/hybrid.pyx":76
+        /* "core/hybrid.pyx":76
  *             for j in range(3):
  *                 for k in range(M):
  *                     product = (trajectory[i,j*M + k] - thresholds[j][k])*(trajectory[i+1,j*M + k] - thresholds[j][k])             # <<<<<<<<<<<<<<
@@ -2662,7 +2662,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
         __Pyx_XDECREF_SET(__pyx_v_product, __pyx_t_11);
         __pyx_t_11 = 0;
 
-        /* "pyross/hybrid.pyx":77
+        /* "core/hybrid.pyx":77
  *                 for k in range(M):
  *                     product = (trajectory[i,j*M + k] - thresholds[j][k])*(trajectory[i+1,j*M + k] - thresholds[j][k])
  *                     if product < 0:             # <<<<<<<<<<<<<<
@@ -2674,7 +2674,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         if (__pyx_t_13) {
 
-          /* "pyross/hybrid.pyx":78
+          /* "core/hybrid.pyx":78
  *                     product = (trajectory[i,j*M + k] - thresholds[j][k])*(trajectory[i+1,j*M + k] - thresholds[j][k])
  *                     if product < 0:
  *                         return min_index+i+1 # index of first datapoint past threshold             # <<<<<<<<<<<<<<
@@ -2696,7 +2696,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           goto __pyx_L0;
 
-          /* "pyross/hybrid.pyx":77
+          /* "core/hybrid.pyx":77
  *                 for k in range(M):
  *                     product = (trajectory[i,j*M + k] - thresholds[j][k])*(trajectory[i+1,j*M + k] - thresholds[j][k])
  *                     if product < 0:             # <<<<<<<<<<<<<<
@@ -2705,7 +2705,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
  */
         }
 
-        /* "pyross/hybrid.pyx":75
+        /* "core/hybrid.pyx":75
  *         for i in range(length_of_traj-1):
  *             for j in range(3):
  *                 for k in range(M):             # <<<<<<<<<<<<<<
@@ -2716,7 +2716,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
 
-    /* "pyross/hybrid.pyx":73
+    /* "core/hybrid.pyx":73
  *             int length_of_traj = len(trajectory)
  *             int M = self.M
  *         for i in range(length_of_traj-1):             # <<<<<<<<<<<<<<
@@ -2726,7 +2726,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pyross/hybrid.pyx":79
+  /* "core/hybrid.pyx":79
  *                     if product < 0:
  *                         return min_index+i+1 # index of first datapoint past threshold
  *         return min_index             # <<<<<<<<<<<<<<
@@ -2740,7 +2740,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "pyross/hybrid.pyx":68
+  /* "core/hybrid.pyx":68
  *         return False
  * 
  *     cdef find_passing_index(self,trajectory,thresholds):             # <<<<<<<<<<<<<<
@@ -2756,7 +2756,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.find_passing_index", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.find_passing_index", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_i);
@@ -2768,7 +2768,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":82
+/* "core/hybrid.pyx":82
  * 
  * 
  *     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, long Tf,             # <<<<<<<<<<<<<<
@@ -2776,8 +2776,8 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_find_passing_index(struct __pyx_ob
  *                                 double dt_stoch = 20,double dt_det = 300,
  */
 
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, int __pyx_skip_dispatch, struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate *__pyx_optional_args) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_4core_6hybrid_3SIR_simulate(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, int __pyx_skip_dispatch, struct __pyx_opt_args_4core_6hybrid_3SIR_simulate *__pyx_optional_args) {
   double __pyx_v_dt_stoch = ((double)20.0);
   double __pyx_v_dt_det = ((double)300.0);
   PyObject *__pyx_v_method = ((PyObject *)__pyx_n_u_gillespie);
@@ -2849,7 +2849,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       #endif
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_simulate); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6pyross_6hybrid_3SIR_3simulate)) {
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_4core_6hybrid_3SIR_3simulate)) {
         __Pyx_XDECREF(__pyx_r);
         __pyx_t_3 = __Pyx_PyInt_From_long(__pyx_v_Tf); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
@@ -2969,7 +2969,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     #endif
   }
 
-  /* "pyross/hybrid.pyx":90
+  /* "core/hybrid.pyx":90
  *                                 ):
  *         cdef:
  *             int M=self.M             # <<<<<<<<<<<<<<
@@ -2979,7 +2979,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_t_11 = __pyx_v_self->M;
   __pyx_v_M = __pyx_t_11;
 
-  /* "pyross/hybrid.pyx":91
+  /* "core/hybrid.pyx":91
  *         cdef:
  *             int M=self.M
  *             tuple thresholds_from_below = thresholds.get('from_below')             # <<<<<<<<<<<<<<
@@ -2996,7 +2996,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_thresholds_from_below = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/hybrid.pyx":92
+  /* "core/hybrid.pyx":92
  *             int M=self.M
  *             tuple thresholds_from_below = thresholds.get('from_below')
  *             tuple thresholds_from_above = thresholds.get('from_above')             # <<<<<<<<<<<<<<
@@ -3013,7 +3013,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_thresholds_from_above = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/hybrid.pyx":93
+  /* "core/hybrid.pyx":93
  *             tuple thresholds_from_below = thresholds.get('from_below')
  *             tuple thresholds_from_above = thresholds.get('from_above')
  *             tuple cur_populations = (S0, Ia0, Is0)             # <<<<<<<<<<<<<<
@@ -3034,7 +3034,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_cur_populations = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/hybrid.pyx":94
+  /* "core/hybrid.pyx":94
  *             tuple thresholds_from_above = thresholds.get('from_above')
  *             tuple cur_populations = (S0, Ia0, Is0)
  *             int cur_t = 0             # <<<<<<<<<<<<<<
@@ -3043,7 +3043,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
  */
   __pyx_v_cur_t = 0;
 
-  /* "pyross/hybrid.pyx":97
+  /* "core/hybrid.pyx":97
  *             long dt, cur_Tf, cur_Nt
  * 
  *         t_arr = np.arange(Tf+1,dtype=int)             # <<<<<<<<<<<<<<
@@ -3073,7 +3073,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_t_arr = __pyx_t_12;
   __pyx_t_12 = 0;
 
-  /* "pyross/hybrid.pyx":98
+  /* "core/hybrid.pyx":98
  * 
  *         t_arr = np.arange(Tf+1,dtype=int)
  *         trajectory = np.zeros([Tf+1,3*M],             # <<<<<<<<<<<<<<
@@ -3103,7 +3103,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pyross/hybrid.pyx":99
+  /* "core/hybrid.pyx":99
  *         t_arr = np.arange(Tf+1,dtype=int)
  *         trajectory = np.zeros([Tf+1,3*M],
  *                               dtype=long)             # <<<<<<<<<<<<<<
@@ -3114,7 +3114,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, ((PyObject *)(&PyLong_Type))) < 0) __PYX_ERR(0, 99, __pyx_L1_error)
 
-  /* "pyross/hybrid.pyx":98
+  /* "core/hybrid.pyx":98
  * 
  *         t_arr = np.arange(Tf+1,dtype=int)
  *         trajectory = np.zeros([Tf+1,3*M],             # <<<<<<<<<<<<<<
@@ -3129,7 +3129,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_trajectory = __pyx_t_12;
   __pyx_t_12 = 0;
 
-  /* "pyross/hybrid.pyx":100
+  /* "core/hybrid.pyx":100
  *         trajectory = np.zeros([Tf+1,3*M],
  *                               dtype=long)
  *         trajectory[0] = np.concatenate((S0,Ia0,Is0))             # <<<<<<<<<<<<<<
@@ -3171,7 +3171,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   if (unlikely(__Pyx_SetItemInt(__pyx_v_trajectory, 0, __pyx_t_12, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "pyross/hybrid.pyx":103
+  /* "core/hybrid.pyx":103
  * 
  *         # initialize both stochastic and deterministic simulations
  *         model_stoch = stochastic.SIR(self.parameters, M, self.Ni)             # <<<<<<<<<<<<<<
@@ -3238,7 +3238,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_model_stoch = __pyx_t_12;
   __pyx_t_12 = 0;
 
-  /* "pyross/hybrid.pyx":104
+  /* "core/hybrid.pyx":104
  *         # initialize both stochastic and deterministic simulations
  *         model_stoch = stochastic.SIR(self.parameters, M, self.Ni)
  *         model_det = deterministic.SIR(self.parameters, M, self.Ni)             # <<<<<<<<<<<<<<
@@ -3305,19 +3305,19 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_model_det = __pyx_t_12;
   __pyx_t_12 = 0;
 
-  /* "pyross/hybrid.pyx":106
+  /* "core/hybrid.pyx":106
  *         model_det = deterministic.SIR(self.parameters, M, self.Ni)
  *         # check if initially we are above or below the threshold (from below)
  *         below = self.below_threshold(cur_populations,thresholds_from_below)             # <<<<<<<<<<<<<<
  * 
  *         while (cur_t < Tf):
  */
-  __pyx_t_12 = ((struct __pyx_vtabstruct_6pyross_6hybrid_SIR *)__pyx_v_self->__pyx_vtab)->below_threshold(__pyx_v_self, __pyx_v_cur_populations, __pyx_v_thresholds_from_below); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_12 = ((struct __pyx_vtabstruct_4core_6hybrid_SIR *)__pyx_v_self->__pyx_vtab)->below_threshold(__pyx_v_self, __pyx_v_cur_populations, __pyx_v_thresholds_from_below); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __pyx_v_below = __pyx_t_12;
   __pyx_t_12 = 0;
 
-  /* "pyross/hybrid.pyx":108
+  /* "core/hybrid.pyx":108
  *         below = self.below_threshold(cur_populations,thresholds_from_below)
  * 
  *         while (cur_t < Tf):             # <<<<<<<<<<<<<<
@@ -3328,7 +3328,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __pyx_t_13 = ((__pyx_v_cur_t < __pyx_v_Tf) != 0);
     if (!__pyx_t_13) break;
 
-    /* "pyross/hybrid.pyx":110
+    /* "core/hybrid.pyx":110
  *         while (cur_t < Tf):
  *             # run simulation
  *             if below:             # <<<<<<<<<<<<<<
@@ -3338,7 +3338,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_below); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 110, __pyx_L1_error)
     if (__pyx_t_13) {
 
-      /* "pyross/hybrid.pyx":111
+      /* "core/hybrid.pyx":111
  *             # run simulation
  *             if below:
  *                 dt = long(np.round(dt_stoch))             # <<<<<<<<<<<<<<
@@ -3375,7 +3375,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_v_dt = __pyx_t_14;
 
-      /* "pyross/hybrid.pyx":110
+      /* "core/hybrid.pyx":110
  *         while (cur_t < Tf):
  *             # run simulation
  *             if below:             # <<<<<<<<<<<<<<
@@ -3385,7 +3385,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       goto __pyx_L5;
     }
 
-    /* "pyross/hybrid.pyx":113
+    /* "core/hybrid.pyx":113
  *                 dt = long(np.round(dt_stoch))
  *             else:
  *                 dt = long(np.round(dt_det))             # <<<<<<<<<<<<<<
@@ -3425,7 +3425,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     }
     __pyx_L5:;
 
-    /* "pyross/hybrid.pyx":115
+    /* "core/hybrid.pyx":115
  *                 dt = long(np.round(dt_det))
  *             # duration of simulation
  *             cur_Tf = long( np.round( np.min([dt,(Tf-cur_t)]) ) )             # <<<<<<<<<<<<<<
@@ -3493,7 +3493,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     __pyx_v_cur_Tf = __pyx_t_14;
 
-    /* "pyross/hybrid.pyx":116
+    /* "core/hybrid.pyx":116
  *             # duration of simulation
  *             cur_Tf = long( np.round( np.min([dt,(Tf-cur_t)]) ) )
  *             cur_Nt = long( np.round(cur_Tf+1 ) )             # <<<<<<<<<<<<<<
@@ -3530,7 +3530,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_cur_Nt = __pyx_t_14;
 
-    /* "pyross/hybrid.pyx":119
+    /* "core/hybrid.pyx":119
  *             #
  * 
  *             if below:             # <<<<<<<<<<<<<<
@@ -3540,7 +3540,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_below); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 119, __pyx_L1_error)
     if (__pyx_t_13) {
 
-      /* "pyross/hybrid.pyx":120
+      /* "core/hybrid.pyx":120
  * 
  *             if below:
  *                 cur_result = model_stoch.simulate(*cur_populations,             # <<<<<<<<<<<<<<
@@ -3550,7 +3550,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_model_stoch, __pyx_n_s_simulate); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 120, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
 
-      /* "pyross/hybrid.pyx":122
+      /* "core/hybrid.pyx":122
  *                 cur_result = model_stoch.simulate(*cur_populations,
  *                                                      contactMatrix,
  *                                                      cur_Tf, cur_Nt,             # <<<<<<<<<<<<<<
@@ -3562,7 +3562,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __pyx_t_8 = __Pyx_PyInt_From_long(__pyx_v_cur_Nt); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 122, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
 
-      /* "pyross/hybrid.pyx":120
+      /* "core/hybrid.pyx":120
  * 
  *             if below:
  *                 cur_result = model_stoch.simulate(*cur_populations,             # <<<<<<<<<<<<<<
@@ -3584,7 +3584,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "pyross/hybrid.pyx":123
+      /* "core/hybrid.pyx":123
  *                                                      contactMatrix,
  *                                                      cur_Tf, cur_Nt,
  *                                                      method=method,epsilon=epsilon,             # <<<<<<<<<<<<<<
@@ -3599,7 +3599,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_epsilon, __pyx_t_12) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":124
+      /* "core/hybrid.pyx":124
  *                                                      cur_Tf, cur_Nt,
  *                                                      method=method,epsilon=epsilon,
  *                                                      tau_update_frequency=tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -3611,7 +3611,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_tau_update_frequency, __pyx_t_12) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":120
+      /* "core/hybrid.pyx":120
  * 
  *             if below:
  *                 cur_result = model_stoch.simulate(*cur_populations,             # <<<<<<<<<<<<<<
@@ -3626,7 +3626,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_XDECREF_SET(__pyx_v_cur_result, __pyx_t_12);
       __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":126
+      /* "core/hybrid.pyx":126
  *                                                      tau_update_frequency=tau_update_frequency,
  *                                                      )
  *                 cur_traj = cur_result['X']             # <<<<<<<<<<<<<<
@@ -3638,7 +3638,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_XDECREF_SET(__pyx_v_cur_traj, __pyx_t_12);
       __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":119
+      /* "core/hybrid.pyx":119
  *             #
  * 
  *             if below:             # <<<<<<<<<<<<<<
@@ -3648,7 +3648,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       goto __pyx_L6;
     }
 
-    /* "pyross/hybrid.pyx":128
+    /* "core/hybrid.pyx":128
  *                 cur_traj = cur_result['X']
  *             else:
  *                 cur_result = model_det.simulate(*cur_populations,             # <<<<<<<<<<<<<<
@@ -3659,7 +3659,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_model_det, __pyx_n_s_simulate); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 128, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
 
-      /* "pyross/hybrid.pyx":130
+      /* "core/hybrid.pyx":130
  *                 cur_result = model_det.simulate(*cur_populations,
  *                                                      contactMatrix,
  *                                                      cur_Tf, cur_Nt)             # <<<<<<<<<<<<<<
@@ -3671,7 +3671,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __pyx_t_8 = __Pyx_PyInt_From_long(__pyx_v_cur_Nt); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 130, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
 
-      /* "pyross/hybrid.pyx":128
+      /* "core/hybrid.pyx":128
  *                 cur_traj = cur_result['X']
  *             else:
  *                 cur_result = model_det.simulate(*cur_populations,             # <<<<<<<<<<<<<<
@@ -3699,7 +3699,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_XDECREF_SET(__pyx_v_cur_result, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "pyross/hybrid.pyx":131
+      /* "core/hybrid.pyx":131
  *                                                      contactMatrix,
  *                                                      cur_Tf, cur_Nt)
  *                 cur_traj = np.array(np.round(cur_result['X']),dtype=int)             # <<<<<<<<<<<<<<
@@ -3752,7 +3752,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     }
     __pyx_L6:;
 
-    /* "pyross/hybrid.pyx":134
+    /* "core/hybrid.pyx":134
  * 
  *             # check if we passed the threshold
  *             if below:             # <<<<<<<<<<<<<<
@@ -3762,19 +3762,19 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_below); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 134, __pyx_L1_error)
     if (__pyx_t_13) {
 
-      /* "pyross/hybrid.pyx":135
+      /* "core/hybrid.pyx":135
  *             # check if we passed the threshold
  *             if below:
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_below)             # <<<<<<<<<<<<<<
  *             else:
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_above)
  */
-      __pyx_t_12 = ((struct __pyx_vtabstruct_6pyross_6hybrid_SIR *)__pyx_v_self->__pyx_vtab)->find_passing_index(__pyx_v_self, __pyx_v_cur_traj, __pyx_v_thresholds_from_below); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 135, __pyx_L1_error)
+      __pyx_t_12 = ((struct __pyx_vtabstruct_4core_6hybrid_SIR *)__pyx_v_self->__pyx_vtab)->find_passing_index(__pyx_v_self, __pyx_v_cur_traj, __pyx_v_thresholds_from_below); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 135, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_XDECREF_SET(__pyx_v_passing_index, __pyx_t_12);
       __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":134
+      /* "core/hybrid.pyx":134
  * 
  *             # check if we passed the threshold
  *             if below:             # <<<<<<<<<<<<<<
@@ -3784,7 +3784,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       goto __pyx_L7;
     }
 
-    /* "pyross/hybrid.pyx":137
+    /* "core/hybrid.pyx":137
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_below)
  *             else:
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_above)             # <<<<<<<<<<<<<<
@@ -3792,14 +3792,14 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
  *                 trajectory[cur_t+1:cur_t+cur_Nt] = cur_traj[1:]
  */
     /*else*/ {
-      __pyx_t_12 = ((struct __pyx_vtabstruct_6pyross_6hybrid_SIR *)__pyx_v_self->__pyx_vtab)->find_passing_index(__pyx_v_self, __pyx_v_cur_traj, __pyx_v_thresholds_from_above); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 137, __pyx_L1_error)
+      __pyx_t_12 = ((struct __pyx_vtabstruct_4core_6hybrid_SIR *)__pyx_v_self->__pyx_vtab)->find_passing_index(__pyx_v_self, __pyx_v_cur_traj, __pyx_v_thresholds_from_above); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 137, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_XDECREF_SET(__pyx_v_passing_index, __pyx_t_12);
       __pyx_t_12 = 0;
     }
     __pyx_L7:;
 
-    /* "pyross/hybrid.pyx":138
+    /* "core/hybrid.pyx":138
  *             else:
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_above)
  *             if passing_index == 0: # means we have not passed through the threshold             # <<<<<<<<<<<<<<
@@ -3812,7 +3812,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     if (__pyx_t_13) {
 
-      /* "pyross/hybrid.pyx":139
+      /* "core/hybrid.pyx":139
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_above)
  *             if passing_index == 0: # means we have not passed through the threshold
  *                 trajectory[cur_t+1:cur_t+cur_Nt] = cur_traj[1:]             # <<<<<<<<<<<<<<
@@ -3824,7 +3824,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       if (__Pyx_PyObject_SetSlice(__pyx_v_trajectory, __pyx_t_12, (__pyx_v_cur_t + 1), (__pyx_v_cur_t + __pyx_v_cur_Nt), NULL, NULL, NULL, 1, 1, 1) < 0) __PYX_ERR(0, 139, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":140
+      /* "core/hybrid.pyx":140
  *             if passing_index == 0: # means we have not passed through the threshold
  *                 trajectory[cur_t+1:cur_t+cur_Nt] = cur_traj[1:]
  *                 cur_t += cur_Tf             # <<<<<<<<<<<<<<
@@ -3833,7 +3833,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
  */
       __pyx_v_cur_t = (__pyx_v_cur_t + __pyx_v_cur_Tf);
 
-      /* "pyross/hybrid.pyx":141
+      /* "core/hybrid.pyx":141
  *                 trajectory[cur_t+1:cur_t+cur_Nt] = cur_traj[1:]
  *                 cur_t += cur_Tf
  *                 cur_populations = ( cur_traj[-1,:M,],             # <<<<<<<<<<<<<<
@@ -3857,7 +3857,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":142
+      /* "core/hybrid.pyx":142
  *                 cur_t += cur_Tf
  *                 cur_populations = ( cur_traj[-1,:M,],
  *                                    cur_traj[-1,M:2*M],             # <<<<<<<<<<<<<<
@@ -3884,7 +3884,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "pyross/hybrid.pyx":143
+      /* "core/hybrid.pyx":143
  *                 cur_populations = ( cur_traj[-1,:M,],
  *                                    cur_traj[-1,M:2*M],
  *                                    cur_traj[-1,2*M:] )             # <<<<<<<<<<<<<<
@@ -3908,7 +3908,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "pyross/hybrid.pyx":141
+      /* "core/hybrid.pyx":141
  *                 trajectory[cur_t+1:cur_t+cur_Nt] = cur_traj[1:]
  *                 cur_t += cur_Tf
  *                 cur_populations = ( cur_traj[-1,:M,],             # <<<<<<<<<<<<<<
@@ -3929,7 +3929,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_DECREF_SET(__pyx_v_cur_populations, ((PyObject*)__pyx_t_9));
       __pyx_t_9 = 0;
 
-      /* "pyross/hybrid.pyx":138
+      /* "core/hybrid.pyx":138
  *             else:
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_above)
  *             if passing_index == 0: # means we have not passed through the threshold             # <<<<<<<<<<<<<<
@@ -3939,7 +3939,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       goto __pyx_L8;
     }
 
-    /* "pyross/hybrid.pyx":145
+    /* "core/hybrid.pyx":145
  *                                    cur_traj[-1,2*M:] )
  *             else: # means we passed through the threshold
  *                 if below: # this means we came from below             # <<<<<<<<<<<<<<
@@ -3950,7 +3950,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_v_below); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 145, __pyx_L1_error)
       if (__pyx_t_13) {
 
-        /* "pyross/hybrid.pyx":146
+        /* "core/hybrid.pyx":146
  *             else: # means we passed through the threshold
  *                 if below: # this means we came from below
  *                     below = False # now we are above             # <<<<<<<<<<<<<<
@@ -3960,7 +3960,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
         __Pyx_INCREF(Py_False);
         __Pyx_DECREF_SET(__pyx_v_below, Py_False);
 
-        /* "pyross/hybrid.pyx":145
+        /* "core/hybrid.pyx":145
  *                                    cur_traj[-1,2*M:] )
  *             else: # means we passed through the threshold
  *                 if below: # this means we came from below             # <<<<<<<<<<<<<<
@@ -3970,7 +3970,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
         goto __pyx_L9;
       }
 
-      /* "pyross/hybrid.pyx":148
+      /* "core/hybrid.pyx":148
  *                     below = False # now we are above
  *                 else: # this means we came from above
  *                     below = True # now we are below             # <<<<<<<<<<<<<<
@@ -3983,7 +3983,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       }
       __pyx_L9:;
 
-      /* "pyross/hybrid.pyx":149
+      /* "core/hybrid.pyx":149
  *                 else: # this means we came from above
  *                     below = True # now we are below
  *                 trajectory[cur_t+1:cur_t+passing_index+1] = cur_traj[1:passing_index+1]             # <<<<<<<<<<<<<<
@@ -4007,7 +4007,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-      /* "pyross/hybrid.pyx":152
+      /* "core/hybrid.pyx":152
  *                 # Note that the zero-th element of cur_traj is
  *                 # the last datapoint from the previous simulation
  *                 cur_t += passing_index             # <<<<<<<<<<<<<<
@@ -4023,7 +4023,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __pyx_v_cur_t = __pyx_t_11;
 
-      /* "pyross/hybrid.pyx":153
+      /* "core/hybrid.pyx":153
  *                 # the last datapoint from the previous simulation
  *                 cur_t += passing_index
  *                 cur_populations = ( cur_traj[passing_index,:M],             # <<<<<<<<<<<<<<
@@ -4047,7 +4047,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "pyross/hybrid.pyx":154
+      /* "core/hybrid.pyx":154
  *                 cur_t += passing_index
  *                 cur_populations = ( cur_traj[passing_index,:M],
  *                                    cur_traj[passing_index,M:2*M],             # <<<<<<<<<<<<<<
@@ -4074,7 +4074,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-      /* "pyross/hybrid.pyx":155
+      /* "core/hybrid.pyx":155
  *                 cur_populations = ( cur_traj[passing_index,:M],
  *                                    cur_traj[passing_index,M:2*M],
  *                                    cur_traj[passing_index,2*M:] )             # <<<<<<<<<<<<<<
@@ -4098,7 +4098,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-      /* "pyross/hybrid.pyx":153
+      /* "core/hybrid.pyx":153
  *                 # the last datapoint from the previous simulation
  *                 cur_t += passing_index
  *                 cur_populations = ( cur_traj[passing_index,:M],             # <<<<<<<<<<<<<<
@@ -4122,7 +4122,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
     __pyx_L8:;
   }
 
-  /* "pyross/hybrid.pyx":156
+  /* "core/hybrid.pyx":156
  *                                    cur_traj[passing_index,M:2*M],
  *                                    cur_traj[passing_index,2*M:] )
  *         out_dict = {'X':trajectory, 't':t_arr,             # <<<<<<<<<<<<<<
@@ -4134,7 +4134,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_X, __pyx_v_trajectory) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_t, __pyx_v_t_arr) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
 
-  /* "pyross/hybrid.pyx":157
+  /* "core/hybrid.pyx":157
  *                                    cur_traj[passing_index,2*M:] )
  *         out_dict = {'X':trajectory, 't':t_arr,
  *                      'Ni':self.Ni, 'M':self.M,             # <<<<<<<<<<<<<<
@@ -4147,7 +4147,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_M, __pyx_t_9) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "pyross/hybrid.pyx":158
+  /* "core/hybrid.pyx":158
  *         out_dict = {'X':trajectory, 't':t_arr,
  *                      'Ni':self.Ni, 'M':self.M,
  *                      'alpha':self.alpha, 'beta':self.beta,             # <<<<<<<<<<<<<<
@@ -4163,7 +4163,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_beta, __pyx_t_9) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "pyross/hybrid.pyx":159
+  /* "core/hybrid.pyx":159
  *                      'Ni':self.Ni, 'M':self.M,
  *                      'alpha':self.alpha, 'beta':self.beta,
  *                      'gIa':self.gIa, 'gIs':self.gIs,             # <<<<<<<<<<<<<<
@@ -4179,7 +4179,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_gIs, __pyx_t_9) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "pyross/hybrid.pyx":160
+  /* "core/hybrid.pyx":160
  *                      'alpha':self.alpha, 'beta':self.beta,
  *                      'gIa':self.gIa, 'gIs':self.gIs,
  *                       'from_below':thresholds_from_below,             # <<<<<<<<<<<<<<
@@ -4188,7 +4188,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
  */
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_from_below, __pyx_v_thresholds_from_below) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
 
-  /* "pyross/hybrid.pyx":161
+  /* "core/hybrid.pyx":161
  *                      'gIa':self.gIa, 'gIs':self.gIs,
  *                       'from_below':thresholds_from_below,
  *                       'from_above':thresholds_from_above,             # <<<<<<<<<<<<<<
@@ -4197,7 +4197,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
  */
   if (PyDict_SetItem(__pyx_t_8, __pyx_n_u_from_above, __pyx_v_thresholds_from_above) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
 
-  /* "pyross/hybrid.pyx":162
+  /* "core/hybrid.pyx":162
  *                       'from_below':thresholds_from_below,
  *                       'from_above':thresholds_from_above,
  *                       'dt_det':dt_det,'dt_stoch':dt_stoch}             # <<<<<<<<<<<<<<
@@ -4214,7 +4214,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_v_out_dict = ((PyObject*)__pyx_t_8);
   __pyx_t_8 = 0;
 
-  /* "pyross/hybrid.pyx":163
+  /* "core/hybrid.pyx":163
  *                       'from_above':thresholds_from_above,
  *                       'dt_det':dt_det,'dt_stoch':dt_stoch}
  *         return out_dict             # <<<<<<<<<<<<<<
@@ -4224,7 +4224,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __pyx_r = __pyx_v_out_dict;
   goto __pyx_L0;
 
-  /* "pyross/hybrid.pyx":82
+  /* "core/hybrid.pyx":82
  * 
  * 
  *     cpdef simulate(self, S0, Ia0, Is0, contactMatrix, long Tf,             # <<<<<<<<<<<<<<
@@ -4245,7 +4245,7 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_thresholds_from_below);
@@ -4266,8 +4266,8 @@ static PyObject *__pyx_f_6pyross_6hybrid_3SIR_simulate(struct __pyx_obj_6pyross_
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
   PyObject *__pyx_v_Is0 = 0;
@@ -4454,12 +4454,12 @@ static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self,
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 6, 12, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 82, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.hybrid.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_thresholds), (&PyDict_Type), 1, "thresholds", 1))) __PYX_ERR(0, 83, __pyx_L1_error)
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_2simulate(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_contactMatrix, __pyx_v_Tf, __pyx_v_thresholds, __pyx_v_dt_stoch, __pyx_v_dt_det, __pyx_v_method, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_2simulate(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_contactMatrix, __pyx_v_Tf, __pyx_v_thresholds, __pyx_v_dt_stoch, __pyx_v_dt_det, __pyx_v_method, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4470,11 +4470,11 @@ static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3simulate(PyObject *__pyx_v_self,
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2simulate(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, double __pyx_v_dt_stoch, double __pyx_v_dt_det, PyObject *__pyx_v_method, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_2simulate(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_contactMatrix, long __pyx_v_Tf, PyObject *__pyx_v_thresholds, double __pyx_v_dt_stoch, double __pyx_v_dt_det, PyObject *__pyx_v_method, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate __pyx_t_2;
+  struct __pyx_opt_args_4core_6hybrid_3SIR_simulate __pyx_t_2;
   __Pyx_RefNannySetupContext("simulate", 0);
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 6;
@@ -4484,7 +4484,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2simulate(struct __pyx_obj_6pyros
   __pyx_t_2.nc = __pyx_v_nc;
   __pyx_t_2.epsilon = __pyx_v_epsilon;
   __pyx_t_2.tau_update_frequency = __pyx_v_tau_update_frequency;
-  __pyx_t_1 = __pyx_vtabptr_6pyross_6hybrid_SIR->simulate(__pyx_v_self, __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_contactMatrix, __pyx_v_Tf, __pyx_v_thresholds, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_4core_6hybrid_SIR->simulate(__pyx_v_self, __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_contactMatrix, __pyx_v_Tf, __pyx_v_thresholds, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4493,7 +4493,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2simulate(struct __pyx_obj_6pyros
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4501,7 +4501,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2simulate(struct __pyx_obj_6pyros
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":47
+/* "core/hybrid.pyx":47
  *     """
  *     cdef:
  *         readonly int N, M,             # <<<<<<<<<<<<<<
@@ -4510,19 +4510,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2simulate(struct __pyx_obj_6pyros
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_1N_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_1N_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_1N_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_1N_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_1N___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_1N___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1N___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_1N___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4537,7 +4537,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1N___get__(struct __pyx_obj_6pyro
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.N.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.N.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4546,19 +4546,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1N___get__(struct __pyx_obj_6pyro
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_1M_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_1M_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_1M_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_1M_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_1M___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_1M___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1M___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_1M___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4573,7 +4573,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1M___get__(struct __pyx_obj_6pyro
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.M.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.M.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4581,7 +4581,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1M___get__(struct __pyx_obj_6pyro
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":48
+/* "core/hybrid.pyx":48
  *     cdef:
  *         readonly int N, M,
  *         readonly double alpha, beta, gIa, gIs, fsa             # <<<<<<<<<<<<<<
@@ -4590,19 +4590,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_1M___get__(struct __pyx_obj_6pyro
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_5alpha_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_5alpha_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_5alpha_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_5alpha_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_5alpha___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_5alpha___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_5alpha___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_5alpha___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4617,7 +4617,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_5alpha___get__(struct __pyx_obj_6
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.alpha.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.alpha.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4626,19 +4626,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_5alpha___get__(struct __pyx_obj_6
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_4beta_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_4beta_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_4beta_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_4beta_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_4beta___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_4beta___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4beta___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_4beta___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4653,7 +4653,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4beta___get__(struct __pyx_obj_6p
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.beta.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.beta.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4662,19 +4662,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4beta___get__(struct __pyx_obj_6p
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3gIa_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3gIa_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3gIa_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3gIa_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_3gIa___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_3gIa___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIa___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_3gIa___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4689,7 +4689,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIa___get__(struct __pyx_obj_6py
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.gIa.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.gIa.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4698,19 +4698,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIa___get__(struct __pyx_obj_6py
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3gIs_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3gIs_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3gIs_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3gIs_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_3gIs___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_3gIs___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIs___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_3gIs___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4725,7 +4725,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIs___get__(struct __pyx_obj_6py
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.gIs.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.gIs.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4734,19 +4734,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3gIs___get__(struct __pyx_obj_6py
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3fsa_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_3fsa_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3fsa_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_3fsa_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_3fsa___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_3fsa___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4761,7 +4761,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_6py
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.fsa.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.fsa.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4769,7 +4769,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_6py
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":49
+/* "core/hybrid.pyx":49
  *         readonly int N, M,
  *         readonly double alpha, beta, gIa, gIs, fsa
  *         readonly np.ndarray Ni             # <<<<<<<<<<<<<<
@@ -4778,19 +4778,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_3fsa___get__(struct __pyx_obj_6py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_2Ni_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_2Ni_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_2Ni_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_2Ni_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_2Ni___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_2Ni___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2Ni___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_2Ni___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -4806,7 +4806,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2Ni___get__(struct __pyx_obj_6pyr
   return __pyx_r;
 }
 
-/* "pyross/hybrid.pyx":50
+/* "core/hybrid.pyx":50
  *         readonly double alpha, beta, gIa, gIs, fsa
  *         readonly np.ndarray Ni
  *         readonly dict parameters             # <<<<<<<<<<<<<<
@@ -4815,19 +4815,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_2Ni___get__(struct __pyx_obj_6pyr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_10parameters_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_10parameters_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_10parameters_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_10parameters_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_10parameters___get__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_10parameters___get__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_10parameters___get__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_10parameters___get__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -4850,19 +4850,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_10parameters___get__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_4__reduce_cython__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_4__reduce_cython__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4__reduce_cython__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_4__reduce_cython__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -5123,7 +5123,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4__reduce_cython__(struct __pyx_o
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -5141,19 +5141,19 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_4__reduce_cython__(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_6hybrid_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_6hybrid_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_6hybrid_3SIR_6__setstate_cython__(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_6hybrid_3SIR_6__setstate_cython__(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_6__setstate_cython__(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_6hybrid_3SIR_6__setstate_cython__(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5165,7 +5165,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_6__setstate_cython__(struct __pyx
  *     __pyx_unpickle_SIR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_6hybrid___pyx_unpickle_SIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_6hybrid___pyx_unpickle_SIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -5181,7 +5181,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_6__setstate_cython__(struct __pyx
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.hybrid.SIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.SIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5196,9 +5196,9 @@ static PyObject *__pyx_pf_6pyross_6hybrid_3SIR_6__setstate_cython__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_6hybrid_1__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_6hybrid_1__pyx_unpickle_SIR = {"__pyx_unpickle_SIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_6hybrid_1__pyx_unpickle_SIR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_6hybrid_1__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_6hybrid_1__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_6hybrid_1__pyx_unpickle_SIR = {"__pyx_unpickle_SIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_6hybrid_1__pyx_unpickle_SIR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_6hybrid_1__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -5257,18 +5257,18 @@ static PyObject *__pyx_pw_6pyross_6hybrid_1__pyx_unpickle_SIR(PyObject *__pyx_se
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SIR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.hybrid.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_6hybrid___pyx_unpickle_SIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -5362,7 +5362,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObj
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SIR__set_state(<SIR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_6hybrid_SIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_6hybrid_SIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5401,7 +5401,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObj
  * cdef __pyx_unpickle_SIR__set_state(SIR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_6hybrid___pyx_unpickle_SIR__set_state(((struct __pyx_obj_6pyross_6hybrid_SIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_6hybrid___pyx_unpickle_SIR__set_state(((struct __pyx_obj_4core_6hybrid_SIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -5438,7 +5438,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObj
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.hybrid.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -5456,7 +5456,7 @@ static PyObject *__pyx_pf_6pyross_6hybrid___pyx_unpickle_SIR(CYTHON_UNUSED PyObj
  *     if len(__pyx_state) > 9 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_6hybrid___pyx_unpickle_SIR__set_state(struct __pyx_obj_6pyross_6hybrid_SIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_6hybrid___pyx_unpickle_SIR__set_state(struct __pyx_obj_4core_6hybrid_SIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5647,7 +5647,7 @@ static PyObject *__pyx_f_6pyross_6hybrid___pyx_unpickle_SIR__set_state(struct __
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.hybrid.__pyx_unpickle_SIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.hybrid.__pyx_unpickle_SIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -8072,10 +8072,10 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static struct __pyx_vtabstruct_6pyross_6hybrid_SIR __pyx_vtable_6pyross_6hybrid_SIR;
+static struct __pyx_vtabstruct_4core_6hybrid_SIR __pyx_vtable_4core_6hybrid_SIR;
 
-static PyObject *__pyx_tp_new_6pyross_6hybrid_SIR(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_6pyross_6hybrid_SIR *p;
+static PyObject *__pyx_tp_new_4core_6hybrid_SIR(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_4core_6hybrid_SIR *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -8083,15 +8083,15 @@ static PyObject *__pyx_tp_new_6pyross_6hybrid_SIR(PyTypeObject *t, CYTHON_UNUSED
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_6hybrid_SIR *)o);
-  p->__pyx_vtab = __pyx_vtabptr_6pyross_6hybrid_SIR;
+  p = ((struct __pyx_obj_4core_6hybrid_SIR *)o);
+  p->__pyx_vtab = __pyx_vtabptr_4core_6hybrid_SIR;
   p->Ni = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->parameters = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_6hybrid_SIR(PyObject *o) {
-  struct __pyx_obj_6pyross_6hybrid_SIR *p = (struct __pyx_obj_6pyross_6hybrid_SIR *)o;
+static void __pyx_tp_dealloc_4core_6hybrid_SIR(PyObject *o) {
+  struct __pyx_obj_4core_6hybrid_SIR *p = (struct __pyx_obj_4core_6hybrid_SIR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -8103,9 +8103,9 @@ static void __pyx_tp_dealloc_6pyross_6hybrid_SIR(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static int __pyx_tp_traverse_6pyross_6hybrid_SIR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_6hybrid_SIR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_6hybrid_SIR *p = (struct __pyx_obj_6pyross_6hybrid_SIR *)o;
+  struct __pyx_obj_4core_6hybrid_SIR *p = (struct __pyx_obj_4core_6hybrid_SIR *)o;
   if (p->Ni) {
     e = (*v)(((PyObject *)p->Ni), a); if (e) return e;
   }
@@ -8115,9 +8115,9 @@ static int __pyx_tp_traverse_6pyross_6hybrid_SIR(PyObject *o, visitproc v, void 
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_6hybrid_SIR(PyObject *o) {
+static int __pyx_tp_clear_4core_6hybrid_SIR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_6hybrid_SIR *p = (struct __pyx_obj_6pyross_6hybrid_SIR *)o;
+  struct __pyx_obj_4core_6hybrid_SIR *p = (struct __pyx_obj_4core_6hybrid_SIR *)o;
   tmp = ((PyObject*)p->Ni);
   p->Ni = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -8127,68 +8127,68 @@ static int __pyx_tp_clear_6pyross_6hybrid_SIR(PyObject *o) {
   return 0;
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_N(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_1N_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_N(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_1N_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_M(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_1M_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_M(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_1M_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_alpha(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_5alpha_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_alpha(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_5alpha_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_beta(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_4beta_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_beta(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_4beta_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_gIa(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_3gIa_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_gIa(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_3gIa_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_gIs(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_3gIs_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_gIs(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_3gIs_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_fsa(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_3fsa_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_fsa(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_3fsa_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_Ni(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_2Ni_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_Ni(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_2Ni_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_6hybrid_3SIR_parameters(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_6hybrid_3SIR_10parameters_1__get__(o);
+static PyObject *__pyx_getprop_4core_6hybrid_3SIR_parameters(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_6hybrid_3SIR_10parameters_1__get__(o);
 }
 
-static PyMethodDef __pyx_methods_6pyross_6hybrid_SIR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_6hybrid_3SIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_6hybrid_3SIR_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_6hybrid_3SIR_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_6hybrid_SIR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_6hybrid_3SIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_6hybrid_3SIR_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_6hybrid_3SIR_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6pyross_6hybrid_SIR[] = {
-  {(char *)"N", __pyx_getprop_6pyross_6hybrid_3SIR_N, 0, (char *)0, 0},
-  {(char *)"M", __pyx_getprop_6pyross_6hybrid_3SIR_M, 0, (char *)0, 0},
-  {(char *)"alpha", __pyx_getprop_6pyross_6hybrid_3SIR_alpha, 0, (char *)0, 0},
-  {(char *)"beta", __pyx_getprop_6pyross_6hybrid_3SIR_beta, 0, (char *)0, 0},
-  {(char *)"gIa", __pyx_getprop_6pyross_6hybrid_3SIR_gIa, 0, (char *)0, 0},
-  {(char *)"gIs", __pyx_getprop_6pyross_6hybrid_3SIR_gIs, 0, (char *)0, 0},
-  {(char *)"fsa", __pyx_getprop_6pyross_6hybrid_3SIR_fsa, 0, (char *)0, 0},
-  {(char *)"Ni", __pyx_getprop_6pyross_6hybrid_3SIR_Ni, 0, (char *)0, 0},
-  {(char *)"parameters", __pyx_getprop_6pyross_6hybrid_3SIR_parameters, 0, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_4core_6hybrid_SIR[] = {
+  {(char *)"N", __pyx_getprop_4core_6hybrid_3SIR_N, 0, (char *)0, 0},
+  {(char *)"M", __pyx_getprop_4core_6hybrid_3SIR_M, 0, (char *)0, 0},
+  {(char *)"alpha", __pyx_getprop_4core_6hybrid_3SIR_alpha, 0, (char *)0, 0},
+  {(char *)"beta", __pyx_getprop_4core_6hybrid_3SIR_beta, 0, (char *)0, 0},
+  {(char *)"gIa", __pyx_getprop_4core_6hybrid_3SIR_gIa, 0, (char *)0, 0},
+  {(char *)"gIs", __pyx_getprop_4core_6hybrid_3SIR_gIs, 0, (char *)0, 0},
+  {(char *)"fsa", __pyx_getprop_4core_6hybrid_3SIR_fsa, 0, (char *)0, 0},
+  {(char *)"Ni", __pyx_getprop_4core_6hybrid_3SIR_Ni, 0, (char *)0, 0},
+  {(char *)"parameters", __pyx_getprop_4core_6hybrid_3SIR_parameters, 0, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_6hybrid_SIR = {
+static PyTypeObject __pyx_type_4core_6hybrid_SIR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.hybrid.SIR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_6hybrid_SIR), /*tp_basicsize*/
+  "core.hybrid.SIR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_6hybrid_SIR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_6hybrid_SIR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_6hybrid_SIR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -8215,23 +8215,23 @@ static PyTypeObject __pyx_type_6pyross_6hybrid_SIR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Infected, Removed (SIR)\n    Ia: asymptomatic\n    Is: symptomatic\n\n    ...\n\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float, np.array (M,)\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(3*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_6hybrid_SIR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_6hybrid_SIR, /*tp_clear*/
+  __pyx_tp_traverse_4core_6hybrid_SIR, /*tp_traverse*/
+  __pyx_tp_clear_4core_6hybrid_SIR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_6hybrid_SIR, /*tp_methods*/
+  __pyx_methods_4core_6hybrid_SIR, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6pyross_6hybrid_SIR, /*tp_getset*/
+  __pyx_getsets_4core_6hybrid_SIR, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_6hybrid_3SIR_1__init__, /*tp_init*/
+  __pyx_pw_4core_6hybrid_3SIR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_6hybrid_SIR, /*tp_new*/
+  __pyx_tp_new_4core_6hybrid_SIR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8325,6 +8325,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_concatenate, __pyx_k_concatenate, sizeof(__pyx_k_concatenate), 0, 0, 1, 1},
   {&__pyx_n_s_contactMatrix, __pyx_k_contactMatrix, sizeof(__pyx_k_contactMatrix), 0, 0, 1, 1},
+  {&__pyx_n_s_core_deterministic, __pyx_k_core_deterministic, sizeof(__pyx_k_core_deterministic), 0, 0, 1, 1},
+  {&__pyx_n_s_core_hybrid, __pyx_k_core_hybrid, sizeof(__pyx_k_core_hybrid), 0, 0, 1, 1},
+  {&__pyx_n_s_core_stochastic, __pyx_k_core_stochastic, sizeof(__pyx_k_core_stochastic), 0, 0, 1, 1},
   {&__pyx_n_s_deterministic, __pyx_k_deterministic, sizeof(__pyx_k_deterministic), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_dt_det, __pyx_k_dt_det, sizeof(__pyx_k_dt_det), 0, 0, 1, 1},
@@ -8356,9 +8359,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_numpy_core_umath_failed_to_impor, __pyx_k_numpy_core_umath_failed_to_impor, sizeof(__pyx_k_numpy_core_umath_failed_to_impor), 0, 1, 0, 0},
   {&__pyx_n_s_parameters, __pyx_k_parameters, sizeof(__pyx_k_parameters), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
-  {&__pyx_n_s_pyross_deterministic, __pyx_k_pyross_deterministic, sizeof(__pyx_k_pyross_deterministic), 0, 0, 1, 1},
-  {&__pyx_n_s_pyross_hybrid, __pyx_k_pyross_hybrid, sizeof(__pyx_k_pyross_hybrid), 0, 0, 1, 1},
-  {&__pyx_n_s_pyross_stochastic, __pyx_k_pyross_stochastic, sizeof(__pyx_k_pyross_stochastic), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_result, __pyx_k_pyx_result, sizeof(__pyx_k_pyx_result), 0, 0, 1, 1},
@@ -8399,7 +8399,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pyross/hybrid.pyx":139
+  /* "core/hybrid.pyx":139
  *                 passing_index = self.find_passing_index(cur_traj,thresholds_from_above)
  *             if passing_index == 0: # means we have not passed through the threshold
  *                 trajectory[cur_t+1:cur_t+cur_Nt] = cur_traj[1:]             # <<<<<<<<<<<<<<
@@ -8551,21 +8551,21 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  __pyx_vtabptr_6pyross_6hybrid_SIR = &__pyx_vtable_6pyross_6hybrid_SIR;
-  __pyx_vtable_6pyross_6hybrid_SIR.below_threshold = (PyObject *(*)(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *, PyObject *))__pyx_f_6pyross_6hybrid_3SIR_below_threshold;
-  __pyx_vtable_6pyross_6hybrid_SIR.find_passing_index = (PyObject *(*)(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *, PyObject *))__pyx_f_6pyross_6hybrid_3SIR_find_passing_index;
-  __pyx_vtable_6pyross_6hybrid_SIR.simulate = (PyObject *(*)(struct __pyx_obj_6pyross_6hybrid_SIR *, PyObject *, PyObject *, PyObject *, PyObject *, long, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_6pyross_6hybrid_3SIR_simulate *__pyx_optional_args))__pyx_f_6pyross_6hybrid_3SIR_simulate;
-  if (PyType_Ready(&__pyx_type_6pyross_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_vtabptr_4core_6hybrid_SIR = &__pyx_vtable_4core_6hybrid_SIR;
+  __pyx_vtable_4core_6hybrid_SIR.below_threshold = (PyObject *(*)(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *, PyObject *))__pyx_f_4core_6hybrid_3SIR_below_threshold;
+  __pyx_vtable_4core_6hybrid_SIR.find_passing_index = (PyObject *(*)(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *, PyObject *))__pyx_f_4core_6hybrid_3SIR_find_passing_index;
+  __pyx_vtable_4core_6hybrid_SIR.simulate = (PyObject *(*)(struct __pyx_obj_4core_6hybrid_SIR *, PyObject *, PyObject *, PyObject *, PyObject *, long, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_4core_6hybrid_3SIR_simulate *__pyx_optional_args))__pyx_f_4core_6hybrid_3SIR_simulate;
+  if (PyType_Ready(&__pyx_type_4core_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_6hybrid_SIR.tp_print = 0;
+  __pyx_type_4core_6hybrid_SIR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_6hybrid_SIR.tp_dictoffset && __pyx_type_6pyross_6hybrid_SIR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_6hybrid_SIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_6hybrid_SIR.tp_dictoffset && __pyx_type_4core_6hybrid_SIR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_6hybrid_SIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_6hybrid_SIR.tp_dict, __pyx_vtabptr_6pyross_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIR, (PyObject *)&__pyx_type_6pyross_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
-  __pyx_ptype_6pyross_6hybrid_SIR = &__pyx_type_6pyross_6hybrid_SIR;
+  if (__Pyx_SetVtable(__pyx_type_4core_6hybrid_SIR.tp_dict, __pyx_vtabptr_4core_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIR, (PyObject *)&__pyx_type_4core_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_6hybrid_SIR) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_ptype_4core_6hybrid_SIR = &__pyx_type_4core_6hybrid_SIR;
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -8806,14 +8806,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_pyross__hybrid) {
+  if (__pyx_module_is_main_core__hybrid) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "pyross.hybrid")) {
-      if (unlikely(PyDict_SetItemString(modules, "pyross.hybrid", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "core.hybrid")) {
+      if (unlikely(PyDict_SetItemString(modules, "core.hybrid", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -8834,7 +8834,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "pyross/hybrid.pyx":4
+  /* "core/hybrid.pyx":4
  * # distutils: extra_compile_args = -std=c++11
  * 
  * import numpy as np             # <<<<<<<<<<<<<<
@@ -8846,7 +8846,7 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pyross/hybrid.pyx":8
+  /* "core/hybrid.pyx":8
  * cimport cpython
  * #from cython.parallel import prange
  * DTYPE   = np.float             # <<<<<<<<<<<<<<
@@ -8861,11 +8861,11 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_2) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pyross/hybrid.pyx":11
+  /* "core/hybrid.pyx":11
  * ctypedef np.float_t DTYPE_t
  * 
- * import pyross.stochastic as stochastic             # <<<<<<<<<<<<<<
- * import pyross.deterministic as deterministic
+ * import core.stochastic as stochastic             # <<<<<<<<<<<<<<
+ * import core.deterministic as deterministic
  * 
  */
   __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 11, __pyx_L1_error)
@@ -8873,16 +8873,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s__9);
   __Pyx_GIVEREF(__pyx_n_s__9);
   PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s__9);
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_pyross_stochastic, __pyx_t_2, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_core_stochastic, __pyx_t_2, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_stochastic, __pyx_t_1) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pyross/hybrid.pyx":12
+  /* "core/hybrid.pyx":12
  * 
- * import pyross.stochastic as stochastic
- * import pyross.deterministic as deterministic             # <<<<<<<<<<<<<<
+ * import core.stochastic as stochastic
+ * import core.deterministic as deterministic             # <<<<<<<<<<<<<<
  * 
  * cdef class SIR:
  */
@@ -8891,7 +8891,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s__9);
   __Pyx_GIVEREF(__pyx_n_s__9);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s__9);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_pyross_deterministic, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_core_deterministic, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 12, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_deterministic, __pyx_t_2) < 0) __PYX_ERR(0, 12, __pyx_L1_error)
@@ -8902,12 +8902,12 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_6hybrid_1__pyx_unpickle_SIR, NULL, __pyx_n_s_pyross_hybrid); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_6hybrid_1__pyx_unpickle_SIR, NULL, __pyx_n_s_core_hybrid); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SIR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pyross/hybrid.pyx":1
+  /* "core/hybrid.pyx":1
  * # distutils: language = c++             # <<<<<<<<<<<<<<
  * # distutils: extra_compile_args = -std=c++11
  * 
@@ -8933,11 +8933,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init pyross.hybrid", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init core.hybrid", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init pyross.hybrid");
+    PyErr_SetString(PyExc_ImportError, "init core.hybrid");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

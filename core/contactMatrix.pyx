@@ -1,7 +1,7 @@
 import  numpy as np
 cimport numpy as np
 import scipy.linalg as spl
-import pyross.utils
+import core.utils
 from libc.math cimport exp, pow, sqrt
 cimport cython
 import warnings
@@ -305,7 +305,7 @@ cdef class SpatialContactMatrix:
             rho_i = densities_sum_over_age[i]
             for j in range(i+1, n_loc):
                 rho_j = densities_sum_over_age[j]
-                d = pyross.utils.distance_on_Earth(coordinates[i], coordinates[j])
+                d = core.utils.distance_on_Earth(coordinates[i], coordinates[j])
                 k = exp(-d*pow(rho_i*rho_j, -c))
                 spatial_kernel[i, j] = k
                 spatial_kernel[j, i] = k
@@ -2923,6 +2923,6 @@ def RepublicOfKorea():
 
 '''
 used pandas to read the files using
-curDir='/Users/rsingh/Dropbox/repos/github/pyross/examples/'
+curDir='/Users/rsingh/Dropbox/repos/github/core/examples/'
 np.array(pd.read_excel(os.path.join(curDir,'data/contact_matrices_152_countries/MUestimates_school_1.xlsx'), sheet_name='India'))
 '''

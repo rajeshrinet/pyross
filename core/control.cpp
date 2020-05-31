@@ -18,12 +18,12 @@
             "/Users/rsingh/software/anaconda/lib/python3.7/site-packages/numpy/core/include"
         ],
         "language": "c++",
-        "name": "pyross.control",
+        "name": "core.control",
         "sources": [
-            "pyross/control.pyx"
+            "core/control.pyx"
         ]
     },
-    "module_name": "pyross.control"
+    "module_name": "core.control"
 }
 END: Cython Metadata */
 
@@ -633,8 +633,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__pyross__control
-#define __PYX_HAVE_API__pyross__control
+#define __PYX_HAVE__core__control
+#define __PYX_HAVE_API__core__control
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -873,7 +873,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "pyross/control.pyx",
+  "core/control.pyx",
   "stringsource",
   "__init__.pxd",
   "type.pxd",
@@ -1176,14 +1176,14 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "pyross/control.pyx":9
+/* "core/control.pyx":9
  * 
  * DTYPE   = np.float
  * ctypedef np.float_t DTYPE_t             # <<<<<<<<<<<<<<
- * import pyross.stochastic
+ * import core.stochastic
  * 
  */
-typedef __pyx_t_5numpy_float_t __pyx_t_6pyross_7control_DTYPE_t;
+typedef __pyx_t_5numpy_float_t __pyx_t_4core_7control_DTYPE_t;
 /* Declarations.proto */
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
@@ -1210,18 +1210,18 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 
 /*--- Type declarations ---*/
-struct __pyx_obj_6pyross_7control_control_integration;
-struct __pyx_obj_6pyross_7control_SIR;
-struct __pyx_obj_6pyross_7control_SEkIkIkR;
-struct __pyx_obj_6pyross_7control_SIRS;
-struct __pyx_obj_6pyross_7control_SEIR;
-struct __pyx_obj_6pyross_7control_SEI5R;
-struct __pyx_obj_6pyross_7control_SIkR;
-struct __pyx_obj_6pyross_7control_SEkIkR;
-struct __pyx_obj_6pyross_7control_SEAIR;
-struct __pyx_obj_6pyross_7control_SEAI5R;
-struct __pyx_obj_6pyross_7control_SEAIRQ;
-struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic;
+struct __pyx_obj_4core_7control_control_integration;
+struct __pyx_obj_4core_7control_SIR;
+struct __pyx_obj_4core_7control_SEkIkIkR;
+struct __pyx_obj_4core_7control_SIRS;
+struct __pyx_obj_4core_7control_SEIR;
+struct __pyx_obj_4core_7control_SEI5R;
+struct __pyx_obj_4core_7control_SIkR;
+struct __pyx_obj_4core_7control_SEkIkR;
+struct __pyx_obj_4core_7control_SEAIR;
+struct __pyx_obj_4core_7control_SEAI5R;
+struct __pyx_obj_4core_7control_SEAIRQ;
+struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic;
 struct __pyx_array_obj;
 struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
@@ -1263,16 +1263,16 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 
-/* "pyross/control.pyx":14
+/* "core/control.pyx":14
  * 
  * 
  * cdef class control_integration:             # <<<<<<<<<<<<<<
  *     """
  *     Integrator class to implement control through changing the contact matrix
  */
-struct __pyx_obj_6pyross_7control_control_integration {
+struct __pyx_obj_4core_7control_control_integration {
   PyObject_HEAD
-  struct __pyx_vtabstruct_6pyross_7control_control_integration *__pyx_vtab;
+  struct __pyx_vtabstruct_4core_7control_control_integration *__pyx_vtab;
   int N;
   int M;
   int nClass;
@@ -1285,15 +1285,15 @@ struct __pyx_obj_6pyross_7control_control_integration {
 };
 
 
-/* "pyross/control.pyx":199
+/* "core/control.pyx":199
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SIR(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Infected, Removed (SIR)
  */
-struct __pyx_obj_6pyross_7control_SIR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SIR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double fsa;
@@ -1302,15 +1302,15 @@ struct __pyx_obj_6pyross_7control_SIR {
 };
 
 
-/* "pyross/control.pyx":336
+/* "core/control.pyx":336
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEkIkIkR(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Exposed, Infected, Removed (SEIR)
  */
-struct __pyx_obj_6pyross_7control_SEkIkIkR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEkIkIkR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gIa;
   double gIs;
@@ -1322,15 +1322,15 @@ struct __pyx_obj_6pyross_7control_SEkIkIkR {
 };
 
 
-/* "pyross/control.pyx":589
+/* "core/control.pyx":589
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SIRS(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Infected, Removed, Susceptible (SIRS)
  */
-struct __pyx_obj_6pyross_7control_SIRS {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SIRS {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double fsa;
@@ -1342,15 +1342,15 @@ struct __pyx_obj_6pyross_7control_SIRS {
 };
 
 
-/* "pyross/control.pyx":752
+/* "core/control.pyx":752
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEIR(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Exposed, Infected, Removed (SEIR)
  */
-struct __pyx_obj_6pyross_7control_SEIR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEIR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double gE;
@@ -1360,15 +1360,15 @@ struct __pyx_obj_6pyross_7control_SEIR {
 };
 
 
-/* "pyross/control.pyx":884
+/* "core/control.pyx":884
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEI5R(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Exposed, Infected, Removed (SEIR)
  */
-struct __pyx_obj_6pyross_7control_SEI5R {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEI5R {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double gIh;
@@ -1385,30 +1385,30 @@ struct __pyx_obj_6pyross_7control_SEI5R {
 };
 
 
-/* "pyross/control.pyx":1101
+/* "core/control.pyx":1101
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SIkR(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Infected, Removed (SIkR)
  */
-struct __pyx_obj_6pyross_7control_SIkR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SIkR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gI;
   int ki;
   PyObject *params;
 };
 
 
-/* "pyross/control.pyx":1218
+/* "core/control.pyx":1218
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEkIkR(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Infected, Removed (SIkR)
  */
-struct __pyx_obj_6pyross_7control_SEkIkR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEkIkR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gI;
   double fsa;
@@ -1418,15 +1418,15 @@ struct __pyx_obj_6pyross_7control_SEkIkR {
 };
 
 
-/* "pyross/control.pyx":1353
+/* "core/control.pyx":1353
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEAIR(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
  */
-struct __pyx_obj_6pyross_7control_SEAIR {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEAIR {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gA;
   double gIa;
@@ -1439,15 +1439,15 @@ struct __pyx_obj_6pyross_7control_SEAIR {
 };
 
 
-/* "pyross/control.pyx":1493
+/* "core/control.pyx":1493
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEAI5R(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
  */
-struct __pyx_obj_6pyross_7control_SEAI5R {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEAI5R {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gE;
   double gA;
   double gIa;
@@ -1465,15 +1465,15 @@ struct __pyx_obj_6pyross_7control_SEAI5R {
 };
 
 
-/* "pyross/control.pyx":1708
+/* "core/control.pyx":1708
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEAIRQ(control_integration):             # <<<<<<<<<<<<<<
  *     """
  *     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
  */
-struct __pyx_obj_6pyross_7control_SEAIRQ {
-  struct __pyx_obj_6pyross_7control_control_integration __pyx_base;
+struct __pyx_obj_4core_7control_SEAIRQ {
+  struct __pyx_obj_4core_7control_control_integration __pyx_base;
   double gIa;
   double gIs;
   double gE;
@@ -1488,17 +1488,17 @@ struct __pyx_obj_6pyross_7control_SEAIRQ {
 };
 
 
-/* "pyross/control.pyx":34
+/* "core/control.pyx":34
  *         return
  * 
  *     def simulate_deterministic(self, y0,             # <<<<<<<<<<<<<<
  *                 events, contactMatrices,
  *                          Tf, Nf, Ti=0,
  */
-struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic {
+struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic {
   PyObject_HEAD
   PyObject *__pyx_v_contactMatrices;
-  struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self;
+  struct __pyx_obj_4core_7control_control_integration *__pyx_v_self;
 };
 
 
@@ -1580,7 +1580,7 @@ struct __pyx_memoryviewslice_obj {
 
 
 
-/* "pyross/control.pyx":14
+/* "core/control.pyx":14
  * 
  * 
  * cdef class control_integration:             # <<<<<<<<<<<<<<
@@ -1588,13 +1588,13 @@ struct __pyx_memoryviewslice_obj {
  *     Integrator class to implement control through changing the contact matrix
  */
 
-struct __pyx_vtabstruct_6pyross_7control_control_integration {
-  PyObject *(*rhs)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *);
+struct __pyx_vtabstruct_4core_7control_control_integration {
+  PyObject *(*rhs)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *);
 };
-static struct __pyx_vtabstruct_6pyross_7control_control_integration *__pyx_vtabptr_6pyross_7control_control_integration;
+static struct __pyx_vtabstruct_4core_7control_control_integration *__pyx_vtabptr_4core_7control_control_integration;
 
 
-/* "pyross/control.pyx":199
+/* "core/control.pyx":199
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SIR(control_integration):             # <<<<<<<<<<<<<<
@@ -1602,13 +1602,13 @@ static struct __pyx_vtabstruct_6pyross_7control_control_integration *__pyx_vtabp
  *     Susceptible, Infected, Removed (SIR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SIR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SIR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIR *__pyx_vtabptr_6pyross_7control_SIR;
+static struct __pyx_vtabstruct_4core_7control_SIR *__pyx_vtabptr_4core_7control_SIR;
 
 
-/* "pyross/control.pyx":336
+/* "core/control.pyx":336
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEkIkIkR(control_integration):             # <<<<<<<<<<<<<<
@@ -1616,13 +1616,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SIR *__pyx_vtabptr_6pyross_7cont
  *     Susceptible, Exposed, Infected, Removed (SEIR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEkIkIkR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR *__pyx_vtabptr_6pyross_7control_SEkIkIkR;
+static struct __pyx_vtabstruct_4core_7control_SEkIkIkR *__pyx_vtabptr_4core_7control_SEkIkIkR;
 
 
-/* "pyross/control.pyx":589
+/* "core/control.pyx":589
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SIRS(control_integration):             # <<<<<<<<<<<<<<
@@ -1630,13 +1630,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR *__pyx_vtabptr_6pyross_
  *     Susceptible, Infected, Removed, Susceptible (SIRS)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SIRS {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SIRS {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIRS *__pyx_vtabptr_6pyross_7control_SIRS;
+static struct __pyx_vtabstruct_4core_7control_SIRS *__pyx_vtabptr_4core_7control_SIRS;
 
 
-/* "pyross/control.pyx":752
+/* "core/control.pyx":752
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEIR(control_integration):             # <<<<<<<<<<<<<<
@@ -1644,13 +1644,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SIRS *__pyx_vtabptr_6pyross_7con
  *     Susceptible, Exposed, Infected, Removed (SEIR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEIR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEIR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEIR *__pyx_vtabptr_6pyross_7control_SEIR;
+static struct __pyx_vtabstruct_4core_7control_SEIR *__pyx_vtabptr_4core_7control_SEIR;
 
 
-/* "pyross/control.pyx":884
+/* "core/control.pyx":884
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEI5R(control_integration):             # <<<<<<<<<<<<<<
@@ -1658,13 +1658,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SEIR *__pyx_vtabptr_6pyross_7con
  *     Susceptible, Exposed, Infected, Removed (SEIR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEI5R {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEI5R {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEI5R *__pyx_vtabptr_6pyross_7control_SEI5R;
+static struct __pyx_vtabstruct_4core_7control_SEI5R *__pyx_vtabptr_4core_7control_SEI5R;
 
 
-/* "pyross/control.pyx":1101
+/* "core/control.pyx":1101
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SIkR(control_integration):             # <<<<<<<<<<<<<<
@@ -1672,13 +1672,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SEI5R *__pyx_vtabptr_6pyross_7co
  *     Susceptible, Infected, Removed (SIkR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SIkR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SIkR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIkR *__pyx_vtabptr_6pyross_7control_SIkR;
+static struct __pyx_vtabstruct_4core_7control_SIkR *__pyx_vtabptr_4core_7control_SIkR;
 
 
-/* "pyross/control.pyx":1218
+/* "core/control.pyx":1218
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEkIkR(control_integration):             # <<<<<<<<<<<<<<
@@ -1686,13 +1686,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SIkR *__pyx_vtabptr_6pyross_7con
  *     Susceptible, Infected, Removed (SIkR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEkIkR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEkIkR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEkIkR *__pyx_vtabptr_6pyross_7control_SEkIkR;
+static struct __pyx_vtabstruct_4core_7control_SEkIkR *__pyx_vtabptr_4core_7control_SEkIkR;
 
 
-/* "pyross/control.pyx":1353
+/* "core/control.pyx":1353
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEAIR(control_integration):             # <<<<<<<<<<<<<<
@@ -1700,13 +1700,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SEkIkR *__pyx_vtabptr_6pyross_7c
  *     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEAIR {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEAIR {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAIR *__pyx_vtabptr_6pyross_7control_SEAIR;
+static struct __pyx_vtabstruct_4core_7control_SEAIR *__pyx_vtabptr_4core_7control_SEAIR;
 
 
-/* "pyross/control.pyx":1493
+/* "core/control.pyx":1493
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEAI5R(control_integration):             # <<<<<<<<<<<<<<
@@ -1714,13 +1714,13 @@ static struct __pyx_vtabstruct_6pyross_7control_SEAIR *__pyx_vtabptr_6pyross_7co
  *     Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEAI5R {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEAI5R {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAI5R *__pyx_vtabptr_6pyross_7control_SEAI5R;
+static struct __pyx_vtabstruct_4core_7control_SEAI5R *__pyx_vtabptr_4core_7control_SEAI5R;
 
 
-/* "pyross/control.pyx":1708
+/* "core/control.pyx":1708
  * @cython.cdivision(True)
  * @cython.nonecheck(False)
  * cdef class SEAIRQ(control_integration):             # <<<<<<<<<<<<<<
@@ -1728,10 +1728,10 @@ static struct __pyx_vtabstruct_6pyross_7control_SEAI5R *__pyx_vtabptr_6pyross_7c
  *     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
  */
 
-struct __pyx_vtabstruct_6pyross_7control_SEAIRQ {
-  struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_base;
+struct __pyx_vtabstruct_4core_7control_SEAIRQ {
+  struct __pyx_vtabstruct_4core_7control_control_integration __pyx_base;
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAIRQ *__pyx_vtabptr_6pyross_7control_SEAIRQ;
+static struct __pyx_vtabstruct_4core_7control_SEAIRQ *__pyx_vtabptr_4core_7control_SEAIRQ;
 
 
 /* "View.MemoryView":105
@@ -2648,17 +2648,17 @@ static int __Pyx_check_binary_version(void);
 /* InitStrings.proto */
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static PyObject *__pyx_f_6pyross_7control_19control_integration_rhs(CYTHON_UNUSED struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_xt, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
-static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_19control_integration_rhs(CYTHON_UNUSED struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_3SIR_rhs(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_8SEkIkIkR_rhs(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_xt, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_4SIRS_rhs(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_4SEIR_rhs(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_5SEI5R_rhs(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_4SIkR_rhs(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_6SEkIkR_rhs(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_5SEAIR_rhs(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_6SEAI5R_rhs(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
+static PyObject *__pyx_f_4core_7control_6SEAIRQ_rhs(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt); /* proto*/
 static PyObject *__pyx_array_get_memview(struct __pyx_array_obj *__pyx_v_self); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
 static PyObject *__pyx_memoryview_is_slice(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_obj); /* proto*/
@@ -2703,19 +2703,19 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 
 /* Module declarations from 'cython' */
 
-/* Module declarations from 'pyross.control' */
-static PyTypeObject *__pyx_ptype_6pyross_7control_control_integration = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SIR = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEkIkIkR = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SIRS = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEIR = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEI5R = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SIkR = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEkIkR = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEAIR = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEAI5R = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control_SEAIRQ = 0;
-static PyTypeObject *__pyx_ptype_6pyross_7control___pyx_scope_struct__simulate_deterministic = 0;
+/* Module declarations from 'core.control' */
+static PyTypeObject *__pyx_ptype_4core_7control_control_integration = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SIR = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEkIkIkR = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SIRS = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEIR = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEI5R = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SIkR = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEkIkR = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEAIR = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEAI5R = 0;
+static PyTypeObject *__pyx_ptype_4core_7control_SEAIRQ = 0;
+static PyTypeObject *__pyx_ptype_4core_7control___pyx_scope_struct__simulate_deterministic = 0;
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2727,17 +2727,17 @@ static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_control_integration__set_state(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIR__set_state(struct __pyx_obj_6pyross_7control_SIR *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkIkR__set_state(struct __pyx_obj_6pyross_7control_SEkIkIkR *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIRS__set_state(struct __pyx_obj_6pyross_7control_SIRS *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEIR__set_state(struct __pyx_obj_6pyross_7control_SEIR *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEI5R__set_state(struct __pyx_obj_6pyross_7control_SEI5R *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIkR__set_state(struct __pyx_obj_6pyross_7control_SIkR *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkR__set_state(struct __pyx_obj_6pyross_7control_SEkIkR *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIR__set_state(struct __pyx_obj_6pyross_7control_SEAIR *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAI5R__set_state(struct __pyx_obj_6pyross_7control_SEAI5R *, PyObject *); /*proto*/
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIRQ__set_state(struct __pyx_obj_6pyross_7control_SEAIRQ *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_control_integration__set_state(struct __pyx_obj_4core_7control_control_integration *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SIR__set_state(struct __pyx_obj_4core_7control_SIR *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEkIkIkR__set_state(struct __pyx_obj_4core_7control_SEkIkIkR *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SIRS__set_state(struct __pyx_obj_4core_7control_SIRS *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEIR__set_state(struct __pyx_obj_4core_7control_SEIR *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEI5R__set_state(struct __pyx_obj_4core_7control_SEI5R *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SIkR__set_state(struct __pyx_obj_4core_7control_SIkR *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEkIkR__set_state(struct __pyx_obj_4core_7control_SEkIkR *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEAIR__set_state(struct __pyx_obj_4core_7control_SEAIR *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEAI5R__set_state(struct __pyx_obj_4core_7control_SEAI5R *, PyObject *); /*proto*/
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEAIRQ__set_state(struct __pyx_obj_4core_7control_SEAIRQ *, PyObject *); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -2772,11 +2772,11 @@ static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *, int, size
 static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize_t *, int, size_t, void *); /*proto*/
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
-#define __Pyx_MODULE_NAME "pyross.control"
-extern int __pyx_module_is_main_pyross__control;
-int __pyx_module_is_main_pyross__control = 0;
+#define __Pyx_MODULE_NAME "core.control"
+extern int __pyx_module_is_main_core__control;
+int __pyx_module_is_main_core__control = 0;
 
-/* Implementation of 'pyross.control' */
+/* Implementation of 'core.control' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_print;
@@ -2849,6 +2849,7 @@ static const char __pyx_k_SIkR[] = "SIkR";
 static const char __pyx_k_base[] = "base";
 static const char __pyx_k_beta[] = "beta";
 static const char __pyx_k_copy[] = "copy";
+static const char __pyx_k_core[] = "core";
 static const char __pyx_k_dict[] = "__dict__";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
@@ -2889,7 +2890,6 @@ static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_method[] = "method";
 static const char __pyx_k_name_2[] = "__name__";
 static const char __pyx_k_pickle[] = "pickle";
-static const char __pyx_k_pyross[] = "pyross";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_remove[] = "remove";
 static const char __pyx_k_struct[] = "struct";
@@ -2927,6 +2927,7 @@ static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_concatenate[] = "concatenate";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
+static const char __pyx_k_core_control[] = "core.control";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_deterministic[] = "deterministic";
@@ -2935,24 +2936,23 @@ static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_stop_at_event[] = "stop_at_event";
 static const char __pyx_k_events_occured[] = "events_occured";
-static const char __pyx_k_pyross_control[] = "pyross.control";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_contactMatrices[] = "contactMatrices";
+static const char __pyx_k_core_stochastic[] = "core.stochastic";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_scipy_integrate[] = "scipy.integrate";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_simulate_events[] = "simulate_events";
+static const char __pyx_k_core_control_pyx[] = "core/control.pyx";
 static const char __pyx_k_pyx_unpickle_SIR[] = "__pyx_unpickle_SIR";
 static const char __pyx_k_events_subsequent[] = "events_subsequent";
-static const char __pyx_k_pyross_stochastic[] = "pyross.stochastic";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_pyx_unpickle_SEIR[] = "__pyx_unpickle_SEIR";
 static const char __pyx_k_pyx_unpickle_SIRS[] = "__pyx_unpickle_SIRS";
 static const char __pyx_k_pyx_unpickle_SIkR[] = "__pyx_unpickle_SIkR";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
-static const char __pyx_k_pyross_control_pyx[] = "pyross/control.pyx";
 static const char __pyx_k_pyx_unpickle_SEAIR[] = "__pyx_unpickle_SEAIR";
 static const char __pyx_k_pyx_unpickle_SEI5R[] = "__pyx_unpickle_SEI5R";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
@@ -3111,6 +3111,10 @@ static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_control_integration;
 static PyObject *__pyx_n_s_copy;
+static PyObject *__pyx_n_s_core;
+static PyObject *__pyx_n_s_core_control;
+static PyObject *__pyx_kp_s_core_control_pyx;
+static PyObject *__pyx_n_s_core_stochastic;
 static PyObject *__pyx_n_u_deterministic;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_direction;
@@ -3183,10 +3187,6 @@ static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_parameters;
 static PyObject *__pyx_n_s_pickle;
 static PyObject *__pyx_n_s_print;
-static PyObject *__pyx_n_s_pyross;
-static PyObject *__pyx_n_s_pyross_control;
-static PyObject *__pyx_kp_s_pyross_control_pyx;
-static PyObject *__pyx_n_s_pyross_stochastic;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -3255,68 +3255,68 @@ static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_y;
 static PyObject *__pyx_n_s_y0;
 static PyObject *__pyx_n_s_zeros;
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_deterministic_rhs0(PyObject *__pyx_self, PyObject *__pyx_v_t, PyObject *__pyx_v_rp); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_deterministic(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, PyObject *__pyx_v_y0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_2__reduce_cython__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_4__setstate_cython__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_3SIR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_14__reduce_cython__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Q0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control___pyx_unpickle_control_integration(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_19control_integration_22simulate_deterministic_rhs0(PyObject *__pyx_self, PyObject *__pyx_v_t, PyObject *__pyx_v_rp); /* proto */
+static PyObject *__pyx_pf_4core_7control_19control_integration_simulate_deterministic(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, PyObject *__pyx_v_y0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event); /* proto */
+static PyObject *__pyx_pf_4core_7control_19control_integration_1N___get__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_19control_integration_1M___get__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_19control_integration_2__reduce_cython__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_19control_integration_4__setstate_cython__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_3SIR___init__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_3SIR_2simulate(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_3SIR_4__reduce_cython__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_3SIR_6__setstate_cython__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_8SEkIkIkR___init__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_2simulate(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_4S(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_6E(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_8Ia(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_10Is(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_12R(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_14__reduce_cython__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_16__setstate_cython__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_4SIRS___init__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SIRS_2simulate(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SIRS_4__reduce_cython__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SIRS_6__setstate_cython__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_4SEIR___init__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SEIR_2simulate(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SEIR_4__reduce_cython__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SEIR_6__setstate_cython__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_5SEI5R___init__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_5SEI5R_2simulate(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_5SEI5R_4__reduce_cython__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_5SEI5R_6__setstate_cython__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_4SIkR___init__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SIkR_2simulate(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SIkR_4__reduce_cython__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_4SIkR_6__setstate_cython__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_6SEkIkR___init__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_2simulate(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_4__reduce_cython__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_6__setstate_cython__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_5SEAIR___init__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_5SEAIR_2simulate(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_5SEAIR_4__reduce_cython__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_5SEAIR_6__setstate_cython__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_6SEAI5R___init__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_2simulate(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_4__reduce_cython__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_6__setstate_cython__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_4core_7control_6SEAIRQ___init__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_2simulate(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Q0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_4__reduce_cython__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_6__setstate_cython__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control___pyx_unpickle_control_integration(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_4core_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -3361,18 +3361,18 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_16_memoryviewslice_4base___get__
 static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_15View_dot_MemoryView___pyx_unpickle_Enum(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_6pyross_7control_control_integration(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEkIkIkR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SIRS(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEI5R(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SIkR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEkIkR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEAIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEAI5R(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control_SEAIRQ(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_6pyross_7control___pyx_scope_struct__simulate_deterministic(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_control_integration(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEkIkIkR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SIRS(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEI5R(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SIkR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEkIkR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEAIR(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEAI5R(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control_SEAIRQ(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_4core_7control___pyx_scope_struct__simulate_deterministic(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -3465,7 +3465,7 @@ static PyObject *__pyx_codeobj__62;
 static PyObject *__pyx_codeobj__69;
 /* Late includes */
 
-/* "pyross/control.pyx":31
+/* "core/control.pyx":31
  *         int current_protocol_index
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -3473,12 +3473,12 @@ static PyObject *__pyx_codeobj__69;
  * 
  */
 
-static PyObject *__pyx_f_6pyross_7control_19control_integration_rhs(CYTHON_UNUSED struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_19control_integration_rhs(CYTHON_UNUSED struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":32
+  /* "core/control.pyx":32
  * 
  *     cdef rhs(self, rp, tt):
  *         return             # <<<<<<<<<<<<<<
@@ -3489,7 +3489,7 @@ static PyObject *__pyx_f_6pyross_7control_19control_integration_rhs(CYTHON_UNUSE
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":31
+  /* "core/control.pyx":31
  *         int current_protocol_index
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -3504,7 +3504,7 @@ static PyObject *__pyx_f_6pyross_7control_19control_integration_rhs(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":34
+/* "core/control.pyx":34
  *         return
  * 
  *     def simulate_deterministic(self, y0,             # <<<<<<<<<<<<<<
@@ -3513,9 +3513,9 @@ static PyObject *__pyx_f_6pyross_7control_19control_integration_rhs(CYTHON_UNUSE
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_6pyross_7control_19control_integration_simulate_deterministic[] = "\n        Performs detemrinistic numerical integration\n\n        Parameters\n        ----------\n        y0: np.array\n            Inital state of the system.\n        events: list\n            List of events that the current state can satisfy to change behaviour\n            of the contact matrix.\n            contactMatricies\n        contactMatricies: list of python functions\n            New contact matrix after the corresponding event occurs\n        Tf: float\n            End time for integrator.\n        Nf: Int\n            Number of time points to evaluate at.\n        Ti: float, optional\n            Start time for integrator. The default is 0.\n        events_repeat: bool, optional\n            Wheither events is periodic in time. The default is false.\n        events_subsequent : bool, optional\n            TODO\n\n        Returns\n        -------\n        y_eval : np.array(len(t), len(y0))\n            Numerical integration solution.\n        t_eval : np.array\n            Corresponding times at which X is evaluated at.\n        event_out : list\n            List of events that occured during the run.\n\n        ";
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_4core_7control_19control_integration_simulate_deterministic[] = "\n        Performs detemrinistic numerical integration\n\n        Parameters\n        ----------\n        y0: np.array\n            Inital state of the system.\n        events: list\n            List of events that the current state can satisfy to change behaviour\n            of the contact matrix.\n            contactMatricies\n        contactMatricies: list of python functions\n            New contact matrix after the corresponding event occurs\n        Tf: float\n            End time for integrator.\n        Nf: Int\n            Number of time points to evaluate at.\n        Ti: float, optional\n            Start time for integrator. The default is 0.\n        events_repeat: bool, optional\n            Wheither events is periodic in time. The default is false.\n        events_subsequent : bool, optional\n            TODO\n\n        Returns\n        -------\n        y_eval : np.array(len(t), len(y0))\n            Numerical integration solution.\n        t_eval : np.array\n            Corresponding times at which X is evaluated at.\n        event_out : list\n            List of events that occured during the run.\n\n        ";
+static PyObject *__pyx_pw_4core_7control_19control_integration_1simulate_deterministic(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_y0 = 0;
   PyObject *__pyx_v_events = 0;
   PyObject *__pyx_v_contactMatrices = 0;
@@ -3533,7 +3533,7 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
     PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
     values[5] = ((PyObject *)__pyx_int_0);
 
-    /* "pyross/control.pyx":37
+    /* "core/control.pyx":37
  *                 events, contactMatrices,
  *                          Tf, Nf, Ti=0,
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -3542,7 +3542,7 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
  */
     values[6] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":38
+    /* "core/control.pyx":38
  *                          Tf, Nf, Ti=0,
  *                          events_repeat=False,
  *                          events_subsequent=True, # only relevant of repeat_events = False             # <<<<<<<<<<<<<<
@@ -3551,7 +3551,7 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
  */
     values[7] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":39
+    /* "core/control.pyx":39
  *                          events_repeat=False,
  *                          events_subsequent=True, # only relevant of repeat_events = False
  *                          stop_at_event=False):             # <<<<<<<<<<<<<<
@@ -3674,13 +3674,13 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate_deterministic", 0, 5, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 34, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_simulate_deterministic(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self), __pyx_v_y0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event);
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_simulate_deterministic(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self), __pyx_v_y0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event);
 
-  /* "pyross/control.pyx":34
+  /* "core/control.pyx":34
  *         return
  * 
  *     def simulate_deterministic(self, y0,             # <<<<<<<<<<<<<<
@@ -3693,7 +3693,7 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":85
+/* "core/control.pyx":85
  *         from scipy.integrate import solve_ivp
  * 
  *         def rhs0(t,rp):             # <<<<<<<<<<<<<<
@@ -3702,9 +3702,9 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_1simulate_deter
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0 = {"rhs0", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_19control_integration_22simulate_deterministic_1rhs0 = {"rhs0", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_19control_integration_22simulate_deterministic_1rhs0, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_19control_integration_22simulate_deterministic_1rhs0(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_t = 0;
   PyObject *__pyx_v_rp = 0;
   PyObject *__pyx_r = 0;
@@ -3752,20 +3752,20 @@ static PyObject *__pyx_pw_6pyross_7control_19control_integration_22simulate_dete
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("rhs0", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 85, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_22simulate_deterministic_rhs0(__pyx_self, __pyx_v_t, __pyx_v_rp);
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_22simulate_deterministic_rhs0(__pyx_self, __pyx_v_t, __pyx_v_rp);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_deterministic_rhs0(PyObject *__pyx_self, PyObject *__pyx_v_t, PyObject *__pyx_v_rp) {
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_outer_scope;
+static PyObject *__pyx_pf_4core_7control_19control_integration_22simulate_deterministic_rhs0(PyObject *__pyx_self, PyObject *__pyx_v_t, PyObject *__pyx_v_rp) {
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_outer_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3776,10 +3776,10 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   PyObject *__pyx_t_6 = NULL;
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("rhs0", 0);
-  __pyx_outer_scope = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *) __Pyx_CyFunction_GetClosure(__pyx_self);
+  __pyx_outer_scope = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *) __Pyx_CyFunction_GetClosure(__pyx_self);
   __pyx_cur_scope = __pyx_outer_scope;
 
-  /* "pyross/control.pyx":86
+  /* "core/control.pyx":86
  * 
  *         def rhs0(t,rp):
  *             try:             # <<<<<<<<<<<<<<
@@ -3795,7 +3795,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "pyross/control.pyx":87
+      /* "core/control.pyx":87
  *         def rhs0(t,rp):
  *             try:
  *                 self.CM = contactMatrices[self.current_protocol_index](t-self.t_last_event)             # <<<<<<<<<<<<<<
@@ -3836,7 +3836,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
       __pyx_cur_scope->__pyx_v_self->CM = ((PyArrayObject *)__pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "pyross/control.pyx":86
+      /* "core/control.pyx":86
  * 
  *         def rhs0(t,rp):
  *             try:             # <<<<<<<<<<<<<<
@@ -3854,7 +3854,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "pyross/control.pyx":88
+    /* "core/control.pyx":88
  *             try:
  *                 self.CM = contactMatrices[self.current_protocol_index](t-self.t_last_event)
  *             except:             # <<<<<<<<<<<<<<
@@ -3862,13 +3862,13 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
  *             self.rhs(rp, t)
  */
     /*except:*/ {
-      __Pyx_AddTraceback("pyross.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("core.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
       if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_5, &__pyx_t_7) < 0) __PYX_ERR(0, 88, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "pyross/control.pyx":89
+      /* "core/control.pyx":89
  *                 self.CM = contactMatrices[self.current_protocol_index](t-self.t_last_event)
  *             except:
  *                 self.CM = contactMatrices[self.current_protocol_index]             # <<<<<<<<<<<<<<
@@ -3893,7 +3893,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
     }
     __pyx_L5_except_error:;
 
-    /* "pyross/control.pyx":86
+    /* "core/control.pyx":86
  * 
  *         def rhs0(t,rp):
  *             try:             # <<<<<<<<<<<<<<
@@ -3913,7 +3913,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
     __pyx_L8_try_end:;
   }
 
-  /* "pyross/control.pyx":90
+  /* "core/control.pyx":90
  *             except:
  *                 self.CM = contactMatrices[self.current_protocol_index]
  *             self.rhs(rp, t)             # <<<<<<<<<<<<<<
@@ -3921,11 +3921,11 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
  * 
  */
   if (unlikely(!__pyx_cur_scope->__pyx_v_self)) { __Pyx_RaiseClosureNameError("self"); __PYX_ERR(0, 90, __pyx_L1_error) }
-  __pyx_t_7 = ((struct __pyx_vtabstruct_6pyross_7control_control_integration *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->rhs(__pyx_cur_scope->__pyx_v_self, __pyx_v_rp, __pyx_v_t); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_7 = ((struct __pyx_vtabstruct_4core_7control_control_integration *)__pyx_cur_scope->__pyx_v_self->__pyx_vtab)->rhs(__pyx_cur_scope->__pyx_v_self, __pyx_v_rp, __pyx_v_t); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "pyross/control.pyx":91
+  /* "core/control.pyx":91
  *                 self.CM = contactMatrices[self.current_protocol_index]
  *             self.rhs(rp, t)
  *             return self.dxdt             # <<<<<<<<<<<<<<
@@ -3938,7 +3938,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   __pyx_r = ((PyObject *)__pyx_cur_scope->__pyx_v_self->dxdt);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":85
+  /* "core/control.pyx":85
  *         from scipy.integrate import solve_ivp
  * 
  *         def rhs0(t,rp):             # <<<<<<<<<<<<<<
@@ -3952,7 +3952,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pyross.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.simulate_deterministic.rhs0", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3960,7 +3960,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":34
+/* "core/control.pyx":34
  *         return
  * 
  *     def simulate_deterministic(self, y0,             # <<<<<<<<<<<<<<
@@ -3968,8 +3968,8 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_22simulate_dete
  *                          Tf, Nf, Ti=0,
  */
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_deterministic(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, PyObject *__pyx_v_y0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event) {
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
+static PyObject *__pyx_pf_4core_7control_19control_integration_simulate_deterministic(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, PyObject *__pyx_v_y0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event) {
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_cur_scope;
   int __pyx_v_cur_index_i;
   double __pyx_v_cur_t_f;
   CYTHON_UNUSED int __pyx_v_M;
@@ -4011,9 +4011,9 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   int __pyx_t_17;
   double __pyx_t_18;
   __Pyx_RefNannySetupContext("simulate_deterministic", 0);
-  __pyx_cur_scope = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)__pyx_tp_new_6pyross_7control___pyx_scope_struct__simulate_deterministic(__pyx_ptype_6pyross_7control___pyx_scope_struct__simulate_deterministic, __pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)__pyx_tp_new_4core_7control___pyx_scope_struct__simulate_deterministic(__pyx_ptype_4core_7control___pyx_scope_struct__simulate_deterministic, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)Py_None);
     __Pyx_INCREF(Py_None);
     __PYX_ERR(0, 34, __pyx_L1_error)
   } else {
@@ -4026,7 +4026,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_contactMatrices);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_contactMatrices);
 
-  /* "pyross/control.pyx":75
+  /* "core/control.pyx":75
  *         """
  *         cdef:
  *             int cur_index_i = 0             # <<<<<<<<<<<<<<
@@ -4035,7 +4035,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
   __pyx_v_cur_index_i = 0;
 
-  /* "pyross/control.pyx":77
+  /* "core/control.pyx":77
  *             int cur_index_i = 0
  *             double t_i, cur_t_f
  *             int M = self.M, i, j, N_events             # <<<<<<<<<<<<<<
@@ -4045,7 +4045,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_t_1 = __pyx_cur_scope->__pyx_v_self->M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":79
+  /* "core/control.pyx":79
  *             int M = self.M, i, j, N_events
  *             #double [:,:] CM = self.CM
  *             list cur_list, events_out = [], list_of_available_events             # <<<<<<<<<<<<<<
@@ -4057,7 +4057,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_v_events_out = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":80
+  /* "core/control.pyx":80
  *             #double [:,:] CM = self.CM
  *             list cur_list, events_out = [], list_of_available_events
  *             np.ndarray cur_y0 = y0.copy()             # <<<<<<<<<<<<<<
@@ -4085,7 +4085,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_v_cur_y0 = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":83
+  /* "core/control.pyx":83
  *             int current_protocol_index
  * 
  *         from scipy.integrate import solve_ivp             # <<<<<<<<<<<<<<
@@ -4107,19 +4107,19 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pyross/control.pyx":85
+  /* "core/control.pyx":85
  *         from scipy.integrate import solve_ivp
  * 
  *         def rhs0(t,rp):             # <<<<<<<<<<<<<<
  *             try:
  *                 self.CM = contactMatrices[self.current_protocol_index](t-self.t_last_event)
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_6pyross_7control_19control_integration_22simulate_deterministic_1rhs0, 0, __pyx_n_s_simulate_deterministic_locals_rh, ((PyObject*)__pyx_cur_scope), __pyx_n_s_pyross_control, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_4core_7control_19control_integration_22simulate_deterministic_1rhs0, 0, __pyx_n_s_simulate_deterministic_locals_rh, ((PyObject*)__pyx_cur_scope), __pyx_n_s_core_control, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_rhs0 = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "pyross/control.pyx":95
+  /* "core/control.pyx":95
  *         # create a list of all events that are available
  *         # at the beginning  of the simulation
  *         N_events = len(events)             # <<<<<<<<<<<<<<
@@ -4129,7 +4129,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_t_5 = PyObject_Length(__pyx_v_events); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 95, __pyx_L1_error)
   __pyx_v_N_events = __pyx_t_5;
 
-  /* "pyross/control.pyx":96
+  /* "core/control.pyx":96
  *         # at the beginning  of the simulation
  *         N_events = len(events)
  *         if N_events == 1:             # <<<<<<<<<<<<<<
@@ -4139,7 +4139,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_t_6 = ((__pyx_v_N_events == 1) != 0);
   if (__pyx_t_6) {
 
-    /* "pyross/control.pyx":97
+    /* "core/control.pyx":97
  *         N_events = len(events)
  *         if N_events == 1:
  *             list_of_available_events = []             # <<<<<<<<<<<<<<
@@ -4151,7 +4151,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __pyx_v_list_of_available_events = ((PyObject*)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pyross/control.pyx":96
+    /* "core/control.pyx":96
  *         # at the beginning  of the simulation
  *         N_events = len(events)
  *         if N_events == 1:             # <<<<<<<<<<<<<<
@@ -4161,7 +4161,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":99
+  /* "core/control.pyx":99
  *             list_of_available_events = []
  *         else:
  *             if events_subsequent:             # <<<<<<<<<<<<<<
@@ -4172,7 +4172,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_events_subsequent); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 99, __pyx_L1_error)
     if (__pyx_t_6) {
 
-      /* "pyross/control.pyx":100
+      /* "core/control.pyx":100
  *         else:
  *             if events_subsequent:
  *                     list_of_available_events = [1]             # <<<<<<<<<<<<<<
@@ -4187,7 +4187,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_v_list_of_available_events = ((PyObject*)__pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "pyross/control.pyx":99
+      /* "core/control.pyx":99
  *             list_of_available_events = []
  *         else:
  *             if events_subsequent:             # <<<<<<<<<<<<<<
@@ -4197,7 +4197,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       goto __pyx_L4;
     }
 
-    /* "pyross/control.pyx":102
+    /* "core/control.pyx":102
  *                     list_of_available_events = [1]
  *             else:
  *                 list_of_available_events = []             # <<<<<<<<<<<<<<
@@ -4210,7 +4210,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_v_list_of_available_events = ((PyObject*)__pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "pyross/control.pyx":103
+      /* "core/control.pyx":103
  *             else:
  *                 list_of_available_events = []
  *                 for i in range(N_events):             # <<<<<<<<<<<<<<
@@ -4222,7 +4222,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
         __pyx_v_i = __pyx_t_8;
 
-        /* "pyross/control.pyx":104
+        /* "core/control.pyx":104
  *                 list_of_available_events = []
  *                 for i in range(N_events):
  *                     list_of_available_events.append(i)             # <<<<<<<<<<<<<<
@@ -4239,7 +4239,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":107
+  /* "core/control.pyx":107
  * 
  * 
  *         t_eval = np.linspace(Ti,Tf,endpoint=True,num=Nf)             # <<<<<<<<<<<<<<
@@ -4271,7 +4271,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_v_t_eval = __pyx_t_10;
   __pyx_t_10 = 0;
 
-  /* "pyross/control.pyx":108
+  /* "core/control.pyx":108
  * 
  *         t_eval = np.linspace(Ti,Tf,endpoint=True,num=Nf)
  *         y_eval = np.zeros([len(t_eval),self.nClass*self.M],dtype=float)             # <<<<<<<<<<<<<<
@@ -4312,7 +4312,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_v_y_eval = __pyx_t_10;
   __pyx_t_10 = 0;
 
-  /* "pyross/control.pyx":110
+  /* "core/control.pyx":110
  *         y_eval = np.zeros([len(t_eval),self.nClass*self.M],dtype=float)
  * 
  *         cur_t_f = 0 # final time of current iteration             # <<<<<<<<<<<<<<
@@ -4321,7 +4321,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
   __pyx_v_cur_t_f = 0.0;
 
-  /* "pyross/control.pyx":111
+  /* "core/control.pyx":111
  * 
  *         cur_t_f = 0 # final time of current iteration
  *         cur_t_eval = t_eval # time interval for current iteration             # <<<<<<<<<<<<<<
@@ -4331,7 +4331,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __Pyx_INCREF(__pyx_v_t_eval);
   __pyx_v_cur_t_eval = __pyx_v_t_eval;
 
-  /* "pyross/control.pyx":113
+  /* "core/control.pyx":113
  *         cur_t_eval = t_eval # time interval for current iteration
  * 
  *         self.current_protocol_index = 0 # start with first contact matrix in list             # <<<<<<<<<<<<<<
@@ -4340,7 +4340,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
   __pyx_cur_scope->__pyx_v_self->current_protocol_index = 0;
 
-  /* "pyross/control.pyx":114
+  /* "core/control.pyx":114
  * 
  *         self.current_protocol_index = 0 # start with first contact matrix in list
  *         self.t_last_event = 0             # <<<<<<<<<<<<<<
@@ -4349,7 +4349,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
   __pyx_cur_scope->__pyx_v_self->t_last_event = 0.0;
 
-  /* "pyross/control.pyx":117
+  /* "core/control.pyx":117
  *         #self.CM = contactMatrices[current_protocol_index]
  * 
  *         while (cur_t_f < Tf):             # <<<<<<<<<<<<<<
@@ -4365,7 +4365,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (!__pyx_t_6) break;
 
-    /* "pyross/control.pyx":119
+    /* "core/control.pyx":119
  *         while (cur_t_f < Tf):
  *             # Ceate a list with the available events
  *             cur_list = []             # <<<<<<<<<<<<<<
@@ -4377,7 +4377,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __Pyx_XDECREF_SET(__pyx_v_cur_list, ((PyObject*)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":120
+    /* "core/control.pyx":120
  *             # Ceate a list with the available events
  *             cur_list = []
  *             for j, cur_index in enumerate(list_of_available_events):             # <<<<<<<<<<<<<<
@@ -4399,7 +4399,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_v_j = __pyx_t_1;
       __pyx_t_1 = (__pyx_t_1 + 1);
 
-      /* "pyross/control.pyx":121
+      /* "core/control.pyx":121
  *             cur_list = []
  *             for j, cur_index in enumerate(list_of_available_events):
  *                 cur_list.append(events[cur_index])             # <<<<<<<<<<<<<<
@@ -4411,7 +4411,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_cur_list, __pyx_t_10); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 121, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-      /* "pyross/control.pyx":122
+      /* "core/control.pyx":122
  *             for j, cur_index in enumerate(list_of_available_events):
  *                 cur_list.append(events[cur_index])
  *                 try:             # <<<<<<<<<<<<<<
@@ -4427,7 +4427,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __Pyx_XGOTREF(__pyx_t_13);
         /*try:*/ {
 
-          /* "pyross/control.pyx":123
+          /* "core/control.pyx":123
  *                 cur_list.append(events[cur_index])
  *                 try:
  *                     (cur_list[-1]).direction = events[cur_index].direction             # <<<<<<<<<<<<<<
@@ -4445,7 +4445,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-          /* "pyross/control.pyx":122
+          /* "core/control.pyx":122
  *             for j, cur_index in enumerate(list_of_available_events):
  *                 cur_list.append(events[cur_index])
  *                 try:             # <<<<<<<<<<<<<<
@@ -4462,7 +4462,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-        /* "pyross/control.pyx":124
+        /* "core/control.pyx":124
  *                 try:
  *                     (cur_list[-1]).direction = events[cur_index].direction
  *                 except:             # <<<<<<<<<<<<<<
@@ -4481,7 +4481,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __pyx_L18_try_end:;
       }
 
-      /* "pyross/control.pyx":126
+      /* "core/control.pyx":126
  *                 except:
  *                     pass
  *                 (cur_list[-1]).terminal = True             # <<<<<<<<<<<<<<
@@ -4493,7 +4493,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       if (__Pyx_PyObject_SetAttrStr(__pyx_t_10, __pyx_n_s_terminal, Py_True) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-      /* "pyross/control.pyx":120
+      /* "core/control.pyx":120
  *             # Ceate a list with the available events
  *             cur_list = []
  *             for j, cur_index in enumerate(list_of_available_events):             # <<<<<<<<<<<<<<
@@ -4503,7 +4503,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":128
+    /* "core/control.pyx":128
  *                 (cur_list[-1]).terminal = True
  *             # solve dynamical equation numerically until an event occurs
  *             sol = solve_ivp(fun=rhs0,             # <<<<<<<<<<<<<<
@@ -4514,7 +4514,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __Pyx_GOTREF(__pyx_t_2);
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_fun, __pyx_v_rhs0) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
 
-    /* "pyross/control.pyx":129
+    /* "core/control.pyx":129
  *             # solve dynamical equation numerically until an event occurs
  *             sol = solve_ivp(fun=rhs0,
  *                           t_span=[cur_t_eval[0], cur_t_eval[-1]],             # <<<<<<<<<<<<<<
@@ -4536,7 +4536,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_t_span, __pyx_t_4) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":130
+    /* "core/control.pyx":130
  *             sol = solve_ivp(fun=rhs0,
  *                           t_span=[cur_t_eval[0], cur_t_eval[-1]],
  *                           y0=cur_y0,             # <<<<<<<<<<<<<<
@@ -4545,7 +4545,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_y0, ((PyObject *)__pyx_v_cur_y0)) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
 
-    /* "pyross/control.pyx":131
+    /* "core/control.pyx":131
  *                           t_span=[cur_t_eval[0], cur_t_eval[-1]],
  *                           y0=cur_y0,
  *                          t_eval=cur_t_eval,             # <<<<<<<<<<<<<<
@@ -4555,7 +4555,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_t_eval, __pyx_v_cur_t_eval) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_method, __pyx_n_u_RK23) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
 
-    /* "pyross/control.pyx":133
+    /* "core/control.pyx":133
  *                          t_eval=cur_t_eval,
  *                          method='RK23',
  *                          events=cur_list             # <<<<<<<<<<<<<<
@@ -4564,7 +4564,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_events, __pyx_v_cur_list) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
 
-    /* "pyross/control.pyx":128
+    /* "core/control.pyx":128
  *                 (cur_list[-1]).terminal = True
  *             # solve dynamical equation numerically until an event occurs
  *             sol = solve_ivp(fun=rhs0,             # <<<<<<<<<<<<<<
@@ -4577,7 +4577,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __Pyx_XDECREF_SET(__pyx_v_sol, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":136
+    /* "core/control.pyx":136
  *                          )
  *             # Find current event
  *             for i,e in enumerate(sol.t_events):             # <<<<<<<<<<<<<<
@@ -4632,7 +4632,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_v_i = __pyx_t_1;
       __pyx_t_1 = (__pyx_t_1 + 1);
 
-      /* "pyross/control.pyx":137
+      /* "core/control.pyx":137
  *             # Find current event
  *             for i,e in enumerate(sol.t_events):
  *                 if len(e) > 0:             # <<<<<<<<<<<<<<
@@ -4643,7 +4643,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_t_6 = ((__pyx_t_15 > 0) != 0);
       if (__pyx_t_6) {
 
-        /* "pyross/control.pyx":139
+        /* "core/control.pyx":139
  *                 if len(e) > 0:
  *                     #
  *                     current_protocol_index = list_of_available_events[i]             # <<<<<<<<<<<<<<
@@ -4656,7 +4656,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __pyx_v_current_protocol_index = __pyx_t_7;
 
-        /* "pyross/control.pyx":141
+        /* "core/control.pyx":141
  *                     current_protocol_index = list_of_available_events[i]
  * 
  *                     if events_repeat:             # <<<<<<<<<<<<<<
@@ -4666,7 +4666,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_events_repeat); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 141, __pyx_L1_error)
         if (__pyx_t_6) {
 
-          /* "pyross/control.pyx":142
+          /* "core/control.pyx":142
  * 
  *                     if events_repeat:
  *                         list_of_available_events = []             # <<<<<<<<<<<<<<
@@ -4678,7 +4678,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
           __Pyx_DECREF_SET(__pyx_v_list_of_available_events, ((PyObject*)__pyx_t_4));
           __pyx_t_4 = 0;
 
-          /* "pyross/control.pyx":143
+          /* "core/control.pyx":143
  *                     if events_repeat:
  *                         list_of_available_events = []
  *                         for j in range(0,N_events):             # <<<<<<<<<<<<<<
@@ -4690,7 +4690,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
           for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_8; __pyx_t_16+=1) {
             __pyx_v_j = __pyx_t_16;
 
-            /* "pyross/control.pyx":144
+            /* "core/control.pyx":144
  *                         list_of_available_events = []
  *                         for j in range(0,N_events):
  *                             if j != current_protocol_index:             # <<<<<<<<<<<<<<
@@ -4700,7 +4700,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
             __pyx_t_6 = ((__pyx_v_j != __pyx_v_current_protocol_index) != 0);
             if (__pyx_t_6) {
 
-              /* "pyross/control.pyx":145
+              /* "core/control.pyx":145
  *                         for j in range(0,N_events):
  *                             if j != current_protocol_index:
  *                                 list_of_available_events.append(j)             # <<<<<<<<<<<<<<
@@ -4712,7 +4712,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
               __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_list_of_available_events, __pyx_t_4); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 145, __pyx_L1_error)
               __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-              /* "pyross/control.pyx":144
+              /* "core/control.pyx":144
  *                         list_of_available_events = []
  *                         for j in range(0,N_events):
  *                             if j != current_protocol_index:             # <<<<<<<<<<<<<<
@@ -4722,7 +4722,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
             }
           }
 
-          /* "pyross/control.pyx":141
+          /* "core/control.pyx":141
  *                     current_protocol_index = list_of_available_events[i]
  * 
  *                     if events_repeat:             # <<<<<<<<<<<<<<
@@ -4732,7 +4732,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
           goto __pyx_L22;
         }
 
-        /* "pyross/control.pyx":147
+        /* "core/control.pyx":147
  *                                 list_of_available_events.append(j)
  *                     else:
  *                         if events_subsequent:             # <<<<<<<<<<<<<<
@@ -4743,7 +4743,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
           __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_events_subsequent); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 147, __pyx_L1_error)
           if (__pyx_t_6) {
 
-            /* "pyross/control.pyx":148
+            /* "core/control.pyx":148
  *                     else:
  *                         if events_subsequent:
  *                             if current_protocol_index + 1 < N_events:             # <<<<<<<<<<<<<<
@@ -4753,7 +4753,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
             __pyx_t_6 = (((__pyx_v_current_protocol_index + 1) < __pyx_v_N_events) != 0);
             if (__pyx_t_6) {
 
-              /* "pyross/control.pyx":149
+              /* "core/control.pyx":149
  *                         if events_subsequent:
  *                             if current_protocol_index + 1 < N_events:
  *                                 list_of_available_events = [ current_protocol_index+1 ]             # <<<<<<<<<<<<<<
@@ -4770,7 +4770,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
               __Pyx_DECREF_SET(__pyx_v_list_of_available_events, ((PyObject*)__pyx_t_3));
               __pyx_t_3 = 0;
 
-              /* "pyross/control.pyx":148
+              /* "core/control.pyx":148
  *                     else:
  *                         if events_subsequent:
  *                             if current_protocol_index + 1 < N_events:             # <<<<<<<<<<<<<<
@@ -4780,7 +4780,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
               goto __pyx_L27;
             }
 
-            /* "pyross/control.pyx":151
+            /* "core/control.pyx":151
  *                                 list_of_available_events = [ current_protocol_index+1 ]
  *                             else:
  *                                 list_of_available_events = []             # <<<<<<<<<<<<<<
@@ -4795,7 +4795,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
             }
             __pyx_L27:;
 
-            /* "pyross/control.pyx":147
+            /* "core/control.pyx":147
  *                                 list_of_available_events.append(j)
  *                     else:
  *                         if events_subsequent:             # <<<<<<<<<<<<<<
@@ -4805,7 +4805,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
             goto __pyx_L26;
           }
 
-          /* "pyross/control.pyx":153
+          /* "core/control.pyx":153
  *                                 list_of_available_events = []
  *                         else:
  *                             if current_protocol_index in list_of_available_events:             # <<<<<<<<<<<<<<
@@ -4820,7 +4820,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
             __pyx_t_17 = (__pyx_t_6 != 0);
             if (__pyx_t_17) {
 
-              /* "pyross/control.pyx":154
+              /* "core/control.pyx":154
  *                         else:
  *                             if current_protocol_index in list_of_available_events:
  *                                 list_of_available_events.remove(current_protocol_index)             # <<<<<<<<<<<<<<
@@ -4834,7 +4834,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
               __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
               __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-              /* "pyross/control.pyx":153
+              /* "core/control.pyx":153
  *                                 list_of_available_events = []
  *                         else:
  *                             if current_protocol_index in list_of_available_events:             # <<<<<<<<<<<<<<
@@ -4847,7 +4847,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         }
         __pyx_L22:;
 
-        /* "pyross/control.pyx":155
+        /* "core/control.pyx":155
  *                             if current_protocol_index in list_of_available_events:
  *                                 list_of_available_events.remove(current_protocol_index)
  *                     events_out.append([sol.t_events[i][0], current_protocol_index ])             # <<<<<<<<<<<<<<
@@ -4875,7 +4875,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_events_out, __pyx_t_10); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 155, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-        /* "pyross/control.pyx":158
+        /* "core/control.pyx":158
  *                     #print('At time {0:3.2f}, event {1} occured.'.format(sol.t_events[current_protocol_index][0],
  *                     #                     current_protocol_index))
  *                     self.t_last_event = sol.t_events[i][0]             # <<<<<<<<<<<<<<
@@ -4894,7 +4894,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
         __pyx_cur_scope->__pyx_v_self->t_last_event = __pyx_t_18;
 
-        /* "pyross/control.pyx":159
+        /* "core/control.pyx":159
  *                     #                     current_protocol_index))
  *                     self.t_last_event = sol.t_events[i][0]
  *                     self.current_protocol_index = current_protocol_index             # <<<<<<<<<<<<<<
@@ -4903,7 +4903,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
         __pyx_cur_scope->__pyx_v_self->current_protocol_index = __pyx_v_current_protocol_index;
 
-        /* "pyross/control.pyx":161
+        /* "core/control.pyx":161
  *                     self.current_protocol_index = current_protocol_index
  *                     #self.CM = contactMatrices[current_protocol_index]
  *                     break             # <<<<<<<<<<<<<<
@@ -4912,7 +4912,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
         goto __pyx_L20_break;
 
-        /* "pyross/control.pyx":137
+        /* "core/control.pyx":137
  *             # Find current event
  *             for i,e in enumerate(sol.t_events):
  *                 if len(e) > 0:             # <<<<<<<<<<<<<<
@@ -4921,7 +4921,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
       }
 
-      /* "pyross/control.pyx":136
+      /* "core/control.pyx":136
  *                          )
  *             # Find current event
  *             for i,e in enumerate(sol.t_events):             # <<<<<<<<<<<<<<
@@ -4932,7 +4932,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __pyx_L20_break:;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":163
+    /* "core/control.pyx":163
  *                     break
  *             # Add current simulational result to trajectory
  *             if sol.t[-1] == Tf:             # <<<<<<<<<<<<<<
@@ -4950,7 +4950,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (__pyx_t_17) {
 
-      /* "pyross/control.pyx":166
+      /* "core/control.pyx":166
  *                 # if no event has occured, we have just obtained
  *                 # the rest of the time series and are finished.
  *                 y_eval[cur_index_i:] = (sol.y).T             # <<<<<<<<<<<<<<
@@ -4965,7 +4965,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       if (__Pyx_PyObject_SetSlice(__pyx_v_y_eval, __pyx_t_10, __pyx_v_cur_index_i, 0, NULL, NULL, NULL, 1, 0, 1) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-      /* "pyross/control.pyx":167
+      /* "core/control.pyx":167
  *                 # the rest of the time series and are finished.
  *                 y_eval[cur_index_i:] = (sol.y).T
  *                 break             # <<<<<<<<<<<<<<
@@ -4974,7 +4974,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
       goto __pyx_L8_break;
 
-      /* "pyross/control.pyx":163
+      /* "core/control.pyx":163
  *                     break
  *             # Add current simulational result to trajectory
  *             if sol.t[-1] == Tf:             # <<<<<<<<<<<<<<
@@ -4983,7 +4983,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
     }
 
-    /* "pyross/control.pyx":172
+    /* "core/control.pyx":172
  *                 # up to the event and prepare an initial condition for
  *                 # the next iteration
  *                 cur_index_f = cur_index_i + len(sol.t)             # <<<<<<<<<<<<<<
@@ -5000,7 +5000,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __Pyx_XDECREF_SET(__pyx_v_cur_index_f, __pyx_t_10);
       __pyx_t_10 = 0;
 
-      /* "pyross/control.pyx":173
+      /* "core/control.pyx":173
  *                 # the next iteration
  *                 cur_index_f = cur_index_i + len(sol.t)
  *                 y_eval[cur_index_i:cur_index_f] = (sol.y).T             # <<<<<<<<<<<<<<
@@ -5015,7 +5015,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       if (__Pyx_PyObject_SetSlice(__pyx_v_y_eval, __pyx_t_2, __pyx_v_cur_index_i, 0, NULL, &__pyx_v_cur_index_f, NULL, 1, 0, 1) < 0) __PYX_ERR(0, 173, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "pyross/control.pyx":175
+      /* "core/control.pyx":175
  *                 y_eval[cur_index_i:cur_index_f] = (sol.y).T
  *                 #
  *                 cur_t_f = t_eval[cur_index_i] # current final time             # <<<<<<<<<<<<<<
@@ -5028,7 +5028,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_v_cur_t_f = __pyx_t_18;
 
-      /* "pyross/control.pyx":176
+      /* "core/control.pyx":176
  *                 #
  *                 cur_t_f = t_eval[cur_index_i] # current final time
  *                 cur_index_i = cur_index_f - 1 # initial index for next iteration             # <<<<<<<<<<<<<<
@@ -5041,7 +5041,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_v_cur_index_i = __pyx_t_1;
 
-      /* "pyross/control.pyx":178
+      /* "core/control.pyx":178
  *                 cur_index_i = cur_index_f - 1 # initial index for next iteration
  *                 # time array for next iteration:
  *                 cur_t_eval = np.linspace( t_eval[cur_index_i], Tf,             # <<<<<<<<<<<<<<
@@ -5064,7 +5064,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_Tf);
       __pyx_t_2 = 0;
 
-      /* "pyross/control.pyx":179
+      /* "core/control.pyx":179
  *                 # time array for next iteration:
  *                 cur_t_eval = np.linspace( t_eval[cur_index_i], Tf,
  *                                           endpoint=True,             # <<<<<<<<<<<<<<
@@ -5075,7 +5075,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __Pyx_GOTREF(__pyx_t_2);
       if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_endpoint, Py_True) < 0) __PYX_ERR(0, 179, __pyx_L1_error)
 
-      /* "pyross/control.pyx":180
+      /* "core/control.pyx":180
  *                 cur_t_eval = np.linspace( t_eval[cur_index_i], Tf,
  *                                           endpoint=True,
  *                                           num= len(t_eval[cur_index_i:]))             # <<<<<<<<<<<<<<
@@ -5091,7 +5091,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_num, __pyx_t_4) < 0) __PYX_ERR(0, 179, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "pyross/control.pyx":178
+      /* "core/control.pyx":178
  *                 cur_index_i = cur_index_f - 1 # initial index for next iteration
  *                 # time array for next iteration:
  *                 cur_t_eval = np.linspace( t_eval[cur_index_i], Tf,             # <<<<<<<<<<<<<<
@@ -5106,7 +5106,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __Pyx_DECREF_SET(__pyx_v_cur_t_eval, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "pyross/control.pyx":182
+      /* "core/control.pyx":182
  *                                           num= len(t_eval[cur_index_i:]))
  *                 # initial condition for next iteration
  *                 cur_y0 = np.array( sol.y[:,-1] )             # <<<<<<<<<<<<<<
@@ -5143,7 +5143,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __Pyx_DECREF_SET(__pyx_v_cur_y0, ((PyArrayObject *)__pyx_t_4));
       __pyx_t_4 = 0;
 
-      /* "pyross/control.pyx":184
+      /* "core/control.pyx":184
  *                 cur_y0 = np.array( sol.y[:,-1] )
  *                 # if desired, terminate once an event has happened
  *                 if stop_at_event:             # <<<<<<<<<<<<<<
@@ -5153,7 +5153,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
       __pyx_t_17 = __Pyx_PyObject_IsTrue(__pyx_v_stop_at_event); if (unlikely(__pyx_t_17 < 0)) __PYX_ERR(0, 184, __pyx_L1_error)
       if (__pyx_t_17) {
 
-        /* "pyross/control.pyx":185
+        /* "core/control.pyx":185
  *                 # if desired, terminate once an event has happened
  *                 if stop_at_event:
  *                     return y_eval[:cur_index_f], t_eval[:cur_index_f], events_out             # <<<<<<<<<<<<<<
@@ -5180,7 +5180,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
         __pyx_t_10 = 0;
         goto __pyx_L0;
 
-        /* "pyross/control.pyx":184
+        /* "core/control.pyx":184
  *                 cur_y0 = np.array( sol.y[:,-1] )
  *                 # if desired, terminate once an event has happened
  *                 if stop_at_event:             # <<<<<<<<<<<<<<
@@ -5192,7 +5192,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   }
   __pyx_L8_break:;
 
-  /* "pyross/control.pyx":187
+  /* "core/control.pyx":187
  *                     return y_eval[:cur_index_f], t_eval[:cur_index_f], events_out
  * 
  *         return y_eval, t_eval, events_out             # <<<<<<<<<<<<<<
@@ -5215,7 +5215,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __pyx_t_10 = 0;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":34
+  /* "core/control.pyx":34
  *         return
  * 
  *     def simulate_deterministic(self, y0,             # <<<<<<<<<<<<<<
@@ -5229,7 +5229,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.simulate_deterministic", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_cur_list);
@@ -5251,7 +5251,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":24
+/* "core/control.pyx":24
  *     """
  *     cdef:
  *         readonly int N, M             # <<<<<<<<<<<<<<
@@ -5260,19 +5260,19 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_simulate_determ
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_7control_19control_integration_1N_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_1N___get__(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_1N___get__(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_19control_integration_1N___get__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5287,7 +5287,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(stru
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.control_integration.N.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.N.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5296,19 +5296,19 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1N___get__(stru
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_4core_7control_19control_integration_1M_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_1M___get__(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_1M___get__(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_19control_integration_1M___get__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5323,7 +5323,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(stru
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.control_integration.M.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.M.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5338,19 +5338,19 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_1M___get__(stru
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_19control_integration_3__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_2__reduce_cython__(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_2__reduce_cython__(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_2__reduce_cython__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_19control_integration_2__reduce_cython__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -5614,7 +5614,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_2__reduce_cytho
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pyross.control.control_integration.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -5632,19 +5632,19 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_2__reduce_cytho
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_19control_integration_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_19control_integration_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_19control_integration_5__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_19control_integration_4__setstate_cython__(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_19control_integration_4__setstate_cython__(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_19control_integration_4__setstate_cython__(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_19control_integration_4__setstate_cython__(struct __pyx_obj_4core_7control_control_integration *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5656,7 +5656,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_4__setstate_cyt
  *     __pyx_unpickle_control_integration__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_control_integration__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_control_integration__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -5672,7 +5672,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_4__setstate_cyt
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.control_integration.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.control_integration.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5680,7 +5680,7 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_4__setstate_cyt
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":236
+/* "core/control.pyx":236
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -5689,8 +5689,8 @@ static PyObject *__pyx_pf_6pyross_7control_19control_integration_4__setstate_cyt
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -5749,18 +5749,18 @@ static int __pyx_pw_6pyross_7control_3SIR_1__init__(PyObject *__pyx_v_self, PyOb
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 236, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_3SIR___init__(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_3SIR___init__(((struct __pyx_obj_4core_7control_SIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_3SIR___init__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -5773,7 +5773,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":237
+  /* "core/control.pyx":237
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -5789,7 +5789,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":239
+  /* "core/control.pyx":239
  *         self.params = parameters
  * 
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -5802,7 +5802,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":240
+  /* "core/control.pyx":240
  * 
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -5815,7 +5815,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":241
+  /* "core/control.pyx":241
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -5828,7 +5828,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":242
+  /* "core/control.pyx":242
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter             # <<<<<<<<<<<<<<
@@ -5841,7 +5841,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":244
+  /* "core/control.pyx":244
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -5872,7 +5872,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":245
+  /* "core/control.pyx":245
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -5882,7 +5882,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":246
+  /* "core/control.pyx":246
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -5919,7 +5919,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":247
+  /* "core/control.pyx":247
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -5935,7 +5935,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":249
+  /* "core/control.pyx":249
  *         self.Ni    = Ni
  * 
  *         self.nClass = 3             # total number of degrees of freedom we explicitly track             # <<<<<<<<<<<<<<
@@ -5944,7 +5944,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
  */
   __pyx_v_self->__pyx_base.nClass = 3;
 
-  /* "pyross/control.pyx":251
+  /* "core/control.pyx":251
  *         self.nClass = 3             # total number of degrees of freedom we explicitly track
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -5991,7 +5991,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":252
+  /* "core/control.pyx":252
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -6028,7 +6028,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":254
+  /* "core/control.pyx":254
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -6040,7 +6040,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":255
+  /* "core/control.pyx":255
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -6077,7 +6077,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":256
+  /* "core/control.pyx":256
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -6111,7 +6111,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":257
+    /* "core/control.pyx":257
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -6148,7 +6148,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":256
+    /* "core/control.pyx":256
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -6158,7 +6158,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":258
+  /* "core/control.pyx":258
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -6191,7 +6191,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":259
+    /* "core/control.pyx":259
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -6207,7 +6207,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":258
+    /* "core/control.pyx":258
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -6217,7 +6217,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":261
+  /* "core/control.pyx":261
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -6231,7 +6231,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":236
+  /* "core/control.pyx":236
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -6247,7 +6247,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -6255,7 +6255,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":265
+/* "core/control.pyx":265
  *         #
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -6263,7 +6263,7 @@ static int __pyx_pf_6pyross_7control_3SIR___init__(struct __pyx_obj_6pyross_7con
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_3SIR_rhs(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -6300,7 +6300,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   Py_ssize_t __pyx_t_15;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":267
+  /* "core/control.pyx":267
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -6312,7 +6312,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":268
+  /* "core/control.pyx":268
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, gIa=self.gIa, aa, bb             # <<<<<<<<<<<<<<
@@ -6324,7 +6324,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_2 = __pyx_v_self->gIa;
   __pyx_v_gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":269
+  /* "core/control.pyx":269
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, gIa=self.gIa, aa, bb
  *             double fsa=self.fsa, gIs=self.gIs             # <<<<<<<<<<<<<<
@@ -6336,7 +6336,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_2 = __pyx_v_self->gIs;
   __pyx_v_gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":270
+  /* "core/control.pyx":270
  *             double beta=self.beta, gIa=self.gIa, aa, bb
  *             double fsa=self.fsa, gIs=self.gIs
  *             double [:] S    = rp[0  :M]             # <<<<<<<<<<<<<<
@@ -6351,7 +6351,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":271
+  /* "core/control.pyx":271
  *             double fsa=self.fsa, gIs=self.gIs
  *             double [:] S    = rp[0  :M]
  *             double [:] Ia   = rp[M  :2*M]             # <<<<<<<<<<<<<<
@@ -6366,7 +6366,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":272
+  /* "core/control.pyx":272
  *             double [:] S    = rp[0  :M]
  *             double [:] Ia   = rp[M  :2*M]
  *             double [:] Is   = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -6381,7 +6381,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":273
+  /* "core/control.pyx":273
  *             double [:] Ia   = rp[M  :2*M]
  *             double [:] Is   = rp[2*M:3*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -6393,7 +6393,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":274
+  /* "core/control.pyx":274
  *             double [:] Is   = rp[2*M:3*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -6405,7 +6405,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":275
+  /* "core/control.pyx":275
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -6417,7 +6417,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":276
+  /* "core/control.pyx":276
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -6429,7 +6429,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":279
+  /* "core/control.pyx":279
  * 
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -6441,7 +6441,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":280
+    /* "core/control.pyx":280
  * 
  *         for i in range(M):
  *             bb=0             # <<<<<<<<<<<<<<
@@ -6450,7 +6450,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
  */
     __pyx_v_bb = 0.0;
 
-    /* "pyross/control.pyx":281
+    /* "core/control.pyx":281
  *         for i in range(M):
  *             bb=0
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -6462,7 +6462,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
     for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
       __pyx_v_j = __pyx_t_10;
 
-      /* "pyross/control.pyx":282
+      /* "core/control.pyx":282
  *             bb=0
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -6482,7 +6482,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_11 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * ((*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_13 * __pyx_v_Ia.strides[0]) ))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_15 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":283
+    /* "core/control.pyx":283
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -6493,7 +6493,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_15 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":284
+    /* "core/control.pyx":284
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa                                         # rate S  -> Ia, Is             # <<<<<<<<<<<<<<
@@ -6504,7 +6504,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_15 * __pyx_v_X.strides[0]) )) = (-__pyx_v_aa);
 
-    /* "pyross/control.pyx":285
+    /* "core/control.pyx":285
  *             aa = bb*S[i]
  *             X[i]     = -aa                                         # rate S  -> Ia, Is
  *             X[i+M]   = alpha[i]*aa     - gIa*Ia[i]                # rate Ia -> R             # <<<<<<<<<<<<<<
@@ -6519,7 +6519,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
     if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_12 * __pyx_v_X.strides[0]) )) = (((*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_14 * __pyx_v_alpha.strides[0]) ))) * __pyx_v_aa) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_13 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":286
+    /* "core/control.pyx":286
  *             X[i]     = -aa                                         # rate S  -> Ia, Is
  *             X[i+M]   = alpha[i]*aa     - gIa*Ia[i]                # rate Ia -> R
  *             X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                # rate Is -> R             # <<<<<<<<<<<<<<
@@ -6535,7 +6535,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_11 * __pyx_v_X.strides[0]) )) = (((1.0 - (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_13 * __pyx_v_alpha.strides[0]) )))) * __pyx_v_aa) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))));
   }
 
-  /* "pyross/control.pyx":287
+  /* "core/control.pyx":287
  *             X[i+M]   = alpha[i]*aa     - gIa*Ia[i]                # rate Ia -> R
  *             X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                # rate Is -> R
  *         return             # <<<<<<<<<<<<<<
@@ -6546,7 +6546,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":265
+  /* "core/control.pyx":265
  *         #
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -6559,7 +6559,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -6574,7 +6574,7 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":290
+/* "core/control.pyx":290
  * 
  * 
  *     def simulate(self, S0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -6583,8 +6583,8 @@ static PyObject *__pyx_f_6pyross_7control_3SIR_rhs(struct __pyx_obj_6pyross_7con
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_3SIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
   PyObject *__pyx_v_Is0 = 0;
@@ -6609,7 +6609,7 @@ static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self
     values[7] = ((PyObject *)__pyx_int_0);
     values[8] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":294
+    /* "core/control.pyx":294
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -6618,7 +6618,7 @@ static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self
  */
     values[9] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":295
+    /* "core/control.pyx":295
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -6627,7 +6627,7 @@ static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self
  */
     values[10] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":296
+    /* "core/control.pyx":296
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -6826,13 +6826,13 @@ static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 7, 15, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 290, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_3SIR_2simulate(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_3SIR_2simulate(((struct __pyx_obj_4core_7control_SIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":290
+  /* "core/control.pyx":290
  * 
  * 
  *     def simulate(self, S0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -6845,7 +6845,7 @@ static PyObject *__pyx_pw_6pyross_7control_3SIR_3simulate(PyObject *__pyx_v_self
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_3SIR_2simulate(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -6864,7 +6864,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":304
+  /* "core/control.pyx":304
  * 
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -6892,7 +6892,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "pyross/control.pyx":305
+    /* "core/control.pyx":305
  * 
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition             # <<<<<<<<<<<<<<
@@ -6935,7 +6935,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":306
+    /* "core/control.pyx":306
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -6948,7 +6948,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
 
-    /* "pyross/control.pyx":307
+    /* "core/control.pyx":307
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -6958,7 +6958,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
 
-    /* "pyross/control.pyx":308
+    /* "core/control.pyx":308
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -6969,7 +6969,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
 
-    /* "pyross/control.pyx":309
+    /* "core/control.pyx":309
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -6978,7 +6978,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
 
-    /* "pyross/control.pyx":310
+    /* "core/control.pyx":310
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -6987,7 +6987,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
 
-    /* "pyross/control.pyx":311
+    /* "core/control.pyx":311
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -6996,7 +6996,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
 
-    /* "pyross/control.pyx":306
+    /* "core/control.pyx":306
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -7069,7 +7069,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":312
+    /* "core/control.pyx":312
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -7082,7 +7082,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 312, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 312, __pyx_L1_error)
 
-    /* "pyross/control.pyx":313
+    /* "core/control.pyx":313
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,             # <<<<<<<<<<<<<<
@@ -7096,7 +7096,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_alpha, ((PyObject *)__pyx_v_self->alpha)) < 0) __PYX_ERR(0, 312, __pyx_L1_error)
 
-    /* "pyross/control.pyx":314
+    /* "core/control.pyx":314
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }             # <<<<<<<<<<<<<<
@@ -7118,19 +7118,19 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":315
+    /* "core/control.pyx":315
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
  *             return data             # <<<<<<<<<<<<<<
  *         else:
- *             model = pyross.stochastic.SIR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIR(self.params, self.M, self.Ni)
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_data);
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":304
+    /* "core/control.pyx":304
  * 
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -7139,15 +7139,15 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
   }
 
-  /* "pyross/control.pyx":317
+  /* "core/control.pyx":317
  *             return data
  *         else:
- *             model = pyross.stochastic.SIR(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
+ *             model = core.stochastic.SIR(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
  *             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
  *                                 events=events,contactMatrices=contactMatrices,
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_pyross); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_core); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 317, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_stochastic); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 317, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -7210,9 +7210,9 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     __pyx_v_model = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":318
+    /* "core/control.pyx":318
  *         else:
- *             model = pyross.stochastic.SIR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
@@ -7226,8 +7226,8 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Ia0, __pyx_v_Ia0) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Is0, __pyx_v_Is0) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":319
- *             model = pyross.stochastic.SIR(self.params, self.M, self.Ni)
+    /* "core/control.pyx":319
+ *             model = core.stochastic.SIR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
  *                                 events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
  *                                 Tf=Tf, Nf=Nf,
@@ -7236,7 +7236,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":320
+    /* "core/control.pyx":320
  *             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,             # <<<<<<<<<<<<<<
@@ -7246,7 +7246,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Tf, __pyx_v_Tf) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":321
+    /* "core/control.pyx":321
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,             # <<<<<<<<<<<<<<
@@ -7255,7 +7255,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_method, __pyx_v_method) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":322
+    /* "core/control.pyx":322
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,             # <<<<<<<<<<<<<<
@@ -7271,7 +7271,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_epsilon, __pyx_t_6) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":323
+    /* "core/control.pyx":323
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -7283,7 +7283,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_tau_update_frequency, __pyx_t_6) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":324
+    /* "core/control.pyx":324
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -7292,7 +7292,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":325
+    /* "core/control.pyx":325
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -7301,7 +7301,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":326
+    /* "core/control.pyx":326
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -7310,9 +7310,9 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "pyross/control.pyx":318
+    /* "core/control.pyx":318
  *         else:
- *             model = pyross.stochastic.SIR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
@@ -7326,7 +7326,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
     goto __pyx_L0;
   }
 
-  /* "pyross/control.pyx":290
+  /* "core/control.pyx":290
  * 
  * 
  *     def simulate(self, S0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -7341,7 +7341,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -7362,19 +7362,19 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_2simulate(struct __pyx_obj_6pyro
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_3SIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_3SIR_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_3SIR_4__reduce_cython__(((struct __pyx_obj_4core_7control_SIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_3SIR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_3SIR_4__reduce_cython__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -7679,7 +7679,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_4__reduce_cython__(struct __pyx_
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.SIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -7697,19 +7697,19 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_4__reduce_cython__(struct __pyx_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_3SIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_3SIR_6__setstate_cython__(((struct __pyx_obj_4core_7control_SIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_3SIR_6__setstate_cython__(struct __pyx_obj_4core_7control_SIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -7721,7 +7721,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(struct __py
  *     __pyx_unpickle_SIR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -7737,7 +7737,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(struct __py
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7745,7 +7745,7 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(struct __py
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":377
+/* "core/control.pyx":377
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -7754,8 +7754,8 @@ static PyObject *__pyx_pf_6pyross_7control_3SIR_6__setstate_cython__(struct __py
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -7814,18 +7814,18 @@ static int __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__(PyObject *__pyx_v_self,
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 377, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR___init__(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR___init__(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_8SEkIkIkR___init__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -7838,7 +7838,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":378
+  /* "core/control.pyx":378
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.beta  = parameters['beta']                         # infection rate             # <<<<<<<<<<<<<<
@@ -7851,7 +7851,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":379
+  /* "core/control.pyx":379
  *     def __init__(self, parameters, M, Ni):
  *         self.beta  = parameters['beta']                         # infection rate
  *         self.gE    = parameters['gE']                           # removal rate of E             # <<<<<<<<<<<<<<
@@ -7864,7 +7864,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":380
+  /* "core/control.pyx":380
  *         self.beta  = parameters['beta']                         # infection rate
  *         self.gE    = parameters['gE']                           # removal rate of E
  *         self.gIa   = parameters['gIa']                           # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -7877,7 +7877,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":381
+  /* "core/control.pyx":381
  *         self.gE    = parameters['gE']                           # removal rate of E
  *         self.gIa   = parameters['gIa']                           # removal rate of Ia
  *         self.gIs   = parameters['gIs']                           # removal rate of Is             # <<<<<<<<<<<<<<
@@ -7890,7 +7890,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":382
+  /* "core/control.pyx":382
  *         self.gIa   = parameters['gIa']                           # removal rate of Ia
  *         self.gIs   = parameters['gIs']                           # removal rate of Is
  *         self.kI    = parameters['kI']                           # number of stages             # <<<<<<<<<<<<<<
@@ -7903,7 +7903,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->kI = __pyx_t_3;
 
-  /* "pyross/control.pyx":383
+  /* "core/control.pyx":383
  *         self.gIs   = parameters['gIs']                           # removal rate of Is
  *         self.kI    = parameters['kI']                           # number of stages
  *         self.fsa   = parameters['fsa']                          # the self-isolation parameter             # <<<<<<<<<<<<<<
@@ -7916,7 +7916,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":384
+  /* "core/control.pyx":384
  *         self.kI    = parameters['kI']                           # number of stages
  *         self.fsa   = parameters['fsa']                          # the self-isolation parameter
  *         self.kE    = parameters['kE']             # <<<<<<<<<<<<<<
@@ -7929,7 +7929,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->kE = __pyx_t_3;
 
-  /* "pyross/control.pyx":385
+  /* "core/control.pyx":385
  *         self.fsa   = parameters['fsa']                          # the self-isolation parameter
  *         self.kE    = parameters['kE']
  *         self.nClass= self.kI + self.kI + self.kE + 1             # <<<<<<<<<<<<<<
@@ -7938,7 +7938,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
  */
   __pyx_v_self->__pyx_base.nClass = (((__pyx_v_self->kI + __pyx_v_self->kI) + __pyx_v_self->kE) + 1);
 
-  /* "pyross/control.pyx":387
+  /* "core/control.pyx":387
  *         self.nClass= self.kI + self.kI + self.kE + 1
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -7969,7 +7969,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_3;
 
-  /* "pyross/control.pyx":388
+  /* "core/control.pyx":388
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -7979,7 +7979,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_3;
 
-  /* "pyross/control.pyx":389
+  /* "core/control.pyx":389
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -8016,7 +8016,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":390
+  /* "core/control.pyx":390
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -8032,7 +8032,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":392
+  /* "core/control.pyx":392
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -8079,7 +8079,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":393
+  /* "core/control.pyx":393
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -8116,7 +8116,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":395
+  /* "core/control.pyx":395
  *         self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
  * 
  *         if self.kE==0:             # <<<<<<<<<<<<<<
@@ -8126,7 +8126,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_t_7 = ((__pyx_v_self->kE == 0) != 0);
   if (unlikely(__pyx_t_7)) {
 
-    /* "pyross/control.pyx":396
+    /* "core/control.pyx":396
  * 
  *         if self.kE==0:
  *             raise Exception('number of E stages should be greater than zero, kE>0')             # <<<<<<<<<<<<<<
@@ -8139,7 +8139,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 396, __pyx_L1_error)
 
-    /* "pyross/control.pyx":395
+    /* "core/control.pyx":395
  *         self.dxdt  = np.zeros( (self.kI + self.kI + self.kE + 1)*self.M, dtype=DTYPE)           # right hand side
  * 
  *         if self.kE==0:             # <<<<<<<<<<<<<<
@@ -8148,7 +8148,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
  */
   }
 
-  /* "pyross/control.pyx":397
+  /* "core/control.pyx":397
  *         if self.kE==0:
  *             raise Exception('number of E stages should be greater than zero, kE>0')
  *         elif self.kI==0:             # <<<<<<<<<<<<<<
@@ -8158,7 +8158,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_t_7 = ((__pyx_v_self->kI == 0) != 0);
   if (unlikely(__pyx_t_7)) {
 
-    /* "pyross/control.pyx":398
+    /* "core/control.pyx":398
  *             raise Exception('number of E stages should be greater than zero, kE>0')
  *         elif self.kI==0:
  *             raise Exception('number of I stages should be greater than zero, kI>0')             # <<<<<<<<<<<<<<
@@ -8171,7 +8171,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 398, __pyx_L1_error)
 
-    /* "pyross/control.pyx":397
+    /* "core/control.pyx":397
  *         if self.kE==0:
  *             raise Exception('number of E stages should be greater than zero, kE>0')
  *         elif self.kI==0:             # <<<<<<<<<<<<<<
@@ -8180,7 +8180,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
  */
   }
 
-  /* "pyross/control.pyx":400
+  /* "core/control.pyx":400
  *             raise Exception('number of I stages should be greater than zero, kI>0')
  * 
  *         alpha      = parameters['alpha']                        # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -8192,7 +8192,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":401
+  /* "core/control.pyx":401
  * 
  *         alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -8229,7 +8229,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pyross/control.pyx":402
+  /* "core/control.pyx":402
  *         alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -8263,7 +8263,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":403
+    /* "core/control.pyx":403
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -8300,7 +8300,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":402
+    /* "core/control.pyx":402
  *         alpha      = parameters['alpha']                        # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -8310,7 +8310,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":404
+  /* "core/control.pyx":404
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -8343,7 +8343,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (likely(__pyx_t_7)) {
 
-    /* "pyross/control.pyx":405
+    /* "core/control.pyx":405
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha = alpha             # <<<<<<<<<<<<<<
@@ -8359,7 +8359,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":404
+    /* "core/control.pyx":404
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -8369,7 +8369,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":407
+  /* "core/control.pyx":407
  *             self.alpha = alpha
  *         else:
  *             raise Exception('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -8385,7 +8385,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   }
   __pyx_L4:;
 
-  /* "pyross/control.pyx":377
+  /* "core/control.pyx":377
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -8401,7 +8401,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -8409,7 +8409,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":410
+/* "core/control.pyx":410
  * 
  * 
  *     cdef rhs(self, xt, tt):             # <<<<<<<<<<<<<<
@@ -8417,7 +8417,7 @@ static int __pyx_pf_6pyross_7control_8SEkIkIkR___init__(struct __pyx_obj_6pyross
  *             int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
  */
 
-static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_xt, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_8SEkIkIkR_rhs(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_xt, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -8470,7 +8470,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   Py_ssize_t __pyx_t_24;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":412
+  /* "core/control.pyx":412
  *     cdef rhs(self, xt, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE             # <<<<<<<<<<<<<<
@@ -8486,7 +8486,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_1 = __pyx_v_self->kE;
   __pyx_v_kE = __pyx_t_1;
 
-  /* "pyross/control.pyx":413
+  /* "core/control.pyx":413
  *         cdef:
  *             int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
  *             double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2             # <<<<<<<<<<<<<<
@@ -8497,7 +8497,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_v_beta = __pyx_t_2;
   __pyx_v_gIa = (__pyx_v_self->kI * __pyx_v_self->gIa);
 
-  /* "pyross/control.pyx":414
+  /* "core/control.pyx":414
  *             int N=self.N, M=self.M, i, j, jj, kI=self.kI, kE = self.kE
  *             double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2
  *             double gE=self.kE*self.gE, gIs=self.kI*self.gIs, fsa=self.fsa             # <<<<<<<<<<<<<<
@@ -8509,7 +8509,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_2 = __pyx_v_self->fsa;
   __pyx_v_fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":415
+  /* "core/control.pyx":415
  *             double beta=self.beta, gIa=self.kI*self.gIa, rateS, lmda, ce1, ce2
  *             double gE=self.kE*self.gE, gIs=self.kI*self.gIs, fsa=self.fsa
  *             double [:] S    = xt[0  :M]             # <<<<<<<<<<<<<<
@@ -8524,7 +8524,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":416
+  /* "core/control.pyx":416
  *             double gE=self.kE*self.gE, gIs=self.kI*self.gIs, fsa=self.fsa
  *             double [:] S    = xt[0  :M]
  *             double [:] E    = xt[M  :(kE+1)*M]             # <<<<<<<<<<<<<<
@@ -8539,7 +8539,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":417
+  /* "core/control.pyx":417
  *             double [:] S    = xt[0  :M]
  *             double [:] E    = xt[M  :(kE+1)*M]
  *             double [:] Ia   = xt[(kE+1)*M   :(kE+kI+1)*M]             # <<<<<<<<<<<<<<
@@ -8554,7 +8554,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":418
+  /* "core/control.pyx":418
  *             double [:] E    = xt[M  :(kE+1)*M]
  *             double [:] Ia   = xt[(kE+1)*M   :(kE+kI+1)*M]
  *             double [:] Is   = xt[(kE+kI+1)*M:(kE+kI+kI+1)*M]             # <<<<<<<<<<<<<<
@@ -8569,7 +8569,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":419
+  /* "core/control.pyx":419
  *             double [:] Ia   = xt[(kE+1)*M   :(kE+kI+1)*M]
  *             double [:] Is   = xt[(kE+kI+1)*M:(kE+kI+kI+1)*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -8581,7 +8581,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":420
+  /* "core/control.pyx":420
  *             double [:] Is   = xt[(kE+kI+1)*M:(kE+kI+kI+1)*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -8593,7 +8593,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":421
+  /* "core/control.pyx":421
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] dxdt = self.dxdt             # <<<<<<<<<<<<<<
@@ -8605,7 +8605,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":422
+  /* "core/control.pyx":422
  *             double [:,:] CM = self.CM
  *             double [:] dxdt = self.dxdt
  *             double [:] alpha = self.alpha             # <<<<<<<<<<<<<<
@@ -8617,7 +8617,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":424
+  /* "core/control.pyx":424
  *             double [:] alpha = self.alpha
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -8629,7 +8629,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":425
+    /* "core/control.pyx":425
  * 
  *         for i in range(M):
  *             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1             # <<<<<<<<<<<<<<
@@ -8642,7 +8642,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     __pyx_v_ce1 = (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_8 * __pyx_v_alpha.strides[0]) ))));
     __pyx_v_ce2 = (__pyx_v_gE - __pyx_v_ce1);
 
-    /* "pyross/control.pyx":426
+    /* "core/control.pyx":426
  *         for i in range(M):
  *             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
  *             for jj in range(kI):             # <<<<<<<<<<<<<<
@@ -8654,7 +8654,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_jj = __pyx_t_11;
 
-      /* "pyross/control.pyx":427
+      /* "core/control.pyx":427
  *             lmda=0;   ce1=gE*alpha[i];  ce2=gE-ce1
  *             for jj in range(kI):
  *                 for j in range(M):             # <<<<<<<<<<<<<<
@@ -8666,7 +8666,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
       for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
         __pyx_v_j = __pyx_t_14;
 
-        /* "pyross/control.pyx":428
+        /* "core/control.pyx":428
  *             for jj in range(kI):
  *                 for j in range(M):
  *                     lmda += beta*CM[i,j]*(Is[j+jj*M]*fsa + Ia[j+jj*M])/Ni[j]             # <<<<<<<<<<<<<<
@@ -8687,7 +8687,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
       }
     }
 
-    /* "pyross/control.pyx":429
+    /* "core/control.pyx":429
  *                 for j in range(M):
  *                     lmda += beta*CM[i,j]*(Is[j+jj*M]*fsa + Ia[j+jj*M])/Ni[j]
  *             rateS = lmda*S[i]             # <<<<<<<<<<<<<<
@@ -8698,7 +8698,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     if (__pyx_t_18 < 0) __pyx_t_18 += __pyx_v_S.shape[0];
     __pyx_v_rateS = (__pyx_v_lmda * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_18 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":431
+    /* "core/control.pyx":431
  *             rateS = lmda*S[i]
  *             #
  *             dxdt[i]     = -rateS             # <<<<<<<<<<<<<<
@@ -8709,7 +8709,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     if (__pyx_t_18 < 0) __pyx_t_18 += __pyx_v_dxdt.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_dxdt.data + __pyx_t_18 * __pyx_v_dxdt.strides[0]) )) = (-__pyx_v_rateS);
 
-    /* "pyross/control.pyx":434
+    /* "core/control.pyx":434
  * 
  *             #Exposed class
  *             dxdt[i+M+0] = rateS - gE*E[i]             # <<<<<<<<<<<<<<
@@ -8722,7 +8722,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_dxdt.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_dxdt.data + __pyx_t_16 * __pyx_v_dxdt.strides[0]) )) = (__pyx_v_rateS - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_17 * __pyx_v_E.strides[0]) )))));
 
-    /* "pyross/control.pyx":435
+    /* "core/control.pyx":435
  *             #Exposed class
  *             dxdt[i+M+0] = rateS - gE*E[i]
  *             for j in range(kE - 1) :             # <<<<<<<<<<<<<<
@@ -8734,7 +8734,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_20; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "pyross/control.pyx":436
+      /* "core/control.pyx":436
  *             dxdt[i+M+0] = rateS - gE*E[i]
  *             for j in range(kE - 1) :
  *                 dxdt[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]             # <<<<<<<<<<<<<<
@@ -8750,7 +8750,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
       *((double *) ( /* dim=0 */ (__pyx_v_dxdt.data + __pyx_t_8 * __pyx_v_dxdt.strides[0]) )) = ((__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_17 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":439
+    /* "core/control.pyx":439
  * 
  *             #Asymptomatics class
  *             dxdt[i + (kE+1)*M + 0] = ce1*E[i+(kE-1)*M] - gIa*Ia[i]             # <<<<<<<<<<<<<<
@@ -8765,7 +8765,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     if (__pyx_t_21 < 0) __pyx_t_21 += __pyx_v_dxdt.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_dxdt.data + __pyx_t_21 * __pyx_v_dxdt.strides[0]) )) = ((__pyx_v_ce1 * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_17 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":440
+    /* "core/control.pyx":440
  *             #Asymptomatics class
  *             dxdt[i + (kE+1)*M + 0] = ce1*E[i+(kE-1)*M] - gIa*Ia[i]
  *             for j in range(kI-1):             # <<<<<<<<<<<<<<
@@ -8777,7 +8777,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_20; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "pyross/control.pyx":441
+      /* "core/control.pyx":441
  *             dxdt[i + (kE+1)*M + 0] = ce1*E[i+(kE-1)*M] - gIa*Ia[i]
  *             for j in range(kI-1):
  *                 dxdt[i+(kE+1)*M + (j+1)*M ]  = gIa*Ia[i+j*M] - gIa*Ia[i+(j+1)*M]             # <<<<<<<<<<<<<<
@@ -8793,7 +8793,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
       *((double *) ( /* dim=0 */ (__pyx_v_dxdt.data + __pyx_t_22 * __pyx_v_dxdt.strides[0]) )) = ((__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_17 * __pyx_v_Ia.strides[0]) )))) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_15 * __pyx_v_Ia.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":444
+    /* "core/control.pyx":444
  * 
  *             #Symptomatics class
  *             dxdt[i + (kE+kI+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]             # <<<<<<<<<<<<<<
@@ -8808,7 +8808,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     if (__pyx_t_23 < 0) __pyx_t_23 += __pyx_v_dxdt.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_dxdt.data + __pyx_t_23 * __pyx_v_dxdt.strides[0]) )) = ((__pyx_v_ce2 * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_17 * __pyx_v_Is.strides[0]) )))));
 
-    /* "pyross/control.pyx":445
+    /* "core/control.pyx":445
  *             #Symptomatics class
  *             dxdt[i + (kE+kI+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]
  *             for j in range(kI-1):             # <<<<<<<<<<<<<<
@@ -8820,7 +8820,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_20; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "pyross/control.pyx":446
+      /* "core/control.pyx":446
  *             dxdt[i + (kE+kI+1)*M + 0] = ce2*E[i+(kE-1)*M] - gIs*Is[i]
  *             for j in range(kI-1):
  *                 dxdt[i+(kE+kI+1)*M + (j+1)*M ]  = gIs*Is[i+j*M] - gIs*Is[i+(j+1)*M]             # <<<<<<<<<<<<<<
@@ -8837,7 +8837,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
     }
   }
 
-  /* "pyross/control.pyx":447
+  /* "core/control.pyx":447
  *             for j in range(kI-1):
  *                 dxdt[i+(kE+kI+1)*M + (j+1)*M ]  = gIs*Is[i+j*M] - gIs*Is[i+(j+1)*M]
  *         return             # <<<<<<<<<<<<<<
@@ -8848,7 +8848,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":410
+  /* "core/control.pyx":410
  * 
  * 
  *     cdef rhs(self, xt, tt):             # <<<<<<<<<<<<<<
@@ -8861,7 +8861,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -8877,7 +8877,7 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":451
+/* "core/control.pyx":451
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -8886,8 +8886,8 @@ static PyObject *__pyx_f_6pyross_7control_8SEkIkIkR_rhs(struct __pyx_obj_6pyross
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
@@ -8913,7 +8913,7 @@ static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v
     values[8] = ((PyObject *)__pyx_int_0);
     values[9] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":455
+    /* "core/control.pyx":455
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -8922,7 +8922,7 @@ static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v
  */
     values[10] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":456
+    /* "core/control.pyx":456
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -8931,7 +8931,7 @@ static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v
  */
     values[11] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":457
+    /* "core/control.pyx":457
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -9140,13 +9140,13 @@ static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 8, 16, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 451, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_2simulate(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":451
+  /* "core/control.pyx":451
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -9159,7 +9159,7 @@ static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate(PyObject *__pyx_v
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_2simulate(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -9176,7 +9176,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   PyObject *(*__pyx_t_7)(PyObject *);
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":465
+  /* "core/control.pyx":465
  * 
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -9204,7 +9204,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (likely(__pyx_t_4)) {
 
-    /* "pyross/control.pyx":466
+    /* "core/control.pyx":466
  * 
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition             # <<<<<<<<<<<<<<
@@ -9250,7 +9250,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":467
+    /* "core/control.pyx":467
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -9263,7 +9263,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "pyross/control.pyx":468
+    /* "core/control.pyx":468
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -9273,7 +9273,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "pyross/control.pyx":469
+    /* "core/control.pyx":469
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -9284,7 +9284,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "pyross/control.pyx":470
+    /* "core/control.pyx":470
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -9293,7 +9293,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "pyross/control.pyx":471
+    /* "core/control.pyx":471
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -9302,7 +9302,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "pyross/control.pyx":472
+    /* "core/control.pyx":472
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -9311,7 +9311,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "pyross/control.pyx":467
+    /* "core/control.pyx":467
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -9384,7 +9384,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":473
+    /* "core/control.pyx":473
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -9397,7 +9397,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 473, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 473, __pyx_L1_error)
 
-    /* "pyross/control.pyx":474
+    /* "core/control.pyx":474
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,             # <<<<<<<<<<<<<<
@@ -9411,7 +9411,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_alpha, ((PyObject *)__pyx_v_self->alpha)) < 0) __PYX_ERR(0, 473, __pyx_L1_error)
 
-    /* "pyross/control.pyx":475
+    /* "core/control.pyx":475
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                       'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE ,             # <<<<<<<<<<<<<<
@@ -9431,7 +9431,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_kE, __pyx_t_5) < 0) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":476
+    /* "core/control.pyx":476
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                       'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE ,
  *                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }             # <<<<<<<<<<<<<<
@@ -9453,7 +9453,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":477
+    /* "core/control.pyx":477
  *                       'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE ,
  *                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
  *             return data             # <<<<<<<<<<<<<<
@@ -9465,7 +9465,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":465
+    /* "core/control.pyx":465
  * 
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -9474,11 +9474,11 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
  */
   }
 
-  /* "pyross/control.pyx":479
+  /* "core/control.pyx":479
  *             return data
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SEkIkIkR model.")             # <<<<<<<<<<<<<<
- *             #model = pyross.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
+ *             #model = core.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
  *             #return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
  */
   /*else*/ {
@@ -9489,7 +9489,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
     __PYX_ERR(0, 479, __pyx_L1_error)
   }
 
-  /* "pyross/control.pyx":451
+  /* "core/control.pyx":451
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -9504,7 +9504,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -9517,7 +9517,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":491
+/* "core/control.pyx":491
  * 
  * 
  *     def S(self,  data):             # <<<<<<<<<<<<<<
@@ -9526,20 +9526,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_2simulate(struct __pyx_obj_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_4S[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             S: Susceptible population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_4S[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             S: Susceptible population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_5S(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("S (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_4S(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_4S(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_4S(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_v_X = NULL;
   PyObject *__pyx_v_S = NULL;
   PyObject *__pyx_r = NULL;
@@ -9548,7 +9548,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("S", 0);
 
-  /* "pyross/control.pyx":501
+  /* "core/control.pyx":501
  *              S: Susceptible population time series
  *         """
  *         X = data['X']             # <<<<<<<<<<<<<<
@@ -9560,7 +9560,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   __pyx_v_X = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":502
+  /* "core/control.pyx":502
  *         """
  *         X = data['X']
  *         S = X[:, 0:self.M]             # <<<<<<<<<<<<<<
@@ -9586,7 +9586,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   __pyx_v_S = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":503
+  /* "core/control.pyx":503
  *         X = data['X']
  *         S = X[:, 0:self.M]
  *         return S             # <<<<<<<<<<<<<<
@@ -9598,7 +9598,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   __pyx_r = __pyx_v_S;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":491
+  /* "core/control.pyx":491
  * 
  * 
  *     def S(self,  data):             # <<<<<<<<<<<<<<
@@ -9610,7 +9610,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.S", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.S", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_X);
@@ -9620,7 +9620,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":506
+/* "core/control.pyx":506
  * 
  * 
  *     def E(self,  data):             # <<<<<<<<<<<<<<
@@ -9629,20 +9629,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_4S(struct __pyx_obj_6pyross
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_6E[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             E: Exposed population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_6E[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             E: Exposed population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_7E(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("E (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_6E(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_6E(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_6E(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   CYTHON_UNUSED PyObject *__pyx_v_kE = NULL;
   PyObject *__pyx_v_X = NULL;
   PyObject *__pyx_v_E = NULL;
@@ -9653,7 +9653,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("E", 0);
 
-  /* "pyross/control.pyx":516
+  /* "core/control.pyx":516
  *              E: Exposed population time series
  *         """
  *         kE = data['kE']             # <<<<<<<<<<<<<<
@@ -9665,7 +9665,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   __pyx_v_kE = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":517
+  /* "core/control.pyx":517
  *         """
  *         kE = data['kE']
  *         X = data['X']             # <<<<<<<<<<<<<<
@@ -9677,7 +9677,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   __pyx_v_X = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":518
+  /* "core/control.pyx":518
  *         kE = data['kE']
  *         X = data['X']
  *         E = X[:, self.M:(1+self.kE)*self.M]             # <<<<<<<<<<<<<<
@@ -9706,7 +9706,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   __pyx_v_E = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "pyross/control.pyx":519
+  /* "core/control.pyx":519
  *         X = data['X']
  *         E = X[:, self.M:(1+self.kE)*self.M]
  *         return E             # <<<<<<<<<<<<<<
@@ -9718,7 +9718,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   __pyx_r = __pyx_v_E;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":506
+  /* "core/control.pyx":506
  * 
  * 
  *     def E(self,  data):             # <<<<<<<<<<<<<<
@@ -9731,7 +9731,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.E", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.E", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_kE);
@@ -9742,7 +9742,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":522
+/* "core/control.pyx":522
  * 
  * 
  *     def Ia(self,  data):             # <<<<<<<<<<<<<<
@@ -9751,20 +9751,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_6E(struct __pyx_obj_6pyross
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_8Ia[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_8Ia[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_9Ia(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("Ia (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_8Ia(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_8Ia(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   CYTHON_UNUSED PyObject *__pyx_v_kI = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_kE = NULL;
   PyObject *__pyx_v_X = NULL;
@@ -9776,7 +9776,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("Ia", 0);
 
-  /* "pyross/control.pyx":532
+  /* "core/control.pyx":532
  *              Is : symptomatics population time series
  *         """
  *         kI = data['kI']             # <<<<<<<<<<<<<<
@@ -9788,7 +9788,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   __pyx_v_kI = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":533
+  /* "core/control.pyx":533
  *         """
  *         kI = data['kI']
  *         kE = data['kE']             # <<<<<<<<<<<<<<
@@ -9800,7 +9800,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   __pyx_v_kE = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":534
+  /* "core/control.pyx":534
  *         kI = data['kI']
  *         kE = data['kE']
  *         X  = data['X']             # <<<<<<<<<<<<<<
@@ -9812,7 +9812,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   __pyx_v_X = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":535
+  /* "core/control.pyx":535
  *         kE = data['kE']
  *         X  = data['X']
  *         Ia = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]             # <<<<<<<<<<<<<<
@@ -9841,7 +9841,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   __pyx_v_Ia = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "pyross/control.pyx":536
+  /* "core/control.pyx":536
  *         X  = data['X']
  *         Ia = X[:, (1+self.kE)*self.M:(1+self.kE+self.kI)*self.M]
  *         return Ia             # <<<<<<<<<<<<<<
@@ -9853,7 +9853,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   __pyx_r = __pyx_v_Ia;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":522
+  /* "core/control.pyx":522
  * 
  * 
  *     def Ia(self,  data):             # <<<<<<<<<<<<<<
@@ -9866,7 +9866,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.Ia", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.Ia", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_kI);
@@ -9878,7 +9878,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":539
+/* "core/control.pyx":539
  * 
  * 
  *     def Is(self,  data):             # <<<<<<<<<<<<<<
@@ -9887,20 +9887,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_8Ia(struct __pyx_obj_6pyros
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_10Is[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_10Is[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             Is : symptomatics population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_11Is(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("Is (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_10Is(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_10Is(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_10Is(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   CYTHON_UNUSED PyObject *__pyx_v_kI = NULL;
   CYTHON_UNUSED PyObject *__pyx_v_kE = NULL;
   PyObject *__pyx_v_X = NULL;
@@ -9912,7 +9912,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("Is", 0);
 
-  /* "pyross/control.pyx":549
+  /* "core/control.pyx":549
  *              Is : symptomatics population time series
  *         """
  *         kI = data['kI']             # <<<<<<<<<<<<<<
@@ -9924,7 +9924,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   __pyx_v_kI = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":550
+  /* "core/control.pyx":550
  *         """
  *         kI = data['kI']
  *         kE = data['kE']             # <<<<<<<<<<<<<<
@@ -9936,7 +9936,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   __pyx_v_kE = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":551
+  /* "core/control.pyx":551
  *         kI = data['kI']
  *         kE = data['kE']
  *         X  = data['X']             # <<<<<<<<<<<<<<
@@ -9948,7 +9948,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   __pyx_v_X = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":552
+  /* "core/control.pyx":552
  *         kE = data['kE']
  *         X  = data['X']
  *         Is = X[:, (1+self.kE+self.kI)*self.M:(1+self.kE+self.kI+self.kI)*self.M]             # <<<<<<<<<<<<<<
@@ -9977,7 +9977,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   __pyx_v_Is = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "pyross/control.pyx":553
+  /* "core/control.pyx":553
  *         X  = data['X']
  *         Is = X[:, (1+self.kE+self.kI)*self.M:(1+self.kE+self.kI+self.kI)*self.M]
  *         return Is             # <<<<<<<<<<<<<<
@@ -9989,7 +9989,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   __pyx_r = __pyx_v_Is;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":539
+  /* "core/control.pyx":539
  * 
  * 
  *     def Is(self,  data):             # <<<<<<<<<<<<<<
@@ -10002,7 +10002,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.Is", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.Is", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_kI);
@@ -10014,7 +10014,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":556
+/* "core/control.pyx":556
  * 
  * 
  *     def R(self,  data):             # <<<<<<<<<<<<<<
@@ -10023,20 +10023,20 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_10Is(struct __pyx_obj_6pyro
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
-static char __pyx_doc_6pyross_7control_8SEkIkIkR_12R[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             R: Removed population time series\n        ";
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data); /*proto*/
+static char __pyx_doc_4core_7control_8SEkIkIkR_12R[] = "\n        Parameters\n        ----------\n        data: data files\n\n        Returns\n        -------\n             R: Removed population time series\n        ";
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_13R(PyObject *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("R (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_12R(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_12R(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v_data));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_12R(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v_data) {
   PyObject *__pyx_v_X = NULL;
   PyObject *__pyx_v_kI = NULL;
   PyObject *__pyx_v_kE = NULL;
@@ -10056,7 +10056,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("R", 0);
 
-  /* "pyross/control.pyx":566
+  /* "core/control.pyx":566
  *              R: Removed population time series
  *         """
  *         X = data['X']             # <<<<<<<<<<<<<<
@@ -10068,7 +10068,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_X = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":567
+  /* "core/control.pyx":567
  *         """
  *         X = data['X']
  *         kI = data['kI']             # <<<<<<<<<<<<<<
@@ -10080,7 +10080,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_kI = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":568
+  /* "core/control.pyx":568
  *         X = data['X']
  *         kI = data['kI']
  *         kE = data['kE']             # <<<<<<<<<<<<<<
@@ -10092,7 +10092,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_kE = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":569
+  /* "core/control.pyx":569
  *         kI = data['kI']
  *         kE = data['kE']
  *         Ia0= np.zeros(self.M)             # <<<<<<<<<<<<<<
@@ -10125,7 +10125,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_Ia0 = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":570
+  /* "core/control.pyx":570
  *         kE = data['kE']
  *         Ia0= np.zeros(self.M)
  *         Is0= np.zeros(self.M)             # <<<<<<<<<<<<<<
@@ -10158,7 +10158,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_Is0 = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":571
+  /* "core/control.pyx":571
  *         Ia0= np.zeros(self.M)
  *         Is0= np.zeros(self.M)
  *         E0 = np.zeros(self.M)             # <<<<<<<<<<<<<<
@@ -10191,7 +10191,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_E0 = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":572
+  /* "core/control.pyx":572
  *         Is0= np.zeros(self.M)
  *         E0 = np.zeros(self.M)
  *         for i in range(kE):             # <<<<<<<<<<<<<<
@@ -10243,7 +10243,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":573
+    /* "core/control.pyx":573
  *         E0 = np.zeros(self.M)
  *         for i in range(kE):
  *             E0 += X[:, (i+1)*self.M : (i+2)*self.M]             # <<<<<<<<<<<<<<
@@ -10287,7 +10287,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
     __Pyx_DECREF_SET(__pyx_v_E0, __pyx_t_7);
     __pyx_t_7 = 0;
 
-    /* "pyross/control.pyx":572
+    /* "core/control.pyx":572
  *         Is0= np.zeros(self.M)
  *         E0 = np.zeros(self.M)
  *         for i in range(kE):             # <<<<<<<<<<<<<<
@@ -10297,7 +10297,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pyross/control.pyx":574
+  /* "core/control.pyx":574
  *         for i in range(kE):
  *             E0 += X[:, (i+1)*self.M : (i+2)*self.M]
  *         for i in range(kI):             # <<<<<<<<<<<<<<
@@ -10349,7 +10349,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pyross/control.pyx":575
+    /* "core/control.pyx":575
  *             E0 += X[:, (i+1)*self.M : (i+2)*self.M]
  *         for i in range(kI):
  *             Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]             # <<<<<<<<<<<<<<
@@ -10396,7 +10396,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
     __Pyx_DECREF_SET(__pyx_v_Ia0, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":574
+    /* "core/control.pyx":574
  *         for i in range(kE):
  *             E0 += X[:, (i+1)*self.M : (i+2)*self.M]
  *         for i in range(kI):             # <<<<<<<<<<<<<<
@@ -10406,7 +10406,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "pyross/control.pyx":576
+  /* "core/control.pyx":576
  *         for i in range(kI):
  *             Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
  *         for i in range(kI):             # <<<<<<<<<<<<<<
@@ -10458,7 +10458,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_7);
     __pyx_t_7 = 0;
 
-    /* "pyross/control.pyx":577
+    /* "core/control.pyx":577
  *             Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
  *         for i in range(kI):
  *             Is0 += X[:, (kE+kI+1)*self.M : (kE+1+2*kI)*self.M]             # <<<<<<<<<<<<<<
@@ -10511,7 +10511,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
     __Pyx_DECREF_SET(__pyx_v_Is0, __pyx_t_7);
     __pyx_t_7 = 0;
 
-    /* "pyross/control.pyx":576
+    /* "core/control.pyx":576
  *         for i in range(kI):
  *             Ia0 += X[:, (kE+1)*self.M : (kE+1+kI)*self.M]
  *         for i in range(kI):             # <<<<<<<<<<<<<<
@@ -10521,7 +10521,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":578
+  /* "core/control.pyx":578
  *         for i in range(kI):
  *             Is0 += X[:, (kE+kI+1)*self.M : (kE+1+2*kI)*self.M]
  *         R = self.Ni - X[:, 0:self.M] - Ia0 - Is0 - E0             # <<<<<<<<<<<<<<
@@ -10559,7 +10559,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_v_R = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "pyross/control.pyx":579
+  /* "core/control.pyx":579
  *             Is0 += X[:, (kE+kI+1)*self.M : (kE+1+2*kI)*self.M]
  *         R = self.Ni - X[:, 0:self.M] - Ia0 - Is0 - E0
  *         return R             # <<<<<<<<<<<<<<
@@ -10571,7 +10571,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __pyx_r = __pyx_v_R;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":556
+  /* "core/control.pyx":556
  * 
  * 
  *     def R(self,  data):             # <<<<<<<<<<<<<<
@@ -10586,7 +10586,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.R", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_X);
@@ -10609,19 +10609,19 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_12R(struct __pyx_obj_6pyros
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_14__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_14__reduce_cython__(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_14__reduce_cython__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_14__reduce_cython__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -10947,7 +10947,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_14__reduce_cython__(struct 
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -10965,19 +10965,19 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_14__reduce_cython__(struct 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_8SEkIkIkR_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_8SEkIkIkR_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_8SEkIkIkR_16__setstate_cython__(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_8SEkIkIkR_16__setstate_cython__(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10989,7 +10989,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(struc
  *     __pyx_unpickle_SEkIkIkR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEkIkIkR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEkIkIkR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -11005,7 +11005,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(struc
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEkIkIkR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkIkR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -11013,7 +11013,7 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(struc
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":629
+/* "core/control.pyx":629
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -11022,8 +11022,8 @@ static PyObject *__pyx_pf_6pyross_7control_8SEkIkIkR_16__setstate_cython__(struc
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -11082,18 +11082,18 @@ static int __pyx_pw_6pyross_7control_4SIRS_1__init__(PyObject *__pyx_v_self, PyO
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 629, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIRS___init__(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_4SIRS___init__(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_4SIRS___init__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_sa = NULL;
   PyObject *__pyx_v_iaa = NULL;
   PyObject *__pyx_v_alpha = NULL;
@@ -11108,7 +11108,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":630
+  /* "core/control.pyx":630
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -11124,7 +11124,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":631
+  /* "core/control.pyx":631
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -11137,7 +11137,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":632
+  /* "core/control.pyx":632
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -11150,7 +11150,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":633
+  /* "core/control.pyx":633
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -11163,7 +11163,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":634
+  /* "core/control.pyx":634
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics             # <<<<<<<<<<<<<<
@@ -11176,7 +11176,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":636
+  /* "core/control.pyx":636
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
  * 
  *         self.nClass = 4             # <<<<<<<<<<<<<<
@@ -11185,7 +11185,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
  */
   __pyx_v_self->__pyx_base.nClass = 4;
 
-  /* "pyross/control.pyx":638
+  /* "core/control.pyx":638
  *         self.nClass = 4
  * 
  *         self.ep    = parameters['ep']                       # fraction of removed who is susceptible             # <<<<<<<<<<<<<<
@@ -11198,7 +11198,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->ep = __pyx_t_2;
 
-  /* "pyross/control.pyx":639
+  /* "core/control.pyx":639
  * 
  *         self.ep    = parameters['ep']                       # fraction of removed who is susceptible
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles             # <<<<<<<<<<<<<<
@@ -11210,7 +11210,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_sa = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":640
+  /* "core/control.pyx":640
  *         self.ep    = parameters['ep']                       # fraction of removed who is susceptible
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles
  *         iaa        = parameters['iaa']                      # daily arrival of new asymptomatics             # <<<<<<<<<<<<<<
@@ -11222,7 +11222,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_iaa = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":642
+  /* "core/control.pyx":642
  *         iaa        = parameters['iaa']                      # daily arrival of new asymptomatics
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -11253,7 +11253,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":643
+  /* "core/control.pyx":643
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -11263,7 +11263,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 643, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":644
+  /* "core/control.pyx":644
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -11300,7 +11300,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":645
+  /* "core/control.pyx":645
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -11316,7 +11316,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":647
+  /* "core/control.pyx":647
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -11363,7 +11363,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":648
+  /* "core/control.pyx":648
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -11400,7 +11400,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":650
+  /* "core/control.pyx":650
  *         self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -11412,7 +11412,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":651
+  /* "core/control.pyx":651
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -11449,7 +11449,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":652
+  /* "core/control.pyx":652
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -11483,7 +11483,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":653
+    /* "core/control.pyx":653
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -11520,7 +11520,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":652
+    /* "core/control.pyx":652
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -11530,7 +11530,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":654
+  /* "core/control.pyx":654
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -11563,7 +11563,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":655
+    /* "core/control.pyx":655
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -11579,7 +11579,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":654
+    /* "core/control.pyx":654
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -11589,7 +11589,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":657
+  /* "core/control.pyx":657
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -11603,7 +11603,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":659
+  /* "core/control.pyx":659
  *             print('alpha can be a number or an array of size M')
  * 
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -11640,7 +11640,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":660
+  /* "core/control.pyx":660
  * 
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:             # <<<<<<<<<<<<<<
@@ -11674,7 +11674,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":661
+    /* "core/control.pyx":661
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)             # <<<<<<<<<<<<<<
@@ -11711,7 +11711,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":660
+    /* "core/control.pyx":660
  * 
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:             # <<<<<<<<<<<<<<
@@ -11721,7 +11721,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":662
+  /* "core/control.pyx":662
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:             # <<<<<<<<<<<<<<
@@ -11754,7 +11754,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":663
+    /* "core/control.pyx":663
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:
  *             self.sa= sa             # <<<<<<<<<<<<<<
@@ -11770,7 +11770,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":662
+    /* "core/control.pyx":662
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:             # <<<<<<<<<<<<<<
@@ -11780,7 +11780,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":665
+  /* "core/control.pyx":665
  *             self.sa= sa
  *         else:
  *             print('sa can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -11794,7 +11794,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   }
   __pyx_L4:;
 
-  /* "pyross/control.pyx":667
+  /* "core/control.pyx":667
  *             print('sa can be a number or an array of size M')
  * 
  *         self.iaa   = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -11831,7 +11831,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->iaa = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":668
+  /* "core/control.pyx":668
  * 
  *         self.iaa   = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(iaa)==1:             # <<<<<<<<<<<<<<
@@ -11865,7 +11865,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":669
+    /* "core/control.pyx":669
  *         self.iaa   = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(iaa)==1:
  *             self.iaa = iaa*np.ones(M)             # <<<<<<<<<<<<<<
@@ -11902,7 +11902,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->iaa = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":668
+    /* "core/control.pyx":668
  * 
  *         self.iaa   = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(iaa)==1:             # <<<<<<<<<<<<<<
@@ -11912,7 +11912,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L5;
   }
 
-  /* "pyross/control.pyx":670
+  /* "core/control.pyx":670
  *         if np.size(iaa)==1:
  *             self.iaa = iaa*np.ones(M)
  *         elif np.size(iaa)==M:             # <<<<<<<<<<<<<<
@@ -11945,7 +11945,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":671
+    /* "core/control.pyx":671
  *             self.iaa = iaa*np.ones(M)
  *         elif np.size(iaa)==M:
  *             self.iaa = iaa             # <<<<<<<<<<<<<<
@@ -11961,7 +11961,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->iaa = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":670
+    /* "core/control.pyx":670
  *         if np.size(iaa)==1:
  *             self.iaa = iaa*np.ones(M)
  *         elif np.size(iaa)==M:             # <<<<<<<<<<<<<<
@@ -11971,7 +11971,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L5;
   }
 
-  /* "pyross/control.pyx":673
+  /* "core/control.pyx":673
  *             self.iaa = iaa
  *         else:
  *             print('iaa can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -11985,7 +11985,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   }
   __pyx_L5:;
 
-  /* "pyross/control.pyx":629
+  /* "core/control.pyx":629
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -12001,7 +12001,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_sa);
@@ -12011,7 +12011,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":676
+/* "core/control.pyx":676
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -12019,7 +12019,7 @@ static int __pyx_pf_6pyross_7control_4SIRS___init__(struct __pyx_obj_6pyross_7co
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_4SIRS_rhs(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -12060,7 +12060,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   Py_ssize_t __pyx_t_16;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":678
+  /* "core/control.pyx":678
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -12072,7 +12072,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":679
+  /* "core/control.pyx":679
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, gIa=self.gIa, aa, bb             # <<<<<<<<<<<<<<
@@ -12084,7 +12084,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_2 = __pyx_v_self->gIa;
   __pyx_v_gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":680
+  /* "core/control.pyx":680
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, gIa=self.gIa, aa, bb
  *             double fsa=self.fsa,gIs=self.gIs, ep=self.ep             # <<<<<<<<<<<<<<
@@ -12098,7 +12098,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_2 = __pyx_v_self->ep;
   __pyx_v_ep = __pyx_t_2;
 
-  /* "pyross/control.pyx":681
+  /* "core/control.pyx":681
  *             double beta=self.beta, gIa=self.gIa, aa, bb
  *             double fsa=self.fsa,gIs=self.gIs, ep=self.ep
  *             double [:] S    = rp[0  :M]             # <<<<<<<<<<<<<<
@@ -12113,7 +12113,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":682
+  /* "core/control.pyx":682
  *             double fsa=self.fsa,gIs=self.gIs, ep=self.ep
  *             double [:] S    = rp[0  :M]
  *             double [:] Ia   = rp[M  :2*M]             # <<<<<<<<<<<<<<
@@ -12128,7 +12128,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":683
+  /* "core/control.pyx":683
  *             double [:] S    = rp[0  :M]
  *             double [:] Ia   = rp[M  :2*M]
  *             double [:] Is   = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -12143,7 +12143,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":684
+  /* "core/control.pyx":684
  *             double [:] Ia   = rp[M  :2*M]
  *             double [:] Is   = rp[2*M:3*M]
  *             double [:] Ni   = rp[3*M:4*M]             # <<<<<<<<<<<<<<
@@ -12158,7 +12158,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":685
+  /* "core/control.pyx":685
  *             double [:] Is   = rp[2*M:3*M]
  *             double [:] Ni   = rp[3*M:4*M]
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -12170,7 +12170,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":686
+  /* "core/control.pyx":686
  *             double [:] Ni   = rp[3*M:4*M]
  *             double [:,:] CM = self.CM
  *             double [:] sa   = self.sa             # <<<<<<<<<<<<<<
@@ -12182,7 +12182,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":687
+  /* "core/control.pyx":687
  *             double [:,:] CM = self.CM
  *             double [:] sa   = self.sa
  *             double [:] iaa  = self.iaa             # <<<<<<<<<<<<<<
@@ -12194,7 +12194,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":688
+  /* "core/control.pyx":688
  *             double [:] sa   = self.sa
  *             double [:] iaa  = self.iaa
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -12206,7 +12206,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":689
+  /* "core/control.pyx":689
  *             double [:] iaa  = self.iaa
  *             double [:] X    = self.dxdt
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -12218,7 +12218,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":691
+  /* "core/control.pyx":691
  *             double [:] alpha= self.alpha
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -12230,7 +12230,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":692
+    /* "core/control.pyx":692
  * 
  *         for i in range(M):
  *             bb=0             # <<<<<<<<<<<<<<
@@ -12239,7 +12239,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
  */
     __pyx_v_bb = 0.0;
 
-    /* "pyross/control.pyx":693
+    /* "core/control.pyx":693
  *         for i in range(M):
  *             bb=0
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -12251,7 +12251,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
     for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
       __pyx_v_j = __pyx_t_10;
 
-      /* "pyross/control.pyx":694
+      /* "core/control.pyx":694
  *             bb=0
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -12271,7 +12271,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_11 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * ((*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_13 * __pyx_v_Ia.strides[0]) ))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_15 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":695
+    /* "core/control.pyx":695
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -12282,7 +12282,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_15 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":696
+    /* "core/control.pyx":696
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return             # <<<<<<<<<<<<<<
@@ -12299,7 +12299,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_12 * __pyx_v_X.strides[0]) )) = (((-__pyx_v_aa) + (*((double *) ( /* dim=0 */ (__pyx_v_sa.data + __pyx_t_15 * __pyx_v_sa.strides[0]) )))) + (__pyx_v_ep * ((__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_14 * __pyx_v_Ia.strides[0]) )))) + (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_13 * __pyx_v_Is.strides[0]) )))))));
 
-    /* "pyross/control.pyx":697
+    /* "core/control.pyx":697
  *             aa = bb*S[i]
  *             X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return
  *             X[i+M]   = alpha[i]*aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R             # <<<<<<<<<<<<<<
@@ -12316,7 +12316,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_11 < 0) __pyx_t_11 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_11 * __pyx_v_X.strides[0]) )) = ((((*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_13 * __pyx_v_alpha.strides[0]) ))) * __pyx_v_aa) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_14 * __pyx_v_Ia.strides[0]) ))))) + (*((double *) ( /* dim=0 */ (__pyx_v_iaa.data + __pyx_t_15 * __pyx_v_iaa.strides[0]) ))));
 
-    /* "pyross/control.pyx":698
+    /* "core/control.pyx":698
  *             X[i]     = -aa + sa[i] + ep*(gIa*Ia[i] + gIs*Is[i])       # rate S  -> Ia, Is and also return
  *             X[i+M]   = alpha[i]*aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
  *             X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                          # rate Is -> R             # <<<<<<<<<<<<<<
@@ -12331,7 +12331,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_13 < 0) __pyx_t_13 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_13 * __pyx_v_X.strides[0]) )) = (((1.0 - (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_15 * __pyx_v_alpha.strides[0]) )))) * __pyx_v_aa) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))));
 
-    /* "pyross/control.pyx":699
+    /* "core/control.pyx":699
  *             X[i+M]   = alpha[i]*aa - gIa*Ia[i] + iaa[i]                 # rate Ia -> R
  *             X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                          # rate Is -> R
  *             X[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni             # <<<<<<<<<<<<<<
@@ -12347,7 +12347,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_16 * __pyx_v_X.strides[0]) )) = ((*((double *) ( /* dim=0 */ (__pyx_v_sa.data + __pyx_t_14 * __pyx_v_sa.strides[0]) ))) + (*((double *) ( /* dim=0 */ (__pyx_v_iaa.data + __pyx_t_15 * __pyx_v_iaa.strides[0]) ))));
   }
 
-  /* "pyross/control.pyx":700
+  /* "core/control.pyx":700
  *             X[i+2*M] = (1-alpha[i])*aa - gIs*Is[i]                          # rate Is -> R
  *             X[i+3*M] = sa[i] + iaa[i]                                 # rate of Ni
  *         return             # <<<<<<<<<<<<<<
@@ -12358,7 +12358,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":676
+  /* "core/control.pyx":676
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -12371,7 +12371,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SIRS.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -12388,7 +12388,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":703
+/* "core/control.pyx":703
  * 
  * 
  *     def simulate(self, S0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -12397,8 +12397,8 @@ static PyObject *__pyx_f_6pyross_7control_4SIRS_rhs(struct __pyx_obj_6pyross_7co
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIRS_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
   PyObject *__pyx_v_Is0 = 0;
@@ -12423,7 +12423,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_sel
     values[7] = ((PyObject *)__pyx_int_0);
     values[8] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":707
+    /* "core/control.pyx":707
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -12432,7 +12432,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_sel
  */
     values[9] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":708
+    /* "core/control.pyx":708
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -12441,7 +12441,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_sel
  */
     values[10] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":709
+    /* "core/control.pyx":709
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -12640,13 +12640,13 @@ static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_sel
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 7, 15, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 703, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIRS_2simulate(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_4SIRS_2simulate(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v_self), __pyx_v_S0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":703
+  /* "core/control.pyx":703
  * 
  * 
  *     def simulate(self, S0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -12659,7 +12659,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIRS_3simulate(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_4SIRS_2simulate(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -12676,7 +12676,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   PyObject *(*__pyx_t_7)(PyObject *);
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":716
+  /* "core/control.pyx":716
  *             dict data
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -12704,7 +12704,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (likely(__pyx_t_4)) {
 
-    /* "pyross/control.pyx":717
+    /* "core/control.pyx":717
  * 
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition             # <<<<<<<<<<<<<<
@@ -12747,7 +12747,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":718
+    /* "core/control.pyx":718
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -12760,7 +12760,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
 
-    /* "pyross/control.pyx":719
+    /* "core/control.pyx":719
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -12770,7 +12770,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
 
-    /* "pyross/control.pyx":720
+    /* "core/control.pyx":720
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -12781,7 +12781,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
 
-    /* "pyross/control.pyx":721
+    /* "core/control.pyx":721
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -12790,7 +12790,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
 
-    /* "pyross/control.pyx":722
+    /* "core/control.pyx":722
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -12799,7 +12799,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
 
-    /* "pyross/control.pyx":723
+    /* "core/control.pyx":723
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -12808,7 +12808,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
 
-    /* "pyross/control.pyx":718
+    /* "core/control.pyx":718
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -12881,7 +12881,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":724
+    /* "core/control.pyx":724
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -12894,7 +12894,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 724, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 724, __pyx_L1_error)
 
-    /* "pyross/control.pyx":725
+    /* "core/control.pyx":725
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,             # <<<<<<<<<<<<<<
@@ -12908,7 +12908,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_alpha, ((PyObject *)__pyx_v_self->alpha)) < 0) __PYX_ERR(0, 724, __pyx_L1_error)
 
-    /* "pyross/control.pyx":726
+    /* "core/control.pyx":726
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }             # <<<<<<<<<<<<<<
@@ -12930,7 +12930,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":727
+    /* "core/control.pyx":727
  *                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
  *             return data             # <<<<<<<<<<<<<<
@@ -12942,7 +12942,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":716
+    /* "core/control.pyx":716
  *             dict data
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -12951,12 +12951,12 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
  */
   }
 
-  /* "pyross/control.pyx":729
+  /* "core/control.pyx":729
  *             return data
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SIRS model.")             # <<<<<<<<<<<<<<
  *             '''
- *             model = pyross.stochastic.SIRS(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIRS(self.params, self.M, self.Ni)
  */
   /*else*/ {
     __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 729, __pyx_L1_error)
@@ -12966,7 +12966,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
     __PYX_ERR(0, 729, __pyx_L1_error)
   }
 
-  /* "pyross/control.pyx":703
+  /* "core/control.pyx":703
  * 
  * 
  *     def simulate(self, S0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -12981,7 +12981,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -13001,19 +13001,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_2simulate(struct __pyx_obj_6pyr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_4SIRS_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIRS_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_4SIRS_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_4SIRS_4__reduce_cython__(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_4SIRS_4__reduce_cython__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -13345,7 +13345,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_4__reduce_cython__(struct __pyx
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
-  __Pyx_AddTraceback("pyross.control.SIRS.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -13363,19 +13363,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_4__reduce_cython__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIRS_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_4SIRS_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIRS_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_4SIRS_6__setstate_cython__(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_4SIRS_6__setstate_cython__(struct __pyx_obj_4core_7control_SIRS *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -13387,7 +13387,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(struct __p
  *     __pyx_unpickle_SIRS__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SIRS__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SIRS__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -13403,7 +13403,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(struct __p
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SIRS.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIRS.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -13411,7 +13411,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(struct __p
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":788
+/* "core/control.pyx":788
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -13420,8 +13420,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SIRS_6__setstate_cython__(struct __p
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -13480,18 +13480,18 @@ static int __pyx_pw_6pyross_7control_4SEIR_1__init__(PyObject *__pyx_v_self, PyO
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 788, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SEIR___init__(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_4SEIR___init__(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_4SEIR___init__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -13504,7 +13504,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":789
+  /* "core/control.pyx":789
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -13520,7 +13520,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":790
+  /* "core/control.pyx":790
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -13533,7 +13533,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":791
+  /* "core/control.pyx":791
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -13546,7 +13546,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":792
+  /* "core/control.pyx":792
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -13559,7 +13559,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":793
+  /* "core/control.pyx":793
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gE    = parameters['gE']                       # removal rate of E             # <<<<<<<<<<<<<<
@@ -13572,7 +13572,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":794
+  /* "core/control.pyx":794
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter             # <<<<<<<<<<<<<<
@@ -13585,7 +13585,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":796
+  /* "core/control.pyx":796
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter
  * 
  *         self.nClass = 4             # <<<<<<<<<<<<<<
@@ -13594,7 +13594,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
  */
   __pyx_v_self->__pyx_base.nClass = 4;
 
-  /* "pyross/control.pyx":798
+  /* "core/control.pyx":798
  *         self.nClass = 4
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -13625,7 +13625,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":799
+  /* "core/control.pyx":799
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -13635,7 +13635,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 799, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":800
+  /* "core/control.pyx":800
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -13672,7 +13672,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":801
+  /* "core/control.pyx":801
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -13688,7 +13688,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":803
+  /* "core/control.pyx":803
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -13735,7 +13735,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":804
+  /* "core/control.pyx":804
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -13772,7 +13772,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":806
+  /* "core/control.pyx":806
  *         self.dxdt = np.zeros( 4*self.M, dtype=DTYPE)           # right hand side
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -13784,7 +13784,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":807
+  /* "core/control.pyx":807
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -13821,7 +13821,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":808
+  /* "core/control.pyx":808
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -13855,7 +13855,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":809
+    /* "core/control.pyx":809
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -13892,7 +13892,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":808
+    /* "core/control.pyx":808
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -13902,7 +13902,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":810
+  /* "core/control.pyx":810
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -13935,7 +13935,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":811
+    /* "core/control.pyx":811
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -13951,7 +13951,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":810
+    /* "core/control.pyx":810
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -13961,7 +13961,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":813
+  /* "core/control.pyx":813
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -13975,7 +13975,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":788
+  /* "core/control.pyx":788
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -13991,7 +13991,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -13999,7 +13999,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":815
+/* "core/control.pyx":815
  *             print('alpha can be a number or an array of size M')
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -14007,7 +14007,7 @@ static int __pyx_pf_6pyross_7control_4SEIR___init__(struct __pyx_obj_6pyross_7co
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_4SEIR_rhs(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -14049,7 +14049,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   Py_ssize_t __pyx_t_16;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":817
+  /* "core/control.pyx":817
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -14061,7 +14061,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":818
+  /* "core/control.pyx":818
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, gIa=self.gIa, gIs=self.gIs, aa, bb             # <<<<<<<<<<<<<<
@@ -14075,7 +14075,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_2 = __pyx_v_self->gIs;
   __pyx_v_gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":819
+  /* "core/control.pyx":819
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, gIa=self.gIa, gIs=self.gIs, aa, bb
  *             double fsa=self.fsa, gE=self.gE, ce1, ce2             # <<<<<<<<<<<<<<
@@ -14087,7 +14087,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_2 = __pyx_v_self->gE;
   __pyx_v_gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":820
+  /* "core/control.pyx":820
  *             double beta=self.beta, gIa=self.gIa, gIs=self.gIs, aa, bb
  *             double fsa=self.fsa, gE=self.gE, ce1, ce2
  *             double [:] S    = rp[0  :  M]             # <<<<<<<<<<<<<<
@@ -14102,7 +14102,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":821
+  /* "core/control.pyx":821
  *             double fsa=self.fsa, gE=self.gE, ce1, ce2
  *             double [:] S    = rp[0  :  M]
  *             double [:] E    = rp[  M:2*M]             # <<<<<<<<<<<<<<
@@ -14117,7 +14117,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":822
+  /* "core/control.pyx":822
  *             double [:] S    = rp[0  :  M]
  *             double [:] E    = rp[  M:2*M]
  *             double [:] Ia   = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -14132,7 +14132,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":823
+  /* "core/control.pyx":823
  *             double [:] E    = rp[  M:2*M]
  *             double [:] Ia   = rp[2*M:3*M]
  *             double [:] Is   = rp[3*M:4*M]             # <<<<<<<<<<<<<<
@@ -14147,7 +14147,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":824
+  /* "core/control.pyx":824
  *             double [:] Ia   = rp[2*M:3*M]
  *             double [:] Is   = rp[3*M:4*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -14159,7 +14159,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":825
+  /* "core/control.pyx":825
  *             double [:] Is   = rp[3*M:4*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -14171,7 +14171,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":826
+  /* "core/control.pyx":826
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -14183,7 +14183,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":827
+  /* "core/control.pyx":827
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -14195,7 +14195,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":829
+  /* "core/control.pyx":829
  *             double [:] alpha= self.alpha
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -14207,7 +14207,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":830
+    /* "core/control.pyx":830
  * 
  *         for i in range(M):
  *             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1             # <<<<<<<<<<<<<<
@@ -14220,7 +14220,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     __pyx_v_ce1 = (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_8 * __pyx_v_alpha.strides[0]) ))));
     __pyx_v_ce2 = (__pyx_v_gE - __pyx_v_ce1);
 
-    /* "pyross/control.pyx":831
+    /* "core/control.pyx":831
  *         for i in range(M):
  *             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -14232,7 +14232,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_j = __pyx_t_11;
 
-      /* "pyross/control.pyx":832
+      /* "core/control.pyx":832
  *             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -14252,7 +14252,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_8 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * ((*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_13 * __pyx_v_Ia.strides[0]) ))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_15 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":833
+    /* "core/control.pyx":833
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -14263,7 +14263,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_15 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":834
+    /* "core/control.pyx":834
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa                                      # rate S  -> E             # <<<<<<<<<<<<<<
@@ -14274,7 +14274,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_15 * __pyx_v_X.strides[0]) )) = (-__pyx_v_aa);
 
-    /* "pyross/control.pyx":835
+    /* "core/control.pyx":835
  *             aa = bb*S[i]
  *             X[i]     = -aa                                      # rate S  -> E
  *             X[i+M]   = aa       - gE*  E[i]                       # rate E  -> Ia, Is             # <<<<<<<<<<<<<<
@@ -14287,7 +14287,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_13 < 0) __pyx_t_13 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_13 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_14 * __pyx_v_E.strides[0]) )))));
 
-    /* "pyross/control.pyx":836
+    /* "core/control.pyx":836
  *             X[i]     = -aa                                      # rate S  -> E
  *             X[i+M]   = aa       - gE*  E[i]                       # rate E  -> Ia, Is
  *             X[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R             # <<<<<<<<<<<<<<
@@ -14302,7 +14302,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_8 * __pyx_v_X.strides[0]) )) = ((__pyx_v_ce1 * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_14 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_12 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":837
+    /* "core/control.pyx":837
  *             X[i+M]   = aa       - gE*  E[i]                       # rate E  -> Ia, Is
  *             X[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R
  *             X[i+3*M] = ce2*E[i] - gIs*Is[i]                       # rate Is -> R             # <<<<<<<<<<<<<<
@@ -14318,7 +14318,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_16 * __pyx_v_X.strides[0]) )) = ((__pyx_v_ce2 * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_12 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))));
   }
 
-  /* "pyross/control.pyx":838
+  /* "core/control.pyx":838
  *             X[i+2*M] = ce1*E[i] - gIa*Ia[i]                       # rate Ia -> R
  *             X[i+3*M] = ce2*E[i] - gIs*Is[i]                       # rate Is -> R
  *         return             # <<<<<<<<<<<<<<
@@ -14329,7 +14329,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":815
+  /* "core/control.pyx":815
  *             print('alpha can be a number or an array of size M')
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -14342,7 +14342,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -14358,7 +14358,7 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":841
+/* "core/control.pyx":841
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -14367,8 +14367,8 @@ static PyObject *__pyx_f_6pyross_7control_4SEIR_rhs(struct __pyx_obj_6pyross_7co
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SEIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
@@ -14394,7 +14394,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_sel
     values[8] = ((PyObject *)__pyx_int_0);
     values[9] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":845
+    /* "core/control.pyx":845
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -14403,7 +14403,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_sel
  */
     values[10] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":846
+    /* "core/control.pyx":846
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -14412,7 +14412,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_sel
  */
     values[11] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":847
+    /* "core/control.pyx":847
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -14621,13 +14621,13 @@ static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_sel
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 8, 16, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 841, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SEIR_2simulate(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_4SEIR_2simulate(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":841
+  /* "core/control.pyx":841
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -14640,7 +14640,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SEIR_3simulate(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_4SEIR_2simulate(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -14659,7 +14659,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":854
+  /* "core/control.pyx":854
  *             dict data
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -14687,7 +14687,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "pyross/control.pyx":855
+    /* "core/control.pyx":855
  * 
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition             # <<<<<<<<<<<<<<
@@ -14733,7 +14733,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":856
+    /* "core/control.pyx":856
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -14746,7 +14746,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
 
-    /* "pyross/control.pyx":857
+    /* "core/control.pyx":857
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -14756,7 +14756,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
 
-    /* "pyross/control.pyx":858
+    /* "core/control.pyx":858
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -14767,7 +14767,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
 
-    /* "pyross/control.pyx":859
+    /* "core/control.pyx":859
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -14776,7 +14776,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
 
-    /* "pyross/control.pyx":860
+    /* "core/control.pyx":860
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -14785,7 +14785,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
 
-    /* "pyross/control.pyx":861
+    /* "core/control.pyx":861
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -14794,7 +14794,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 856, __pyx_L1_error)
 
-    /* "pyross/control.pyx":856
+    /* "core/control.pyx":856
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -14867,7 +14867,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":862
+    /* "core/control.pyx":862
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -14880,7 +14880,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 862, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 862, __pyx_L1_error)
 
-    /* "pyross/control.pyx":863
+    /* "core/control.pyx":863
  *                                   stop_at_event=stop_at_event)
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,             # <<<<<<<<<<<<<<
@@ -14894,7 +14894,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_alpha, ((PyObject *)__pyx_v_self->alpha)) < 0) __PYX_ERR(0, 862, __pyx_L1_error)
 
-    /* "pyross/control.pyx":864
+    /* "core/control.pyx":864
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}             # <<<<<<<<<<<<<<
@@ -14920,19 +14920,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":865
+    /* "core/control.pyx":865
  *                 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
  *             return data             # <<<<<<<<<<<<<<
  *         else:
- *             model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEIR(self.params, self.M, self.Ni)
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_data);
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":854
+    /* "core/control.pyx":854
  *             dict data
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -14941,15 +14941,15 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
   }
 
-  /* "pyross/control.pyx":867
+  /* "core/control.pyx":867
  *             return data
  *         else:
- *             model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
+ *             model = core.stochastic.SEIR(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
  *                                 events=events,contactMatrices=contactMatrices,
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_pyross); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 867, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_core); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 867, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_stochastic); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -15012,9 +15012,9 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_model = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":868
+    /* "core/control.pyx":868
  *         else:
- *             model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEIR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
@@ -15029,8 +15029,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Ia0, __pyx_v_Ia0) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Is0, __pyx_v_Is0) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":869
- *             model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)
+    /* "core/control.pyx":869
+ *             model = core.stochastic.SEIR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
  *                                 events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
  *                                 Tf=Tf, Nf=Nf,
@@ -15039,7 +15039,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":870
+    /* "core/control.pyx":870
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,             # <<<<<<<<<<<<<<
@@ -15049,7 +15049,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Tf, __pyx_v_Tf) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":871
+    /* "core/control.pyx":871
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,             # <<<<<<<<<<<<<<
@@ -15058,7 +15058,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_method, __pyx_v_method) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":872
+    /* "core/control.pyx":872
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,             # <<<<<<<<<<<<<<
@@ -15074,7 +15074,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_epsilon, __pyx_t_6) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":873
+    /* "core/control.pyx":873
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -15086,7 +15086,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_tau_update_frequency, __pyx_t_6) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":874
+    /* "core/control.pyx":874
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -15095,7 +15095,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":875
+    /* "core/control.pyx":875
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -15104,7 +15104,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":876
+    /* "core/control.pyx":876
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -15113,9 +15113,9 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
 
-    /* "pyross/control.pyx":868
+    /* "core/control.pyx":868
  *         else:
- *             model = pyross.stochastic.SEIR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEIR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
@@ -15129,7 +15129,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
     goto __pyx_L0;
   }
 
-  /* "pyross/control.pyx":841
+  /* "core/control.pyx":841
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -15144,7 +15144,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -15165,19 +15165,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_2simulate(struct __pyx_obj_6pyr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_4SEIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SEIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_4SEIR_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_4SEIR_4__reduce_cython__(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_4SEIR_4__reduce_cython__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -15489,7 +15489,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_4__reduce_cython__(struct __pyx
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
-  __Pyx_AddTraceback("pyross.control.SEIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -15507,19 +15507,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_4__reduce_cython__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SEIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_4SEIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SEIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_4SEIR_6__setstate_cython__(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_4SEIR_6__setstate_cython__(struct __pyx_obj_4core_7control_SEIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -15531,7 +15531,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(struct __p
  *     __pyx_unpickle_SEIR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -15547,7 +15547,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(struct __p
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -15555,7 +15555,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(struct __p
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":947
+/* "core/control.pyx":947
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -15564,8 +15564,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SEIR_6__setstate_cython__(struct __p
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -15624,18 +15624,18 @@ static int __pyx_pw_6pyross_7control_5SEI5R_1__init__(PyObject *__pyx_v_self, Py
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 947, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEI5R___init__(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_5SEI5R___init__(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_5SEI5R___init__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   PyObject *__pyx_v_sa = NULL;
   PyObject *__pyx_v_hh = NULL;
@@ -15652,7 +15652,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":948
+  /* "core/control.pyx":948
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -15668,7 +15668,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":949
+  /* "core/control.pyx":949
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -15681,7 +15681,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":950
+  /* "core/control.pyx":950
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gE    = parameters['gE']                       # removal rate of E class             # <<<<<<<<<<<<<<
@@ -15694,7 +15694,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":951
+  /* "core/control.pyx":951
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gE    = parameters['gE']                       # removal rate of E class
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -15707,7 +15707,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":952
+  /* "core/control.pyx":952
  *         self.gE    = parameters['gE']                       # removal rate of E class
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -15720,7 +15720,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":953
+  /* "core/control.pyx":953
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gIh   = parameters['gIh']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -15733,7 +15733,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIh = __pyx_t_2;
 
-  /* "pyross/control.pyx":954
+  /* "core/control.pyx":954
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gIh   = parameters['gIh']                      # removal rate of Is
  *         self.gIc   = parameters['gIc']                      # removal rate of Ih             # <<<<<<<<<<<<<<
@@ -15746,7 +15746,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIc = __pyx_t_2;
 
-  /* "pyross/control.pyx":955
+  /* "core/control.pyx":955
  *         self.gIh   = parameters['gIh']                      # removal rate of Is
  *         self.gIc   = parameters['gIc']                      # removal rate of Ih
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics             # <<<<<<<<<<<<<<
@@ -15759,7 +15759,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":956
+  /* "core/control.pyx":956
  *         self.gIc   = parameters['gIc']                      # removal rate of Ih
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
  *         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds             # <<<<<<<<<<<<<<
@@ -15772,7 +15772,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fh = __pyx_t_2;
 
-  /* "pyross/control.pyx":958
+  /* "core/control.pyx":958
  *         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
  * 
  *         self.nClass = 8             # <<<<<<<<<<<<<<
@@ -15781,7 +15781,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
  */
   __pyx_v_self->__pyx_base.nClass = 8;
 
-  /* "pyross/control.pyx":960
+  /* "core/control.pyx":960
  *         self.nClass = 8
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -15812,7 +15812,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":961
+  /* "core/control.pyx":961
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -15822,7 +15822,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 961, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":962
+  /* "core/control.pyx":962
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -15859,7 +15859,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":963
+  /* "core/control.pyx":963
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -15875,7 +15875,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":965
+  /* "core/control.pyx":965
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -15922,7 +15922,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":966
+  /* "core/control.pyx":966
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -15959,7 +15959,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":968
+  /* "core/control.pyx":968
  *         self.dxdt = np.zeros( 8*self.M, dtype=DTYPE)           # right hand side
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -15971,7 +15971,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":969
+  /* "core/control.pyx":969
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -16008,7 +16008,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":970
+  /* "core/control.pyx":970
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -16042,7 +16042,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":971
+    /* "core/control.pyx":971
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -16079,7 +16079,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":970
+    /* "core/control.pyx":970
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -16089,7 +16089,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":972
+  /* "core/control.pyx":972
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -16122,7 +16122,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":973
+    /* "core/control.pyx":973
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -16138,7 +16138,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":972
+    /* "core/control.pyx":972
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -16148,7 +16148,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":975
+  /* "core/control.pyx":975
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -16162,7 +16162,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":977
+  /* "core/control.pyx":977
  *             print('alpha can be a number or an array of size M')
  * 
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles             # <<<<<<<<<<<<<<
@@ -16174,7 +16174,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_sa = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":978
+  /* "core/control.pyx":978
  * 
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -16211,7 +16211,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":979
+  /* "core/control.pyx":979
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:             # <<<<<<<<<<<<<<
@@ -16245,7 +16245,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":980
+    /* "core/control.pyx":980
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)             # <<<<<<<<<<<<<<
@@ -16282,7 +16282,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":979
+    /* "core/control.pyx":979
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:             # <<<<<<<<<<<<<<
@@ -16292,7 +16292,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":981
+  /* "core/control.pyx":981
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:             # <<<<<<<<<<<<<<
@@ -16325,7 +16325,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":982
+    /* "core/control.pyx":982
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:
  *             self.sa= sa             # <<<<<<<<<<<<<<
@@ -16341,7 +16341,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":981
+    /* "core/control.pyx":981
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:             # <<<<<<<<<<<<<<
@@ -16351,7 +16351,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":984
+  /* "core/control.pyx":984
  *             self.sa= sa
  *         else:
  *             print('sa can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -16365,7 +16365,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   }
   __pyx_L4:;
 
-  /* "pyross/control.pyx":986
+  /* "core/control.pyx":986
  *             print('sa can be a number or an array of size M')
  * 
  *         hh         = parameters['hh']                       # hospital             # <<<<<<<<<<<<<<
@@ -16377,7 +16377,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_hh = __pyx_t_6;
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":987
+  /* "core/control.pyx":987
  * 
  *         hh         = parameters['hh']                       # hospital
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -16414,7 +16414,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->hh = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":988
+  /* "core/control.pyx":988
  *         hh         = parameters['hh']                       # hospital
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(hh)==1:             # <<<<<<<<<<<<<<
@@ -16448,7 +16448,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":989
+    /* "core/control.pyx":989
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(hh)==1:
  *             self.hh = hh*np.ones(M)             # <<<<<<<<<<<<<<
@@ -16485,7 +16485,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->hh = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":988
+    /* "core/control.pyx":988
  *         hh         = parameters['hh']                       # hospital
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(hh)==1:             # <<<<<<<<<<<<<<
@@ -16495,7 +16495,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L5;
   }
 
-  /* "pyross/control.pyx":990
+  /* "core/control.pyx":990
  *         if np.size(hh)==1:
  *             self.hh = hh*np.ones(M)
  *         elif np.size(hh)==M:             # <<<<<<<<<<<<<<
@@ -16528,7 +16528,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":991
+    /* "core/control.pyx":991
  *             self.hh = hh*np.ones(M)
  *         elif np.size(hh)==M:
  *             self.hh= hh             # <<<<<<<<<<<<<<
@@ -16544,7 +16544,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->hh = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":990
+    /* "core/control.pyx":990
  *         if np.size(hh)==1:
  *             self.hh = hh*np.ones(M)
  *         elif np.size(hh)==M:             # <<<<<<<<<<<<<<
@@ -16554,7 +16554,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L5;
   }
 
-  /* "pyross/control.pyx":993
+  /* "core/control.pyx":993
  *             self.hh= hh
  *         else:
  *             print('hh can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -16568,7 +16568,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   }
   __pyx_L5:;
 
-  /* "pyross/control.pyx":995
+  /* "core/control.pyx":995
  *             print('hh can be a number or an array of size M')
  * 
  *         cc         = parameters['cc']                       # ICU             # <<<<<<<<<<<<<<
@@ -16580,7 +16580,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_cc = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":996
+  /* "core/control.pyx":996
  * 
  *         cc         = parameters['cc']                       # ICU
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -16617,7 +16617,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->cc = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":997
+  /* "core/control.pyx":997
  *         cc         = parameters['cc']                       # ICU
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(cc)==1:             # <<<<<<<<<<<<<<
@@ -16651,7 +16651,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":998
+    /* "core/control.pyx":998
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(cc)==1:
  *             self.cc = cc*np.ones(M)             # <<<<<<<<<<<<<<
@@ -16688,7 +16688,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->cc = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":997
+    /* "core/control.pyx":997
  *         cc         = parameters['cc']                       # ICU
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(cc)==1:             # <<<<<<<<<<<<<<
@@ -16698,7 +16698,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L6;
   }
 
-  /* "pyross/control.pyx":999
+  /* "core/control.pyx":999
  *         if np.size(cc)==1:
  *             self.cc = cc*np.ones(M)
  *         elif np.size(cc)==M:             # <<<<<<<<<<<<<<
@@ -16731,7 +16731,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1000
+    /* "core/control.pyx":1000
  *             self.cc = cc*np.ones(M)
  *         elif np.size(cc)==M:
  *             self.cc= cc             # <<<<<<<<<<<<<<
@@ -16747,7 +16747,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->cc = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":999
+    /* "core/control.pyx":999
  *         if np.size(cc)==1:
  *             self.cc = cc*np.ones(M)
  *         elif np.size(cc)==M:             # <<<<<<<<<<<<<<
@@ -16757,7 +16757,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L6;
   }
 
-  /* "pyross/control.pyx":1002
+  /* "core/control.pyx":1002
  *             self.cc= cc
  *         else:
  *             print('cc can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -16771,7 +16771,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   }
   __pyx_L6:;
 
-  /* "pyross/control.pyx":1004
+  /* "core/control.pyx":1004
  *             print('cc can be a number or an array of size M')
  * 
  *         mm         = parameters['mm']                       # mortality             # <<<<<<<<<<<<<<
@@ -16783,7 +16783,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_mm = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1005
+  /* "core/control.pyx":1005
  * 
  *         mm         = parameters['mm']                       # mortality
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -16820,7 +16820,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->mm = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1006
+  /* "core/control.pyx":1006
  *         mm         = parameters['mm']                       # mortality
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(mm)==1:             # <<<<<<<<<<<<<<
@@ -16854,7 +16854,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1007
+    /* "core/control.pyx":1007
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(mm)==1:
  *             self.mm = mm*np.ones(M)             # <<<<<<<<<<<<<<
@@ -16891,7 +16891,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->mm = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1006
+    /* "core/control.pyx":1006
  *         mm         = parameters['mm']                       # mortality
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(mm)==1:             # <<<<<<<<<<<<<<
@@ -16901,7 +16901,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L7;
   }
 
-  /* "pyross/control.pyx":1008
+  /* "core/control.pyx":1008
  *         if np.size(mm)==1:
  *             self.mm = mm*np.ones(M)
  *         elif np.size(mm)==M:             # <<<<<<<<<<<<<<
@@ -16934,7 +16934,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1009
+    /* "core/control.pyx":1009
  *             self.mm = mm*np.ones(M)
  *         elif np.size(mm)==M:
  *             self.mm= mm             # <<<<<<<<<<<<<<
@@ -16950,7 +16950,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->mm = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1008
+    /* "core/control.pyx":1008
  *         if np.size(mm)==1:
  *             self.mm = mm*np.ones(M)
  *         elif np.size(mm)==M:             # <<<<<<<<<<<<<<
@@ -16960,7 +16960,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L7;
   }
 
-  /* "pyross/control.pyx":1011
+  /* "core/control.pyx":1011
  *             self.mm= mm
  *         else:
  *             print('mm can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -16974,7 +16974,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   }
   __pyx_L7:;
 
-  /* "pyross/control.pyx":947
+  /* "core/control.pyx":947
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -16990,7 +16990,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -17002,7 +17002,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1014
+/* "core/control.pyx":1014
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -17010,7 +17010,7 @@ static int __pyx_pf_6pyross_7control_5SEI5R___init__(struct __pyx_obj_6pyross_7c
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_5SEI5R_rhs(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -17067,7 +17067,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   Py_ssize_t __pyx_t_21;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":1016
+  /* "core/control.pyx":1016
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -17079,7 +17079,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":1017
+  /* "core/control.pyx":1017
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb             # <<<<<<<<<<<<<<
@@ -17089,7 +17089,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_2 = __pyx_v_self->__pyx_base.beta;
   __pyx_v_beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1018
+  /* "core/control.pyx":1018
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb
  *             double fsa=self.fsa, fh=self.fh, gE=self.gE             # <<<<<<<<<<<<<<
@@ -17103,7 +17103,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_2 = __pyx_v_self->gE;
   __pyx_v_gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":1019
+  /* "core/control.pyx":1019
  *             double beta=self.beta, aa, bb
  *             double fsa=self.fsa, fh=self.fh, gE=self.gE
  *             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh             # <<<<<<<<<<<<<<
@@ -17119,7 +17119,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_2 = __pyx_v_self->gIh;
   __pyx_v_gIc = __pyx_t_2;
 
-  /* "pyross/control.pyx":1021
+  /* "core/control.pyx":1021
  *             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
  *             double ce1, ce2
  *             double [:] S    = rp[0  :M]             # <<<<<<<<<<<<<<
@@ -17134,7 +17134,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1022
+  /* "core/control.pyx":1022
  *             double ce1, ce2
  *             double [:] S    = rp[0  :M]
  *             double [:] E    = rp[M  :2*M]             # <<<<<<<<<<<<<<
@@ -17149,7 +17149,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1023
+  /* "core/control.pyx":1023
  *             double [:] S    = rp[0  :M]
  *             double [:] E    = rp[M  :2*M]
  *             double [:] Ia   = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -17164,7 +17164,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1024
+  /* "core/control.pyx":1024
  *             double [:] E    = rp[M  :2*M]
  *             double [:] Ia   = rp[2*M:3*M]
  *             double [:] Is   = rp[3*M:4*M]             # <<<<<<<<<<<<<<
@@ -17179,7 +17179,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1025
+  /* "core/control.pyx":1025
  *             double [:] Ia   = rp[2*M:3*M]
  *             double [:] Is   = rp[3*M:4*M]
  *             double [:] Ih   = rp[4*M:5*M]             # <<<<<<<<<<<<<<
@@ -17194,7 +17194,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1026
+  /* "core/control.pyx":1026
  *             double [:] Is   = rp[3*M:4*M]
  *             double [:] Ih   = rp[4*M:5*M]
  *             double [:] Ic   = rp[5*M:6*M]             # <<<<<<<<<<<<<<
@@ -17209,7 +17209,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1027
+  /* "core/control.pyx":1027
  *             double [:] Ih   = rp[4*M:5*M]
  *             double [:] Ic   = rp[5*M:6*M]
  *             double [:] Im   = rp[6*M:7*M]             # <<<<<<<<<<<<<<
@@ -17224,7 +17224,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1028
+  /* "core/control.pyx":1028
  *             double [:] Ic   = rp[5*M:6*M]
  *             double [:] Im   = rp[6*M:7*M]
  *             double [:] Ni   = rp[7*M:8*M]             # <<<<<<<<<<<<<<
@@ -17239,7 +17239,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1029
+  /* "core/control.pyx":1029
  *             double [:] Im   = rp[6*M:7*M]
  *             double [:] Ni   = rp[7*M:8*M]
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -17251,7 +17251,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":1031
+  /* "core/control.pyx":1031
  *             double [:,:] CM = self.CM
  * 
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -17263,7 +17263,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1032
+  /* "core/control.pyx":1032
  * 
  *             double [:] alpha= self.alpha
  *             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc             # <<<<<<<<<<<<<<
@@ -17275,7 +17275,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1033
+  /* "core/control.pyx":1033
  *             double [:] alpha= self.alpha
  *             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
  *             double [:] hh   = self.hh             # <<<<<<<<<<<<<<
@@ -17287,7 +17287,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1034
+  /* "core/control.pyx":1034
  *             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
  *             double [:] hh   = self.hh
  *             double [:] cc   = self.cc             # <<<<<<<<<<<<<<
@@ -17299,7 +17299,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1035
+  /* "core/control.pyx":1035
  *             double [:] hh   = self.hh
  *             double [:] cc   = self.cc
  *             double [:] mm   = self.mm             # <<<<<<<<<<<<<<
@@ -17311,7 +17311,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1036
+  /* "core/control.pyx":1036
  *             double [:] cc   = self.cc
  *             double [:] mm   = self.mm
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -17323,7 +17323,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1038
+  /* "core/control.pyx":1038
  *             double [:] X    = self.dxdt
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -17335,7 +17335,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":1039
+    /* "core/control.pyx":1039
  * 
  *         for i in range(M):
  *             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1             # <<<<<<<<<<<<<<
@@ -17348,7 +17348,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     __pyx_v_ce1 = (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_8 * __pyx_v_alpha.strides[0]) ))));
     __pyx_v_ce2 = (__pyx_v_gE - __pyx_v_ce1);
 
-    /* "pyross/control.pyx":1040
+    /* "core/control.pyx":1040
  *         for i in range(M):
  *             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -17360,7 +17360,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_j = __pyx_t_11;
 
-      /* "pyross/control.pyx":1041
+      /* "core/control.pyx":1041
  *             bb=0;   ce1=gE*alpha[i];  ce2=gE-ce1
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -17382,7 +17382,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_8 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * (((*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_13 * __pyx_v_Ia.strides[0]) ))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) ))))) + (__pyx_v_fh * (*((double *) ( /* dim=0 */ (__pyx_v_Ih.data + __pyx_t_15 * __pyx_v_Ih.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_16 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":1042
+    /* "core/control.pyx":1042
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -17393,7 +17393,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_16 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":1043
+    /* "core/control.pyx":1043
  *                  bb += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa + sa[i]                       # rate S  -> E             # <<<<<<<<<<<<<<
@@ -17406,7 +17406,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_15 * __pyx_v_X.strides[0]) )) = ((-__pyx_v_aa) + (*((double *) ( /* dim=0 */ (__pyx_v_sa.data + __pyx_t_16 * __pyx_v_sa.strides[0]) ))));
 
-    /* "pyross/control.pyx":1044
+    /* "core/control.pyx":1044
  *             aa = bb*S[i]
  *             X[i]     = -aa + sa[i]                       # rate S  -> E
  *             X[i+M]   = aa  - gE*E[i]                     # rate E  -> Ia, Is             # <<<<<<<<<<<<<<
@@ -17419,7 +17419,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_14 < 0) __pyx_t_14 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_14 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_16 * __pyx_v_E.strides[0]) )))));
 
-    /* "pyross/control.pyx":1045
+    /* "core/control.pyx":1045
  *             X[i]     = -aa + sa[i]                       # rate S  -> E
  *             X[i+M]   = aa  - gE*E[i]                     # rate E  -> Ia, Is
  *             X[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R             # <<<<<<<<<<<<<<
@@ -17434,7 +17434,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_12 * __pyx_v_X.strides[0]) )) = ((__pyx_v_ce1 * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_16 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_13 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":1046
+    /* "core/control.pyx":1046
  *             X[i+M]   = aa  - gE*E[i]                     # rate E  -> Ia, Is
  *             X[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R
  *             X[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Is -> R, Ih             # <<<<<<<<<<<<<<
@@ -17449,7 +17449,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_8 * __pyx_v_X.strides[0]) )) = ((__pyx_v_ce2 * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_13 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_16 * __pyx_v_Is.strides[0]) )))));
 
-    /* "pyross/control.pyx":1047
+    /* "core/control.pyx":1047
  *             X[i+2*M] = ce1*E[i] - gIa*Ia[i]              # rate Ia -> R
  *             X[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Is -> R, Ih
  *             X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic             # <<<<<<<<<<<<<<
@@ -17466,7 +17466,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_18 < 0) __pyx_t_18 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_18 * __pyx_v_X.strides[0]) )) = (((__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_hh.data + __pyx_t_16 * __pyx_v_hh.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_13 * __pyx_v_Is.strides[0]) )))) - (__pyx_v_gIh * (*((double *) ( /* dim=0 */ (__pyx_v_Ih.data + __pyx_t_17 * __pyx_v_Ih.strides[0]) )))));
 
-    /* "pyross/control.pyx":1048
+    /* "core/control.pyx":1048
  *             X[i+3*M] = ce2*E[i] - gIs*Is[i]              # rate Is -> R, Ih
  *             X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
  *             X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im             # <<<<<<<<<<<<<<
@@ -17483,7 +17483,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_19 < 0) __pyx_t_19 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_19 * __pyx_v_X.strides[0]) )) = (((__pyx_v_gIh * (*((double *) ( /* dim=0 */ (__pyx_v_cc.data + __pyx_t_17 * __pyx_v_cc.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Ih.data + __pyx_t_13 * __pyx_v_Ih.strides[0]) )))) - (__pyx_v_gIc * (*((double *) ( /* dim=0 */ (__pyx_v_Ic.data + __pyx_t_16 * __pyx_v_Ic.strides[0]) )))));
 
-    /* "pyross/control.pyx":1049
+    /* "core/control.pyx":1049
  *             X[i+4*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
  *             X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
  *             X[i+6*M] = gIc*mm[i]*Ic[i]                   # rate of Im             # <<<<<<<<<<<<<<
@@ -17498,7 +17498,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_17 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gIc * (*((double *) ( /* dim=0 */ (__pyx_v_mm.data + __pyx_t_16 * __pyx_v_mm.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Ic.data + __pyx_t_13 * __pyx_v_Ic.strides[0]) ))));
 
-    /* "pyross/control.pyx":1050
+    /* "core/control.pyx":1050
  *             X[i+5*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
  *             X[i+6*M] = gIc*mm[i]*Ic[i]                   # rate of Im
  *             X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni             # <<<<<<<<<<<<<<
@@ -17516,7 +17516,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_21 * __pyx_v_X.strides[0]) )) = ((*((double *) ( /* dim=0 */ (__pyx_v_sa.data + __pyx_t_13 * __pyx_v_sa.strides[0]) ))) - ((__pyx_v_gIc * (*((double *) ( /* dim=0 */ (__pyx_v_mm.data + __pyx_t_16 * __pyx_v_mm.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Im.data + __pyx_t_20 * __pyx_v_Im.strides[0]) )))));
   }
 
-  /* "pyross/control.pyx":1051
+  /* "core/control.pyx":1051
  *             X[i+6*M] = gIc*mm[i]*Ic[i]                   # rate of Im
  *             X[i+7*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni
  *         return             # <<<<<<<<<<<<<<
@@ -17527,7 +17527,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1014
+  /* "core/control.pyx":1014
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -17540,7 +17540,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -17563,7 +17563,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1055
+/* "core/control.pyx":1055
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0,             # <<<<<<<<<<<<<<
@@ -17572,8 +17572,8 @@ static PyObject *__pyx_f_6pyross_7control_5SEI5R_rhs(struct __pyx_obj_6pyross_7c
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_Ia0 = 0;
@@ -17602,7 +17602,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_se
     values[11] = ((PyObject *)__pyx_int_0);
     values[12] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":1059
+    /* "core/control.pyx":1059
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -17611,7 +17611,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_se
  */
     values[13] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":1060
+    /* "core/control.pyx":1060
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -17620,7 +17620,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_se
  */
     values[14] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":1061
+    /* "core/control.pyx":1061
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -17859,13 +17859,13 @@ static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_se
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 11, 19, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1055, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEI5R_2simulate(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_5SEI5R_2simulate(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":1055
+  /* "core/control.pyx":1055
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0,             # <<<<<<<<<<<<<<
@@ -17878,7 +17878,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEI5R_3simulate(PyObject *__pyx_v_se
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_5SEI5R_2simulate(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -17897,7 +17897,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":1068
+  /* "core/control.pyx":1068
  *             dict data
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -17925,7 +17925,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "pyross/control.pyx":1069
+    /* "core/control.pyx":1069
  * 
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition             # <<<<<<<<<<<<<<
@@ -17983,7 +17983,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1070
+    /* "core/control.pyx":1070
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -17996,7 +17996,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1071
+    /* "core/control.pyx":1071
  *             y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -18006,7 +18006,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1072
+    /* "core/control.pyx":1072
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -18017,7 +18017,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1073
+    /* "core/control.pyx":1073
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -18026,7 +18026,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1074
+    /* "core/control.pyx":1074
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -18035,7 +18035,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1075
+    /* "core/control.pyx":1075
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -18044,7 +18044,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1070, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1070
+    /* "core/control.pyx":1070
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -18117,7 +18117,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1076
+    /* "core/control.pyx":1076
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -18130,7 +18130,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 1076, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 1076, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1077
+    /* "core/control.pyx":1077
  *                                   stop_at_event=stop_at_event)
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                   'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,             # <<<<<<<<<<<<<<
@@ -18144,7 +18144,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_alpha, ((PyObject *)__pyx_v_self->alpha)) < 0) __PYX_ERR(0, 1076, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1078
+    /* "core/control.pyx":1078
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                   'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                   'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}             # <<<<<<<<<<<<<<
@@ -18170,19 +18170,19 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1079
+    /* "core/control.pyx":1079
  *                   'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
  *                   'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
  *             return data             # <<<<<<<<<<<<<<
  *         else:
- *             model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEI5R(self.params, self.M, self.Ni)
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_data);
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":1068
+    /* "core/control.pyx":1068
  *             dict data
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -18191,15 +18191,15 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
   }
 
-  /* "pyross/control.pyx":1081
+  /* "core/control.pyx":1081
  *             return data
  *         else:
- *             model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
+ *             model = core.stochastic.SEI5R(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
  *                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_pyross); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1081, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_core); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1081, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_stochastic); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1081, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -18262,9 +18262,9 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     __pyx_v_model = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1082
+    /* "core/control.pyx":1082
  *         else:
- *             model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEI5R(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,
@@ -18279,8 +18279,8 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Ia0, __pyx_v_Ia0) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Is0, __pyx_v_Is0) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1083
- *             model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)
+    /* "core/control.pyx":1083
+ *             model = core.stochastic.SEI5R(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
  *                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
@@ -18290,7 +18290,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Ic0, __pyx_v_Ic0) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Im0, __pyx_v_Im0) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1084
+    /* "core/control.pyx":1084
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,
  *                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -18300,7 +18300,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1085
+    /* "core/control.pyx":1085
  *                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,             # <<<<<<<<<<<<<<
@@ -18310,7 +18310,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Tf, __pyx_v_Tf) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1086
+    /* "core/control.pyx":1086
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,             # <<<<<<<<<<<<<<
@@ -18319,7 +18319,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_method, __pyx_v_method) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1087
+    /* "core/control.pyx":1087
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,             # <<<<<<<<<<<<<<
@@ -18335,7 +18335,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_epsilon, __pyx_t_6) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1088
+    /* "core/control.pyx":1088
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -18347,7 +18347,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_tau_update_frequency, __pyx_t_6) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1089
+    /* "core/control.pyx":1089
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -18356,7 +18356,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1090
+    /* "core/control.pyx":1090
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -18365,7 +18365,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1091
+    /* "core/control.pyx":1091
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -18374,9 +18374,9 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1082, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1082
+    /* "core/control.pyx":1082
  *         else:
- *             model = pyross.stochastic.SEI5R(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEI5R(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 Ih0=Ih0, Ic0=Ic0, Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,
@@ -18390,7 +18390,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
     goto __pyx_L0;
   }
 
-  /* "pyross/control.pyx":1055
+  /* "core/control.pyx":1055
  * 
  * 
  *     def simulate(self, S0, E0, Ia0, Is0, Ih0, Ic0, Im0,             # <<<<<<<<<<<<<<
@@ -18405,7 +18405,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -18426,19 +18426,19 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_2simulate(struct __pyx_obj_6py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_5SEI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_5SEI5R_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_5SEI5R_4__reduce_cython__(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_5SEI5R_4__reduce_cython__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -18811,7 +18811,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_4__reduce_cython__(struct __py
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
-  __Pyx_AddTraceback("pyross.control.SEI5R.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -18829,19 +18829,19 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_4__reduce_cython__(struct __py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_5SEI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_5SEI5R_6__setstate_cython__(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_5SEI5R_6__setstate_cython__(struct __pyx_obj_4core_7control_SEI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -18853,7 +18853,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(struct __
  *     __pyx_unpickle_SEI5R__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEI5R__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEI5R__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -18869,7 +18869,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(struct __
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEI5R.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEI5R.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -18877,7 +18877,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(struct __
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1132
+/* "core/control.pyx":1132
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -18886,8 +18886,8 @@ static PyObject *__pyx_pf_6pyross_7control_5SEI5R_6__setstate_cython__(struct __
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -18946,18 +18946,18 @@ static int __pyx_pw_6pyross_7control_4SIkR_1__init__(PyObject *__pyx_v_self, PyO
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1132, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIkR___init__(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_4SIkR___init__(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_4SIkR___init__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -18968,7 +18968,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":1133
+  /* "core/control.pyx":1133
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -18984,7 +18984,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1134
+  /* "core/control.pyx":1134
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -18997,7 +18997,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1135
+  /* "core/control.pyx":1135
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gI    = parameters['gI']                       # removal rate of I             # <<<<<<<<<<<<<<
@@ -19010,7 +19010,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gI = __pyx_t_2;
 
-  /* "pyross/control.pyx":1136
+  /* "core/control.pyx":1136
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gI    = parameters['gI']                       # removal rate of I
  *         self.ki    = parameters['kI']                        # number of stages             # <<<<<<<<<<<<<<
@@ -19023,7 +19023,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->ki = __pyx_t_3;
 
-  /* "pyross/control.pyx":1138
+  /* "core/control.pyx":1138
  *         self.ki    = parameters['kI']                        # number of stages
  * 
  *         self.nClass = self.ki+1             # <<<<<<<<<<<<<<
@@ -19032,7 +19032,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
  */
   __pyx_v_self->__pyx_base.nClass = (__pyx_v_self->ki + 1);
 
-  /* "pyross/control.pyx":1140
+  /* "core/control.pyx":1140
  *         self.nClass = self.ki+1
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -19063,7 +19063,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_3;
 
-  /* "pyross/control.pyx":1141
+  /* "core/control.pyx":1141
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -19073,7 +19073,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1141, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_3;
 
-  /* "pyross/control.pyx":1142
+  /* "core/control.pyx":1142
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -19110,7 +19110,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1143
+  /* "core/control.pyx":1143
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -19126,7 +19126,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1145
+  /* "core/control.pyx":1145
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -19173,7 +19173,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1146
+  /* "core/control.pyx":1146
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( (self.ki+1)*self.M, dtype=DTYPE) # right hand side             # <<<<<<<<<<<<<<
@@ -19210,7 +19210,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1132
+  /* "core/control.pyx":1132
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -19226,14 +19226,14 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1149
+/* "core/control.pyx":1149
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -19241,7 +19241,7 @@ static int __pyx_pf_6pyross_7control_4SIkR___init__(struct __pyx_obj_6pyross_7co
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki
  */
 
-static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_4SIkR_rhs(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -19281,7 +19281,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   Py_ssize_t __pyx_t_20;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":1151
+  /* "core/control.pyx":1151
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki             # <<<<<<<<<<<<<<
@@ -19295,7 +19295,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_1 = __pyx_v_self->ki;
   __pyx_v_ki = __pyx_t_1;
 
-  /* "pyross/control.pyx":1152
+  /* "core/control.pyx":1152
  *         cdef:
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki
  *             double beta=self.beta, gI=self.ki*self.gI, aa, bb             # <<<<<<<<<<<<<<
@@ -19306,7 +19306,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_v_beta = __pyx_t_2;
   __pyx_v_gI = (__pyx_v_self->ki * __pyx_v_self->gI);
 
-  /* "pyross/control.pyx":1153
+  /* "core/control.pyx":1153
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki
  *             double beta=self.beta, gI=self.ki*self.gI, aa, bb
  *             double [:] S    = rp[0  :M]             # <<<<<<<<<<<<<<
@@ -19321,7 +19321,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1154
+  /* "core/control.pyx":1154
  *             double beta=self.beta, gI=self.ki*self.gI, aa, bb
  *             double [:] S    = rp[0  :M]
  *             double [:] I    = rp[M  :(ki+1)*M]             # <<<<<<<<<<<<<<
@@ -19336,7 +19336,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1155
+  /* "core/control.pyx":1155
  *             double [:] S    = rp[0  :M]
  *             double [:] I    = rp[M  :(ki+1)*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -19348,7 +19348,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1156
+  /* "core/control.pyx":1156
  *             double [:] I    = rp[M  :(ki+1)*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -19360,7 +19360,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":1157
+  /* "core/control.pyx":1157
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -19372,7 +19372,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1159
+  /* "core/control.pyx":1159
  *             double [:] X    = self.dxdt
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -19384,7 +19384,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":1160
+    /* "core/control.pyx":1160
  * 
  *         for i in range(M):
  *             bb=0             # <<<<<<<<<<<<<<
@@ -19393,7 +19393,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
  */
     __pyx_v_bb = 0.0;
 
-    /* "pyross/control.pyx":1161
+    /* "core/control.pyx":1161
  *         for i in range(M):
  *             bb=0
  *             for jj in range(ki):             # <<<<<<<<<<<<<<
@@ -19405,7 +19405,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
     for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
       __pyx_v_jj = __pyx_t_10;
 
-      /* "pyross/control.pyx":1162
+      /* "core/control.pyx":1162
  *             bb=0
  *             for jj in range(ki):
  *                 for j in range(M):             # <<<<<<<<<<<<<<
@@ -19417,7 +19417,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
       for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
         __pyx_v_j = __pyx_t_13;
 
-        /* "pyross/control.pyx":1163
+        /* "core/control.pyx":1163
  *             for jj in range(ki):
  *                 for j in range(M):
  *                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]             # <<<<<<<<<<<<<<
@@ -19436,7 +19436,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
       }
     }
 
-    /* "pyross/control.pyx":1164
+    /* "core/control.pyx":1164
  *                 for j in range(M):
  *                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -19447,7 +19447,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_17 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":1165
+    /* "core/control.pyx":1165
  *                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa             # <<<<<<<<<<<<<<
@@ -19458,7 +19458,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_17 * __pyx_v_X.strides[0]) )) = (-__pyx_v_aa);
 
-    /* "pyross/control.pyx":1166
+    /* "core/control.pyx":1166
  *             aa = bb*S[i]
  *             X[i]     = -aa
  *             X[i+M]   = aa - gI*I[i]             # <<<<<<<<<<<<<<
@@ -19471,7 +19471,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_15 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - (__pyx_v_gI * (*((double *) ( /* dim=0 */ (__pyx_v_I.data + __pyx_t_16 * __pyx_v_I.strides[0]) )))));
 
-    /* "pyross/control.pyx":1168
+    /* "core/control.pyx":1168
  *             X[i+M]   = aa - gI*I[i]
  * 
  *             for j in range(ki-1):             # <<<<<<<<<<<<<<
@@ -19483,7 +19483,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
     for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_19; __pyx_t_8+=1) {
       __pyx_v_j = __pyx_t_8;
 
-      /* "pyross/control.pyx":1169
+      /* "core/control.pyx":1169
  * 
  *             for j in range(ki-1):
  *                 X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]             # <<<<<<<<<<<<<<
@@ -19500,7 +19500,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
     }
   }
 
-  /* "pyross/control.pyx":1170
+  /* "core/control.pyx":1170
  *             for j in range(ki-1):
  *                 X[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
  *         return             # <<<<<<<<<<<<<<
@@ -19511,7 +19511,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1149
+  /* "core/control.pyx":1149
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -19524,7 +19524,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -19537,7 +19537,7 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1174
+/* "core/control.pyx":1174
  * 
  * 
  *     def simulate(self,  S0, I0,             # <<<<<<<<<<<<<<
@@ -19546,8 +19546,8 @@ static PyObject *__pyx_f_6pyross_7control_4SIkR_rhs(struct __pyx_obj_6pyross_7co
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_I0 = 0;
   PyObject *__pyx_v_events = 0;
@@ -19571,7 +19571,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_sel
     values[6] = ((PyObject *)__pyx_int_0);
     values[7] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":1178
+    /* "core/control.pyx":1178
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -19580,7 +19580,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_sel
  */
     values[8] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":1179
+    /* "core/control.pyx":1179
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -19589,7 +19589,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_sel
  */
     values[9] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":1180
+    /* "core/control.pyx":1180
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -19778,13 +19778,13 @@ static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_sel
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 6, 14, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1174, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4SIkR_2simulate(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_4SIkR_2simulate(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":1174
+  /* "core/control.pyx":1174
  * 
  * 
  *     def simulate(self,  S0, I0,             # <<<<<<<<<<<<<<
@@ -19797,7 +19797,7 @@ static PyObject *__pyx_pw_6pyross_7control_4SIkR_3simulate(PyObject *__pyx_v_sel
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_4SIkR_2simulate(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -19816,7 +19816,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":1187
+  /* "core/control.pyx":1187
  *             dict data
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -19844,7 +19844,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "pyross/control.pyx":1188
+    /* "core/control.pyx":1188
  * 
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate(( S0, I0 )) # initial condition             # <<<<<<<<<<<<<<
@@ -19884,7 +19884,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1189
+    /* "core/control.pyx":1189
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate(( S0, I0 )) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -19897,7 +19897,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1190
+    /* "core/control.pyx":1190
  *             y0 = np.concatenate(( S0, I0 )) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -19907,7 +19907,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1191
+    /* "core/control.pyx":1191
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -19918,7 +19918,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1192
+    /* "core/control.pyx":1192
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -19927,7 +19927,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1193
+    /* "core/control.pyx":1193
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -19936,7 +19936,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1194
+    /* "core/control.pyx":1194
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -19945,7 +19945,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1189, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1189
+    /* "core/control.pyx":1189
  *         if method.lower()=='deterministic':
  *             y0 = np.concatenate(( S0, I0 )) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -20018,7 +20018,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1195
+    /* "core/control.pyx":1195
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -20031,7 +20031,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 1195, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 1195, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1196
+    /* "core/control.pyx":1196
  *                                   stop_at_event=stop_at_event)
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *               'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }             # <<<<<<<<<<<<<<
@@ -20058,19 +20058,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1197
+    /* "core/control.pyx":1197
  *             data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *               'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
  *             return data             # <<<<<<<<<<<<<<
  *         else:
- *             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIkR(self.params, self.M, self.Ni)
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_data);
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":1187
+    /* "core/control.pyx":1187
  *             dict data
  * 
  *         if method.lower()=='deterministic':             # <<<<<<<<<<<<<<
@@ -20079,15 +20079,15 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
   }
 
-  /* "pyross/control.pyx":1199
+  /* "core/control.pyx":1199
  *             return data
  *         else:
- *             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
+ *             model = core.stochastic.SIkR(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
  *             return model.simulate_events(S0=S0,I0=I0,
  *                                 events=events,contactMatrices=contactMatrices,
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_pyross); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1199, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_core); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_stochastic); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -20150,9 +20150,9 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     __pyx_v_model = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1200
+    /* "core/control.pyx":1200
  *         else:
- *             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIkR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,I0=I0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
@@ -20165,8 +20165,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_S0, __pyx_v_S0) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_I0, __pyx_v_I0) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1201
- *             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
+    /* "core/control.pyx":1201
+ *             model = core.stochastic.SIkR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,I0=I0,
  *                                 events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
  *                                 Tf=Tf, Nf=Nf,
@@ -20175,7 +20175,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1202
+    /* "core/control.pyx":1202
  *             return model.simulate_events(S0=S0,I0=I0,
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,             # <<<<<<<<<<<<<<
@@ -20185,7 +20185,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Tf, __pyx_v_Tf) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1203
+    /* "core/control.pyx":1203
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,             # <<<<<<<<<<<<<<
@@ -20194,7 +20194,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_method, __pyx_v_method) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1204
+    /* "core/control.pyx":1204
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,             # <<<<<<<<<<<<<<
@@ -20210,7 +20210,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_epsilon, __pyx_t_6) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1205
+    /* "core/control.pyx":1205
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -20222,7 +20222,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_tau_update_frequency, __pyx_t_6) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1206
+    /* "core/control.pyx":1206
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -20231,7 +20231,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1207
+    /* "core/control.pyx":1207
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -20240,7 +20240,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1208
+    /* "core/control.pyx":1208
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -20249,9 +20249,9 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1200, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1200
+    /* "core/control.pyx":1200
  *         else:
- *             model = pyross.stochastic.SIkR(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIkR(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,I0=I0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
@@ -20265,7 +20265,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
     goto __pyx_L0;
   }
 
-  /* "pyross/control.pyx":1174
+  /* "core/control.pyx":1174
  * 
  * 
  *     def simulate(self,  S0, I0,             # <<<<<<<<<<<<<<
@@ -20280,7 +20280,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -20301,19 +20301,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_2simulate(struct __pyx_obj_6pyr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_4SIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_4SIkR_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_4SIkR_4__reduce_cython__(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_4SIkR_4__reduce_cython__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -20601,7 +20601,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_4__reduce_cython__(struct __pyx
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("pyross.control.SIkR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -20619,19 +20619,19 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_4__reduce_cython__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_4SIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_4SIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_4SIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_4SIkR_6__setstate_cython__(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_4SIkR_6__setstate_cython__(struct __pyx_obj_4core_7control_SIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20643,7 +20643,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(struct __p
  *     __pyx_unpickle_SIkR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SIkR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SIkR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -20659,7 +20659,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(struct __p
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SIkR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SIkR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -20667,7 +20667,7 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(struct __p
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1254
+/* "core/control.pyx":1254
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -20676,8 +20676,8 @@ static PyObject *__pyx_pf_6pyross_7control_4SIkR_6__setstate_cython__(struct __p
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -20736,18 +20736,18 @@ static int __pyx_pw_6pyross_7control_6SEkIkR_1__init__(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1254, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEkIkR___init__(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_6SEkIkR___init__(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_6SEkIkR___init__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -20758,7 +20758,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":1255
+  /* "core/control.pyx":1255
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -20774,7 +20774,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1256
+  /* "core/control.pyx":1256
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -20787,7 +20787,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1257
+  /* "core/control.pyx":1257
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gE    = parameters['gE']                       # removal rate of E             # <<<<<<<<<<<<<<
@@ -20800,7 +20800,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":1258
+  /* "core/control.pyx":1258
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.gI    = parameters['gI']                       # removal rate of I             # <<<<<<<<<<<<<<
@@ -20813,7 +20813,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gI = __pyx_t_2;
 
-  /* "pyross/control.pyx":1259
+  /* "core/control.pyx":1259
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.gI    = parameters['gI']                       # removal rate of I
  *         self.ki    = parameters['kI']                       # number of stages             # <<<<<<<<<<<<<<
@@ -20826,7 +20826,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->ki = __pyx_t_3;
 
-  /* "pyross/control.pyx":1260
+  /* "core/control.pyx":1260
  *         self.gI    = parameters['gI']                       # removal rate of I
  *         self.ki    = parameters['kI']                       # number of stages
  *         self.ke    = parameters['kE']             # <<<<<<<<<<<<<<
@@ -20839,7 +20839,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->ke = __pyx_t_3;
 
-  /* "pyross/control.pyx":1262
+  /* "core/control.pyx":1262
  *         self.ke    = parameters['kE']
  * 
  *         self.nClass = self.ki + self.ke + 1             # <<<<<<<<<<<<<<
@@ -20848,7 +20848,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
  */
   __pyx_v_self->__pyx_base.nClass = ((__pyx_v_self->ki + __pyx_v_self->ke) + 1);
 
-  /* "pyross/control.pyx":1264
+  /* "core/control.pyx":1264
  *         self.nClass = self.ki + self.ke + 1
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -20879,7 +20879,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_3;
 
-  /* "pyross/control.pyx":1265
+  /* "core/control.pyx":1265
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -20889,7 +20889,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1265, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_3;
 
-  /* "pyross/control.pyx":1266
+  /* "core/control.pyx":1266
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -20926,7 +20926,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1267
+  /* "core/control.pyx":1267
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -20942,7 +20942,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1269
+  /* "core/control.pyx":1269
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -20989,7 +20989,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1270
+  /* "core/control.pyx":1270
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -21026,7 +21026,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1254
+  /* "core/control.pyx":1254
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -21042,14 +21042,14 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1273
+/* "core/control.pyx":1273
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -21057,7 +21057,7 @@ static int __pyx_pf_6pyross_7control_6SEkIkR___init__(struct __pyx_obj_6pyross_7
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
  */
 
-static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_6SEkIkR_rhs(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -21104,7 +21104,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   Py_ssize_t __pyx_t_24;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":1275
+  /* "core/control.pyx":1275
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke             # <<<<<<<<<<<<<<
@@ -21120,7 +21120,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_1 = __pyx_v_self->ke;
   __pyx_v_ke = __pyx_t_1;
 
-  /* "pyross/control.pyx":1276
+  /* "core/control.pyx":1276
  *         cdef:
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
  *             double beta=self.beta, gI=self.ki*self.gI, aa, bb             # <<<<<<<<<<<<<<
@@ -21131,7 +21131,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_v_beta = __pyx_t_2;
   __pyx_v_gI = (__pyx_v_self->ki * __pyx_v_self->gI);
 
-  /* "pyross/control.pyx":1277
+  /* "core/control.pyx":1277
  *             int N=self.N, M=self.M, i, j, jj, ki=self.ki, ke = self.ke
  *             double beta=self.beta, gI=self.ki*self.gI, aa, bb
  *             double gE = self.ke * self.gE             # <<<<<<<<<<<<<<
@@ -21140,7 +21140,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
  */
   __pyx_v_gE = (__pyx_v_self->ke * __pyx_v_self->gE);
 
-  /* "pyross/control.pyx":1278
+  /* "core/control.pyx":1278
  *             double beta=self.beta, gI=self.ki*self.gI, aa, bb
  *             double gE = self.ke * self.gE
  *             double [:] S    = rp[0  :M]             # <<<<<<<<<<<<<<
@@ -21155,7 +21155,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1279
+  /* "core/control.pyx":1279
  *             double gE = self.ke * self.gE
  *             double [:] S    = rp[0  :M]
  *             double [:] E    = rp[M  :(ke+1)*M]             # <<<<<<<<<<<<<<
@@ -21170,7 +21170,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1280
+  /* "core/control.pyx":1280
  *             double [:] S    = rp[0  :M]
  *             double [:] E    = rp[M  :(ke+1)*M]
  *             double [:] I    = rp[(ke+1)*M  :(ke+ki+1)*M]             # <<<<<<<<<<<<<<
@@ -21185,7 +21185,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1281
+  /* "core/control.pyx":1281
  *             double [:] E    = rp[M  :(ke+1)*M]
  *             double [:] I    = rp[(ke+1)*M  :(ke+ki+1)*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -21197,7 +21197,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1282
+  /* "core/control.pyx":1282
  *             double [:] I    = rp[(ke+1)*M  :(ke+ki+1)*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -21209,7 +21209,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":1283
+  /* "core/control.pyx":1283
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -21221,7 +21221,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1285
+  /* "core/control.pyx":1285
  *             double [:] X    = self.dxdt
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -21233,7 +21233,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":1286
+    /* "core/control.pyx":1286
  * 
  *         for i in range(M):
  *             bb=0             # <<<<<<<<<<<<<<
@@ -21242,7 +21242,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
  */
     __pyx_v_bb = 0.0;
 
-    /* "pyross/control.pyx":1287
+    /* "core/control.pyx":1287
  *         for i in range(M):
  *             bb=0
  *             for jj in range(ki):             # <<<<<<<<<<<<<<
@@ -21254,7 +21254,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
       __pyx_v_jj = __pyx_t_10;
 
-      /* "pyross/control.pyx":1288
+      /* "core/control.pyx":1288
  *             bb=0
  *             for jj in range(ki):
  *                 for j in range(M):             # <<<<<<<<<<<<<<
@@ -21266,7 +21266,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
       for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
         __pyx_v_j = __pyx_t_13;
 
-        /* "pyross/control.pyx":1289
+        /* "core/control.pyx":1289
  *             for jj in range(ki):
  *                 for j in range(M):
  *                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]             # <<<<<<<<<<<<<<
@@ -21285,7 +21285,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
       }
     }
 
-    /* "pyross/control.pyx":1290
+    /* "core/control.pyx":1290
  *                 for j in range(M):
  *                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -21296,7 +21296,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_17 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":1291
+    /* "core/control.pyx":1291
  *                     bb += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa             # <<<<<<<<<<<<<<
@@ -21307,7 +21307,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_17 * __pyx_v_X.strides[0]) )) = (-__pyx_v_aa);
 
-    /* "pyross/control.pyx":1294
+    /* "core/control.pyx":1294
  * 
  *             # If there is any E stage...
  *             if 0 != ke :             # <<<<<<<<<<<<<<
@@ -21317,7 +21317,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     __pyx_t_18 = ((0 != __pyx_v_ke) != 0);
     if (__pyx_t_18) {
 
-      /* "pyross/control.pyx":1296
+      /* "core/control.pyx":1296
  *             if 0 != ke :
  *                 # People removed from S are put in E[0]
  *                 X[i+M+0] = aa - gE*E[i]             # <<<<<<<<<<<<<<
@@ -21330,7 +21330,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
       if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_X.shape[0];
       *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_15 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_16 * __pyx_v_E.strides[0]) )))));
 
-      /* "pyross/control.pyx":1299
+      /* "core/control.pyx":1299
  * 
  *                 # Propagate cases along the E stages
  *                 for j in range(ke - 1) :             # <<<<<<<<<<<<<<
@@ -21342,7 +21342,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
       for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_20; __pyx_t_8+=1) {
         __pyx_v_j = __pyx_t_8;
 
-        /* "pyross/control.pyx":1300
+        /* "core/control.pyx":1300
  *                 # Propagate cases along the E stages
  *                 for j in range(ke - 1) :
  *                     X[i + M +  (j+1)*M ] = gE * E[i+j*M] - gE * E[i+(j+1)*M]             # <<<<<<<<<<<<<<
@@ -21358,7 +21358,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
         *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_21 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_16 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_14 * __pyx_v_E.strides[0]) )))));
       }
 
-      /* "pyross/control.pyx":1303
+      /* "core/control.pyx":1303
  * 
  *                 # Transfer cases from E[-1] to I[0]
  *                 X[i + (ke+1)* M + 0] = gE * E[i+(ke-1)*M] - gI * I[i]             # <<<<<<<<<<<<<<
@@ -21373,7 +21373,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
       if (__pyx_t_22 < 0) __pyx_t_22 += __pyx_v_X.shape[0];
       *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_22 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_14 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gI * (*((double *) ( /* dim=0 */ (__pyx_v_I.data + __pyx_t_16 * __pyx_v_I.strides[0]) )))));
 
-      /* "pyross/control.pyx":1294
+      /* "core/control.pyx":1294
  * 
  *             # If there is any E stage...
  *             if 0 != ke :             # <<<<<<<<<<<<<<
@@ -21383,7 +21383,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
       goto __pyx_L9;
     }
 
-    /* "pyross/control.pyx":1308
+    /* "core/control.pyx":1308
  *             else :
  *                 # People removed from S are put in I[0]
  *                 X[i + (ke+1)* M + 0] = aa          - gI * I[i]             # <<<<<<<<<<<<<<
@@ -21399,7 +21399,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     }
     __pyx_L9:;
 
-    /* "pyross/control.pyx":1311
+    /* "core/control.pyx":1311
  * 
  *             # In both cases, propagate cases along the I stages.
  *             for j in range(ki-1):             # <<<<<<<<<<<<<<
@@ -21411,7 +21411,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_20; __pyx_t_8+=1) {
       __pyx_v_j = __pyx_t_8;
 
-      /* "pyross/control.pyx":1312
+      /* "core/control.pyx":1312
  *             # In both cases, propagate cases along the I stages.
  *             for j in range(ki-1):
  *                 X[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]             # <<<<<<<<<<<<<<
@@ -21428,7 +21428,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
     }
   }
 
-  /* "pyross/control.pyx":1313
+  /* "core/control.pyx":1313
  *             for j in range(ki-1):
  *                 X[i+(ke+1)*M + (j+1)*M ]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
  *         return             # <<<<<<<<<<<<<<
@@ -21439,7 +21439,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1273
+  /* "core/control.pyx":1273
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -21452,7 +21452,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -21466,7 +21466,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1317
+/* "core/control.pyx":1317
  * 
  * 
  *     def simulate(self,  S0, E0, I0,             # <<<<<<<<<<<<<<
@@ -21475,8 +21475,8 @@ static PyObject *__pyx_f_6pyross_7control_6SEkIkR_rhs(struct __pyx_obj_6pyross_7
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_I0 = 0;
@@ -21501,7 +21501,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_s
     values[7] = ((PyObject *)__pyx_int_0);
     values[8] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":1321
+    /* "core/control.pyx":1321
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -21510,7 +21510,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_s
  */
     values[9] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":1322
+    /* "core/control.pyx":1322
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -21519,7 +21519,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_s
  */
     values[10] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":1323
+    /* "core/control.pyx":1323
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -21718,13 +21718,13 @@ static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_s
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 7, 15, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1317, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEkIkR_2simulate(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_6SEkIkR_2simulate(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_I0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":1317
+  /* "core/control.pyx":1317
  * 
  * 
  *     def simulate(self,  S0, E0, I0,             # <<<<<<<<<<<<<<
@@ -21737,7 +21737,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_3simulate(PyObject *__pyx_v_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_2simulate(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_I0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -21754,7 +21754,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   PyObject *(*__pyx_t_7)(PyObject *);
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":1330
+  /* "core/control.pyx":1330
  *             dict data
  * 
  *         y0 = np.concatenate((S0, E0, I0)) # initial condition             # <<<<<<<<<<<<<<
@@ -21797,7 +21797,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1332
+  /* "core/control.pyx":1332
  *         y0 = np.concatenate((S0, E0, I0)) # initial condition
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -21825,7 +21825,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (likely(__pyx_t_5)) {
 
-    /* "pyross/control.pyx":1333
+    /* "core/control.pyx":1333
  * 
  *         if method.lower() =='deterministic':
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -21838,7 +21838,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1334
+    /* "core/control.pyx":1334
  *         if method.lower() =='deterministic':
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -21848,7 +21848,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1335
+    /* "core/control.pyx":1335
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -21859,7 +21859,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1336
+    /* "core/control.pyx":1336
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -21868,7 +21868,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1337
+    /* "core/control.pyx":1337
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -21877,7 +21877,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1338
+    /* "core/control.pyx":1338
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -21886,7 +21886,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1333, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1333
+    /* "core/control.pyx":1333
  * 
  *         if method.lower() =='deterministic':
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -21959,7 +21959,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
     __pyx_v_events_out = __pyx_t_4;
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1332
+    /* "core/control.pyx":1332
  *         y0 = np.concatenate((S0, E0, I0)) # initial condition
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -21969,7 +21969,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1340
+  /* "core/control.pyx":1340
  *                                   stop_at_event=stop_at_event)
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")             # <<<<<<<<<<<<<<
@@ -21985,7 +21985,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":1342
+  /* "core/control.pyx":1342
  *             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")
  * 
  *         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -21998,7 +21998,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 1342, __pyx_L1_error)
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 1342, __pyx_L1_error)
 
-  /* "pyross/control.pyx":1343
+  /* "core/control.pyx":1343
  * 
  *         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *             'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }             # <<<<<<<<<<<<<<
@@ -22025,7 +22025,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   __pyx_v_data = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":1344
+  /* "core/control.pyx":1344
  *         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *             'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
  *         return data             # <<<<<<<<<<<<<<
@@ -22037,7 +22037,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   __pyx_r = __pyx_v_data;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1317
+  /* "core/control.pyx":1317
  * 
  * 
  *     def simulate(self,  S0, E0, I0,             # <<<<<<<<<<<<<<
@@ -22052,7 +22052,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -22072,19 +22072,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_2simulate(struct __pyx_obj_6p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_6SEkIkR_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_6SEkIkR_4__reduce_cython__(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_4__reduce_cython__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -22393,7 +22393,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_4__reduce_cython__(struct __p
   __Pyx_XDECREF(__pyx_t_10);
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_12);
-  __Pyx_AddTraceback("pyross.control.SEkIkR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -22411,19 +22411,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_4__reduce_cython__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEkIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEkIkR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_6SEkIkR_6__setstate_cython__(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_6SEkIkR_6__setstate_cython__(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -22435,7 +22435,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(struct _
  *     __pyx_unpickle_SEkIkR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEkIkR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEkIkR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -22451,7 +22451,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(struct _
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEkIkR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEkIkR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -22459,7 +22459,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(struct _
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1392
+/* "core/control.pyx":1392
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -22468,8 +22468,8 @@ static PyObject *__pyx_pf_6pyross_7control_6SEkIkR_6__setstate_cython__(struct _
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -22528,18 +22528,18 @@ static int __pyx_pw_6pyross_7control_5SEAIR_1__init__(PyObject *__pyx_v_self, Py
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1392, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEAIR___init__(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_5SEAIR___init__(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_5SEAIR___init__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -22552,7 +22552,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":1393
+  /* "core/control.pyx":1393
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -22568,7 +22568,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1394
+  /* "core/control.pyx":1394
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -22581,7 +22581,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1395
+  /* "core/control.pyx":1395
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -22594,7 +22594,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1396
+  /* "core/control.pyx":1396
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -22607,7 +22607,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":1397
+  /* "core/control.pyx":1397
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gE    = parameters['gE']                       # removal rate of E             # <<<<<<<<<<<<<<
@@ -22620,7 +22620,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":1398
+  /* "core/control.pyx":1398
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.gA    = parameters['gA']                       # rate to go from A to Ia, Is             # <<<<<<<<<<<<<<
@@ -22633,7 +22633,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1399
+  /* "core/control.pyx":1399
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.gA    = parameters['gA']                       # rate to go from A to Ia, Is
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter             # <<<<<<<<<<<<<<
@@ -22646,7 +22646,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1401
+  /* "core/control.pyx":1401
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter
  * 
  *         self.nClass = 5             # <<<<<<<<<<<<<<
@@ -22655,7 +22655,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
  */
   __pyx_v_self->__pyx_base.nClass = 5;
 
-  /* "pyross/control.pyx":1403
+  /* "core/control.pyx":1403
  *         self.nClass = 5
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -22686,7 +22686,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":1404
+  /* "core/control.pyx":1404
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -22696,7 +22696,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1404, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":1405
+  /* "core/control.pyx":1405
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -22733,7 +22733,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1406
+  /* "core/control.pyx":1406
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -22749,7 +22749,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1408
+  /* "core/control.pyx":1408
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -22796,7 +22796,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1409
+  /* "core/control.pyx":1409
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -22833,7 +22833,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1411
+  /* "core/control.pyx":1411
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -22845,7 +22845,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1412
+  /* "core/control.pyx":1412
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -22882,7 +22882,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1413
+  /* "core/control.pyx":1413
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -22916,7 +22916,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1414
+    /* "core/control.pyx":1414
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -22953,7 +22953,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1413
+    /* "core/control.pyx":1413
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -22963,7 +22963,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1415
+  /* "core/control.pyx":1415
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -22996,7 +22996,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1416
+    /* "core/control.pyx":1416
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -23012,7 +23012,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1415
+    /* "core/control.pyx":1415
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -23022,7 +23022,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1418
+  /* "core/control.pyx":1418
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -23036,7 +23036,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":1392
+  /* "core/control.pyx":1392
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -23052,7 +23052,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -23060,7 +23060,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1420
+/* "core/control.pyx":1420
  *             print('alpha can be a number or an array of size M')
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -23068,7 +23068,7 @@ static int __pyx_pf_6pyross_7control_5SEAIR___init__(struct __pyx_obj_6pyross_7c
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_5SEAIR_rhs(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -23113,7 +23113,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   Py_ssize_t __pyx_t_17;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":1422
+  /* "core/control.pyx":1422
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -23125,7 +23125,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":1423
+  /* "core/control.pyx":1423
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb             # <<<<<<<<<<<<<<
@@ -23135,7 +23135,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_2 = __pyx_v_self->__pyx_base.beta;
   __pyx_v_beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1424
+  /* "core/control.pyx":1424
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb
  *             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA             # <<<<<<<<<<<<<<
@@ -23153,7 +23153,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_2 = __pyx_v_self->gA;
   __pyx_v_gA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1427
+  /* "core/control.pyx":1427
  *             double gAA, gAS
  * 
  *             double [:] S    = rp[0*M:M]             # <<<<<<<<<<<<<<
@@ -23168,7 +23168,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1428
+  /* "core/control.pyx":1428
  * 
  *             double [:] S    = rp[0*M:M]
  *             double [:] E    = rp[1*M:2*M]             # <<<<<<<<<<<<<<
@@ -23183,7 +23183,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1429
+  /* "core/control.pyx":1429
  *             double [:] S    = rp[0*M:M]
  *             double [:] E    = rp[1*M:2*M]
  *             double [:] A    = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -23198,7 +23198,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1430
+  /* "core/control.pyx":1430
  *             double [:] E    = rp[1*M:2*M]
  *             double [:] A    = rp[2*M:3*M]
  *             double [:] Ia   = rp[3*M:4*M]             # <<<<<<<<<<<<<<
@@ -23213,7 +23213,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1431
+  /* "core/control.pyx":1431
  *             double [:] A    = rp[2*M:3*M]
  *             double [:] Ia   = rp[3*M:4*M]
  *             double [:] Is   = rp[4*M:5*M]             # <<<<<<<<<<<<<<
@@ -23228,7 +23228,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1432
+  /* "core/control.pyx":1432
  *             double [:] Ia   = rp[3*M:4*M]
  *             double [:] Is   = rp[4*M:5*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -23240,7 +23240,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1433
+  /* "core/control.pyx":1433
  *             double [:] Is   = rp[4*M:5*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -23252,7 +23252,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":1434
+  /* "core/control.pyx":1434
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -23264,7 +23264,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1436
+  /* "core/control.pyx":1436
  *             double [:] X    = self.dxdt
  * 
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -23276,7 +23276,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1438
+  /* "core/control.pyx":1438
  *             double [:] alpha= self.alpha
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -23288,7 +23288,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":1439
+    /* "core/control.pyx":1439
  * 
  *         for i in range(M):
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA             # <<<<<<<<<<<<<<
@@ -23301,7 +23301,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     __pyx_v_gAA = (__pyx_v_gA * (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_8 * __pyx_v_alpha.strides[0]) ))));
     __pyx_v_gAS = (__pyx_v_gA - __pyx_v_gAA);
 
-    /* "pyross/control.pyx":1440
+    /* "core/control.pyx":1440
  *         for i in range(M):
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -23313,7 +23313,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_j = __pyx_t_11;
 
-      /* "pyross/control.pyx":1441
+      /* "core/control.pyx":1441
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -23335,7 +23335,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_8 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * (((*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) ))) + (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_14 * __pyx_v_Ia.strides[0]) )))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_15 * __pyx_v_Is.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_16 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":1442
+    /* "core/control.pyx":1442
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -23346,7 +23346,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_16 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":1443
+    /* "core/control.pyx":1443
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa                                   # rate S  -> E             # <<<<<<<<<<<<<<
@@ -23357,7 +23357,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_16 * __pyx_v_X.strides[0]) )) = (-__pyx_v_aa);
 
-    /* "pyross/control.pyx":1444
+    /* "core/control.pyx":1444
  *             aa = bb*S[i]
  *             X[i]     = -aa                                   # rate S  -> E
  *             X[i+M]   =  aa      - gE*E[i]                    # rate E  -> A             # <<<<<<<<<<<<<<
@@ -23370,7 +23370,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_14 < 0) __pyx_t_14 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_14 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))));
 
-    /* "pyross/control.pyx":1445
+    /* "core/control.pyx":1445
  *             X[i]     = -aa                                   # rate S  -> E
  *             X[i+M]   =  aa      - gE*E[i]                    # rate E  -> A
  *             X[i+2*M] = gE* E[i] - gA*A[i]                   # rate A  -> Ia, Is             # <<<<<<<<<<<<<<
@@ -23385,7 +23385,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_12 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gA * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) )))));
 
-    /* "pyross/control.pyx":1446
+    /* "core/control.pyx":1446
  *             X[i+M]   =  aa      - gE*E[i]                    # rate E  -> A
  *             X[i+2*M] = gE* E[i] - gA*A[i]                   # rate A  -> Ia, Is
  *             X[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R             # <<<<<<<<<<<<<<
@@ -23400,7 +23400,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_8 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gAA * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) )))) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_15 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":1447
+    /* "core/control.pyx":1447
  *             X[i+2*M] = gE* E[i] - gA*A[i]                   # rate A  -> Ia, Is
  *             X[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R
  *             X[i+4*M] = gAS*A[i] - gIs     *Is[i]            # rate Is -> R             # <<<<<<<<<<<<<<
@@ -23416,7 +23416,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_17 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gAS * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_15 * __pyx_v_A.strides[0]) )))) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_13 * __pyx_v_Is.strides[0]) )))));
   }
 
-  /* "pyross/control.pyx":1448
+  /* "core/control.pyx":1448
  *             X[i+3*M] = gAA*A[i] - gIa     *Ia[i]            # rate Ia -> R
  *             X[i+4*M] = gAS*A[i] - gIs     *Is[i]            # rate Is -> R
  *         return             # <<<<<<<<<<<<<<
@@ -23427,7 +23427,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1420
+  /* "core/control.pyx":1420
  *             print('alpha can be a number or an array of size M')
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -23440,7 +23440,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEAIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -23457,7 +23457,7 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1452
+/* "core/control.pyx":1452
  * 
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -23466,8 +23466,8 @@ static PyObject *__pyx_f_6pyross_7control_5SEAIR_rhs(struct __pyx_obj_6pyross_7c
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEAIR_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_A0 = 0;
@@ -23494,7 +23494,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_se
     values[9] = ((PyObject *)__pyx_int_0);
     values[10] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":1456
+    /* "core/control.pyx":1456
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -23503,7 +23503,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_se
  */
     values[11] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":1457
+    /* "core/control.pyx":1457
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -23512,7 +23512,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_se
  */
     values[12] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":1458
+    /* "core/control.pyx":1458
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -23731,13 +23731,13 @@ static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_se
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 9, 17, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1452, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_5SEAIR_2simulate(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_5SEAIR_2simulate(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":1452
+  /* "core/control.pyx":1452
  * 
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -23750,7 +23750,7 @@ static PyObject *__pyx_pw_6pyross_7control_5SEAIR_3simulate(PyObject *__pyx_v_se
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_5SEAIR_2simulate(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, CYTHON_UNUSED int __pyx_v_nc, CYTHON_UNUSED double __pyx_v_epsilon, CYTHON_UNUSED int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -23767,7 +23767,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   PyObject *(*__pyx_t_7)(PyObject *);
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":1465
+  /* "core/control.pyx":1465
  *             dict data
  * 
  *         y0 = np.concatenate((S0, E0, A0, Ia0, Is0)) # initial condition             # <<<<<<<<<<<<<<
@@ -23816,7 +23816,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1467
+  /* "core/control.pyx":1467
  *         y0 = np.concatenate((S0, E0, A0, Ia0, Is0)) # initial condition
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -23844,7 +23844,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (likely(__pyx_t_5)) {
 
-    /* "pyross/control.pyx":1468
+    /* "core/control.pyx":1468
  * 
  *         if method.lower() =='deterministic':
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -23857,7 +23857,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1469
+    /* "core/control.pyx":1469
  *         if method.lower() =='deterministic':
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -23867,7 +23867,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1470
+    /* "core/control.pyx":1470
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -23878,7 +23878,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1471
+    /* "core/control.pyx":1471
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -23887,7 +23887,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1472
+    /* "core/control.pyx":1472
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -23896,7 +23896,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1473
+    /* "core/control.pyx":1473
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -23905,7 +23905,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1468
+    /* "core/control.pyx":1468
  * 
  *         if method.lower() =='deterministic':
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -23978,7 +23978,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
     __pyx_v_events_out = __pyx_t_4;
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1467
+    /* "core/control.pyx":1467
  *         y0 = np.concatenate((S0, E0, A0, Ia0, Is0)) # initial condition
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -23988,7 +23988,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1475
+  /* "core/control.pyx":1475
  *                                   stop_at_event=stop_at_event)
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")             # <<<<<<<<<<<<<<
@@ -24004,7 +24004,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":1477
+  /* "core/control.pyx":1477
  *             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")
  * 
  *         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,'fsa':self.fsa,             # <<<<<<<<<<<<<<
@@ -24021,7 +24021,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_fsa, __pyx_t_4) < 0) __PYX_ERR(0, 1477, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1478
+  /* "core/control.pyx":1478
  * 
  *         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,'fsa':self.fsa,
  *               'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,             # <<<<<<<<<<<<<<
@@ -24039,7 +24039,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_beta, __pyx_t_4) < 0) __PYX_ERR(0, 1477, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1479
+  /* "core/control.pyx":1479
  *         data={'X':y_eval, 't':t_eval, 'events_occured':events_out,'fsa':self.fsa,
  *               'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
  *                 'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}             # <<<<<<<<<<<<<<
@@ -24065,7 +24065,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   __pyx_v_data = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":1480
+  /* "core/control.pyx":1480
  *               'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
  *                 'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
  *         return data             # <<<<<<<<<<<<<<
@@ -24077,7 +24077,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   __pyx_r = __pyx_v_data;
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1452
+  /* "core/control.pyx":1452
  * 
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0,             # <<<<<<<<<<<<<<
@@ -24092,7 +24092,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -24112,19 +24112,19 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_2simulate(struct __pyx_obj_6py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_5SEAIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEAIR_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_5SEAIR_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_5SEAIR_4__reduce_cython__(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_5SEAIR_4__reduce_cython__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -24457,7 +24457,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_4__reduce_cython__(struct __py
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
-  __Pyx_AddTraceback("pyross.control.SEAIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -24475,19 +24475,19 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_4__reduce_cython__(struct __py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_5SEAIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_5SEAIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_5SEAIR_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_5SEAIR_6__setstate_cython__(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_5SEAIR_6__setstate_cython__(struct __pyx_obj_4core_7control_SEAIR *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -24499,7 +24499,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(struct __
  *     __pyx_unpickle_SEAIR__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEAIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEAIR__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -24515,7 +24515,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(struct __
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEAIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIR.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -24523,7 +24523,7 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(struct __
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1546
+/* "core/control.pyx":1546
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -24532,8 +24532,8 @@ static PyObject *__pyx_pf_6pyross_7control_5SEAIR_6__setstate_cython__(struct __
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -24592,18 +24592,18 @@ static int __pyx_pw_6pyross_7control_6SEAI5R_1__init__(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1546, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAI5R___init__(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_6SEAI5R___init__(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_6SEAI5R___init__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   PyObject *__pyx_v_sa = NULL;
   PyObject *__pyx_v_hh = NULL;
@@ -24620,7 +24620,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":1547
+  /* "core/control.pyx":1547
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -24636,7 +24636,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1548
+  /* "core/control.pyx":1548
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -24649,7 +24649,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1549
+  /* "core/control.pyx":1549
  *         self.params = parameters
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gE    = parameters['gE']                       # removal rate of E class             # <<<<<<<<<<<<<<
@@ -24662,7 +24662,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":1550
+  /* "core/control.pyx":1550
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gE    = parameters['gE']                       # removal rate of E class
  *         self.gA    = parameters['gA']                       # removal rate of A class             # <<<<<<<<<<<<<<
@@ -24675,7 +24675,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1551
+  /* "core/control.pyx":1551
  *         self.gE    = parameters['gE']                       # removal rate of E class
  *         self.gA    = parameters['gA']                       # removal rate of A class
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -24688,7 +24688,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1552
+  /* "core/control.pyx":1552
  *         self.gA    = parameters['gA']                       # removal rate of A class
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -24701,7 +24701,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":1553
+  /* "core/control.pyx":1553
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gIh   = parameters['gIh']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -24714,7 +24714,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIh = __pyx_t_2;
 
-  /* "pyross/control.pyx":1554
+  /* "core/control.pyx":1554
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gIh   = parameters['gIh']                      # removal rate of Is
  *         self.gIc   = parameters['gIc']                      # removal rate of Ih             # <<<<<<<<<<<<<<
@@ -24727,7 +24727,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIc = __pyx_t_2;
 
-  /* "pyross/control.pyx":1555
+  /* "core/control.pyx":1555
  *         self.gIh   = parameters['gIh']                      # removal rate of Is
  *         self.gIc   = parameters['gIc']                      # removal rate of Ih
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics             # <<<<<<<<<<<<<<
@@ -24740,7 +24740,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1556
+  /* "core/control.pyx":1556
  *         self.gIc   = parameters['gIc']                      # removal rate of Ih
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter of symptomatics
  *         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds             # <<<<<<<<<<<<<<
@@ -24753,7 +24753,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fh = __pyx_t_2;
 
-  /* "pyross/control.pyx":1558
+  /* "core/control.pyx":1558
  *         self.fh    = parameters['fh']                       # the self-isolation parameter of hospitalizeds
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -24765,7 +24765,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1559
+  /* "core/control.pyx":1559
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles             # <<<<<<<<<<<<<<
@@ -24777,7 +24777,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_sa = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1560
+  /* "core/control.pyx":1560
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles
  *         hh         = parameters['hh']                       # hospital             # <<<<<<<<<<<<<<
@@ -24789,7 +24789,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_hh = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1561
+  /* "core/control.pyx":1561
  *         sa         = parameters['sa']                       # daily arrival of new susceptibles
  *         hh         = parameters['hh']                       # hospital
  *         cc         = parameters['cc']                       # ICU             # <<<<<<<<<<<<<<
@@ -24801,7 +24801,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_cc = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1562
+  /* "core/control.pyx":1562
  *         hh         = parameters['hh']                       # hospital
  *         cc         = parameters['cc']                       # ICU
  *         mm         = parameters['mm']                       # mortality             # <<<<<<<<<<<<<<
@@ -24813,7 +24813,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_mm = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1564
+  /* "core/control.pyx":1564
  *         mm         = parameters['mm']                       # mortality
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -24844,7 +24844,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":1565
+  /* "core/control.pyx":1565
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -24854,7 +24854,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1565, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":1566
+  /* "core/control.pyx":1566
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -24891,7 +24891,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1567
+  /* "core/control.pyx":1567
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni.copy()             # <<<<<<<<<<<<<<
@@ -24922,7 +24922,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1569
+  /* "core/control.pyx":1569
  *         self.Ni    = Ni.copy()
  * 
  *         self.nClass = 9             # <<<<<<<<<<<<<<
@@ -24931,7 +24931,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
  */
   __pyx_v_self->__pyx_base.nClass = 9;
 
-  /* "pyross/control.pyx":1571
+  /* "core/control.pyx":1571
  *         self.nClass = 9
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -24978,7 +24978,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1572
+  /* "core/control.pyx":1572
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -25015,7 +25015,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1574
+  /* "core/control.pyx":1574
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
  * 
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -25052,7 +25052,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1575
+  /* "core/control.pyx":1575
  * 
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -25086,7 +25086,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1576
+    /* "core/control.pyx":1576
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -25123,7 +25123,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1575
+    /* "core/control.pyx":1575
  * 
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -25133,7 +25133,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1577
+  /* "core/control.pyx":1577
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -25166,7 +25166,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1578
+    /* "core/control.pyx":1578
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -25182,7 +25182,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1577
+    /* "core/control.pyx":1577
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -25192,7 +25192,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1580
+  /* "core/control.pyx":1580
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -25206,7 +25206,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":1582
+  /* "core/control.pyx":1582
  *             print('alpha can be a number or an array of size M')
  * 
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -25243,7 +25243,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1583
+  /* "core/control.pyx":1583
  * 
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:             # <<<<<<<<<<<<<<
@@ -25277,7 +25277,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1584
+    /* "core/control.pyx":1584
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)             # <<<<<<<<<<<<<<
@@ -25314,7 +25314,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1583
+    /* "core/control.pyx":1583
  * 
  *         self.sa    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(sa)==1:             # <<<<<<<<<<<<<<
@@ -25324,7 +25324,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":1585
+  /* "core/control.pyx":1585
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:             # <<<<<<<<<<<<<<
@@ -25357,7 +25357,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1586
+    /* "core/control.pyx":1586
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:
  *             self.sa= sa             # <<<<<<<<<<<<<<
@@ -25373,7 +25373,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->sa = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1585
+    /* "core/control.pyx":1585
  *         if np.size(sa)==1:
  *             self.sa = sa*np.ones(M)
  *         elif np.size(sa)==M:             # <<<<<<<<<<<<<<
@@ -25383,7 +25383,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L4;
   }
 
-  /* "pyross/control.pyx":1588
+  /* "core/control.pyx":1588
  *             self.sa= sa
  *         else:
  *             print('sa can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -25397,7 +25397,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   }
   __pyx_L4:;
 
-  /* "pyross/control.pyx":1590
+  /* "core/control.pyx":1590
  *             print('sa can be a number or an array of size M')
  * 
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -25434,7 +25434,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->hh = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1591
+  /* "core/control.pyx":1591
  * 
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(hh)==1:             # <<<<<<<<<<<<<<
@@ -25468,7 +25468,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1592
+    /* "core/control.pyx":1592
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(hh)==1:
  *             self.hh = hh*np.ones(M)             # <<<<<<<<<<<<<<
@@ -25505,7 +25505,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->hh = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1591
+    /* "core/control.pyx":1591
  * 
  *         self.hh    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(hh)==1:             # <<<<<<<<<<<<<<
@@ -25515,7 +25515,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L5;
   }
 
-  /* "pyross/control.pyx":1593
+  /* "core/control.pyx":1593
  *         if np.size(hh)==1:
  *             self.hh = hh*np.ones(M)
  *         elif np.size(hh)==M:             # <<<<<<<<<<<<<<
@@ -25548,7 +25548,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1594
+    /* "core/control.pyx":1594
  *             self.hh = hh*np.ones(M)
  *         elif np.size(hh)==M:
  *             self.hh= hh             # <<<<<<<<<<<<<<
@@ -25564,7 +25564,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->hh = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1593
+    /* "core/control.pyx":1593
  *         if np.size(hh)==1:
  *             self.hh = hh*np.ones(M)
  *         elif np.size(hh)==M:             # <<<<<<<<<<<<<<
@@ -25574,7 +25574,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L5;
   }
 
-  /* "pyross/control.pyx":1596
+  /* "core/control.pyx":1596
  *             self.hh= hh
  *         else:
  *             print('hh can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -25588,7 +25588,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   }
   __pyx_L5:;
 
-  /* "pyross/control.pyx":1598
+  /* "core/control.pyx":1598
  *             print('hh can be a number or an array of size M')
  * 
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -25625,7 +25625,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->cc = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1599
+  /* "core/control.pyx":1599
  * 
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(cc)==1:             # <<<<<<<<<<<<<<
@@ -25659,7 +25659,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1600
+    /* "core/control.pyx":1600
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(cc)==1:
  *             self.cc = cc*np.ones(M)             # <<<<<<<<<<<<<<
@@ -25696,7 +25696,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->cc = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1599
+    /* "core/control.pyx":1599
  * 
  *         self.cc    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(cc)==1:             # <<<<<<<<<<<<<<
@@ -25706,7 +25706,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L6;
   }
 
-  /* "pyross/control.pyx":1601
+  /* "core/control.pyx":1601
  *         if np.size(cc)==1:
  *             self.cc = cc*np.ones(M)
  *         elif np.size(cc)==M:             # <<<<<<<<<<<<<<
@@ -25739,7 +25739,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1602
+    /* "core/control.pyx":1602
  *             self.cc = cc*np.ones(M)
  *         elif np.size(cc)==M:
  *             self.cc= cc             # <<<<<<<<<<<<<<
@@ -25755,7 +25755,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->cc = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1601
+    /* "core/control.pyx":1601
  *         if np.size(cc)==1:
  *             self.cc = cc*np.ones(M)
  *         elif np.size(cc)==M:             # <<<<<<<<<<<<<<
@@ -25765,7 +25765,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L6;
   }
 
-  /* "pyross/control.pyx":1604
+  /* "core/control.pyx":1604
  *             self.cc= cc
  *         else:
  *             print('cc can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -25779,7 +25779,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   }
   __pyx_L6:;
 
-  /* "pyross/control.pyx":1606
+  /* "core/control.pyx":1606
  *             print('cc can be a number or an array of size M')
  * 
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -25816,7 +25816,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->mm = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1607
+  /* "core/control.pyx":1607
  * 
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(mm)==1:             # <<<<<<<<<<<<<<
@@ -25850,7 +25850,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1608
+    /* "core/control.pyx":1608
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(mm)==1:
  *             self.mm = mm*np.ones(M)             # <<<<<<<<<<<<<<
@@ -25887,7 +25887,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->mm = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1607
+    /* "core/control.pyx":1607
  * 
  *         self.mm    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(mm)==1:             # <<<<<<<<<<<<<<
@@ -25897,7 +25897,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L7;
   }
 
-  /* "pyross/control.pyx":1609
+  /* "core/control.pyx":1609
  *         if np.size(mm)==1:
  *             self.mm = mm*np.ones(M)
  *         elif np.size(mm)==M:             # <<<<<<<<<<<<<<
@@ -25930,7 +25930,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1610
+    /* "core/control.pyx":1610
  *             self.mm = mm*np.ones(M)
  *         elif np.size(mm)==M:
  *             self.mm= mm             # <<<<<<<<<<<<<<
@@ -25946,7 +25946,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->mm = ((PyArrayObject *)__pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1609
+    /* "core/control.pyx":1609
  *         if np.size(mm)==1:
  *             self.mm = mm*np.ones(M)
  *         elif np.size(mm)==M:             # <<<<<<<<<<<<<<
@@ -25956,7 +25956,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L7;
   }
 
-  /* "pyross/control.pyx":1612
+  /* "core/control.pyx":1612
  *             self.mm= mm
  *         else:
  *             print('mm can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -25970,7 +25970,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   }
   __pyx_L7:;
 
-  /* "pyross/control.pyx":1546
+  /* "core/control.pyx":1546
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -25986,7 +25986,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -25998,7 +25998,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1615
+/* "core/control.pyx":1615
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -26006,7 +26006,7 @@ static int __pyx_pf_6pyross_7control_6SEAI5R___init__(struct __pyx_obj_6pyross_7
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_6SEAI5R_rhs(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -26066,7 +26066,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   Py_ssize_t __pyx_t_22;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":1617
+  /* "core/control.pyx":1617
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -26078,7 +26078,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":1618
+  /* "core/control.pyx":1618
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb             # <<<<<<<<<<<<<<
@@ -26088,7 +26088,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_2 = __pyx_v_self->__pyx_base.beta;
   __pyx_v_beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1619
+  /* "core/control.pyx":1619
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb
  *             double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA             # <<<<<<<<<<<<<<
@@ -26104,7 +26104,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_2 = __pyx_v_self->gA;
   __pyx_v_gA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1620
+  /* "core/control.pyx":1620
  *             double beta=self.beta, aa, bb
  *             double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA
  *             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh             # <<<<<<<<<<<<<<
@@ -26120,7 +26120,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_2 = __pyx_v_self->gIh;
   __pyx_v_gIc = __pyx_t_2;
 
-  /* "pyross/control.pyx":1622
+  /* "core/control.pyx":1622
  *             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
  *             double gAA, gAS
  *             double [:] S    = rp[0  :M]             # <<<<<<<<<<<<<<
@@ -26135,7 +26135,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1623
+  /* "core/control.pyx":1623
  *             double gAA, gAS
  *             double [:] S    = rp[0  :M]
  *             double [:] E    = rp[M  :2*M]             # <<<<<<<<<<<<<<
@@ -26150,7 +26150,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1624
+  /* "core/control.pyx":1624
  *             double [:] S    = rp[0  :M]
  *             double [:] E    = rp[M  :2*M]
  *             double [:] A    = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -26165,7 +26165,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1625
+  /* "core/control.pyx":1625
  *             double [:] E    = rp[M  :2*M]
  *             double [:] A    = rp[2*M:3*M]
  *             double [:] Ia   = rp[3*M:4*M]             # <<<<<<<<<<<<<<
@@ -26180,7 +26180,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1626
+  /* "core/control.pyx":1626
  *             double [:] A    = rp[2*M:3*M]
  *             double [:] Ia   = rp[3*M:4*M]
  *             double [:] Is   = rp[4*M:5*M]             # <<<<<<<<<<<<<<
@@ -26195,7 +26195,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1627
+  /* "core/control.pyx":1627
  *             double [:] Ia   = rp[3*M:4*M]
  *             double [:] Is   = rp[4*M:5*M]
  *             double [:] Ih   = rp[5*M:6*M]             # <<<<<<<<<<<<<<
@@ -26210,7 +26210,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1628
+  /* "core/control.pyx":1628
  *             double [:] Is   = rp[4*M:5*M]
  *             double [:] Ih   = rp[5*M:6*M]
  *             double [:] Ic   = rp[6*M:7*M]             # <<<<<<<<<<<<<<
@@ -26225,7 +26225,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1629
+  /* "core/control.pyx":1629
  *             double [:] Ih   = rp[5*M:6*M]
  *             double [:] Ic   = rp[6*M:7*M]
  *             double [:] Im   = rp[7*M:8*M]             # <<<<<<<<<<<<<<
@@ -26240,7 +26240,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1630
+  /* "core/control.pyx":1630
  *             double [:] Ic   = rp[6*M:7*M]
  *             double [:] Im   = rp[7*M:8*M]
  *             double [:] Ni   = rp[8*M:9*M]             # <<<<<<<<<<<<<<
@@ -26255,7 +26255,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1631
+  /* "core/control.pyx":1631
  *             double [:] Im   = rp[7*M:8*M]
  *             double [:] Ni   = rp[8*M:9*M]
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -26267,7 +26267,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":1633
+  /* "core/control.pyx":1633
  *             double [:,:] CM = self.CM
  * 
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -26279,7 +26279,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1634
+  /* "core/control.pyx":1634
  * 
  *             double [:] alpha= self.alpha
  *             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc             # <<<<<<<<<<<<<<
@@ -26291,7 +26291,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1635
+  /* "core/control.pyx":1635
  *             double [:] alpha= self.alpha
  *             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
  *             double [:] hh   = self.hh             # <<<<<<<<<<<<<<
@@ -26303,7 +26303,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1636
+  /* "core/control.pyx":1636
  *             double [:] sa   = self.sa       #sa is rate of additional/removal of population by birth etc
  *             double [:] hh   = self.hh
  *             double [:] cc   = self.cc             # <<<<<<<<<<<<<<
@@ -26315,7 +26315,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1637
+  /* "core/control.pyx":1637
  *             double [:] hh   = self.hh
  *             double [:] cc   = self.cc
  *             double [:] mm   = self.mm             # <<<<<<<<<<<<<<
@@ -26327,7 +26327,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1638
+  /* "core/control.pyx":1638
  *             double [:] cc   = self.cc
  *             double [:] mm   = self.mm
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -26339,7 +26339,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1640
+  /* "core/control.pyx":1640
  *             double [:] X    = self.dxdt
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -26351,7 +26351,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":1641
+    /* "core/control.pyx":1641
  * 
  *         for i in range(M):
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA             # <<<<<<<<<<<<<<
@@ -26364,7 +26364,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     __pyx_v_gAA = (__pyx_v_gA * (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_8 * __pyx_v_alpha.strides[0]) ))));
     __pyx_v_gAS = (__pyx_v_gA - __pyx_v_gAA);
 
-    /* "pyross/control.pyx":1642
+    /* "core/control.pyx":1642
  *         for i in range(M):
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -26376,7 +26376,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_j = __pyx_t_11;
 
-      /* "pyross/control.pyx":1643
+      /* "core/control.pyx":1643
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -26400,7 +26400,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_8 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * ((((*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) ))) + (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_14 * __pyx_v_Ia.strides[0]) )))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_15 * __pyx_v_Is.strides[0]) ))))) + (__pyx_v_fh * (*((double *) ( /* dim=0 */ (__pyx_v_Ih.data + __pyx_t_16 * __pyx_v_Ih.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_17 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":1644
+    /* "core/control.pyx":1644
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -26411,7 +26411,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_17 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":1645
+    /* "core/control.pyx":1645
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa + sa[i]                       # rate S  -> E             # <<<<<<<<<<<<<<
@@ -26424,7 +26424,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_16 * __pyx_v_X.strides[0]) )) = ((-__pyx_v_aa) + (*((double *) ( /* dim=0 */ (__pyx_v_sa.data + __pyx_t_17 * __pyx_v_sa.strides[0]) ))));
 
-    /* "pyross/control.pyx":1646
+    /* "core/control.pyx":1646
  *             aa = bb*S[i]
  *             X[i]     = -aa + sa[i]                       # rate S  -> E
  *             X[i+M]   = aa  - gE*E[i]                     # rate E  -> A             # <<<<<<<<<<<<<<
@@ -26437,7 +26437,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_15 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - (__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_17 * __pyx_v_E.strides[0]) )))));
 
-    /* "pyross/control.pyx":1647
+    /* "core/control.pyx":1647
  *             X[i]     = -aa + sa[i]                       # rate S  -> E
  *             X[i+M]   = aa  - gE*E[i]                     # rate E  -> A
  *             X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I             # <<<<<<<<<<<<<<
@@ -26452,7 +26452,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_13 < 0) __pyx_t_13 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_13 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_17 * __pyx_v_E.strides[0]) )))) - (__pyx_v_gA * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_14 * __pyx_v_A.strides[0]) )))));
 
-    /* "pyross/control.pyx":1648
+    /* "core/control.pyx":1648
  *             X[i+M]   = aa  - gE*E[i]                     # rate E  -> A
  *             X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I
  *             X[i+3*M] = gAA*A[i] - gIa*Ia[i]              # rate Ia -> R             # <<<<<<<<<<<<<<
@@ -26467,7 +26467,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_12 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gAA * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_14 * __pyx_v_A.strides[0]) )))) - (__pyx_v_gIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_17 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":1649
+    /* "core/control.pyx":1649
  *             X[i+2*M] = gE*E[i]  - gA*A[i]                # rate A  -> I
  *             X[i+3*M] = gAA*A[i] - gIa*Ia[i]              # rate Ia -> R
  *             X[i+4*M] = gAS*A[i] - gIs*Is[i]              # rate Is -> R, Ih             # <<<<<<<<<<<<<<
@@ -26482,7 +26482,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_8 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gAS * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_17 * __pyx_v_A.strides[0]) )))) - (__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_14 * __pyx_v_Is.strides[0]) )))));
 
-    /* "pyross/control.pyx":1650
+    /* "core/control.pyx":1650
  *             X[i+3*M] = gAA*A[i] - gIa*Ia[i]              # rate Ia -> R
  *             X[i+4*M] = gAS*A[i] - gIs*Is[i]              # rate Is -> R, Ih
  *             X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic             # <<<<<<<<<<<<<<
@@ -26499,7 +26499,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_19 < 0) __pyx_t_19 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_19 * __pyx_v_X.strides[0]) )) = (((__pyx_v_gIs * (*((double *) ( /* dim=0 */ (__pyx_v_hh.data + __pyx_t_14 * __pyx_v_hh.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_17 * __pyx_v_Is.strides[0]) )))) - (__pyx_v_gIh * (*((double *) ( /* dim=0 */ (__pyx_v_Ih.data + __pyx_t_18 * __pyx_v_Ih.strides[0]) )))));
 
-    /* "pyross/control.pyx":1651
+    /* "core/control.pyx":1651
  *             X[i+4*M] = gAS*A[i] - gIs*Is[i]              # rate Is -> R, Ih
  *             X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
  *             X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im             # <<<<<<<<<<<<<<
@@ -26516,7 +26516,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_20 < 0) __pyx_t_20 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_20 * __pyx_v_X.strides[0]) )) = (((__pyx_v_gIh * (*((double *) ( /* dim=0 */ (__pyx_v_cc.data + __pyx_t_18 * __pyx_v_cc.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Ih.data + __pyx_t_17 * __pyx_v_Ih.strides[0]) )))) - (__pyx_v_gIc * (*((double *) ( /* dim=0 */ (__pyx_v_Ic.data + __pyx_t_14 * __pyx_v_Ic.strides[0]) )))));
 
-    /* "pyross/control.pyx":1652
+    /* "core/control.pyx":1652
  *             X[i+5*M] = gIs*hh[i]*Is[i] - gIh*Ih[i]       # rate Ih -> R, Ic
  *             X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
  *             X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im             # <<<<<<<<<<<<<<
@@ -26531,7 +26531,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_18 < 0) __pyx_t_18 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_18 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gIc * (*((double *) ( /* dim=0 */ (__pyx_v_mm.data + __pyx_t_14 * __pyx_v_mm.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Ic.data + __pyx_t_17 * __pyx_v_Ic.strides[0]) ))));
 
-    /* "pyross/control.pyx":1653
+    /* "core/control.pyx":1653
  *             X[i+6*M] = gIh*cc[i]*Ih[i] - gIc*Ic[i]       # rate Ic -> R, Im
  *             X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im
  *             X[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni             # <<<<<<<<<<<<<<
@@ -26549,7 +26549,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_22 * __pyx_v_X.strides[0]) )) = ((*((double *) ( /* dim=0 */ (__pyx_v_sa.data + __pyx_t_17 * __pyx_v_sa.strides[0]) ))) - ((__pyx_v_gIc * (*((double *) ( /* dim=0 */ (__pyx_v_mm.data + __pyx_t_14 * __pyx_v_mm.strides[0]) )))) * (*((double *) ( /* dim=0 */ (__pyx_v_Im.data + __pyx_t_21 * __pyx_v_Im.strides[0]) )))));
   }
 
-  /* "pyross/control.pyx":1654
+  /* "core/control.pyx":1654
  *             X[i+7*M] = gIc*mm[i]*Ic[i]                   # rate of Im
  *             X[i+8*M] = sa[i] - gIc*mm[i]*Im[i]           # rate of Ni
  *         return             # <<<<<<<<<<<<<<
@@ -26560,7 +26560,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1615
+  /* "core/control.pyx":1615
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -26573,7 +26573,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEAI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -26597,7 +26597,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1656
+/* "core/control.pyx":1656
  *         return
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,             # <<<<<<<<<<<<<<
@@ -26606,8 +26606,8 @@ static PyObject *__pyx_f_6pyross_7control_6SEAI5R_rhs(struct __pyx_obj_6pyross_7
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_A0 = 0;
@@ -26637,7 +26637,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_s
     values[12] = ((PyObject *)__pyx_int_0);
     values[13] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":1660
+    /* "core/control.pyx":1660
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -26646,7 +26646,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_s
  */
     values[14] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":1661
+    /* "core/control.pyx":1661
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -26655,7 +26655,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_s
  */
     values[15] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":1662
+    /* "core/control.pyx":1662
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -26904,13 +26904,13 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_s
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 12, 20, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1656, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAI5R_2simulate(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_6SEAI5R_2simulate(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Ih0, __pyx_v_Ic0, __pyx_v_Im0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":1656
+  /* "core/control.pyx":1656
  *         return
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,             # <<<<<<<<<<<<<<
@@ -26923,7 +26923,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_3simulate(PyObject *__pyx_v_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_2simulate(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Ih0, PyObject *__pyx_v_Ic0, PyObject *__pyx_v_Im0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -26942,7 +26942,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":1669
+  /* "core/control.pyx":1669
  *             dict data
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -26970,7 +26970,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "pyross/control.pyx":1670
+    /* "core/control.pyx":1670
  * 
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition             # <<<<<<<<<<<<<<
@@ -27031,7 +27031,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1671
+    /* "core/control.pyx":1671
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -27044,7 +27044,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1672
+    /* "core/control.pyx":1672
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -27054,7 +27054,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1673
+    /* "core/control.pyx":1673
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -27065,7 +27065,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1674
+    /* "core/control.pyx":1674
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -27074,7 +27074,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1675
+    /* "core/control.pyx":1675
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -27083,7 +27083,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1676
+    /* "core/control.pyx":1676
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -27092,7 +27092,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1671, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1671
+    /* "core/control.pyx":1671
  *         if method.lower() =='deterministic':
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0, self.Ni)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -27165,7 +27165,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1677
+    /* "core/control.pyx":1677
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -27178,7 +27178,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1678
+    /* "core/control.pyx":1678
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                           'Ni':self.Ni, 'M':self.M,             # <<<<<<<<<<<<<<
@@ -27191,7 +27191,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_M, __pyx_t_5) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1679
+    /* "core/control.pyx":1679
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                           'Ni':self.Ni, 'M':self.M,
  *                           'alpha':self.alpha, 'beta':self.beta,             # <<<<<<<<<<<<<<
@@ -27204,7 +27204,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_beta, __pyx_t_5) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1680
+    /* "core/control.pyx":1680
  *                           'Ni':self.Ni, 'M':self.M,
  *                           'alpha':self.alpha, 'beta':self.beta,
  *                           'gIa':self.gIa,'gIs':self.gIs,             # <<<<<<<<<<<<<<
@@ -27220,7 +27220,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_gIs, __pyx_t_5) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1681
+    /* "core/control.pyx":1681
  *                           'alpha':self.alpha, 'beta':self.beta,
  *                           'gIa':self.gIa,'gIs':self.gIs,
  *                           'gIh':self.gIh,'gIc':self.gIc,             # <<<<<<<<<<<<<<
@@ -27236,7 +27236,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_gIc, __pyx_t_5) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1682
+    /* "core/control.pyx":1682
  *                           'gIa':self.gIa,'gIs':self.gIs,
  *                           'gIh':self.gIh,'gIc':self.gIc,
  *                           'fsa':self.fsa,'fh':self.fh,             # <<<<<<<<<<<<<<
@@ -27252,7 +27252,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_fh, __pyx_t_5) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1683
+    /* "core/control.pyx":1683
  *                           'gIh':self.gIh,'gIc':self.gIc,
  *                           'fsa':self.fsa,'fh':self.fh,
  *                           'gE':self.gE,'gA':self.gA,             # <<<<<<<<<<<<<<
@@ -27268,7 +27268,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_gA, __pyx_t_5) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1684
+    /* "core/control.pyx":1684
  *                           'fsa':self.fsa,'fh':self.fh,
  *                           'gE':self.gE,'gA':self.gA,
  *                           'sa':self.sa,'hh':self.hh,             # <<<<<<<<<<<<<<
@@ -27278,7 +27278,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_sa, ((PyObject *)__pyx_v_self->sa)) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_hh, ((PyObject *)__pyx_v_self->hh)) < 0) __PYX_ERR(0, 1677, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1685
+    /* "core/control.pyx":1685
  *                           'gE':self.gE,'gA':self.gA,
  *                           'sa':self.sa,'hh':self.hh,
  *                           'mm':self.mm,'cc':self.cc,             # <<<<<<<<<<<<<<
@@ -27290,19 +27290,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1687
+    /* "core/control.pyx":1687
  *                           'mm':self.mm,'cc':self.cc,
  *                           }
  *             return data             # <<<<<<<<<<<<<<
  *         else:
- *             model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEAI5R(self.params, self.M, self.Ni)
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_data);
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":1669
+    /* "core/control.pyx":1669
  *             dict data
  * 
  *         if method.lower() =='deterministic':             # <<<<<<<<<<<<<<
@@ -27311,15 +27311,15 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
   }
 
-  /* "pyross/control.pyx":1689
+  /* "core/control.pyx":1689
  *             return data
  *         else:
- *             model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
+ *             model = core.stochastic.SEAI5R(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,
  *                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_pyross); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1689, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_core); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1689, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_stochastic); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1689, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -27382,9 +27382,9 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     __pyx_v_model = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1690
+    /* "core/control.pyx":1690
  *         else:
- *             model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEAI5R(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,
@@ -27400,8 +27400,8 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Ia0, __pyx_v_Ia0) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Is0, __pyx_v_Is0) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1691
- *             model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)
+    /* "core/control.pyx":1691
+ *             model = core.stochastic.SEAI5R(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,
  *                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
@@ -27411,7 +27411,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Ic0, __pyx_v_Ic0) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Im0, __pyx_v_Im0) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1692
+    /* "core/control.pyx":1692
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,
  *                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -27421,7 +27421,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1693
+    /* "core/control.pyx":1693
  *                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,             # <<<<<<<<<<<<<<
@@ -27431,7 +27431,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Tf, __pyx_v_Tf) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1694
+    /* "core/control.pyx":1694
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,             # <<<<<<<<<<<<<<
@@ -27440,7 +27440,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_method, __pyx_v_method) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1695
+    /* "core/control.pyx":1695
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,             # <<<<<<<<<<<<<<
@@ -27456,7 +27456,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_epsilon, __pyx_t_6) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1696
+    /* "core/control.pyx":1696
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -27468,7 +27468,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_tau_update_frequency, __pyx_t_6) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1697
+    /* "core/control.pyx":1697
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -27477,7 +27477,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1698
+    /* "core/control.pyx":1698
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -27486,7 +27486,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1699
+    /* "core/control.pyx":1699
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -27495,9 +27495,9 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1690, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1690
+    /* "core/control.pyx":1690
  *         else:
- *             model = pyross.stochastic.SEAI5R(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEAI5R(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0, Ia0=Ia0, Is0=Is0,             # <<<<<<<<<<<<<<
  *                                 Ih0=Ih0, Ic0=Ic0,Im0=Im0,
  *                                 events=events,contactMatrices=contactMatrices,
@@ -27511,7 +27511,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
     goto __pyx_L0;
   }
 
-  /* "pyross/control.pyx":1656
+  /* "core/control.pyx":1656
  *         return
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0, Ih0, Ic0, Im0,             # <<<<<<<<<<<<<<
@@ -27526,7 +27526,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -27547,19 +27547,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_2simulate(struct __pyx_obj_6p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAI5R_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_6SEAI5R_4__reduce_cython__(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_4__reduce_cython__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -27939,7 +27939,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_4__reduce_cython__(struct __p
   __Pyx_XDECREF(__pyx_t_13);
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
-  __Pyx_AddTraceback("pyross.control.SEAI5R.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -27957,19 +27957,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_4__reduce_cython__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAI5R_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_6SEAI5R_6__setstate_cython__(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_6SEAI5R_6__setstate_cython__(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -27981,7 +27981,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(struct _
  *     __pyx_unpickle_SEAI5R__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEAI5R__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEAI5R__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -27997,7 +27997,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(struct _
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEAI5R.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAI5R.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -28005,7 +28005,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(struct _
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1757
+/* "core/control.pyx":1757
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -28014,8 +28014,8 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAI5R_6__setstate_cython__(struct _
  */
 
 /* Python wrapper */
-static int __pyx_pw_6pyross_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_6pyross_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_4core_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_4core_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_parameters = 0;
   PyObject *__pyx_v_M = 0;
   PyObject *__pyx_v_Ni = 0;
@@ -28074,18 +28074,18 @@ static int __pyx_pw_6pyross_7control_6SEAIRQ_1__init__(PyObject *__pyx_v_self, P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1757, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAIRQ___init__(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
+  __pyx_r = __pyx_pf_4core_7control_6SEAIRQ___init__(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v_self), __pyx_v_parameters, __pyx_v_M, __pyx_v_Ni);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
+static int __pyx_pf_4core_7control_6SEAIRQ___init__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_parameters, PyObject *__pyx_v_M, PyObject *__pyx_v_Ni) {
   PyObject *__pyx_v_alpha = NULL;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -28098,7 +28098,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "pyross/control.pyx":1758
+  /* "core/control.pyx":1758
  * 
  *     def __init__(self, parameters, M, Ni):
  *         self.params = parameters             # <<<<<<<<<<<<<<
@@ -28114,7 +28114,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->params = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1760
+  /* "core/control.pyx":1760
  *         self.params = parameters
  * 
  *         self.beta  = parameters['beta']                     # infection rate             # <<<<<<<<<<<<<<
@@ -28127,7 +28127,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1761
+  /* "core/control.pyx":1761
  * 
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia             # <<<<<<<<<<<<<<
@@ -28140,7 +28140,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1762
+  /* "core/control.pyx":1762
  *         self.beta  = parameters['beta']                     # infection rate
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is             # <<<<<<<<<<<<<<
@@ -28153,7 +28153,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":1763
+  /* "core/control.pyx":1763
  *         self.gIa   = parameters['gIa']                      # removal rate of Ia
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gE    = parameters['gE']                       # removal rate of E             # <<<<<<<<<<<<<<
@@ -28166,7 +28166,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gE = __pyx_t_2;
 
-  /* "pyross/control.pyx":1764
+  /* "core/control.pyx":1764
  *         self.gIs   = parameters['gIs']                      # removal rate of Is
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.gA    = parameters['gA']                       # rate to go from A to Ia and Is             # <<<<<<<<<<<<<<
@@ -28179,7 +28179,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->gA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1765
+  /* "core/control.pyx":1765
  *         self.gE    = parameters['gE']                       # removal rate of E
  *         self.gA    = parameters['gA']                       # rate to go from A to Ia and Is
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter             # <<<<<<<<<<<<<<
@@ -28192,7 +28192,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->fsa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1767
+  /* "core/control.pyx":1767
  *         self.fsa   = parameters['fsa']                      # the self-isolation parameter
  * 
  *         self.tE    = parameters['tE']                       # testing rate & contact tracing of E             # <<<<<<<<<<<<<<
@@ -28205,7 +28205,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->tE = __pyx_t_2;
 
-  /* "pyross/control.pyx":1768
+  /* "core/control.pyx":1768
  * 
  *         self.tE    = parameters['tE']                       # testing rate & contact tracing of E
  *         self.tA    = parameters['tA']                       # testing rate & contact tracing of A             # <<<<<<<<<<<<<<
@@ -28218,7 +28218,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->tA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1769
+  /* "core/control.pyx":1769
  *         self.tE    = parameters['tE']                       # testing rate & contact tracing of E
  *         self.tA    = parameters['tA']                       # testing rate & contact tracing of A
  *         self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia             # <<<<<<<<<<<<<<
@@ -28231,7 +28231,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->tIa = __pyx_t_2;
 
-  /* "pyross/control.pyx":1770
+  /* "core/control.pyx":1770
  *         self.tA    = parameters['tA']                       # testing rate & contact tracing of A
  *         self.tIa   = parameters['tIa']                      # testing rate & contact tracing of Ia
  *         self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is             # <<<<<<<<<<<<<<
@@ -28244,7 +28244,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->tIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":1772
+  /* "core/control.pyx":1772
  *         self.tIs   = parameters['tIs']                      # testing rate & contact tracing of Is
  * 
  *         self.nClass = 6             # <<<<<<<<<<<<<<
@@ -28253,7 +28253,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
  */
   __pyx_v_self->__pyx_base.nClass = 6;
 
-  /* "pyross/control.pyx":1774
+  /* "core/control.pyx":1774
  *         self.nClass = 6
  * 
  *         self.N     = np.sum(Ni)             # <<<<<<<<<<<<<<
@@ -28284,7 +28284,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.N = __pyx_t_5;
 
-  /* "pyross/control.pyx":1775
+  /* "core/control.pyx":1775
  * 
  *         self.N     = np.sum(Ni)
  *         self.M     = M             # <<<<<<<<<<<<<<
@@ -28294,7 +28294,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_M); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1775, __pyx_L1_error)
   __pyx_v_self->__pyx_base.M = __pyx_t_5;
 
-  /* "pyross/control.pyx":1776
+  /* "core/control.pyx":1776
  *         self.N     = np.sum(Ni)
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group             # <<<<<<<<<<<<<<
@@ -28331,7 +28331,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1777
+  /* "core/control.pyx":1777
  *         self.M     = M
  *         self.Ni    = np.zeros( self.M, dtype=DTYPE)             # # people in each age-group
  *         self.Ni    = Ni             # <<<<<<<<<<<<<<
@@ -28347,7 +28347,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.Ni = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1779
+  /* "core/control.pyx":1779
  *         self.Ni    = Ni
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C             # <<<<<<<<<<<<<<
@@ -28394,7 +28394,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.CM = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "pyross/control.pyx":1780
+  /* "core/control.pyx":1780
  * 
  *         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side             # <<<<<<<<<<<<<<
@@ -28431,7 +28431,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->__pyx_base.dxdt = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1782
+  /* "core/control.pyx":1782
  *         self.dxdt = np.zeros( self.nClass*self.M, dtype=DTYPE)           # right hand side
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives             # <<<<<<<<<<<<<<
@@ -28443,7 +28443,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_alpha = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":1783
+  /* "core/control.pyx":1783
  * 
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)             # <<<<<<<<<<<<<<
@@ -28480,7 +28480,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pyross/control.pyx":1784
+  /* "core/control.pyx":1784
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -28514,7 +28514,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1785
+    /* "core/control.pyx":1785
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)             # <<<<<<<<<<<<<<
@@ -28551,7 +28551,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1784
+    /* "core/control.pyx":1784
  *         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
  *         self.alpha    = np.zeros( self.M, dtype = DTYPE)
  *         if np.size(alpha)==1:             # <<<<<<<<<<<<<<
@@ -28561,7 +28561,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1786
+  /* "core/control.pyx":1786
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -28594,7 +28594,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_7) {
 
-    /* "pyross/control.pyx":1787
+    /* "core/control.pyx":1787
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:
  *             self.alpha= alpha             # <<<<<<<<<<<<<<
@@ -28610,7 +28610,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
     __pyx_v_self->alpha = ((PyArrayObject *)__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "pyross/control.pyx":1786
+    /* "core/control.pyx":1786
  *         if np.size(alpha)==1:
  *             self.alpha = alpha*np.ones(M)
  *         elif np.size(alpha)==M:             # <<<<<<<<<<<<<<
@@ -28620,7 +28620,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
     goto __pyx_L3;
   }
 
-  /* "pyross/control.pyx":1789
+  /* "core/control.pyx":1789
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -28634,7 +28634,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   }
   __pyx_L3:;
 
-  /* "pyross/control.pyx":1757
+  /* "core/control.pyx":1757
  *         dict params
  * 
  *     def __init__(self, parameters, M, Ni):             # <<<<<<<<<<<<<<
@@ -28650,7 +28650,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_alpha);
@@ -28658,7 +28658,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1793
+/* "core/control.pyx":1793
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -28666,7 +28666,7 @@ static int __pyx_pf_6pyross_7control_6SEAIRQ___init__(struct __pyx_obj_6pyross_7
  *             int N=self.N, M=self.M, i, j
  */
 
-static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
+static PyObject *__pyx_f_4core_7control_6SEAIRQ_rhs(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_rp, CYTHON_UNUSED PyObject *__pyx_v_tt) {
   CYTHON_UNUSED int __pyx_v_N;
   int __pyx_v_M;
   int __pyx_v_i;
@@ -28719,7 +28719,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   Py_ssize_t __pyx_t_20;
   __Pyx_RefNannySetupContext("rhs", 0);
 
-  /* "pyross/control.pyx":1795
+  /* "core/control.pyx":1795
  *     cdef rhs(self, rp, tt):
  *         cdef:
  *             int N=self.N, M=self.M, i, j             # <<<<<<<<<<<<<<
@@ -28731,7 +28731,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_1 = __pyx_v_self->__pyx_base.M;
   __pyx_v_M = __pyx_t_1;
 
-  /* "pyross/control.pyx":1796
+  /* "core/control.pyx":1796
  *         cdef:
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb             # <<<<<<<<<<<<<<
@@ -28741,7 +28741,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_2 = __pyx_v_self->__pyx_base.beta;
   __pyx_v_beta = __pyx_t_2;
 
-  /* "pyross/control.pyx":1797
+  /* "core/control.pyx":1797
  *             int N=self.N, M=self.M, i, j
  *             double beta=self.beta, aa, bb
  *             double tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs             # <<<<<<<<<<<<<<
@@ -28757,7 +28757,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_2 = __pyx_v_self->tIs;
   __pyx_v_tIs = __pyx_t_2;
 
-  /* "pyross/control.pyx":1798
+  /* "core/control.pyx":1798
  *             double beta=self.beta, aa, bb
  *             double tE=self.tE, tA=self.tA, tIa=self.tIa, tIs=self.tIs
  *             double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA             # <<<<<<<<<<<<<<
@@ -28775,7 +28775,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_2 = __pyx_v_self->gA;
   __pyx_v_gA = __pyx_t_2;
 
-  /* "pyross/control.pyx":1801
+  /* "core/control.pyx":1801
  *             double gAA, gAS
  * 
  *             double [:] S    = rp[0*M:M]             # <<<<<<<<<<<<<<
@@ -28790,7 +28790,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1802
+  /* "core/control.pyx":1802
  * 
  *             double [:] S    = rp[0*M:M]
  *             double [:] E    = rp[1*M:2*M]             # <<<<<<<<<<<<<<
@@ -28805,7 +28805,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1803
+  /* "core/control.pyx":1803
  *             double [:] S    = rp[0*M:M]
  *             double [:] E    = rp[1*M:2*M]
  *             double [:] A    = rp[2*M:3*M]             # <<<<<<<<<<<<<<
@@ -28820,7 +28820,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1804
+  /* "core/control.pyx":1804
  *             double [:] E    = rp[1*M:2*M]
  *             double [:] A    = rp[2*M:3*M]
  *             double [:] Ia   = rp[3*M:4*M]             # <<<<<<<<<<<<<<
@@ -28835,7 +28835,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1805
+  /* "core/control.pyx":1805
  *             double [:] A    = rp[2*M:3*M]
  *             double [:] Ia   = rp[3*M:4*M]
  *             double [:] Is   = rp[4*M:5*M]             # <<<<<<<<<<<<<<
@@ -28850,7 +28850,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1806
+  /* "core/control.pyx":1806
  *             double [:] Ia   = rp[3*M:4*M]
  *             double [:] Is   = rp[4*M:5*M]
  *             double [:] Q    = rp[5*M:6*M]             # <<<<<<<<<<<<<<
@@ -28865,7 +28865,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1807
+  /* "core/control.pyx":1807
  *             double [:] Is   = rp[4*M:5*M]
  *             double [:] Q    = rp[5*M:6*M]
  *             double [:] Ni   = self.Ni             # <<<<<<<<<<<<<<
@@ -28877,7 +28877,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1808
+  /* "core/control.pyx":1808
  *             double [:] Q    = rp[5*M:6*M]
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM             # <<<<<<<<<<<<<<
@@ -28889,7 +28889,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "pyross/control.pyx":1809
+  /* "core/control.pyx":1809
  *             double [:] Ni   = self.Ni
  *             double [:,:] CM = self.CM
  *             double [:] X    = self.dxdt             # <<<<<<<<<<<<<<
@@ -28901,7 +28901,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1811
+  /* "core/control.pyx":1811
  *             double [:] X    = self.dxdt
  * 
  *             double [:] alpha= self.alpha             # <<<<<<<<<<<<<<
@@ -28913,7 +28913,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "pyross/control.pyx":1813
+  /* "core/control.pyx":1813
  *             double [:] alpha= self.alpha
  * 
  *         for i in range(M):             # <<<<<<<<<<<<<<
@@ -28925,7 +28925,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "pyross/control.pyx":1814
+    /* "core/control.pyx":1814
  * 
  *         for i in range(M):
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA             # <<<<<<<<<<<<<<
@@ -28938,7 +28938,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     __pyx_v_gAA = (__pyx_v_gA * (*((double *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_8 * __pyx_v_alpha.strides[0]) ))));
     __pyx_v_gAS = (__pyx_v_gA - __pyx_v_gAA);
 
-    /* "pyross/control.pyx":1815
+    /* "core/control.pyx":1815
  *         for i in range(M):
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
  *             for j in range(M):             # <<<<<<<<<<<<<<
@@ -28950,7 +28950,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_j = __pyx_t_11;
 
-      /* "pyross/control.pyx":1816
+      /* "core/control.pyx":1816
  *             bb=0;   gAA=gA*alpha[i];  gAS=gA-gAA
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]             # <<<<<<<<<<<<<<
@@ -28972,7 +28972,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
       __pyx_v_bb = (__pyx_v_bb + (((__pyx_v_beta * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_CM.data + __pyx_t_8 * __pyx_v_CM.strides[0]) ) + __pyx_t_12 * __pyx_v_CM.strides[1]) )))) * (((*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) ))) + (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_14 * __pyx_v_Ia.strides[0]) )))) + (__pyx_v_fsa * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_15 * __pyx_v_Is.strides[0]) )))))) / (*((double *) ( /* dim=0 */ (__pyx_v_Ni.data + __pyx_t_16 * __pyx_v_Ni.strides[0]) )))));
     }
 
-    /* "pyross/control.pyx":1817
+    /* "core/control.pyx":1817
  *             for j in range(M):
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]             # <<<<<<<<<<<<<<
@@ -28983,7 +28983,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_S.shape[0];
     __pyx_v_aa = (__pyx_v_bb * (*((double *) ( /* dim=0 */ (__pyx_v_S.data + __pyx_t_16 * __pyx_v_S.strides[0]) ))));
 
-    /* "pyross/control.pyx":1818
+    /* "core/control.pyx":1818
  *                  bb += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
  *             aa = bb*S[i]
  *             X[i]     = -aa                      # rate S  -> E, Q             # <<<<<<<<<<<<<<
@@ -28994,7 +28994,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_16 * __pyx_v_X.strides[0]) )) = (-__pyx_v_aa);
 
-    /* "pyross/control.pyx":1819
+    /* "core/control.pyx":1819
  *             aa = bb*S[i]
  *             X[i]     = -aa                      # rate S  -> E, Q
  *             X[i+M]   =  aa      - (gE+tE)     *E[i]                 # rate E  -> A, Q             # <<<<<<<<<<<<<<
@@ -29007,7 +29007,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_14 < 0) __pyx_t_14 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_14 * __pyx_v_X.strides[0]) )) = (__pyx_v_aa - ((__pyx_v_gE + __pyx_v_tE) * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))));
 
-    /* "pyross/control.pyx":1820
+    /* "core/control.pyx":1820
  *             X[i]     = -aa                      # rate S  -> E, Q
  *             X[i+M]   =  aa      - (gE+tE)     *E[i]                 # rate E  -> A, Q
  *             X[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q             # <<<<<<<<<<<<<<
@@ -29022,7 +29022,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_12 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_15 * __pyx_v_E.strides[0]) )))) - ((__pyx_v_gA + __pyx_v_tA) * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) )))));
 
-    /* "pyross/control.pyx":1821
+    /* "core/control.pyx":1821
  *             X[i+M]   =  aa      - (gE+tE)     *E[i]                 # rate E  -> A, Q
  *             X[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q
  *             X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q             # <<<<<<<<<<<<<<
@@ -29037,7 +29037,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_8 < 0) __pyx_t_8 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_8 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gAA * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_13 * __pyx_v_A.strides[0]) )))) - ((__pyx_v_gIa + __pyx_v_tIa) * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_15 * __pyx_v_Ia.strides[0]) )))));
 
-    /* "pyross/control.pyx":1822
+    /* "core/control.pyx":1822
  *             X[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # rate A  -> Ia, Is, Q
  *             X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
  *             X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q             # <<<<<<<<<<<<<<
@@ -29052,7 +29052,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     if (__pyx_t_17 < 0) __pyx_t_17 += __pyx_v_X.shape[0];
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_17 * __pyx_v_X.strides[0]) )) = ((__pyx_v_gAS * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_15 * __pyx_v_A.strides[0]) )))) - ((__pyx_v_gIs + __pyx_v_tIs) * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_13 * __pyx_v_Is.strides[0]) )))));
 
-    /* "pyross/control.pyx":1823
+    /* "core/control.pyx":1823
  *             X[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # rate Ia -> R, Q
  *             X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
  *             X[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q             # <<<<<<<<<<<<<<
@@ -29072,7 +29072,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
     *((double *) ( /* dim=0 */ (__pyx_v_X.data + __pyx_t_20 * __pyx_v_X.strides[0]) )) = ((((__pyx_v_tE * (*((double *) ( /* dim=0 */ (__pyx_v_E.data + __pyx_t_13 * __pyx_v_E.strides[0]) )))) + (__pyx_v_tA * (*((double *) ( /* dim=0 */ (__pyx_v_A.data + __pyx_t_15 * __pyx_v_A.strides[0]) ))))) + (__pyx_v_tIa * (*((double *) ( /* dim=0 */ (__pyx_v_Ia.data + __pyx_t_18 * __pyx_v_Ia.strides[0]) ))))) + (__pyx_v_tIs * (*((double *) ( /* dim=0 */ (__pyx_v_Is.data + __pyx_t_19 * __pyx_v_Is.strides[0]) )))));
   }
 
-  /* "pyross/control.pyx":1824
+  /* "core/control.pyx":1824
  *             X[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # rate Is -> R, Q
  *             X[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i] # rate of Q
  *         return             # <<<<<<<<<<<<<<
@@ -29083,7 +29083,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
 
-  /* "pyross/control.pyx":1793
+  /* "core/control.pyx":1793
  * 
  * 
  *     cdef rhs(self, rp, tt):             # <<<<<<<<<<<<<<
@@ -29096,7 +29096,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   __Pyx_XDECREF(__pyx_t_3);
   __PYX_XDEC_MEMVIEW(&__pyx_t_4, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.rhs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_S, 1);
@@ -29114,7 +29114,7 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
   return __pyx_r;
 }
 
-/* "pyross/control.pyx":1828
+/* "core/control.pyx":1828
  * 
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0, Q0,             # <<<<<<<<<<<<<<
@@ -29123,8 +29123,8 @@ static PyObject *__pyx_f_6pyross_7control_6SEAIRQ_rhs(struct __pyx_obj_6pyross_7
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_S0 = 0;
   PyObject *__pyx_v_E0 = 0;
   PyObject *__pyx_v_A0 = 0;
@@ -29152,7 +29152,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_s
     values[10] = ((PyObject *)__pyx_int_0);
     values[11] = ((PyObject *)__pyx_n_u_deterministic);
 
-    /* "pyross/control.pyx":1832
+    /* "core/control.pyx":1832
  *                          Tf, Nf, Ti=0,
  *                          method='deterministic',
  *                          events_repeat=False,             # <<<<<<<<<<<<<<
@@ -29161,7 +29161,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_s
  */
     values[12] = ((PyObject *)Py_False);
 
-    /* "pyross/control.pyx":1833
+    /* "core/control.pyx":1833
  *                          method='deterministic',
  *                          events_repeat=False,
  *                          events_subsequent=True,             # <<<<<<<<<<<<<<
@@ -29170,7 +29170,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_s
  */
     values[13] = ((PyObject *)Py_True);
 
-    /* "pyross/control.pyx":1834
+    /* "core/control.pyx":1834
  *                          events_repeat=False,
  *                          events_subsequent=True,
  *                          stop_at_event=False,             # <<<<<<<<<<<<<<
@@ -29399,13 +29399,13 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_s
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("simulate", 0, 10, 18, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1828, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAIRQ_2simulate(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Q0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
+  __pyx_r = __pyx_pf_4core_7control_6SEAIRQ_2simulate(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v_self), __pyx_v_S0, __pyx_v_E0, __pyx_v_A0, __pyx_v_Ia0, __pyx_v_Is0, __pyx_v_Q0, __pyx_v_events, __pyx_v_contactMatrices, __pyx_v_Tf, __pyx_v_Nf, __pyx_v_Ti, __pyx_v_method, __pyx_v_events_repeat, __pyx_v_events_subsequent, __pyx_v_stop_at_event, __pyx_v_nc, __pyx_v_epsilon, __pyx_v_tau_update_frequency);
 
-  /* "pyross/control.pyx":1828
+  /* "core/control.pyx":1828
  * 
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0, Q0,             # <<<<<<<<<<<<<<
@@ -29418,7 +29418,7 @@ static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_3simulate(PyObject *__pyx_v_s
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Q0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_2simulate(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v_S0, PyObject *__pyx_v_E0, PyObject *__pyx_v_A0, PyObject *__pyx_v_Ia0, PyObject *__pyx_v_Is0, PyObject *__pyx_v_Q0, PyObject *__pyx_v_events, PyObject *__pyx_v_contactMatrices, PyObject *__pyx_v_Tf, PyObject *__pyx_v_Nf, PyObject *__pyx_v_Ti, PyObject *__pyx_v_method, PyObject *__pyx_v_events_repeat, PyObject *__pyx_v_events_subsequent, PyObject *__pyx_v_stop_at_event, int __pyx_v_nc, double __pyx_v_epsilon, int __pyx_v_tau_update_frequency) {
   PyArrayObject *__pyx_v_y_eval = 0;
   PyArrayObject *__pyx_v_t_eval = 0;
   PyArrayObject *__pyx_v_y0 = 0;
@@ -29437,7 +29437,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("simulate", 0);
 
-  /* "pyross/control.pyx":1841
+  /* "core/control.pyx":1841
  *             dict data
  * 
  *         if method.lower() == 'deterministic':             # <<<<<<<<<<<<<<
@@ -29465,7 +29465,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "pyross/control.pyx":1842
+    /* "core/control.pyx":1842
  * 
  *         if method.lower() == 'deterministic':
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition             # <<<<<<<<<<<<<<
@@ -29517,7 +29517,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     __pyx_v_y0 = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "pyross/control.pyx":1843
+    /* "core/control.pyx":1843
  *         if method.lower() == 'deterministic':
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -29530,7 +29530,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     __Pyx_GOTREF(__pyx_t_3);
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_y0, ((PyObject *)__pyx_v_y0)) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1844
+    /* "core/control.pyx":1844
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -29540,7 +29540,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1845
+    /* "core/control.pyx":1845
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,             # <<<<<<<<<<<<<<
@@ -29551,7 +29551,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_Ti, __pyx_v_Ti) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1846
+    /* "core/control.pyx":1846
  *                                   events=events,contactMatrices=contactMatrices,
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -29560,7 +29560,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1847
+    /* "core/control.pyx":1847
  *                                   Tf=Tf,Nf=Nf,Ti=Ti,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -29569,7 +29569,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1848
+    /* "core/control.pyx":1848
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
@@ -29578,7 +29578,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1843, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1843
+    /* "core/control.pyx":1843
  *         if method.lower() == 'deterministic':
  *             y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
  *             y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,             # <<<<<<<<<<<<<<
@@ -29651,7 +29651,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     __pyx_v_events_out = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1849
+    /* "core/control.pyx":1849
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,             # <<<<<<<<<<<<<<
@@ -29664,7 +29664,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_t, ((PyObject *)__pyx_v_t_eval)) < 0) __PYX_ERR(0, 1849, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_events_occured, __pyx_v_events_out) < 0) __PYX_ERR(0, 1849, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1850
+    /* "core/control.pyx":1850
  *                                   stop_at_event=stop_at_event)
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                     'fsa':self.fsa,             # <<<<<<<<<<<<<<
@@ -29676,7 +29676,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_fsa, __pyx_t_5) < 0) __PYX_ERR(0, 1849, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1851
+    /* "core/control.pyx":1851
  *             data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
  *                     'fsa':self.fsa,
  *                     'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,             # <<<<<<<<<<<<<<
@@ -29694,7 +29694,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_beta, __pyx_t_5) < 0) __PYX_ERR(0, 1849, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1852
+    /* "core/control.pyx":1852
  *                     'fsa':self.fsa,
  *                     'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
  *                       'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,             # <<<<<<<<<<<<<<
@@ -29718,7 +29718,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_2, __pyx_n_u_gA, __pyx_t_5) < 0) __PYX_ERR(0, 1849, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "pyross/control.pyx":1853
+    /* "core/control.pyx":1853
  *                     'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
  *                       'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
  *                       'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}             # <<<<<<<<<<<<<<
@@ -29740,19 +29740,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     __pyx_v_data = ((PyObject*)__pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1854
+    /* "core/control.pyx":1854
  *                       'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
  *                       'tE':self.tE,'tIa':self.tIa,'tIs':self.tIs}
  *             return data             # <<<<<<<<<<<<<<
  *         else:
- *             model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEAIRQ(self.params, self.M, self.Ni)
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_data);
     __pyx_r = __pyx_v_data;
     goto __pyx_L0;
 
-    /* "pyross/control.pyx":1841
+    /* "core/control.pyx":1841
  *             dict data
  * 
  *         if method.lower() == 'deterministic':             # <<<<<<<<<<<<<<
@@ -29761,15 +29761,15 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
   }
 
-  /* "pyross/control.pyx":1856
+  /* "core/control.pyx":1856
  *             return data
  *         else:
- *             model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
+ *             model = core.stochastic.SEAIRQ(self.params, self.M, self.Ni)             # <<<<<<<<<<<<<<
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0,
  *                                 Ia0=Ia0, Is0=Is0,Q0=Q0,
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_pyross); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1856, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_core); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1856, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_stochastic); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1856, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -29832,9 +29832,9 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     __pyx_v_model = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "pyross/control.pyx":1857
+    /* "core/control.pyx":1857
  *         else:
- *             model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEAIRQ(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0,             # <<<<<<<<<<<<<<
  *                                 Ia0=Ia0, Is0=Is0,Q0=Q0,
  *                                 events=events,contactMatrices=contactMatrices,
@@ -29848,8 +29848,8 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_E0, __pyx_v_E0) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_A0, __pyx_v_A0) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1858
- *             model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)
+    /* "core/control.pyx":1858
+ *             model = core.stochastic.SEAIRQ(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0,
  *                                 Ia0=Ia0, Is0=Is0,Q0=Q0,             # <<<<<<<<<<<<<<
  *                                 events=events,contactMatrices=contactMatrices,
@@ -29859,7 +29859,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Is0, __pyx_v_Is0) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Q0, __pyx_v_Q0) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1859
+    /* "core/control.pyx":1859
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0,
  *                                 Ia0=Ia0, Is0=Is0,Q0=Q0,
  *                                 events=events,contactMatrices=contactMatrices,             # <<<<<<<<<<<<<<
@@ -29869,7 +29869,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events, __pyx_v_events) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_contactMatrices, __pyx_v_contactMatrices) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1860
+    /* "core/control.pyx":1860
  *                                 Ia0=Ia0, Is0=Is0,Q0=Q0,
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,             # <<<<<<<<<<<<<<
@@ -29879,7 +29879,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Tf, __pyx_v_Tf) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_Nf, __pyx_v_Nf) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1861
+    /* "core/control.pyx":1861
  *                                 events=events,contactMatrices=contactMatrices,
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,             # <<<<<<<<<<<<<<
@@ -29888,7 +29888,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_method, __pyx_v_method) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1862
+    /* "core/control.pyx":1862
  *                                 Tf=Tf, Nf=Nf,
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,             # <<<<<<<<<<<<<<
@@ -29904,7 +29904,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_epsilon, __pyx_t_6) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1863
+    /* "core/control.pyx":1863
  *                                 method=method,
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,             # <<<<<<<<<<<<<<
@@ -29916,7 +29916,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_tau_update_frequency, __pyx_t_6) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "pyross/control.pyx":1864
+    /* "core/control.pyx":1864
  *                                 nc=nc,epsilon = epsilon,
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,             # <<<<<<<<<<<<<<
@@ -29925,7 +29925,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_repeat, __pyx_v_events_repeat) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1865
+    /* "core/control.pyx":1865
  *                                 tau_update_frequency = tau_update_frequency,
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,             # <<<<<<<<<<<<<<
@@ -29933,16 +29933,16 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_events_subsequent, __pyx_v_events_subsequent) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1866
+    /* "core/control.pyx":1866
  *                                   events_repeat=events_repeat,
  *                                   events_subsequent=events_subsequent,
  *                                   stop_at_event=stop_at_event)             # <<<<<<<<<<<<<<
  */
     if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_stop_at_event, __pyx_v_stop_at_event) < 0) __PYX_ERR(0, 1857, __pyx_L1_error)
 
-    /* "pyross/control.pyx":1857
+    /* "core/control.pyx":1857
  *         else:
- *             model = pyross.stochastic.SEAIRQ(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SEAIRQ(self.params, self.M, self.Ni)
  *             return model.simulate_events(S0=S0,E0=E0, A0=A0,             # <<<<<<<<<<<<<<
  *                                 Ia0=Ia0, Is0=Is0,Q0=Q0,
  *                                 events=events,contactMatrices=contactMatrices,
@@ -29956,7 +29956,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
     goto __pyx_L0;
   }
 
-  /* "pyross/control.pyx":1828
+  /* "core/control.pyx":1828
  * 
  * 
  *     def simulate(self, S0, E0, A0, Ia0, Is0, Q0,             # <<<<<<<<<<<<<<
@@ -29971,7 +29971,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_y_eval);
@@ -29992,19 +29992,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_2simulate(struct __pyx_obj_6p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_5__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAIRQ_4__reduce_cython__(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v_self));
+  __pyx_r = __pyx_pf_4core_7control_6SEAIRQ_4__reduce_cython__(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_4__reduce_cython__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self) {
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_4__reduce_cython__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -30351,7 +30351,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_4__reduce_cython__(struct __p
   __Pyx_XDECREF(__pyx_t_14);
   __Pyx_XDECREF(__pyx_t_15);
   __Pyx_XDECREF(__pyx_t_16);
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -30369,19 +30369,19 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_4__reduce_cython__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_6pyross_7control_6SEAIRQ_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_4core_7control_6SEAIRQ_7__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6pyross_7control_6SEAIRQ_6__setstate_cython__(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_4core_7control_6SEAIRQ_6__setstate_cython__(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_6__setstate_cython__(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_6SEAIRQ_6__setstate_cython__(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -30393,7 +30393,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_6__setstate_cython__(struct _
  *     __pyx_unpickle_SEAIRQ__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
  */
   if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 17, __pyx_L1_error)
-  __pyx_t_1 = __pyx_f_6pyross_7control___pyx_unpickle_SEAIRQ__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_4core_7control___pyx_unpickle_SEAIRQ__set_state(__pyx_v_self, ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -30409,7 +30409,7 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_6__setstate_cython__(struct _
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("pyross.control.SEAIRQ.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.SEAIRQ.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -30424,9 +30424,9 @@ static PyObject *__pyx_pf_6pyross_7control_6SEAIRQ_6__setstate_cython__(struct _
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_1__pyx_unpickle_control_integration(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_1__pyx_unpickle_control_integration = {"__pyx_unpickle_control_integration", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_1__pyx_unpickle_control_integration, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_1__pyx_unpickle_control_integration(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_1__pyx_unpickle_control_integration(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_1__pyx_unpickle_control_integration = {"__pyx_unpickle_control_integration", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_1__pyx_unpickle_control_integration, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_1__pyx_unpickle_control_integration(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -30485,18 +30485,18 @@ static PyObject *__pyx_pw_6pyross_7control_1__pyx_unpickle_control_integration(P
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_control_integration", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_control_integration", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_control_integration", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control___pyx_unpickle_control_integration(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control___pyx_unpickle_control_integration(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control___pyx_unpickle_control_integration(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control___pyx_unpickle_control_integration(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -30590,7 +30590,7 @@ static PyObject *__pyx_pf_6pyross_7control___pyx_unpickle_control_integration(CY
  *     if __pyx_state is not None:
  *         __pyx_unpickle_control_integration__set_state(<control_integration> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_control_integration), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_control_integration), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -30629,7 +30629,7 @@ static PyObject *__pyx_pf_6pyross_7control___pyx_unpickle_control_integration(CY
  * cdef __pyx_unpickle_control_integration__set_state(control_integration __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_control_integration__set_state(((struct __pyx_obj_6pyross_7control_control_integration *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_control_integration__set_state(((struct __pyx_obj_4core_7control_control_integration *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -30666,7 +30666,7 @@ static PyObject *__pyx_pf_6pyross_7control___pyx_unpickle_control_integration(CY
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_control_integration", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_control_integration", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -30684,7 +30684,7 @@ static PyObject *__pyx_pf_6pyross_7control___pyx_unpickle_control_integration(CY
  *     if len(__pyx_state) > 9 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_control_integration__set_state(struct __pyx_obj_6pyross_7control_control_integration *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_control_integration__set_state(struct __pyx_obj_4core_7control_control_integration *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -30878,7 +30878,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_control_integration__se
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_control_integration__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_control_integration__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -30893,9 +30893,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_control_integration__se
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_3__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_3__pyx_unpickle_SIR = {"__pyx_unpickle_SIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_3__pyx_unpickle_SIR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_3__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_3__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_3__pyx_unpickle_SIR = {"__pyx_unpickle_SIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_3__pyx_unpickle_SIR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_3__pyx_unpickle_SIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -30954,18 +30954,18 @@ static PyObject *__pyx_pw_6pyross_7control_3__pyx_unpickle_SIR(PyObject *__pyx_s
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SIR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_2__pyx_unpickle_SIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -31059,7 +31059,7 @@ static PyObject *__pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyO
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SIR__set_state(<SIR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -31098,7 +31098,7 @@ static PyObject *__pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyO
  * cdef __pyx_unpickle_SIR__set_state(SIR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SIR__set_state(((struct __pyx_obj_6pyross_7control_SIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SIR__set_state(((struct __pyx_obj_4core_7control_SIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -31135,7 +31135,7 @@ static PyObject *__pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyO
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -31153,7 +31153,7 @@ static PyObject *__pyx_pf_6pyross_7control_2__pyx_unpickle_SIR(CYTHON_UNUSED PyO
  *     if len(__pyx_state) > 14 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIR__set_state(struct __pyx_obj_6pyross_7control_SIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SIR__set_state(struct __pyx_obj_4core_7control_SIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -31398,7 +31398,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIR__set_state(struct _
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -31413,9 +31413,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIR__set_state(struct _
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_5__pyx_unpickle_SEkIkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_5__pyx_unpickle_SEkIkIkR = {"__pyx_unpickle_SEkIkIkR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_5__pyx_unpickle_SEkIkIkR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_5__pyx_unpickle_SEkIkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_5__pyx_unpickle_SEkIkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_5__pyx_unpickle_SEkIkIkR = {"__pyx_unpickle_SEkIkIkR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_5__pyx_unpickle_SEkIkIkR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_5__pyx_unpickle_SEkIkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -31474,18 +31474,18 @@ static PyObject *__pyx_pw_6pyross_7control_5__pyx_unpickle_SEkIkIkR(PyObject *__
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEkIkIkR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEkIkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEkIkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_4__pyx_unpickle_SEkIkIkR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -31579,7 +31579,7 @@ static PyObject *__pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSE
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEkIkIkR__set_state(<SEkIkIkR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEkIkIkR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEkIkIkR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -31618,7 +31618,7 @@ static PyObject *__pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSE
  * cdef __pyx_unpickle_SEkIkIkR__set_state(SEkIkIkR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEkIkIkR__set_state(((struct __pyx_obj_6pyross_7control_SEkIkIkR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEkIkIkR__set_state(((struct __pyx_obj_4core_7control_SEkIkIkR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -31655,7 +31655,7 @@ static PyObject *__pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSE
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEkIkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEkIkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -31673,7 +31673,7 @@ static PyObject *__pyx_pf_6pyross_7control_4__pyx_unpickle_SEkIkIkR(CYTHON_UNUSE
  *     if len(__pyx_state) > 17 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkIkR__set_state(struct __pyx_obj_6pyross_7control_SEkIkIkR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEkIkIkR__set_state(struct __pyx_obj_4core_7control_SEkIkIkR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -31945,7 +31945,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkIkR__set_state(str
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEkIkIkR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEkIkIkR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -31960,9 +31960,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkIkR__set_state(str
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_7__pyx_unpickle_SIRS(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_7__pyx_unpickle_SIRS = {"__pyx_unpickle_SIRS", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_7__pyx_unpickle_SIRS, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_7__pyx_unpickle_SIRS(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_7__pyx_unpickle_SIRS(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_7__pyx_unpickle_SIRS = {"__pyx_unpickle_SIRS", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_7__pyx_unpickle_SIRS, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_7__pyx_unpickle_SIRS(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -32021,18 +32021,18 @@ static PyObject *__pyx_pw_6pyross_7control_7__pyx_unpickle_SIRS(PyObject *__pyx_
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SIRS", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIRS", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIRS", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_6__pyx_unpickle_SIRS(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -32126,7 +32126,7 @@ static PyObject *__pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED Py
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SIRS__set_state(<SIRS> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SIRS), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SIRS), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -32165,7 +32165,7 @@ static PyObject *__pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED Py
  * cdef __pyx_unpickle_SIRS__set_state(SIRS __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SIRS__set_state(((struct __pyx_obj_6pyross_7control_SIRS *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SIRS__set_state(((struct __pyx_obj_4core_7control_SIRS *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -32202,7 +32202,7 @@ static PyObject *__pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED Py
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIRS", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIRS", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -32220,7 +32220,7 @@ static PyObject *__pyx_pf_6pyross_7control_6__pyx_unpickle_SIRS(CYTHON_UNUSED Py
  *     if len(__pyx_state) > 17 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIRS__set_state(struct __pyx_obj_6pyross_7control_SIRS *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SIRS__set_state(struct __pyx_obj_4core_7control_SIRS *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -32498,7 +32498,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIRS__set_state(struct 
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIRS__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIRS__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -32513,9 +32513,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIRS__set_state(struct 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_9__pyx_unpickle_SEIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_9__pyx_unpickle_SEIR = {"__pyx_unpickle_SEIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_9__pyx_unpickle_SEIR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_9__pyx_unpickle_SEIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_9__pyx_unpickle_SEIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_9__pyx_unpickle_SEIR = {"__pyx_unpickle_SEIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_9__pyx_unpickle_SEIR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_9__pyx_unpickle_SEIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -32574,18 +32574,18 @@ static PyObject *__pyx_pw_6pyross_7control_9__pyx_unpickle_SEIR(PyObject *__pyx_
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEIR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_8__pyx_unpickle_SEIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -32679,7 +32679,7 @@ static PyObject *__pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED Py
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEIR__set_state(<SEIR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -32718,7 +32718,7 @@ static PyObject *__pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED Py
  * cdef __pyx_unpickle_SEIR__set_state(SEIR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEIR__set_state(((struct __pyx_obj_6pyross_7control_SEIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEIR__set_state(((struct __pyx_obj_4core_7control_SEIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -32755,7 +32755,7 @@ static PyObject *__pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED Py
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -32773,7 +32773,7 @@ static PyObject *__pyx_pf_6pyross_7control_8__pyx_unpickle_SEIR(CYTHON_UNUSED Py
  *     if len(__pyx_state) > 15 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEIR__set_state(struct __pyx_obj_6pyross_7control_SEIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEIR__set_state(struct __pyx_obj_4core_7control_SEIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -33027,7 +33027,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEIR__set_state(struct 
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -33042,9 +33042,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEIR__set_state(struct 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_11__pyx_unpickle_SEI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_11__pyx_unpickle_SEI5R = {"__pyx_unpickle_SEI5R", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_11__pyx_unpickle_SEI5R, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_11__pyx_unpickle_SEI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_11__pyx_unpickle_SEI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_11__pyx_unpickle_SEI5R = {"__pyx_unpickle_SEI5R", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_11__pyx_unpickle_SEI5R, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_11__pyx_unpickle_SEI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -33103,18 +33103,18 @@ static PyObject *__pyx_pw_6pyross_7control_11__pyx_unpickle_SEI5R(PyObject *__py
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEI5R", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_10__pyx_unpickle_SEI5R(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -33208,7 +33208,7 @@ static PyObject *__pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED 
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEI5R__set_state(<SEI5R> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEI5R), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEI5R), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -33247,7 +33247,7 @@ static PyObject *__pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED 
  * cdef __pyx_unpickle_SEI5R__set_state(SEI5R __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEI5R__set_state(((struct __pyx_obj_6pyross_7control_SEI5R *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEI5R__set_state(((struct __pyx_obj_4core_7control_SEI5R *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -33284,7 +33284,7 @@ static PyObject *__pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED 
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -33302,7 +33302,7 @@ static PyObject *__pyx_pf_6pyross_7control_10__pyx_unpickle_SEI5R(CYTHON_UNUSED 
  *     if len(__pyx_state) > 22 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEI5R__set_state(struct __pyx_obj_6pyross_7control_SEI5R *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEI5R__set_state(struct __pyx_obj_4core_7control_SEI5R *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -33631,7 +33631,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEI5R__set_state(struct
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEI5R__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEI5R__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -33646,9 +33646,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEI5R__set_state(struct
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_13__pyx_unpickle_SIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_13__pyx_unpickle_SIkR = {"__pyx_unpickle_SIkR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_13__pyx_unpickle_SIkR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_13__pyx_unpickle_SIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_13__pyx_unpickle_SIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_13__pyx_unpickle_SIkR = {"__pyx_unpickle_SIkR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_13__pyx_unpickle_SIkR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_13__pyx_unpickle_SIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -33707,18 +33707,18 @@ static PyObject *__pyx_pw_6pyross_7control_13__pyx_unpickle_SIkR(PyObject *__pyx
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SIkR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_12__pyx_unpickle_SIkR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -33812,7 +33812,7 @@ static PyObject *__pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED P
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SIkR__set_state(<SIkR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SIkR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SIkR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -33851,7 +33851,7 @@ static PyObject *__pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED P
  * cdef __pyx_unpickle_SIkR__set_state(SIkR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SIkR__set_state(((struct __pyx_obj_6pyross_7control_SIkR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SIkR__set_state(((struct __pyx_obj_4core_7control_SIkR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -33888,7 +33888,7 @@ static PyObject *__pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED P
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -33906,7 +33906,7 @@ static PyObject *__pyx_pf_6pyross_7control_12__pyx_unpickle_SIkR(CYTHON_UNUSED P
  *     if len(__pyx_state) > 12 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIkR__set_state(struct __pyx_obj_6pyross_7control_SIkR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SIkR__set_state(struct __pyx_obj_4core_7control_SIkR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -34130,7 +34130,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIkR__set_state(struct 
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SIkR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SIkR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -34145,9 +34145,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SIkR__set_state(struct 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_15__pyx_unpickle_SEkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_15__pyx_unpickle_SEkIkR = {"__pyx_unpickle_SEkIkR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_15__pyx_unpickle_SEkIkR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_15__pyx_unpickle_SEkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_15__pyx_unpickle_SEkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_15__pyx_unpickle_SEkIkR = {"__pyx_unpickle_SEkIkR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_15__pyx_unpickle_SEkIkR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_15__pyx_unpickle_SEkIkR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -34206,18 +34206,18 @@ static PyObject *__pyx_pw_6pyross_7control_15__pyx_unpickle_SEkIkR(PyObject *__p
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEkIkR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_14__pyx_unpickle_SEkIkR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -34311,7 +34311,7 @@ static PyObject *__pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEkIkR__set_state(<SEkIkR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEkIkR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEkIkR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -34350,7 +34350,7 @@ static PyObject *__pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED
  * cdef __pyx_unpickle_SEkIkR__set_state(SEkIkR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEkIkR__set_state(((struct __pyx_obj_6pyross_7control_SEkIkR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEkIkR__set_state(((struct __pyx_obj_4core_7control_SEkIkR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -34387,7 +34387,7 @@ static PyObject *__pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEkIkR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -34405,7 +34405,7 @@ static PyObject *__pyx_pf_6pyross_7control_14__pyx_unpickle_SEkIkR(CYTHON_UNUSED
  *     if len(__pyx_state) > 15 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkR__set_state(struct __pyx_obj_6pyross_7control_SEkIkR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEkIkR__set_state(struct __pyx_obj_4core_7control_SEkIkR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -34656,7 +34656,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkR__set_state(struc
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEkIkR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEkIkR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -34671,9 +34671,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEkIkR__set_state(struc
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_17__pyx_unpickle_SEAIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_17__pyx_unpickle_SEAIR = {"__pyx_unpickle_SEAIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_17__pyx_unpickle_SEAIR, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_17__pyx_unpickle_SEAIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_17__pyx_unpickle_SEAIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_17__pyx_unpickle_SEAIR = {"__pyx_unpickle_SEAIR", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_17__pyx_unpickle_SEAIR, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_17__pyx_unpickle_SEAIR(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -34732,18 +34732,18 @@ static PyObject *__pyx_pw_6pyross_7control_17__pyx_unpickle_SEAIR(PyObject *__py
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEAIR", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_16__pyx_unpickle_SEAIR(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -34837,7 +34837,7 @@ static PyObject *__pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED 
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEAIR__set_state(<SEAIR> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEAIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEAIR), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -34876,7 +34876,7 @@ static PyObject *__pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED 
  * cdef __pyx_unpickle_SEAIR__set_state(SEAIR __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEAIR__set_state(((struct __pyx_obj_6pyross_7control_SEAIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEAIR__set_state(((struct __pyx_obj_4core_7control_SEAIR *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -34913,7 +34913,7 @@ static PyObject *__pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED 
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAIR", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -34931,7 +34931,7 @@ static PyObject *__pyx_pf_6pyross_7control_16__pyx_unpickle_SEAIR(CYTHON_UNUSED 
  *     if len(__pyx_state) > 18 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIR__set_state(struct __pyx_obj_6pyross_7control_SEAIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEAIR__set_state(struct __pyx_obj_4core_7control_SEAIR *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -35212,7 +35212,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIR__set_state(struct
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAIR__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -35227,9 +35227,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIR__set_state(struct
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_19__pyx_unpickle_SEAI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_19__pyx_unpickle_SEAI5R = {"__pyx_unpickle_SEAI5R", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_19__pyx_unpickle_SEAI5R, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_19__pyx_unpickle_SEAI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_19__pyx_unpickle_SEAI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_19__pyx_unpickle_SEAI5R = {"__pyx_unpickle_SEAI5R", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_19__pyx_unpickle_SEAI5R, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_19__pyx_unpickle_SEAI5R(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -35288,18 +35288,18 @@ static PyObject *__pyx_pw_6pyross_7control_19__pyx_unpickle_SEAI5R(PyObject *__p
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEAI5R", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_18__pyx_unpickle_SEAI5R(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -35393,7 +35393,7 @@ static PyObject *__pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEAI5R__set_state(<SEAI5R> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEAI5R), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEAI5R), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -35432,7 +35432,7 @@ static PyObject *__pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED
  * cdef __pyx_unpickle_SEAI5R__set_state(SEAI5R __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEAI5R__set_state(((struct __pyx_obj_6pyross_7control_SEAI5R *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEAI5R__set_state(((struct __pyx_obj_4core_7control_SEAI5R *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -35469,7 +35469,7 @@ static PyObject *__pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAI5R", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -35487,7 +35487,7 @@ static PyObject *__pyx_pf_6pyross_7control_18__pyx_unpickle_SEAI5R(CYTHON_UNUSED
  *     if len(__pyx_state) > 23 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAI5R__set_state(struct __pyx_obj_6pyross_7control_SEAI5R *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEAI5R__set_state(struct __pyx_obj_4core_7control_SEAI5R *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -35825,7 +35825,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAI5R__set_state(struc
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAI5R__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAI5R__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -35840,9 +35840,9 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAI5R__set_state(struc
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_6pyross_7control_21__pyx_unpickle_SEAIRQ(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_6pyross_7control_21__pyx_unpickle_SEAIRQ = {"__pyx_unpickle_SEAIRQ", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_21__pyx_unpickle_SEAIRQ, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_6pyross_7control_21__pyx_unpickle_SEAIRQ(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_4core_7control_21__pyx_unpickle_SEAIRQ(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_4core_7control_21__pyx_unpickle_SEAIRQ = {"__pyx_unpickle_SEAIRQ", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_21__pyx_unpickle_SEAIRQ, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_4core_7control_21__pyx_unpickle_SEAIRQ(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -35901,18 +35901,18 @@ static PyObject *__pyx_pw_6pyross_7control_21__pyx_unpickle_SEAIRQ(PyObject *__p
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("__pyx_unpickle_SEAIRQ", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 1, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAIRQ", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAIRQ", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_4core_7control_20__pyx_unpickle_SEAIRQ(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_4core_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -36006,7 +36006,7 @@ static PyObject *__pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED
  *     if __pyx_state is not None:
  *         __pyx_unpickle_SEAIRQ__set_state(<SEAIRQ> __pyx_result, __pyx_state)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_6pyross_7control_SEAIRQ), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_4core_7control_SEAIRQ), __pyx_n_s_new); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -36045,7 +36045,7 @@ static PyObject *__pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED
  * cdef __pyx_unpickle_SEAIRQ__set_state(SEAIRQ __pyx_result, tuple __pyx_state):
  */
     if (!(likely(PyTuple_CheckExact(__pyx_v___pyx_state))||((__pyx_v___pyx_state) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "tuple", Py_TYPE(__pyx_v___pyx_state)->tp_name), 0))) __PYX_ERR(1, 9, __pyx_L1_error)
-    __pyx_t_3 = __pyx_f_6pyross_7control___pyx_unpickle_SEAIRQ__set_state(((struct __pyx_obj_6pyross_7control_SEAIRQ *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_3 = __pyx_f_4core_7control___pyx_unpickle_SEAIRQ__set_state(((struct __pyx_obj_4core_7control_SEAIRQ *)__pyx_v___pyx_result), ((PyObject*)__pyx_v___pyx_state)); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -36082,7 +36082,7 @@ static PyObject *__pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAIRQ", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAIRQ", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_PickleError);
@@ -36100,7 +36100,7 @@ static PyObject *__pyx_pf_6pyross_7control_20__pyx_unpickle_SEAIRQ(CYTHON_UNUSED
  *     if len(__pyx_state) > 20 and hasattr(__pyx_result, '__dict__'):
  */
 
-static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIRQ__set_state(struct __pyx_obj_6pyross_7control_SEAIRQ *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_4core_7control___pyx_unpickle_SEAIRQ__set_state(struct __pyx_obj_4core_7control_SEAIRQ *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -36399,7 +36399,7 @@ static PyObject *__pyx_f_6pyross_7control___pyx_unpickle_SEAIRQ__set_state(struc
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("pyross.control.__pyx_unpickle_SEAIRQ__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("core.control.__pyx_unpickle_SEAIRQ__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -51647,10 +51647,10 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *__
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static struct __pyx_vtabstruct_6pyross_7control_control_integration __pyx_vtable_6pyross_7control_control_integration;
+static struct __pyx_vtabstruct_4core_7control_control_integration __pyx_vtable_4core_7control_control_integration;
 
-static PyObject *__pyx_tp_new_6pyross_7control_control_integration(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_6pyross_7control_control_integration *p;
+static PyObject *__pyx_tp_new_4core_7control_control_integration(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_4core_7control_control_integration *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -51658,16 +51658,16 @@ static PyObject *__pyx_tp_new_6pyross_7control_control_integration(PyTypeObject 
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_control_integration *)o);
-  p->__pyx_vtab = __pyx_vtabptr_6pyross_7control_control_integration;
+  p = ((struct __pyx_obj_4core_7control_control_integration *)o);
+  p->__pyx_vtab = __pyx_vtabptr_4core_7control_control_integration;
   p->Ni = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->CM = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->dxdt = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_control_integration(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_control_integration *p = (struct __pyx_obj_6pyross_7control_control_integration *)o;
+static void __pyx_tp_dealloc_4core_7control_control_integration(PyObject *o) {
+  struct __pyx_obj_4core_7control_control_integration *p = (struct __pyx_obj_4core_7control_control_integration *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -51680,9 +51680,9 @@ static void __pyx_tp_dealloc_6pyross_7control_control_integration(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_control_integration(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_control_integration(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_control_integration *p = (struct __pyx_obj_6pyross_7control_control_integration *)o;
+  struct __pyx_obj_4core_7control_control_integration *p = (struct __pyx_obj_4core_7control_control_integration *)o;
   if (p->Ni) {
     e = (*v)(((PyObject *)p->Ni), a); if (e) return e;
   }
@@ -51695,9 +51695,9 @@ static int __pyx_tp_traverse_6pyross_7control_control_integration(PyObject *o, v
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_control_integration(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_control_integration(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_control_integration *p = (struct __pyx_obj_6pyross_7control_control_integration *)o;
+  struct __pyx_obj_4core_7control_control_integration *p = (struct __pyx_obj_4core_7control_control_integration *)o;
   tmp = ((PyObject*)p->Ni);
   p->Ni = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -51710,33 +51710,33 @@ static int __pyx_tp_clear_6pyross_7control_control_integration(PyObject *o) {
   return 0;
 }
 
-static PyObject *__pyx_getprop_6pyross_7control_19control_integration_N(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_7control_19control_integration_1N_1__get__(o);
+static PyObject *__pyx_getprop_4core_7control_19control_integration_N(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_7control_19control_integration_1N_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_6pyross_7control_19control_integration_M(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_6pyross_7control_19control_integration_1M_1__get__(o);
+static PyObject *__pyx_getprop_4core_7control_19control_integration_M(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_4core_7control_19control_integration_1M_1__get__(o);
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_control_integration[] = {
-  {"simulate_deterministic", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_19control_integration_1simulate_deterministic, METH_VARARGS|METH_KEYWORDS, __pyx_doc_6pyross_7control_19control_integration_simulate_deterministic},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_19control_integration_3__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_19control_integration_5__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_control_integration[] = {
+  {"simulate_deterministic", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_19control_integration_1simulate_deterministic, METH_VARARGS|METH_KEYWORDS, __pyx_doc_4core_7control_19control_integration_simulate_deterministic},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_19control_integration_3__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_19control_integration_5__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_6pyross_7control_control_integration[] = {
-  {(char *)"N", __pyx_getprop_6pyross_7control_19control_integration_N, 0, (char *)0, 0},
-  {(char *)"M", __pyx_getprop_6pyross_7control_19control_integration_M, 0, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_4core_7control_control_integration[] = {
+  {(char *)"N", __pyx_getprop_4core_7control_19control_integration_N, 0, (char *)0, 0},
+  {(char *)"M", __pyx_getprop_4core_7control_19control_integration_M, 0, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_control_integration = {
+static PyTypeObject __pyx_type_4core_7control_control_integration = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.control_integration", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_control_integration), /*tp_basicsize*/
+  "core.control.control_integration", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_control_integration), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_control_integration, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_control_integration, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -51763,15 +51763,15 @@ static PyTypeObject __pyx_type_6pyross_7control_control_integration = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Integrator class to implement control through changing the contact matrix\n    as a function of the current state.\n\n    Methods\n    -------\n    simulate_deteministic : Performs a deterministic simulation.\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_control_integration, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_control_integration, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_control_integration, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_control_integration, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_control_integration, /*tp_methods*/
+  __pyx_methods_4core_7control_control_integration, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_6pyross_7control_control_integration, /*tp_getset*/
+  __pyx_getsets_4core_7control_control_integration, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
@@ -51779,7 +51779,7 @@ static PyTypeObject __pyx_type_6pyross_7control_control_integration = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_control_integration, /*tp_new*/
+  __pyx_tp_new_4core_7control_control_integration, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -51799,21 +51799,21 @@ static PyTypeObject __pyx_type_6pyross_7control_control_integration = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIR __pyx_vtable_6pyross_7control_SIR;
+static struct __pyx_vtabstruct_4core_7control_SIR __pyx_vtable_4core_7control_SIR;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SIR(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SIR *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SIR(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SIR *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SIR *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SIR;
+  p = ((struct __pyx_obj_4core_7control_SIR *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SIR;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SIR(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SIR *p = (struct __pyx_obj_6pyross_7control_SIR *)o;
+static void __pyx_tp_dealloc_4core_7control_SIR(PyObject *o) {
+  struct __pyx_obj_4core_7control_SIR *p = (struct __pyx_obj_4core_7control_SIR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -51823,13 +51823,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SIR(PyObject *o) {
   Py_CLEAR(p->alpha);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SIR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SIR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SIR *p = (struct __pyx_obj_6pyross_7control_SIR *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SIR *p = (struct __pyx_obj_4core_7control_SIR *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -51839,10 +51839,10 @@ static int __pyx_tp_traverse_6pyross_7control_SIR(PyObject *o, visitproc v, void
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SIR(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SIR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SIR *p = (struct __pyx_obj_6pyross_7control_SIR *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SIR *p = (struct __pyx_obj_4core_7control_SIR *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -51852,19 +51852,19 @@ static int __pyx_tp_clear_6pyross_7control_SIR(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SIR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_3SIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_3SIR_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_3SIR_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SIR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_3SIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_3SIR_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_3SIR_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SIR = {
+static PyTypeObject __pyx_type_4core_7control_SIR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SIR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SIR), /*tp_basicsize*/
+  "core.control.SIR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SIR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SIR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SIR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -51891,13 +51891,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SIR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Infected, Removed (SIR)\n    Ia: asymptomatic\n    Is: symptomatic\n\n    ...\n\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float, np.array (M,)\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(3*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SIR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SIR, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SIR, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SIR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SIR, /*tp_methods*/
+  __pyx_methods_4core_7control_SIR, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -51905,9 +51905,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SIR = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_3SIR_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_3SIR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SIR, /*tp_new*/
+  __pyx_tp_new_4core_7control_SIR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -51927,21 +51927,21 @@ static PyTypeObject __pyx_type_6pyross_7control_SIR = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEkIkIkR __pyx_vtable_6pyross_7control_SEkIkIkR;
+static struct __pyx_vtabstruct_4core_7control_SEkIkIkR __pyx_vtable_4core_7control_SEkIkIkR;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEkIkIkR(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEkIkIkR *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEkIkIkR(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEkIkIkR *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEkIkIkR *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEkIkIkR;
+  p = ((struct __pyx_obj_4core_7control_SEkIkIkR *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEkIkIkR;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEkIkIkR(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEkIkIkR *p = (struct __pyx_obj_6pyross_7control_SEkIkIkR *)o;
+static void __pyx_tp_dealloc_4core_7control_SEkIkIkR(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEkIkIkR *p = (struct __pyx_obj_4core_7control_SEkIkIkR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -51951,13 +51951,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SEkIkIkR(PyObject *o) {
   Py_CLEAR(p->alpha);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEkIkIkR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEkIkIkR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEkIkIkR *p = (struct __pyx_obj_6pyross_7control_SEkIkIkR *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEkIkIkR *p = (struct __pyx_obj_4core_7control_SEkIkIkR *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -51967,10 +51967,10 @@ static int __pyx_tp_traverse_6pyross_7control_SEkIkIkR(PyObject *o, visitproc v,
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEkIkIkR(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEkIkIkR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEkIkIkR *p = (struct __pyx_obj_6pyross_7control_SEkIkIkR *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEkIkIkR *p = (struct __pyx_obj_4core_7control_SEkIkIkR *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -51980,24 +51980,24 @@ static int __pyx_tp_clear_6pyross_7control_SEkIkIkR(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEkIkIkR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_8SEkIkIkR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"S", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_5S, METH_O, __pyx_doc_6pyross_7control_8SEkIkIkR_4S},
-  {"E", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_7E, METH_O, __pyx_doc_6pyross_7control_8SEkIkIkR_6E},
-  {"Ia", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_9Ia, METH_O, __pyx_doc_6pyross_7control_8SEkIkIkR_8Ia},
-  {"Is", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_11Is, METH_O, __pyx_doc_6pyross_7control_8SEkIkIkR_10Is},
-  {"R", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_13R, METH_O, __pyx_doc_6pyross_7control_8SEkIkIkR_12R},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_15__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_8SEkIkIkR_17__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEkIkIkR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_8SEkIkIkR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"S", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_5S, METH_O, __pyx_doc_4core_7control_8SEkIkIkR_4S},
+  {"E", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_7E, METH_O, __pyx_doc_4core_7control_8SEkIkIkR_6E},
+  {"Ia", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_9Ia, METH_O, __pyx_doc_4core_7control_8SEkIkIkR_8Ia},
+  {"Is", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_11Is, METH_O, __pyx_doc_4core_7control_8SEkIkIkR_10Is},
+  {"R", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_13R, METH_O, __pyx_doc_4core_7control_8SEkIkIkR_12R},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_15__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_8SEkIkIkR_17__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEkIkIkR = {
+static PyTypeObject __pyx_type_4core_7control_SEkIkIkR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEkIkIkR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEkIkIkR), /*tp_basicsize*/
+  "core.control.SEkIkIkR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEkIkIkR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEkIkIkR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEkIkIkR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52024,13 +52024,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEkIkIkR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Exposed, Infected, Removed (SEIR)\n    method of k-stages of Ia, Is, E\n    See: Lloyd, Theoretical Population Biology 60, 59\364\217\260\21071 (2001), doi:10.1006\364\217\260\205tpbi.2001.1525.\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic infected individuals.\n            gIs: float\n                rate of removal from symptomatic infected individuals.\n            gE: float\n                rate of removal from exposed individuals.\n            kI: int\n                number of stages of asymptomatic infectives.\n            kI: int\n                number of stages of symptomatic infectives.\n            kE: int\n                number of stages of exposed.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEkIkIkR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEkIkIkR, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEkIkIkR, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEkIkIkR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEkIkIkR, /*tp_methods*/
+  __pyx_methods_4core_7control_SEkIkIkR, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52038,9 +52038,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEkIkIkR = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_8SEkIkIkR_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_8SEkIkIkR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEkIkIkR, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEkIkIkR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52060,14 +52060,14 @@ static PyTypeObject __pyx_type_6pyross_7control_SEkIkIkR = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIRS __pyx_vtable_6pyross_7control_SIRS;
+static struct __pyx_vtabstruct_4core_7control_SIRS __pyx_vtable_4core_7control_SIRS;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SIRS(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SIRS *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SIRS(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SIRS *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SIRS *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SIRS;
+  p = ((struct __pyx_obj_4core_7control_SIRS *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SIRS;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->sa = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->iaa = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
@@ -52075,8 +52075,8 @@ static PyObject *__pyx_tp_new_6pyross_7control_SIRS(PyTypeObject *t, PyObject *a
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SIRS(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SIRS *p = (struct __pyx_obj_6pyross_7control_SIRS *)o;
+static void __pyx_tp_dealloc_4core_7control_SIRS(PyObject *o) {
+  struct __pyx_obj_4core_7control_SIRS *p = (struct __pyx_obj_4core_7control_SIRS *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52088,13 +52088,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SIRS(PyObject *o) {
   Py_CLEAR(p->iaa);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SIRS(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SIRS(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SIRS *p = (struct __pyx_obj_6pyross_7control_SIRS *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SIRS *p = (struct __pyx_obj_4core_7control_SIRS *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -52110,10 +52110,10 @@ static int __pyx_tp_traverse_6pyross_7control_SIRS(PyObject *o, visitproc v, voi
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SIRS(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SIRS(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SIRS *p = (struct __pyx_obj_6pyross_7control_SIRS *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SIRS *p = (struct __pyx_obj_4core_7control_SIRS *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -52129,19 +52129,19 @@ static int __pyx_tp_clear_6pyross_7control_SIRS(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SIRS[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_4SIRS_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_4SIRS_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_4SIRS_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SIRS[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_4SIRS_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_4SIRS_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_4SIRS_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SIRS = {
+static PyTypeObject __pyx_type_4core_7control_SIRS = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SIRS", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SIRS), /*tp_basicsize*/
+  "core.control.SIRS", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SIRS), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SIRS, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SIRS, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52168,13 +52168,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SIRS = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Infected, Removed, Susceptible (SIRS)\n    Ia: asymptomatic\n    Is: symptomatic\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float, np.array (M,)\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n            ep  : float\n                fraction of removed who become susceptable again\n            sa  : float, np.array (M,)\n                daily arrival of new susceptables\n            iaa: float, np.array (M,)\n                daily arrival of new asymptomatics\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(4*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SIRS, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SIRS, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SIRS, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SIRS, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SIRS, /*tp_methods*/
+  __pyx_methods_4core_7control_SIRS, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52182,9 +52182,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SIRS = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_4SIRS_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_4SIRS_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SIRS, /*tp_new*/
+  __pyx_tp_new_4core_7control_SIRS, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52204,21 +52204,21 @@ static PyTypeObject __pyx_type_6pyross_7control_SIRS = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEIR __pyx_vtable_6pyross_7control_SEIR;
+static struct __pyx_vtabstruct_4core_7control_SEIR __pyx_vtable_4core_7control_SEIR;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEIR(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEIR *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEIR(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEIR *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEIR *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEIR;
+  p = ((struct __pyx_obj_4core_7control_SEIR *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEIR;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEIR(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEIR *p = (struct __pyx_obj_6pyross_7control_SEIR *)o;
+static void __pyx_tp_dealloc_4core_7control_SEIR(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEIR *p = (struct __pyx_obj_4core_7control_SEIR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52228,13 +52228,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SEIR(PyObject *o) {
   Py_CLEAR(p->alpha);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEIR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEIR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEIR *p = (struct __pyx_obj_6pyross_7control_SEIR *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEIR *p = (struct __pyx_obj_4core_7control_SEIR *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -52244,10 +52244,10 @@ static int __pyx_tp_traverse_6pyross_7control_SEIR(PyObject *o, visitproc v, voi
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEIR(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEIR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEIR *p = (struct __pyx_obj_6pyross_7control_SEIR *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEIR *p = (struct __pyx_obj_4core_7control_SEIR *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -52257,19 +52257,19 @@ static int __pyx_tp_clear_6pyross_7control_SEIR(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEIR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_4SEIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_4SEIR_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_4SEIR_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEIR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_4SEIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_4SEIR_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_4SEIR_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEIR = {
+static PyTypeObject __pyx_type_4core_7control_SEIR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEIR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEIR), /*tp_basicsize*/
+  "core.control.SEIR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEIR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEIR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEIR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52296,13 +52296,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEIR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Exposed, Infected, Removed (SEIR)\n    Ia: asymptomatic\n    Is: symptomatic\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float, np.array (M,)\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n            gE: float\n                rate of removal from exposed individuals.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(4*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEIR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEIR, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEIR, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEIR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEIR, /*tp_methods*/
+  __pyx_methods_4core_7control_SEIR, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52310,9 +52310,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEIR = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_4SEIR_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_4SEIR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEIR, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEIR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52332,14 +52332,14 @@ static PyTypeObject __pyx_type_6pyross_7control_SEIR = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEI5R __pyx_vtable_6pyross_7control_SEI5R;
+static struct __pyx_vtabstruct_4core_7control_SEI5R __pyx_vtable_4core_7control_SEI5R;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEI5R(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEI5R *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEI5R(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEI5R *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEI5R *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEI5R;
+  p = ((struct __pyx_obj_4core_7control_SEI5R *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEI5R;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->sa = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->hh = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
@@ -52349,8 +52349,8 @@ static PyObject *__pyx_tp_new_6pyross_7control_SEI5R(PyTypeObject *t, PyObject *
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEI5R(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEI5R *p = (struct __pyx_obj_6pyross_7control_SEI5R *)o;
+static void __pyx_tp_dealloc_4core_7control_SEI5R(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEI5R *p = (struct __pyx_obj_4core_7control_SEI5R *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52364,13 +52364,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SEI5R(PyObject *o) {
   Py_CLEAR(p->mm);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEI5R(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEI5R(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEI5R *p = (struct __pyx_obj_6pyross_7control_SEI5R *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEI5R *p = (struct __pyx_obj_4core_7control_SEI5R *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -52392,10 +52392,10 @@ static int __pyx_tp_traverse_6pyross_7control_SEI5R(PyObject *o, visitproc v, vo
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEI5R(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEI5R(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEI5R *p = (struct __pyx_obj_6pyross_7control_SEI5R *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEI5R *p = (struct __pyx_obj_4core_7control_SEI5R *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -52417,19 +52417,19 @@ static int __pyx_tp_clear_6pyross_7control_SEI5R(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEI5R[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_5SEI5R_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_5SEI5R_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_5SEI5R_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEI5R[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_5SEI5R_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_5SEI5R_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_5SEI5R_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEI5R = {
+static PyTypeObject __pyx_type_4core_7control_SEI5R = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEI5R", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEI5R), /*tp_basicsize*/
+  "core.control.SEI5R", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEI5R), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEI5R, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEI5R, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52456,13 +52456,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEI5R = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Exposed, Infected, Removed (SEIR)\n    The infected class has 5 groups:\n    * Ia: asymptomatic\n    * Is: symptomatic\n    * Ih: hospitalized\n    * Ic: ICU\n    * Im: Mortality\n\n    S  ---> E\n    E  ---> Ia, Is\n    Ia ---> R\n    Is ---> Ih, R\n    Ih ---> Ic, R\n    Ic ---> Im, R\n\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float, np.array (M,)\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gE: float\n                rate of removal from exposeds individuals.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            gIh: float\n                rate of removal for hospitalised individuals.\n            gIc: float\n                rate of removal for idividuals in intensive care.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n            fh  : float\n                fraction by which hospitalised individuals are isolated.\n            sa: float, np.array (M,)\n                daily arrival of new susceptables.\n                sa is rate of additional/removal of population by birth etc\n            hh: float, np.array (M,)\n                fraction hospitalised from Is\n            cc: float, np.array (M,)\n                fraction sent to intensive care from hospitalised.\n            mm: float, np.array (M,)\n                mortality rate in intensive care\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(8*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEI5R, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEI5R, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEI5R, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEI5R, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEI5R, /*tp_methods*/
+  __pyx_methods_4core_7control_SEI5R, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52470,9 +52470,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEI5R = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_5SEI5R_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_5SEI5R_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEI5R, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEI5R, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52492,20 +52492,20 @@ static PyTypeObject __pyx_type_6pyross_7control_SEI5R = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SIkR __pyx_vtable_6pyross_7control_SIkR;
+static struct __pyx_vtabstruct_4core_7control_SIkR __pyx_vtable_4core_7control_SIkR;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SIkR(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SIkR *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SIkR(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SIkR *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SIkR *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SIkR;
+  p = ((struct __pyx_obj_4core_7control_SIkR *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SIkR;
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SIkR(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SIkR *p = (struct __pyx_obj_6pyross_7control_SIkR *)o;
+static void __pyx_tp_dealloc_4core_7control_SIkR(PyObject *o) {
+  struct __pyx_obj_4core_7control_SIkR *p = (struct __pyx_obj_4core_7control_SIkR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52514,42 +52514,42 @@ static void __pyx_tp_dealloc_6pyross_7control_SIkR(PyObject *o) {
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SIkR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SIkR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SIkR *p = (struct __pyx_obj_6pyross_7control_SIkR *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SIkR *p = (struct __pyx_obj_4core_7control_SIkR *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->params) {
     e = (*v)(p->params, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SIkR(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SIkR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SIkR *p = (struct __pyx_obj_6pyross_7control_SIkR *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SIkR *p = (struct __pyx_obj_4core_7control_SIkR *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->params);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SIkR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_4SIkR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_4SIkR_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_4SIkR_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SIkR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_4SIkR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_4SIkR_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_4SIkR_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SIkR = {
+static PyTypeObject __pyx_type_4core_7control_SIkR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SIkR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SIkR), /*tp_basicsize*/
+  "core.control.SIkR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SIkR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SIkR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SIkR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52576,13 +52576,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SIkR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Infected, Removed (SIkR)\n    method of k-stages of I\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gI: float\n                rate of removal from infectives.\n            kI: int\n                number of stages of infection.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array((kI + 1)*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SIkR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SIkR, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SIkR, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SIkR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SIkR, /*tp_methods*/
+  __pyx_methods_4core_7control_SIkR, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52590,9 +52590,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SIkR = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_4SIkR_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_4SIkR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SIkR, /*tp_new*/
+  __pyx_tp_new_4core_7control_SIkR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52612,20 +52612,20 @@ static PyTypeObject __pyx_type_6pyross_7control_SIkR = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEkIkR __pyx_vtable_6pyross_7control_SEkIkR;
+static struct __pyx_vtabstruct_4core_7control_SEkIkR __pyx_vtable_4core_7control_SEkIkR;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEkIkR(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEkIkR *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEkIkR(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEkIkR *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEkIkR *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEkIkR;
+  p = ((struct __pyx_obj_4core_7control_SEkIkR *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEkIkR;
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEkIkR(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEkIkR *p = (struct __pyx_obj_6pyross_7control_SEkIkR *)o;
+static void __pyx_tp_dealloc_4core_7control_SEkIkR(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEkIkR *p = (struct __pyx_obj_4core_7control_SEkIkR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52634,42 +52634,42 @@ static void __pyx_tp_dealloc_6pyross_7control_SEkIkR(PyObject *o) {
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEkIkR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEkIkR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEkIkR *p = (struct __pyx_obj_6pyross_7control_SEkIkR *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEkIkR *p = (struct __pyx_obj_4core_7control_SEkIkR *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->params) {
     e = (*v)(p->params, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEkIkR(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEkIkR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEkIkR *p = (struct __pyx_obj_6pyross_7control_SEkIkR *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEkIkR *p = (struct __pyx_obj_4core_7control_SEkIkR *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->params);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEkIkR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_6SEkIkR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_6SEkIkR_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_6SEkIkR_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEkIkR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_6SEkIkR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_6SEkIkR_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_6SEkIkR_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEkIkR = {
+static PyTypeObject __pyx_type_4core_7control_SEkIkR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEkIkR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEkIkR), /*tp_basicsize*/
+  "core.control.SEkIkR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEkIkR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEkIkR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEkIkR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52696,13 +52696,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEkIkR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Infected, Removed (SIkR)\n    method of k-stages of I\n    See: Lloyd, Theoretical Population Biology 60, 59\364\217\260\21071 (2001), doi:10.1006\364\217\260\205tpbi.2001.1525.\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gI: float\n                rate of removal from infected individuals.\n            gE: float\n                rate of removal from exposed individuals.\n            ki: int\n                number of stages of infectives.\n            ke: int\n                number of stages of exposed.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array((kI = kE +1)*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEkIkR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEkIkR, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEkIkR, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEkIkR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEkIkR, /*tp_methods*/
+  __pyx_methods_4core_7control_SEkIkR, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52710,9 +52710,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEkIkR = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_6SEkIkR_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_6SEkIkR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEkIkR, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEkIkR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52732,21 +52732,21 @@ static PyTypeObject __pyx_type_6pyross_7control_SEkIkR = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAIR __pyx_vtable_6pyross_7control_SEAIR;
+static struct __pyx_vtabstruct_4core_7control_SEAIR __pyx_vtable_4core_7control_SEAIR;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEAIR(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEAIR *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEAIR(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEAIR *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEAIR *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEAIR;
+  p = ((struct __pyx_obj_4core_7control_SEAIR *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEAIR;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEAIR(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEAIR *p = (struct __pyx_obj_6pyross_7control_SEAIR *)o;
+static void __pyx_tp_dealloc_4core_7control_SEAIR(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEAIR *p = (struct __pyx_obj_4core_7control_SEAIR *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52756,13 +52756,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SEAIR(PyObject *o) {
   Py_CLEAR(p->alpha);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEAIR(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEAIR(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEAIR *p = (struct __pyx_obj_6pyross_7control_SEAIR *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEAIR *p = (struct __pyx_obj_4core_7control_SEAIR *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -52772,10 +52772,10 @@ static int __pyx_tp_traverse_6pyross_7control_SEAIR(PyObject *o, visitproc v, vo
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEAIR(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEAIR(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEAIR *p = (struct __pyx_obj_6pyross_7control_SEAIR *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEAIR *p = (struct __pyx_obj_4core_7control_SEAIR *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -52785,19 +52785,19 @@ static int __pyx_tp_clear_6pyross_7control_SEAIR(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEAIR[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_5SEAIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_5SEAIR_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_5SEAIR_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEAIR[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_5SEAIR_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_5SEAIR_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_5SEAIR_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEAIR = {
+static PyTypeObject __pyx_type_4core_7control_SEAIR = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEAIR", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEAIR), /*tp_basicsize*/
+  "core.control.SEAIR", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEAIR), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEAIR, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEAIR, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52824,13 +52824,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAIR = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)\n    Ia: asymptomatic\n    Is: symptomatic\n    A: Asymptomatic and infectious\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n            gE: float\n                rate of removal from exposeds individuals.\n            gA: float\n                rate of removal from activated individuals.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(5*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEAIR, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEAIR, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEAIR, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEAIR, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEAIR, /*tp_methods*/
+  __pyx_methods_4core_7control_SEAIR, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52838,9 +52838,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAIR = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_5SEAIR_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_5SEAIR_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEAIR, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEAIR, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -52860,14 +52860,14 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAIR = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAI5R __pyx_vtable_6pyross_7control_SEAI5R;
+static struct __pyx_vtabstruct_4core_7control_SEAI5R __pyx_vtable_4core_7control_SEAI5R;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEAI5R(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEAI5R *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEAI5R(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEAI5R *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEAI5R *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEAI5R;
+  p = ((struct __pyx_obj_4core_7control_SEAI5R *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEAI5R;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->sa = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->hh = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
@@ -52877,8 +52877,8 @@ static PyObject *__pyx_tp_new_6pyross_7control_SEAI5R(PyTypeObject *t, PyObject 
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEAI5R(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEAI5R *p = (struct __pyx_obj_6pyross_7control_SEAI5R *)o;
+static void __pyx_tp_dealloc_4core_7control_SEAI5R(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEAI5R *p = (struct __pyx_obj_4core_7control_SEAI5R *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -52892,13 +52892,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SEAI5R(PyObject *o) {
   Py_CLEAR(p->mm);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEAI5R(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEAI5R(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEAI5R *p = (struct __pyx_obj_6pyross_7control_SEAI5R *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEAI5R *p = (struct __pyx_obj_4core_7control_SEAI5R *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -52920,10 +52920,10 @@ static int __pyx_tp_traverse_6pyross_7control_SEAI5R(PyObject *o, visitproc v, v
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEAI5R(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEAI5R(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEAI5R *p = (struct __pyx_obj_6pyross_7control_SEAI5R *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEAI5R *p = (struct __pyx_obj_4core_7control_SEAI5R *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -52945,19 +52945,19 @@ static int __pyx_tp_clear_6pyross_7control_SEAI5R(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEAI5R[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_6SEAI5R_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_6SEAI5R_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_6SEAI5R_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEAI5R[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_6SEAI5R_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_6SEAI5R_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_6SEAI5R_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEAI5R = {
+static PyTypeObject __pyx_type_4core_7control_SEAI5R = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEAI5R", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEAI5R), /*tp_basicsize*/
+  "core.control.SEAI5R", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEAI5R), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEAI5R, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEAI5R, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -52984,13 +52984,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAI5R = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Exposed, Activates, Infected, Removed (SEAIR)\n    The infected class has 5 groups:\n    * Ia: asymptomatic\n    * Is: symptomatic\n    * Ih: hospitalized\n    * Ic: ICU\n    * Im: Mortality\n\n    S  ---> E\n    E  ---> Ia, Is\n    Ia ---> R\n    Is ---> Ih, R\n    Ih ---> Ic, R\n    Ic ---> Im, R\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n            gE: float\n                rate of removal from exposeds individuals.\n            gA: float\n                rate of removal from activated individuals.\n            gIh: float\n                rate of hospitalisation of infected individuals.\n            gIc: float\n                rate hospitalised individuals are moved to intensive care.\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(9*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEAI5R, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEAI5R, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEAI5R, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEAI5R, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEAI5R, /*tp_methods*/
+  __pyx_methods_4core_7control_SEAI5R, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -52998,9 +52998,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAI5R = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_6SEAI5R_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_6SEAI5R_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEAI5R, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEAI5R, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -53020,21 +53020,21 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAI5R = {
   0, /*tp_print*/
   #endif
 };
-static struct __pyx_vtabstruct_6pyross_7control_SEAIRQ __pyx_vtable_6pyross_7control_SEAIRQ;
+static struct __pyx_vtabstruct_4core_7control_SEAIRQ __pyx_vtable_4core_7control_SEAIRQ;
 
-static PyObject *__pyx_tp_new_6pyross_7control_SEAIRQ(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_6pyross_7control_SEAIRQ *p;
-  PyObject *o = __pyx_tp_new_6pyross_7control_control_integration(t, a, k);
+static PyObject *__pyx_tp_new_4core_7control_SEAIRQ(PyTypeObject *t, PyObject *a, PyObject *k) {
+  struct __pyx_obj_4core_7control_SEAIRQ *p;
+  PyObject *o = __pyx_tp_new_4core_7control_control_integration(t, a, k);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_6pyross_7control_SEAIRQ *)o);
-  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_6pyross_7control_control_integration*)__pyx_vtabptr_6pyross_7control_SEAIRQ;
+  p = ((struct __pyx_obj_4core_7control_SEAIRQ *)o);
+  p->__pyx_base.__pyx_vtab = (struct __pyx_vtabstruct_4core_7control_control_integration*)__pyx_vtabptr_4core_7control_SEAIRQ;
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   p->params = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control_SEAIRQ(PyObject *o) {
-  struct __pyx_obj_6pyross_7control_SEAIRQ *p = (struct __pyx_obj_6pyross_7control_SEAIRQ *)o;
+static void __pyx_tp_dealloc_4core_7control_SEAIRQ(PyObject *o) {
+  struct __pyx_obj_4core_7control_SEAIRQ *p = (struct __pyx_obj_4core_7control_SEAIRQ *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -53044,13 +53044,13 @@ static void __pyx_tp_dealloc_6pyross_7control_SEAIRQ(PyObject *o) {
   Py_CLEAR(p->alpha);
   Py_CLEAR(p->params);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_6pyross_7control_control_integration(o);
+  __pyx_tp_dealloc_4core_7control_control_integration(o);
 }
 
-static int __pyx_tp_traverse_6pyross_7control_SEAIRQ(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control_SEAIRQ(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control_SEAIRQ *p = (struct __pyx_obj_6pyross_7control_SEAIRQ *)o;
-  e = __pyx_tp_traverse_6pyross_7control_control_integration(o, v, a); if (e) return e;
+  struct __pyx_obj_4core_7control_SEAIRQ *p = (struct __pyx_obj_4core_7control_SEAIRQ *)o;
+  e = __pyx_tp_traverse_4core_7control_control_integration(o, v, a); if (e) return e;
   if (p->alpha) {
     e = (*v)(((PyObject *)p->alpha), a); if (e) return e;
   }
@@ -53060,10 +53060,10 @@ static int __pyx_tp_traverse_6pyross_7control_SEAIRQ(PyObject *o, visitproc v, v
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control_SEAIRQ(PyObject *o) {
+static int __pyx_tp_clear_4core_7control_SEAIRQ(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control_SEAIRQ *p = (struct __pyx_obj_6pyross_7control_SEAIRQ *)o;
-  __pyx_tp_clear_6pyross_7control_control_integration(o);
+  struct __pyx_obj_4core_7control_SEAIRQ *p = (struct __pyx_obj_4core_7control_SEAIRQ *)o;
+  __pyx_tp_clear_4core_7control_control_integration(o);
   tmp = ((PyObject*)p->alpha);
   p->alpha = ((PyArrayObject *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -53073,19 +53073,19 @@ static int __pyx_tp_clear_6pyross_7control_SEAIRQ(PyObject *o) {
   return 0;
 }
 
-static PyMethodDef __pyx_methods_6pyross_7control_SEAIRQ[] = {
-  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_6pyross_7control_6SEAIRQ_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_6pyross_7control_6SEAIRQ_5__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_6pyross_7control_6SEAIRQ_7__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_4core_7control_SEAIRQ[] = {
+  {"simulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_4core_7control_6SEAIRQ_3simulate, METH_VARARGS|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_4core_7control_6SEAIRQ_5__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_4core_7control_6SEAIRQ_7__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_6pyross_7control_SEAIRQ = {
+static PyTypeObject __pyx_type_4core_7control_SEAIRQ = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.SEAIRQ", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control_SEAIRQ), /*tp_basicsize*/
+  "core.control.SEAIRQ", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control_SEAIRQ), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control_SEAIRQ, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control_SEAIRQ, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -53112,13 +53112,13 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAIRQ = {
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   "\n    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)\n    Ia: asymptomatic\n    Is: symptomatic\n    A: Asymptomatic and infectious\n\n    Parameters\n    ----------\n    parameters: dict\n        Contains the following keys:\n            alpha: float\n                fraction of infected who are asymptomatic.\n            beta: float\n                rate of spread of infection.\n            gIa: float\n                rate of removal from asymptomatic individuals.\n            gIs: float\n                rate of removal from symptomatic individuals.\n            gE: float\n                rate of removal from exposed individuals.\n            gA: float\n                rate of removal from activated individuals.\n            fsa: float\n                fraction by which symptomatic individuals self isolate.\n            tE  : float\n                testing rate and contact tracing of exposeds\n            tA  : float\n                testing rate and contact tracing of activateds\n            tIa: float\n                testing rate and contact tracing of asymptomatics\n            tIs: float\n                testing rate and contact tracing of symptomatics\n    M: int\n        Number of compartments of individual for each class.\n        I.e len(contactMatrix)\n    Ni: np.array(6*M, )\n        Initial number in each compartment and class\n\n    Methods\n    -------\n    simulate\n    ", /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control_SEAIRQ, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control_SEAIRQ, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control_SEAIRQ, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control_SEAIRQ, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_6pyross_7control_SEAIRQ, /*tp_methods*/
+  __pyx_methods_4core_7control_SEAIRQ, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -53126,9 +53126,9 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAIRQ = {
   0, /*tp_descr_get*/
   0, /*tp_descr_set*/
   0, /*tp_dictoffset*/
-  __pyx_pw_6pyross_7control_6SEAIRQ_1__init__, /*tp_init*/
+  __pyx_pw_4core_7control_6SEAIRQ_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control_SEAIRQ, /*tp_new*/
+  __pyx_tp_new_4core_7control_SEAIRQ, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -53149,14 +53149,14 @@ static PyTypeObject __pyx_type_6pyross_7control_SEAIRQ = {
   #endif
 };
 
-static struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *__pyx_freelist_6pyross_7control___pyx_scope_struct__simulate_deterministic[8];
-static int __pyx_freecount_6pyross_7control___pyx_scope_struct__simulate_deterministic = 0;
+static struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *__pyx_freelist_4core_7control___pyx_scope_struct__simulate_deterministic[8];
+static int __pyx_freecount_4core_7control___pyx_scope_struct__simulate_deterministic = 0;
 
-static PyObject *__pyx_tp_new_6pyross_7control___pyx_scope_struct__simulate_deterministic(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_4core_7control___pyx_scope_struct__simulate_deterministic(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
-  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_6pyross_7control___pyx_scope_struct__simulate_deterministic > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic)))) {
-    o = (PyObject*)__pyx_freelist_6pyross_7control___pyx_scope_struct__simulate_deterministic[--__pyx_freecount_6pyross_7control___pyx_scope_struct__simulate_deterministic];
-    memset(o, 0, sizeof(struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic));
+  if (CYTHON_COMPILING_IN_CPYTHON && likely((__pyx_freecount_4core_7control___pyx_scope_struct__simulate_deterministic > 0) & (t->tp_basicsize == sizeof(struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic)))) {
+    o = (PyObject*)__pyx_freelist_4core_7control___pyx_scope_struct__simulate_deterministic[--__pyx_freecount_4core_7control___pyx_scope_struct__simulate_deterministic];
+    memset(o, 0, sizeof(struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic));
     (void) PyObject_INIT(o, t);
     PyObject_GC_Track(o);
   } else {
@@ -53166,21 +53166,21 @@ static PyObject *__pyx_tp_new_6pyross_7control___pyx_scope_struct__simulate_dete
   return o;
 }
 
-static void __pyx_tp_dealloc_6pyross_7control___pyx_scope_struct__simulate_deterministic(PyObject *o) {
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *p = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)o;
+static void __pyx_tp_dealloc_4core_7control___pyx_scope_struct__simulate_deterministic(PyObject *o) {
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *p = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)o;
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_contactMatrices);
   Py_CLEAR(p->__pyx_v_self);
-  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_6pyross_7control___pyx_scope_struct__simulate_deterministic < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic)))) {
-    __pyx_freelist_6pyross_7control___pyx_scope_struct__simulate_deterministic[__pyx_freecount_6pyross_7control___pyx_scope_struct__simulate_deterministic++] = ((struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)o);
+  if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_4core_7control___pyx_scope_struct__simulate_deterministic < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic)))) {
+    __pyx_freelist_4core_7control___pyx_scope_struct__simulate_deterministic[__pyx_freecount_4core_7control___pyx_scope_struct__simulate_deterministic++] = ((struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)o);
   } else {
     (*Py_TYPE(o)->tp_free)(o);
   }
 }
 
-static int __pyx_tp_traverse_6pyross_7control___pyx_scope_struct__simulate_deterministic(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_4core_7control___pyx_scope_struct__simulate_deterministic(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *p = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)o;
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *p = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)o;
   if (p->__pyx_v_contactMatrices) {
     e = (*v)(p->__pyx_v_contactMatrices, a); if (e) return e;
   }
@@ -53190,24 +53190,24 @@ static int __pyx_tp_traverse_6pyross_7control___pyx_scope_struct__simulate_deter
   return 0;
 }
 
-static int __pyx_tp_clear_6pyross_7control___pyx_scope_struct__simulate_deterministic(PyObject *o) {
+static int __pyx_tp_clear_4core_7control___pyx_scope_struct__simulate_deterministic(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *p = (struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic *)o;
+  struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *p = (struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic *)o;
   tmp = ((PyObject*)p->__pyx_v_contactMatrices);
   p->__pyx_v_contactMatrices = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   tmp = ((PyObject*)p->__pyx_v_self);
-  p->__pyx_v_self = ((struct __pyx_obj_6pyross_7control_control_integration *)Py_None); Py_INCREF(Py_None);
+  p->__pyx_v_self = ((struct __pyx_obj_4core_7control_control_integration *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyTypeObject __pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic = {
+static PyTypeObject __pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.__pyx_scope_struct__simulate_deterministic", /*tp_name*/
-  sizeof(struct __pyx_obj_6pyross_7control___pyx_scope_struct__simulate_deterministic), /*tp_basicsize*/
+  "core.control.__pyx_scope_struct__simulate_deterministic", /*tp_name*/
+  sizeof(struct __pyx_obj_4core_7control___pyx_scope_struct__simulate_deterministic), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_6pyross_7control___pyx_scope_struct__simulate_deterministic, /*tp_dealloc*/
+  __pyx_tp_dealloc_4core_7control___pyx_scope_struct__simulate_deterministic, /*tp_dealloc*/
   #if PY_VERSION_HEX < 0x030800b4
   0, /*tp_print*/
   #endif
@@ -53234,8 +53234,8 @@ static PyTypeObject __pyx_type_6pyross_7control___pyx_scope_struct__simulate_det
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_6pyross_7control___pyx_scope_struct__simulate_deterministic, /*tp_traverse*/
-  __pyx_tp_clear_6pyross_7control___pyx_scope_struct__simulate_deterministic, /*tp_clear*/
+  __pyx_tp_traverse_4core_7control___pyx_scope_struct__simulate_deterministic, /*tp_traverse*/
+  __pyx_tp_clear_4core_7control___pyx_scope_struct__simulate_deterministic, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
@@ -53250,7 +53250,7 @@ static PyTypeObject __pyx_type_6pyross_7control___pyx_scope_struct__simulate_det
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_6pyross_7control___pyx_scope_struct__simulate_deterministic, /*tp_new*/
+  __pyx_tp_new_4core_7control___pyx_scope_struct__simulate_deterministic, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -53393,7 +53393,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.array", /*tp_name*/
+  "core.control.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -53512,7 +53512,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.Enum", /*tp_name*/
+  "core.control.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -53773,7 +53773,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control.memoryview", /*tp_name*/
+  "core.control.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -53911,7 +53911,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "pyross.control._memoryviewslice", /*tp_name*/
+  "core.control._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -54124,6 +54124,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
   {&__pyx_n_s_control_integration, __pyx_k_control_integration, sizeof(__pyx_k_control_integration), 0, 0, 1, 1},
   {&__pyx_n_s_copy, __pyx_k_copy, sizeof(__pyx_k_copy), 0, 0, 1, 1},
+  {&__pyx_n_s_core, __pyx_k_core, sizeof(__pyx_k_core), 0, 0, 1, 1},
+  {&__pyx_n_s_core_control, __pyx_k_core_control, sizeof(__pyx_k_core_control), 0, 0, 1, 1},
+  {&__pyx_kp_s_core_control_pyx, __pyx_k_core_control_pyx, sizeof(__pyx_k_core_control_pyx), 0, 0, 1, 0},
+  {&__pyx_n_s_core_stochastic, __pyx_k_core_stochastic, sizeof(__pyx_k_core_stochastic), 0, 0, 1, 1},
   {&__pyx_n_u_deterministic, __pyx_k_deterministic, sizeof(__pyx_k_deterministic), 0, 1, 0, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_direction, __pyx_k_direction, sizeof(__pyx_k_direction), 0, 0, 1, 1},
@@ -54196,10 +54200,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_parameters, __pyx_k_parameters, sizeof(__pyx_k_parameters), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
   {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
-  {&__pyx_n_s_pyross, __pyx_k_pyross, sizeof(__pyx_k_pyross), 0, 0, 1, 1},
-  {&__pyx_n_s_pyross_control, __pyx_k_pyross_control, sizeof(__pyx_k_pyross_control), 0, 0, 1, 1},
-  {&__pyx_kp_s_pyross_control_pyx, __pyx_k_pyross_control_pyx, sizeof(__pyx_k_pyross_control_pyx), 0, 0, 1, 0},
-  {&__pyx_n_s_pyross_stochastic, __pyx_k_pyross_stochastic, sizeof(__pyx_k_pyross_stochastic), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -54291,7 +54291,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pyross/control.pyx":85
+  /* "core/control.pyx":85
  *         from scipy.integrate import solve_ivp
  * 
  *         def rhs0(t,rp):             # <<<<<<<<<<<<<<
@@ -54301,9 +54301,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple_ = PyTuple_Pack(2, __pyx_n_s_t, __pyx_n_s_rp); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_pyross_control_pyx, __pyx_n_s_rhs0, 85, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_core_control_pyx, __pyx_n_s_rhs0, 85, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 85, __pyx_L1_error)
 
-  /* "pyross/control.pyx":182
+  /* "core/control.pyx":182
  *                                           num= len(t_eval[cur_index_i:]))
  *                 # initial condition for next iteration
  *                 cur_y0 = np.array( sol.y[:,-1] )             # <<<<<<<<<<<<<<
@@ -54317,7 +54317,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "pyross/control.pyx":261
+  /* "core/control.pyx":261
  *             self.alpha= alpha
  *         else:
  *             print('alpha can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -54328,7 +54328,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "pyross/control.pyx":396
+  /* "core/control.pyx":396
  * 
  *         if self.kE==0:
  *             raise Exception('number of E stages should be greater than zero, kE>0')             # <<<<<<<<<<<<<<
@@ -54339,7 +54339,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
 
-  /* "pyross/control.pyx":398
+  /* "core/control.pyx":398
  *             raise Exception('number of E stages should be greater than zero, kE>0')
  *         elif self.kI==0:
  *             raise Exception('number of I stages should be greater than zero, kI>0')             # <<<<<<<<<<<<<<
@@ -54350,18 +54350,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "pyross/control.pyx":479
+  /* "core/control.pyx":479
  *             return data
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SEkIkIkR model.")             # <<<<<<<<<<<<<<
- *             #model = pyross.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
+ *             #model = core.stochastic.SEkIkIkR(self.params, self.M, self.Ni)
  *             #return model.simulate_events(S0=S0, Ia0=Ia0, Is0=Is0,
  */
   __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_u_Stochastic_control_not_yet_imple); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 479, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "pyross/control.pyx":665
+  /* "core/control.pyx":665
  *             self.sa= sa
  *         else:
  *             print('sa can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -54372,7 +54372,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "pyross/control.pyx":673
+  /* "core/control.pyx":673
  *             self.iaa = iaa
  *         else:
  *             print('iaa can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -54383,18 +54383,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "pyross/control.pyx":729
+  /* "core/control.pyx":729
  *             return data
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SIRS model.")             # <<<<<<<<<<<<<<
  *             '''
- *             model = pyross.stochastic.SIRS(self.params, self.M, self.Ni)
+ *             model = core.stochastic.SIRS(self.params, self.M, self.Ni)
  */
   __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_Stochastic_control_not_yet_imple_2); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 729, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "pyross/control.pyx":993
+  /* "core/control.pyx":993
  *             self.hh= hh
  *         else:
  *             print('hh can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -54405,7 +54405,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
 
-  /* "pyross/control.pyx":1002
+  /* "core/control.pyx":1002
  *             self.cc= cc
  *         else:
  *             print('cc can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -54416,7 +54416,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__13);
   __Pyx_GIVEREF(__pyx_tuple__13);
 
-  /* "pyross/control.pyx":1011
+  /* "core/control.pyx":1011
  *             self.mm= mm
  *         else:
  *             print('mm can be a number or an array of size M')             # <<<<<<<<<<<<<<
@@ -54427,7 +54427,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
 
-  /* "pyross/control.pyx":1340
+  /* "core/control.pyx":1340
  *                                   stop_at_event=stop_at_event)
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")             # <<<<<<<<<<<<<<
@@ -54438,7 +54438,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__15);
   __Pyx_GIVEREF(__pyx_tuple__15);
 
-  /* "pyross/control.pyx":1475
+  /* "core/control.pyx":1475
  *                                   stop_at_event=stop_at_event)
  *         else:
  *             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")             # <<<<<<<<<<<<<<
@@ -54893,177 +54893,177 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  __pyx_vtabptr_6pyross_7control_control_integration = &__pyx_vtable_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_control_integration.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_19control_integration_rhs;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_vtabptr_4core_7control_control_integration = &__pyx_vtable_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_control_integration.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_19control_integration_rhs;
+  if (PyType_Ready(&__pyx_type_4core_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_control_integration.tp_print = 0;
+  __pyx_type_4core_7control_control_integration.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_control_integration.tp_dictoffset && __pyx_type_6pyross_7control_control_integration.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_control_integration.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_control_integration.tp_dictoffset && __pyx_type_4core_7control_control_integration.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_control_integration.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_control_integration.tp_dict, __pyx_vtabptr_6pyross_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_control_integration, (PyObject *)&__pyx_type_6pyross_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_control_integration = &__pyx_type_6pyross_7control_control_integration;
-  __pyx_vtabptr_6pyross_7control_SIR = &__pyx_vtable_6pyross_7control_SIR;
-  __pyx_vtable_6pyross_7control_SIR.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SIR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_3SIR_rhs;
-  __pyx_type_6pyross_7control_SIR.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_control_integration.tp_dict, __pyx_vtabptr_4core_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_control_integration, (PyObject *)&__pyx_type_4core_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_control_integration) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_ptype_4core_7control_control_integration = &__pyx_type_4core_7control_control_integration;
+  __pyx_vtabptr_4core_7control_SIR = &__pyx_vtable_4core_7control_SIR;
+  __pyx_vtable_4core_7control_SIR.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SIR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_3SIR_rhs;
+  __pyx_type_4core_7control_SIR.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SIR.tp_print = 0;
+  __pyx_type_4core_7control_SIR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SIR.tp_dictoffset && __pyx_type_6pyross_7control_SIR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SIR.tp_dictoffset && __pyx_type_4core_7control_SIR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SIR.tp_dict, __pyx_vtabptr_6pyross_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIR, (PyObject *)&__pyx_type_6pyross_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SIR = &__pyx_type_6pyross_7control_SIR;
-  __pyx_vtabptr_6pyross_7control_SEkIkIkR = &__pyx_vtable_6pyross_7control_SEkIkIkR;
-  __pyx_vtable_6pyross_7control_SEkIkIkR.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEkIkIkR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_8SEkIkIkR_rhs;
-  __pyx_type_6pyross_7control_SEkIkIkR.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SIR.tp_dict, __pyx_vtabptr_4core_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIR, (PyObject *)&__pyx_type_4core_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SIR) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SIR = &__pyx_type_4core_7control_SIR;
+  __pyx_vtabptr_4core_7control_SEkIkIkR = &__pyx_vtable_4core_7control_SEkIkIkR;
+  __pyx_vtable_4core_7control_SEkIkIkR.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEkIkIkR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_8SEkIkIkR_rhs;
+  __pyx_type_4core_7control_SEkIkIkR.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEkIkIkR.tp_print = 0;
+  __pyx_type_4core_7control_SEkIkIkR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEkIkIkR.tp_dictoffset && __pyx_type_6pyross_7control_SEkIkIkR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEkIkIkR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEkIkIkR.tp_dictoffset && __pyx_type_4core_7control_SEkIkIkR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEkIkIkR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEkIkIkR.tp_dict, __pyx_vtabptr_6pyross_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEkIkIkR, (PyObject *)&__pyx_type_6pyross_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEkIkIkR = &__pyx_type_6pyross_7control_SEkIkIkR;
-  __pyx_vtabptr_6pyross_7control_SIRS = &__pyx_vtable_6pyross_7control_SIRS;
-  __pyx_vtable_6pyross_7control_SIRS.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SIRS.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_4SIRS_rhs;
-  __pyx_type_6pyross_7control_SIRS.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEkIkIkR.tp_dict, __pyx_vtabptr_4core_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEkIkIkR, (PyObject *)&__pyx_type_4core_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEkIkIkR) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEkIkIkR = &__pyx_type_4core_7control_SEkIkIkR;
+  __pyx_vtabptr_4core_7control_SIRS = &__pyx_vtable_4core_7control_SIRS;
+  __pyx_vtable_4core_7control_SIRS.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SIRS.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_4SIRS_rhs;
+  __pyx_type_4core_7control_SIRS.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SIRS.tp_print = 0;
+  __pyx_type_4core_7control_SIRS.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SIRS.tp_dictoffset && __pyx_type_6pyross_7control_SIRS.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SIRS.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SIRS.tp_dictoffset && __pyx_type_4core_7control_SIRS.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SIRS.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SIRS.tp_dict, __pyx_vtabptr_6pyross_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIRS, (PyObject *)&__pyx_type_6pyross_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SIRS = &__pyx_type_6pyross_7control_SIRS;
-  __pyx_vtabptr_6pyross_7control_SEIR = &__pyx_vtable_6pyross_7control_SEIR;
-  __pyx_vtable_6pyross_7control_SEIR.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEIR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_4SEIR_rhs;
-  __pyx_type_6pyross_7control_SEIR.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SIRS.tp_dict, __pyx_vtabptr_4core_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIRS, (PyObject *)&__pyx_type_4core_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SIRS) < 0) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SIRS = &__pyx_type_4core_7control_SIRS;
+  __pyx_vtabptr_4core_7control_SEIR = &__pyx_vtable_4core_7control_SEIR;
+  __pyx_vtable_4core_7control_SEIR.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEIR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_4SEIR_rhs;
+  __pyx_type_4core_7control_SEIR.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEIR.tp_print = 0;
+  __pyx_type_4core_7control_SEIR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEIR.tp_dictoffset && __pyx_type_6pyross_7control_SEIR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEIR.tp_dictoffset && __pyx_type_4core_7control_SEIR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEIR.tp_dict, __pyx_vtabptr_6pyross_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEIR, (PyObject *)&__pyx_type_6pyross_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEIR = &__pyx_type_6pyross_7control_SEIR;
-  __pyx_vtabptr_6pyross_7control_SEI5R = &__pyx_vtable_6pyross_7control_SEI5R;
-  __pyx_vtable_6pyross_7control_SEI5R.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEI5R.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_5SEI5R_rhs;
-  __pyx_type_6pyross_7control_SEI5R.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEIR.tp_dict, __pyx_vtabptr_4core_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEIR, (PyObject *)&__pyx_type_4core_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEIR) < 0) __PYX_ERR(0, 752, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEIR = &__pyx_type_4core_7control_SEIR;
+  __pyx_vtabptr_4core_7control_SEI5R = &__pyx_vtable_4core_7control_SEI5R;
+  __pyx_vtable_4core_7control_SEI5R.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEI5R.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_5SEI5R_rhs;
+  __pyx_type_4core_7control_SEI5R.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEI5R.tp_print = 0;
+  __pyx_type_4core_7control_SEI5R.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEI5R.tp_dictoffset && __pyx_type_6pyross_7control_SEI5R.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEI5R.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEI5R.tp_dictoffset && __pyx_type_4core_7control_SEI5R.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEI5R.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEI5R.tp_dict, __pyx_vtabptr_6pyross_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEI5R, (PyObject *)&__pyx_type_6pyross_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEI5R = &__pyx_type_6pyross_7control_SEI5R;
-  __pyx_vtabptr_6pyross_7control_SIkR = &__pyx_vtable_6pyross_7control_SIkR;
-  __pyx_vtable_6pyross_7control_SIkR.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SIkR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_4SIkR_rhs;
-  __pyx_type_6pyross_7control_SIkR.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEI5R.tp_dict, __pyx_vtabptr_4core_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEI5R, (PyObject *)&__pyx_type_4core_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEI5R) < 0) __PYX_ERR(0, 884, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEI5R = &__pyx_type_4core_7control_SEI5R;
+  __pyx_vtabptr_4core_7control_SIkR = &__pyx_vtable_4core_7control_SIkR;
+  __pyx_vtable_4core_7control_SIkR.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SIkR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_4SIkR_rhs;
+  __pyx_type_4core_7control_SIkR.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SIkR.tp_print = 0;
+  __pyx_type_4core_7control_SIkR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SIkR.tp_dictoffset && __pyx_type_6pyross_7control_SIkR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SIkR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SIkR.tp_dictoffset && __pyx_type_4core_7control_SIkR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SIkR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SIkR.tp_dict, __pyx_vtabptr_6pyross_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIkR, (PyObject *)&__pyx_type_6pyross_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SIkR = &__pyx_type_6pyross_7control_SIkR;
-  __pyx_vtabptr_6pyross_7control_SEkIkR = &__pyx_vtable_6pyross_7control_SEkIkR;
-  __pyx_vtable_6pyross_7control_SEkIkR.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEkIkR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_6SEkIkR_rhs;
-  __pyx_type_6pyross_7control_SEkIkR.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SIkR.tp_dict, __pyx_vtabptr_4core_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SIkR, (PyObject *)&__pyx_type_4core_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SIkR) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SIkR = &__pyx_type_4core_7control_SIkR;
+  __pyx_vtabptr_4core_7control_SEkIkR = &__pyx_vtable_4core_7control_SEkIkR;
+  __pyx_vtable_4core_7control_SEkIkR.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEkIkR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_6SEkIkR_rhs;
+  __pyx_type_4core_7control_SEkIkR.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEkIkR.tp_print = 0;
+  __pyx_type_4core_7control_SEkIkR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEkIkR.tp_dictoffset && __pyx_type_6pyross_7control_SEkIkR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEkIkR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEkIkR.tp_dictoffset && __pyx_type_4core_7control_SEkIkR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEkIkR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEkIkR.tp_dict, __pyx_vtabptr_6pyross_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEkIkR, (PyObject *)&__pyx_type_6pyross_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEkIkR = &__pyx_type_6pyross_7control_SEkIkR;
-  __pyx_vtabptr_6pyross_7control_SEAIR = &__pyx_vtable_6pyross_7control_SEAIR;
-  __pyx_vtable_6pyross_7control_SEAIR.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEAIR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_5SEAIR_rhs;
-  __pyx_type_6pyross_7control_SEAIR.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEkIkR.tp_dict, __pyx_vtabptr_4core_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEkIkR, (PyObject *)&__pyx_type_4core_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEkIkR) < 0) __PYX_ERR(0, 1218, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEkIkR = &__pyx_type_4core_7control_SEkIkR;
+  __pyx_vtabptr_4core_7control_SEAIR = &__pyx_vtable_4core_7control_SEAIR;
+  __pyx_vtable_4core_7control_SEAIR.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEAIR.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_5SEAIR_rhs;
+  __pyx_type_4core_7control_SEAIR.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEAIR.tp_print = 0;
+  __pyx_type_4core_7control_SEAIR.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEAIR.tp_dictoffset && __pyx_type_6pyross_7control_SEAIR.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEAIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEAIR.tp_dictoffset && __pyx_type_4core_7control_SEAIR.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEAIR.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEAIR.tp_dict, __pyx_vtabptr_6pyross_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEAIR, (PyObject *)&__pyx_type_6pyross_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEAIR = &__pyx_type_6pyross_7control_SEAIR;
-  __pyx_vtabptr_6pyross_7control_SEAI5R = &__pyx_vtable_6pyross_7control_SEAI5R;
-  __pyx_vtable_6pyross_7control_SEAI5R.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEAI5R.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_6SEAI5R_rhs;
-  __pyx_type_6pyross_7control_SEAI5R.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEAIR.tp_dict, __pyx_vtabptr_4core_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEAIR, (PyObject *)&__pyx_type_4core_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEAIR) < 0) __PYX_ERR(0, 1353, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEAIR = &__pyx_type_4core_7control_SEAIR;
+  __pyx_vtabptr_4core_7control_SEAI5R = &__pyx_vtable_4core_7control_SEAI5R;
+  __pyx_vtable_4core_7control_SEAI5R.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEAI5R.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_6SEAI5R_rhs;
+  __pyx_type_4core_7control_SEAI5R.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEAI5R.tp_print = 0;
+  __pyx_type_4core_7control_SEAI5R.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEAI5R.tp_dictoffset && __pyx_type_6pyross_7control_SEAI5R.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEAI5R.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEAI5R.tp_dictoffset && __pyx_type_4core_7control_SEAI5R.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEAI5R.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEAI5R.tp_dict, __pyx_vtabptr_6pyross_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEAI5R, (PyObject *)&__pyx_type_6pyross_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEAI5R = &__pyx_type_6pyross_7control_SEAI5R;
-  __pyx_vtabptr_6pyross_7control_SEAIRQ = &__pyx_vtable_6pyross_7control_SEAIRQ;
-  __pyx_vtable_6pyross_7control_SEAIRQ.__pyx_base = *__pyx_vtabptr_6pyross_7control_control_integration;
-  __pyx_vtable_6pyross_7control_SEAIRQ.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_6pyross_7control_control_integration *, PyObject *, PyObject *))__pyx_f_6pyross_7control_6SEAIRQ_rhs;
-  __pyx_type_6pyross_7control_SEAIRQ.tp_base = __pyx_ptype_6pyross_7control_control_integration;
-  if (PyType_Ready(&__pyx_type_6pyross_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEAI5R.tp_dict, __pyx_vtabptr_4core_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEAI5R, (PyObject *)&__pyx_type_4core_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEAI5R) < 0) __PYX_ERR(0, 1493, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEAI5R = &__pyx_type_4core_7control_SEAI5R;
+  __pyx_vtabptr_4core_7control_SEAIRQ = &__pyx_vtable_4core_7control_SEAIRQ;
+  __pyx_vtable_4core_7control_SEAIRQ.__pyx_base = *__pyx_vtabptr_4core_7control_control_integration;
+  __pyx_vtable_4core_7control_SEAIRQ.__pyx_base.rhs = (PyObject *(*)(struct __pyx_obj_4core_7control_control_integration *, PyObject *, PyObject *))__pyx_f_4core_7control_6SEAIRQ_rhs;
+  __pyx_type_4core_7control_SEAIRQ.tp_base = __pyx_ptype_4core_7control_control_integration;
+  if (PyType_Ready(&__pyx_type_4core_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control_SEAIRQ.tp_print = 0;
+  __pyx_type_4core_7control_SEAIRQ.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control_SEAIRQ.tp_dictoffset && __pyx_type_6pyross_7control_SEAIRQ.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control_SEAIRQ.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control_SEAIRQ.tp_dictoffset && __pyx_type_4core_7control_SEAIRQ.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control_SEAIRQ.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_6pyross_7control_SEAIRQ.tp_dict, __pyx_vtabptr_6pyross_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEAIRQ, (PyObject *)&__pyx_type_6pyross_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6pyross_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
-  __pyx_ptype_6pyross_7control_SEAIRQ = &__pyx_type_6pyross_7control_SEAIRQ;
-  if (PyType_Ready(&__pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_4core_7control_SEAIRQ.tp_dict, __pyx_vtabptr_4core_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SEAIRQ, (PyObject *)&__pyx_type_4core_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_4core_7control_SEAIRQ) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
+  __pyx_ptype_4core_7control_SEAIRQ = &__pyx_type_4core_7control_SEAIRQ;
+  if (PyType_Ready(&__pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic.tp_print = 0;
+  __pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic.tp_print = 0;
   #endif
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic.tp_dictoffset && __pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic.tp_dictoffset && __pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
-  __pyx_ptype_6pyross_7control___pyx_scope_struct__simulate_deterministic = &__pyx_type_6pyross_7control___pyx_scope_struct__simulate_deterministic;
+  __pyx_ptype_4core_7control___pyx_scope_struct__simulate_deterministic = &__pyx_type_4core_7control___pyx_scope_struct__simulate_deterministic;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
   if (PyType_Ready(&__pyx_type___pyx_array) < 0) __PYX_ERR(1, 105, __pyx_L1_error)
@@ -55346,14 +55346,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_pyross__control) {
+  if (__pyx_module_is_main_core__control) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "pyross.control")) {
-      if (unlikely(PyDict_SetItemString(modules, "pyross.control", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "core.control")) {
+      if (unlikely(PyDict_SetItemString(modules, "core.control", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -55374,7 +55374,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "pyross/control.pyx":4
+  /* "core/control.pyx":4
  * # distutils: extra_compile_args = -std=c++11
  * 
  * import  numpy as np             # <<<<<<<<<<<<<<
@@ -55386,12 +55386,12 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pyross/control.pyx":8
+  /* "core/control.pyx":8
  * cimport cython
  * 
  * DTYPE   = np.float             # <<<<<<<<<<<<<<
  * ctypedef np.float_t DTYPE_t
- * import pyross.stochastic
+ * import core.stochastic
  */
   __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -55401,16 +55401,16 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_DTYPE, __pyx_t_2) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":10
+  /* "core/control.pyx":10
  * DTYPE   = np.float
  * ctypedef np.float_t DTYPE_t
- * import pyross.stochastic             # <<<<<<<<<<<<<<
+ * import core.stochastic             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_pyross_stochastic, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_core_stochastic, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyross, __pyx_t_2) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_core, __pyx_t_2) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -55418,7 +55418,7 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_1__pyx_unpickle_control_integration, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_1__pyx_unpickle_control_integration, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_control_integrati, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55430,7 +55430,7 @@ if (!__Pyx_RefNanny) {
  *     __pyx_result.CM = __pyx_state[0]; __pyx_result.M = __pyx_state[1]; __pyx_result.N = __pyx_state[2]; __pyx_result.Ni = __pyx_state[3]; __pyx_result.beta = __pyx_state[4]; __pyx_result.current_protocol_index = __pyx_state[5]; __pyx_result.dxdt = __pyx_state[6]; __pyx_result.nClass = __pyx_state[7]; __pyx_result.t_last_event = __pyx_state[8]
  *     if len(__pyx_state) > 9 and hasattr(__pyx_result, '__dict__'):
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_3__pyx_unpickle_SIR, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_3__pyx_unpickle_SIR, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SIR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55440,7 +55440,7 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_5__pyx_unpickle_SEkIkIkR, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_5__pyx_unpickle_SEkIkIkR, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEkIkIkR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55452,7 +55452,7 @@ if (!__Pyx_RefNanny) {
  *     __pyx_result.CM = __pyx_state[0]; __pyx_result.M = __pyx_state[1]; __pyx_result.N = __pyx_state[2]; __pyx_result.Ni = __pyx_state[3]; __pyx_result.alpha = __pyx_state[4]; __pyx_result.beta = __pyx_state[5]; __pyx_result.current_protocol_index = __pyx_state[6]; __pyx_result.dxdt = __pyx_state[7]; __pyx_result.fsa = __pyx_state[8]; __pyx_result.gE = __pyx_state[9]; __pyx_result.gIa = __pyx_state[10]; __pyx_result.gIs = __pyx_state[11]; __pyx_result.kE = __pyx_state[12]; __pyx_result.kI = __pyx_state[13]; __pyx_result.nClass = __pyx_state[14]; __pyx_result.params = __pyx_state[15]; __pyx_result.t_last_event = __pyx_state[16]
  *     if len(__pyx_state) > 17 and hasattr(__pyx_result, '__dict__'):
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_7__pyx_unpickle_SIRS, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_7__pyx_unpickle_SIRS, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SIRS, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55462,7 +55462,7 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_9__pyx_unpickle_SEIR, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_9__pyx_unpickle_SEIR, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEIR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55474,7 +55474,7 @@ if (!__Pyx_RefNanny) {
  *     __pyx_result.CM = __pyx_state[0]; __pyx_result.M = __pyx_state[1]; __pyx_result.N = __pyx_state[2]; __pyx_result.Ni = __pyx_state[3]; __pyx_result.alpha = __pyx_state[4]; __pyx_result.beta = __pyx_state[5]; __pyx_result.current_protocol_index = __pyx_state[6]; __pyx_result.dxdt = __pyx_state[7]; __pyx_result.fsa = __pyx_state[8]; __pyx_result.gE = __pyx_state[9]; __pyx_result.gIa = __pyx_state[10]; __pyx_result.gIs = __pyx_state[11]; __pyx_result.nClass = __pyx_state[12]; __pyx_result.params = __pyx_state[13]; __pyx_result.t_last_event = __pyx_state[14]
  *     if len(__pyx_state) > 15 and hasattr(__pyx_result, '__dict__'):
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_11__pyx_unpickle_SEI5R, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_11__pyx_unpickle_SEI5R, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEI5R, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55484,7 +55484,7 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_13__pyx_unpickle_SIkR, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_13__pyx_unpickle_SIkR, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SIkR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55496,7 +55496,7 @@ if (!__Pyx_RefNanny) {
  *     __pyx_result.CM = __pyx_state[0]; __pyx_result.M = __pyx_state[1]; __pyx_result.N = __pyx_state[2]; __pyx_result.Ni = __pyx_state[3]; __pyx_result.beta = __pyx_state[4]; __pyx_result.current_protocol_index = __pyx_state[5]; __pyx_result.dxdt = __pyx_state[6]; __pyx_result.gI = __pyx_state[7]; __pyx_result.ki = __pyx_state[8]; __pyx_result.nClass = __pyx_state[9]; __pyx_result.params = __pyx_state[10]; __pyx_result.t_last_event = __pyx_state[11]
  *     if len(__pyx_state) > 12 and hasattr(__pyx_result, '__dict__'):
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_15__pyx_unpickle_SEkIkR, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_15__pyx_unpickle_SEkIkR, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEkIkR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55506,7 +55506,7 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_17__pyx_unpickle_SEAIR, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_17__pyx_unpickle_SEAIR, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEAIR, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55518,7 +55518,7 @@ if (!__Pyx_RefNanny) {
  *     __pyx_result.CM = __pyx_state[0]; __pyx_result.M = __pyx_state[1]; __pyx_result.N = __pyx_state[2]; __pyx_result.Ni = __pyx_state[3]; __pyx_result.alpha = __pyx_state[4]; __pyx_result.beta = __pyx_state[5]; __pyx_result.current_protocol_index = __pyx_state[6]; __pyx_result.dxdt = __pyx_state[7]; __pyx_result.fsa = __pyx_state[8]; __pyx_result.gA = __pyx_state[9]; __pyx_result.gE = __pyx_state[10]; __pyx_result.gIa = __pyx_state[11]; __pyx_result.gIc = __pyx_state[12]; __pyx_result.gIh = __pyx_state[13]; __pyx_result.gIs = __pyx_state[14]; __pyx_result.nClass = __pyx_state[15]; __pyx_result.params = __pyx_state[16]; __pyx_result.t_last_event = __pyx_state[17]
  *     if len(__pyx_state) > 18 and hasattr(__pyx_result, '__dict__'):
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_19__pyx_unpickle_SEAI5R, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_19__pyx_unpickle_SEAI5R, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEAI5R, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -55528,12 +55528,12 @@ if (!__Pyx_RefNanny) {
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_6pyross_7control_21__pyx_unpickle_SEAIRQ, NULL, __pyx_n_s_pyross_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_4core_7control_21__pyx_unpickle_SEAIRQ, NULL, __pyx_n_s_core_control); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_SEAIRQ, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pyross/control.pyx":1
+  /* "core/control.pyx":1
  * # distutils: language = c++             # <<<<<<<<<<<<<<
  * # distutils: extra_compile_args = -std=c++11
  * 
@@ -55704,11 +55704,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init pyross.control", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init core.control", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init pyross.control");
+    PyErr_SetString(PyExc_ImportError, "init core.control");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
