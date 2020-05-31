@@ -1,7 +1,7 @@
 import  numpy as np
 cimport numpy as np
 cimport cython
-from libc.math cimport sqrt, pow, log
+from libc.math cimport sqrt, pow, log, sin, cos, atan2, sqrt
 from cython.parallel import prange
 cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
@@ -282,6 +282,22 @@ cpdef is_positive_definite(double [:, :] B):
         return True
     except np.linalg.LinAlgError:
         return False
+
+cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
+    cdef:
+        double lat1=coord1[0], lon1=coord1[1], lat2=coord2[0], lon2=coord2[1]
+        double Earth_radius_km=6371.0, degree_to_radius=PI/180.0
+        double d_lat, d_lon, a, c
+    d_lat = (lat2 - lat1) * degree_to_radius
+    d_lon = (lon2 - lon2) * degree_to_radius
+
+    lat1 *= degree_to_radius
+    lat2 *= degree_to_radius
+
+    a = sin(d_lat/2) * sin(d_lat/2) + sin(d_lon/2) * sin(d_lon/2) * cos(lat1) * cos(lat2)
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    return Earth_radius_km * c
+
 
 def plotSIR(data, showPlot=True):
     t = data['t']

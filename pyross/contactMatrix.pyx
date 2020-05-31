@@ -1,11 +1,12 @@
 import  numpy as np
 cimport numpy as np
 import scipy.linalg as spl
+import pyross.utils
+from libc.math cimport exp, pow, sqrt
 cimport cython
 import warnings
 from types import ModuleType
 import os
-
 
 
 DTYPE   = np.float
@@ -75,7 +76,8 @@ cdef class ContactMatrixFunction:
         time: np.array
             Ordered array with temporal boundaries between the different interventions.
         interventions: np.array
-            Ordered matrix with prefactors of CW, CS, CO matrices during the different time intervals.
+            Ordered matrix with prefactors of CW, CS, CO matrices
+            during the different time intervals.
             Note that len(interventions) = len(times) + 1
 
         Returns
@@ -96,7 +98,8 @@ cdef class ContactMatrixFunction:
             Ordered array with temporal boundaries between the different interventions.
         interventions: np.array
             Array of shape [K+1,3] with prefactors during different phases of intervention
-            The current state of the intervention is defined by the largest integer "index" such that state[j] >= thresholds[index,j] for all j.
+            The current state of the intervention is defined by
+            the largest integer "index" such that state[j] >= thresholds[index,j] for all j.
 
         Returns
         -------
@@ -113,7 +116,8 @@ cdef class ContactMatrixFunction:
         Parameters
         ----------
         intervention_func: callable
-            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
             The function must return (aW, aS, aO).
         kwargs: dict
             Keyword arguments for the function.
@@ -125,7 +129,8 @@ cdef class ContactMatrixFunction:
 
         Examples
         --------
-        An example for an custom temporal intervetion that allows for some anticipation and reaction time
+        An example for an custom temporal intervetion that
+        allows for some anticipation and reaction time
 
         >>> def fun(t, width=1, loc=0) # using keyword arguments for parameters of the intervention
                 a = (1-np.tanh((t-loc)/width))/2
@@ -138,6 +143,7 @@ cdef class ContactMatrixFunction:
 
 
 cdef class Protocol:
+
     def __init__(self):
         pass
 
@@ -207,6 +213,144 @@ cdef class CustomTemporalProtocol(Protocol):
 
     def __call__(self, double t):
         return self.intervention_func(t, **self.kwargs)
+
+
+cdef class SpatialContactMatrix:
+    '''A class for generating a minimal spatial compartmental model.
+
+    Let :math:`\mu, \nu` denote spatial index and i, j denote age group index,
+
+    .. math::
+        C^{\mu\nu}_{ij} = \frac{1}{a_{ij}} k^{\mu\nu} g^{\mu\nu}_{ij} f^{\mu\nu}_{ij} C_{ij}
+
+    where
+    .. math::
+        a_{ij} = \sum_{\mu\nu} k^{\mu\nu}_{ij} g^{\mu\nu}_{ij} \sqrt{ \frac{ N_i^\mu N_j^\nu} {N_i N_j}} \\
+        k^{\mu \nu} = \exp ( - b_{\mu\nu} | r^\mu - r^\nu |) \\
+        b_{\mu, \nv} = (\rho^\mu \rho^\nu)^{-c} \\
+        g^{\mu\nu}_{ij} = (\rho^\mu_i \rho^\nu_j)^b \\
+        f^{\mu\nu}_{ij} = \sqrt{ \frac{N_i N_j^\nu}{N_i^\mu N_j}}
+
+    where :math:`C_{ij}` is the non-spatial age structured contact matrix,
+    :math:`\rho^\mu_i` is the population density of age group i
+    in spatial location :math:`\mu`,
+    :math:`\rho_i` is the total population density of age group i,
+    :math:`r^\mu` is the spatial position of the :math:`\mu`th location,
+    :math:`N_i^\mu` is the population of the age group i at :math:`\mu`,
+    :math:`N_i` is the total population of the age group i,
+    and b, c are free parameters
+
+    Parameters
+    ----------
+    b: float
+        Parameter b in the above equation.
+    c: float
+        Paramter c in the above equation.
+    populations: np.array(n_loc, M)
+        The population of each age group (total number of age group = M)
+        in each location (total number of location = n_loc ).
+    areas: np.array(n_loc)
+        The area of each geographical region.
+    coordinates: np.array(n_loc, 2)
+        The GPS coordinates of each geographical region.
+    '''
+    
+    cdef:
+        Py_ssize_t n_loc, M
+        np.ndarray Ni, spatial_kernel, density_factor, rescale_factor, normalisation_factor
+
+    def __init__(self, double b, double c, double [:, :] populations,
+                        double [:] areas, double [:, :] coordinates):
+        cdef:
+            double [:, :] densities
+        self.n_loc = populations.shape[0]
+        self.M = populations.shape[1]
+        self.Ni = np.sum(populations, axis=0)
+        self.spatial_kernel = np.empty((self.n_loc, self.n_loc))
+        self.density_factor = np.empty((self.n_loc, self.M, self.n_loc, self.M))
+        self.rescale_factor = np.empty((self.n_loc, self.M, self.n_loc, self.M))
+        self.normalisation_factor = np.zeros((self.M, self.M))
+
+        densities = np.divide(populations, areas)
+        self._compute_spatial_kernel(densities, coordinates, c)
+        self._compute_density_factor(densities, b)
+        self._compute_normalisation_factor(populations)
+
+    def spatial_contact_matrix(self, double [:, :] CM):
+        cdef:
+            Py_ssize_t n_loc=self.n_loc, M=self.M
+            double [:] Ni=self.Ni
+            double [:, :, :, :] spatial_CM=np.empty((n_loc, M, n_loc, M),
+                                                        dtype=DTYPE)
+            double [:, :] a=self.normalisation_factor, k=self.spatial_kernel
+            double [:, :, :, :] g=self.density_factor, f=self.rescale_factor
+
+        for i in range(n_loc):
+            for j in range(n_loc):
+                for m in range(M):
+                    for n in range(M):
+                        spatial_CM[i, m, j, n]=k[i, j]*g[i, m, j, n]*f[i, m, j, n]/a[m, n]*CM[m, n]
+        return spatial_CM
+
+    cdef _compute_spatial_kernel(self, double [:, :] densities,
+                                        double [:, :] coordinates, double c):
+        cdef:
+            Py_ssize_t n_loc=self.n_loc, i, j
+            double [:] densities_sum_over_age
+            double [:, :] spatial_kernel=self.spatial_kernel
+            double d, k, rhoi, rhoj
+        densities_sum_over_age = np.sum(densities, axis=1)
+        for i in range(n_loc):
+            spatial_kernel[i, i] = 1
+            rho_i = densities_sum_over_age[i]
+            for j in range(i+1, n_loc):
+                rho_j = densities_sum_over_age[j]
+                d = pyross.utils.distance_on_Earth(coordinates[i], coordinates[j])
+                k = exp(-d*pow(rho_i*rho_j, -c))
+                spatial_kernel[i, j] = k
+                spatial_kernel[j, i] = k
+
+    cdef _compute_density_factor(self, double [:, :] densities, double b):
+        cdef:
+            Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
+            double [:, :, :, :] density_factor=self.density_factor
+            double rho_im, rho_jn, f
+        for i in range(n_loc):
+            for j in range(i+1, n_loc):
+                for m in range(M):
+                    rho_im = densities[i, m]
+                    f = pow(rho_im*rho_im, b)
+                    density_factor[i, m, i, m] = f
+                    for n in range(m+1, M):
+                        rho_jn = densities[j, n]
+                        f = pow(rho_im*rho_jn, b)
+                        density_factor[i, m, j, n] = f
+                        density_factor[j, n, i, m] = f
+
+    cdef _compute_rescale_factor(self, double [:, :] populations):
+        cdef:
+            Py_ssize_t n_loc=self.n_loc, M=self.M
+            double [:] Ni=self.Ni
+            double [:, :, :, :] rescale_factor=self.rescale_factor
+        for i in range(n_loc):
+            for j in range(n_loc):
+                for m in range(M):
+                    for n in range(M):
+                        rescale_factor[i, m, j, n] = sqrt(Ni[m]/Ni[n]*populations[j, n]/populations[i, m])
+
+    cdef _compute_normalisation_factor(self, double [:, :] populations):
+        cdef:
+            Py_ssize_t n_loc=self.n_loc, M=self.M
+            double [:] Ni=self.Ni
+            double [:, :] norm_fac=self.normalisation_factor, k=self.spatial_kernel
+            double [:, :, :, :] g=self.density_factor, f=self.rescale_factor
+            double a
+        for m in range(M):
+            for n in range(M):
+                for i in range(n_loc):
+                    for j in range(n_loc):
+                        a = sqrt(populations[i, m]*populations[j, n]/(Ni[m]*Ni[n]))
+                        norm_fac[m, n] += k[i, j]*g[i, m, j, n]*a
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
