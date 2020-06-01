@@ -38,7 +38,8 @@ The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](
 [Patrick Pietzonka](https://github.com/ppietzonka),
 [Benjamin Remez](https://github.com/BenjaminRemez),
 [Paul Rohrbach](https://github.com/prohrbach),
-and [Rajesh Singh](https://github.com/rajeshrinet).
+[Rajesh Singh](https://github.com/rajeshrinet), 
+and [Günther Turk](https://github.com/phi6GTurk).
 
 Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw)  for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 
