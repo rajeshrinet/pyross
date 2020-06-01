@@ -1,6 +1,8 @@
 import numpy
 import os, sys
 from Cython.Build import cythonize
+#from distutils.core import setup
+from Cython.Build import cythonize
 from setuptools import setup, Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
@@ -35,6 +37,6 @@ setup(
         ),
     libraries=[],
     packages=['pyross'],
-    install_requires=['cython','numpy','scipy','cma','pathos','nlopt'],
+    #install_requires=['cython','numpy','scipy','cma','pathos','nlopt'],
     package_data={'pyross': ['*.pxd']},
 )
