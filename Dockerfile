@@ -16,3 +16,5 @@ RUN cd pyross/ \
 	&& chmod +x pyross/.git/hooks/pre-push
 
 ENV PATH /opt/conda/envs/pyross/bin:$PATH
+
+ENTRYPOINT ["/bin/bash"]
