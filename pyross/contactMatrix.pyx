@@ -218,10 +218,10 @@ cdef class CustomTemporalProtocol(Protocol):
 cdef class SpatialContactMatrix:
     '''A class for generating a minimal spatial compartmental model.
 
-    Let :math:`\mu, \nu` denote spatial index and i, j denote age group index,
+    Let :math:`\\mu, \\nu` denote spatial index and i, j denote age group index,
 
     .. math::
-        C^{\mu\nu}_{ij} = \frac{1}{a_{ij}} k^{\mu\nu} g^{\mu\nu}_{ij} f^{\mu\nu}_{ij} C_{ij}
+        C^{\\mu\\nu}_{ij} = \\frac{1}{a_{ij}} k^{\\mu\\nu} g^{\\mu\\nu}_{ij} f^{\\mu\\nu}_{ij} C_{ij}
 
     where
     .. math::
@@ -257,13 +257,16 @@ cdef class SpatialContactMatrix:
 
     cdef:
         Py_ssize_t n_loc, M
-        np.ndarray Ni, spatial_kernel, density_factor, rescale_factor, normalisation_factor
+        readonly np.ndarray Ni, spatial_kernel, density_factor, rescale_factor, normalisation_factor
 
-    def __init__(self, double b, double c, double [:, :] populations,
-                        double [:] areas, double [:, :] coordinates):
+    def __init__(self, double b, double c, np.ndarray populations,
+                        np.ndarray areas, np.ndarray coordinates):
         cdef:
             double [:, :] densities
         self.n_loc = populations.shape[0]
+        if self.n_loc != areas.shape[0] or self.n_loc != coordinates.shape[0]:
+            raise Exception('The first dimension of populations \
+                             areas and coordinates must be equal')
         self.M = populations.shape[1]
         self.Ni = np.sum(populations, axis=0)
         self.spatial_kernel = np.empty((self.n_loc, self.n_loc))
@@ -271,14 +274,15 @@ cdef class SpatialContactMatrix:
         self.rescale_factor = np.empty((self.n_loc, self.M, self.n_loc, self.M))
         self.normalisation_factor = np.zeros((self.M, self.M))
 
-        densities = np.divide(populations, areas)
+        densities = populations/areas[:, np.newaxis]
         self._compute_spatial_kernel(densities, coordinates, c)
         self._compute_density_factor(densities, b)
+        self._compute_rescale_factor(populations)
         self._compute_normalisation_factor(populations)
 
     def spatial_contact_matrix(self, double [:, :] CM):
         cdef:
-            Py_ssize_t n_loc=self.n_loc, M=self.M
+            Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
             double [:] Ni=self.Ni
             double [:, :, :, :] spatial_CM=np.empty((n_loc, M, n_loc, M),
                                                         dtype=DTYPE)
@@ -316,20 +320,17 @@ cdef class SpatialContactMatrix:
             double [:, :, :, :] density_factor=self.density_factor
             double rho_im, rho_jn, f
         for i in range(n_loc):
-            for j in range(i+1, n_loc):
-                for m in range(M):
-                    rho_im = densities[i, m]
-                    f = pow(rho_im*rho_im, b)
-                    density_factor[i, m, i, m] = f
-                    for n in range(m+1, M):
+            for m in range(M):
+                rho_im = densities[i, m]
+                for j in range(n_loc):
+                    for n in range(M):
                         rho_jn = densities[j, n]
                         f = pow(rho_im*rho_jn, b)
                         density_factor[i, m, j, n] = f
-                        density_factor[j, n, i, m] = f
 
     cdef _compute_rescale_factor(self, double [:, :] populations):
         cdef:
-            Py_ssize_t n_loc=self.n_loc, M=self.M
+            Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
             double [:] Ni=self.Ni
             double [:, :, :, :] rescale_factor=self.rescale_factor
         for i in range(n_loc):
@@ -340,7 +341,7 @@ cdef class SpatialContactMatrix:
 
     cdef _compute_normalisation_factor(self, double [:, :] populations):
         cdef:
-            Py_ssize_t n_loc=self.n_loc, M=self.M
+            Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
             double [:] Ni=self.Ni
             double [:, :] norm_fac=self.normalisation_factor, k=self.spatial_kernel
             double [:, :, :, :] g=self.density_factor, f=self.rescale_factor
