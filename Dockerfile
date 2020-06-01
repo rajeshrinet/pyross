@@ -10,7 +10,8 @@ RUN apt update -y\
 
 SHELL ["conda", "run", "-n", "pyross", "/bin/bash", "-c"]
 
-RUN python pyross/setup.py install \
+RUN cd pyross/ \ 	
+	&& python pyross/setup.py install \
 	&& cp pyross/.githooks/pre-push pyross/.git/hooks/ \
 	&& chmod +x pyross/.git/hooks/pre-push
 
