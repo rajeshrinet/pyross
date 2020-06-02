@@ -4,19 +4,19 @@ recursive=True
 
 make:
 	@echo Installing pyross...
-	${PYTHON} setup.py install build_ext --inplace
+	${PYTHON} setup.py install
 	@echo adding githook...
 	cp .githooks/pre-push .git/hooks/
 	chmod +x .git/hooks/pre-push
 
 clean-local:
 	@echo removing local compiled files
-	rm pyross/*.c pyross/*.html pyross/*.cpp 
+	rm pyross/*.c pyross/*.html pyross/*.cpp
 
 clean:
 	@echo removing all compiled files
 	${PYTHON} setup.py clean
-	rm pyross/*.c pyross/*.html pyross/*.cpp pyross/*so
+	rm pyross/*.c pyross/*.html pyross/*.cpp
 	
 env:
 	@echo creating conda environment...

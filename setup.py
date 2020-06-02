@@ -8,7 +8,7 @@ import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
 
 
-if 'darwin' == (sys.platform).lower():
+if 'darwin'==(sys.platform).lower():
     extension = Extension('pyross/*', ['pyross/*.pyx'],
         include_dirs=[numpy.get_include()],
         extra_compile_args=['-mmacosx-version-min=10.9'],
