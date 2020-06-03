@@ -35,11 +35,11 @@ $\gamma_{E}=1/2.72$   from exposed to activated $95\%$ CI:  $1/2.55$ $1/2.89$\\
 \\
 $\gamma_{A}= 1/3.12$   from activated to infected $95\%$ CI: $1/(2.08)$ $1/(4.16)$\\
 \\
-$\gamma_{Ia}= 1./7$           recovery rate of asymptomatic infectives\\
+$\gamma_{Ia}= 1./7$           recovery rate of asymptomatic infectives (Can't really find a source for this beyond conventional wisdom)\\
 \\
 $\gamma_{Is}   = 1./4.82$  from symptomatic to hospitalised $95\%$ CI: $1/3.487$  $1/6.157$\\
 \\
-$\gamma_{Is}+\gamma_{Isp}=17.76$ from symptomatic to recovered $95\%$ CI: $12.64$ $22.87$\\
+$\gamma_{Is}+\gamma_{Isp}=17.76$ from symptomatic to recovered, this value is very suspect and should be updated $95\%$ CI: $12.64$ $22.87$\\
 \\
 $\gamma_{Ih}+\gamma_{Ihp}= \ln(2)/10$ from hospital to recovered/leaving hospital (IQR $\ln(2)/7.0$ $\ln(2)/14.0$)\\
 \\
@@ -49,17 +49,21 @@ $\gamma_{Ic} = 1/4  $ from ICU to recovered/leaving ICU IQR ($1/3$, $1/5$)\\
 \\
 $\gamma_{Ic} +\gamma_{Icp}  = 1/5.45$  from ICU to death $95\%$  CI:  $1/(2.20)$ $1/(7.65)$\\
 \subsection{Sources}
-The source of these priors are these 3 papers where you have more than just the means and confidence intervals but also the sources of the data.\\
+These are the sources of some of the priors we use.\\
 \\
-\href{https://www.medrxiv.org/content/10.1101/2020.03.03.20029983v1}{Transmission interval estimates suggest pre-symptomatic spread of COVID-19} -source of why we asymptomatic spreading exists and $\gamma_{E}$\\
+\href{https://www.medrxiv.org/content/10.1101/2020.03.03.20029983v1}{Transmission interval estimates suggest pre-symptomatic spread of COVID-19} -source of why we think presymptomatic spreading exists and $\gamma_{E}$\\
 \\
 \href{https://www.medrxiv.org/content/10.1101/2020.04.01.20050138v1.full.pdf}{Epidemiological Characteristics of COVID-19; a Systemic Review and Meta-Analysis} source of $\gamma_{A}$, $\gamma_{Ia}$, $\gamma_{Is}$,$\gamma_{Ih}$,  $\gamma_{Ic}$ and
-$\gamma_{Is}(1-hh)+\gamma_{Isp}$\\
+$\gamma_{Is}(1-hh)+\gamma_{Isp}$. This  $\gamma_{Is}$ probably isn't the one we should be using but it is the best we found for now.\\
 \\
-\href{https://www.medrxiv.org/content/10.1101/2020.04.08.20056861v1.full.pdf}{Epidemiological characteristics of COVID-19 cases in Italy and estimates of the reproductive numbers one month into the epidemic} This one is also our source for the data in the accompanying ipython notebooks for hh,cc,mm and alpha.\\
+\href{https://www.medrxiv.org/content/10.1101/2020.04.08.20056861v1.full.pdf}{Epidemiological characteristics of COVID-19 cases in Italy and estimates of the reproductive numbers one month into the epidemic} This paper is one of our sources for the data in the accompanying ipython notebooks for hh,cc,mm and alpha.\\
 \\
-\href{https://www.icnarc.org/DataServices/Attachments/Download/76a7364b-4b76-ea11-9124-00505601089b}{ICNARC report on COVID-19 in critical care} for gIcp(1-mm)+gIcp\\
+\href{https://www.icnarc.org/DataServices/Attachments/Download/76a7364b-4b76-ea11-9124-00505601089b}{ICNARC report on COVID-19 in critical care} for $\gamma I_c+gI_{cp}$\\
 \\
-\href{https://jamanetwork.com/journals/jama/fullarticle/2761044}{Clinical Characteristics of 138 Hospitalized Patients With 2019 Novel Coronavirus–Infected Pneumonia in Wuhan, China} for $\gamma_{Ih}(1-cc)+\gamma_{Ihp}$
-
+\href{https://jamanetwork.com/journals/jama/fullarticle/2761044}{Clinical Characteristics of 138 Hospitalized Patients With 2019 Novel Coronavirus–Infected Pneumonia in Wuhan, China} for $\gamma_{Ih}+\gamma_{Ihp}$\\
+\\
+ \href{https://www.medrxiv.org/content/10.1101/2020.03.30.20047365v2.full.pdf}{Immunity paper}
+ This seems to indicate roughly a third of mild cases develop a very weak immunity\\
+\\
+ \href{https://www.medrxiv.org/content/10.1101/2020.03.24.20043018v2.full.pdf}{Susceptibility}This indicates younger people are less susceptible.  Roughly by two thirds less susceptible and it more or less goes to a constant by age 30.
 \end{document} 
