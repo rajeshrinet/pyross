@@ -1,5 +1,7 @@
 ## PyRoss: Infectious disease models in Python 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
+[![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
+![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg)
 ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) 
@@ -29,14 +31,17 @@ The library supports models formulated **stochastically** (as chemical master eq
 The libraries are named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, [we](https://github.com/rajeshrinet/pyross/graphs/contributors) are:
+The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are:
 [Ronojoy Adhikari](https://github.com/ronojoy),
 [Austen Bolitho](https://github.com/TakodaS),
+Fernando Caballero, Michael Cates,
 [Jakub Dolezal](https://github.com/JakubJDolezal),
 [Tim Ekeh](https://github.com/tekeh),
+Jules Guioth, Robert Jack,
 [Julian Kappler](https://github.com/juliankappler),
 [Lukas Kikuchi](https://github.com/lukastk),
 [Irene Li](https://github.com/Irene-Li),
+Joseph Peterson,
 [Patrick Pietzonka](https://github.com/ppietzonka),
 [Benjamin Remez](https://github.com/BenjaminRemez),
 [Paul Rohrbach](https://github.com/prohrbach),
@@ -141,7 +146,6 @@ Ia = model.Ia(data)
 Is = model.Is(data)
 R  = model.R(data)
 ```
-
 
 ## Publications
 * **Inference, prediction and optimization of non-pharmaceutical interventions using compartment models: the PyRoss library**, R. Adhikari, Austen Bolitho, Fernando Caballero, Michael E. Cates,
