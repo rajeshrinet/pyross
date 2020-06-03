@@ -1,5 +1,8 @@
 PyRoss API
 ==================================
+.. image:: ../../examples/banner.jpg
+  :width: 800
+  :alt: PyRoss banner
 
 
 PyRoss is a numerical library for inference, prediction and non-pharmaceutical interventions in age-structured epidemiological compartment models.
@@ -12,9 +15,7 @@ Inference on pre-defined or user-defined models is performed using model-adapted
 
 Non-pharmaceutical interventions are implemented as modifications of the contact structures of the model. Optimised control of these structures, given cost functions, is possible. This feature is being actively developed to be better integrated with the library.
 
-.. image:: ../../examples/banner.jpg
-  :width: 800
-  :alt: PyRoss banner
+See installation instructions and more details on the PyRoss GitHub page `<https://github.com/rajeshrinet/pyross/blob/master/README.md>'_
 
 Worked out examples
 ==========================
