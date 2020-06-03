@@ -3,7 +3,7 @@ name: Notebooks
 on:
     schedule:
       # 4am daily
-      - cron:  '0 4 1-29/3 * *'
+      - cron:  '0 1 * * *'
 
 jobs:
 
@@ -25,7 +25,6 @@ jobs:
         run: |
           conda activate pyross
           make
-          # make nbtest
       - name: testing-deterministic
         shell: bash -l {0}
         run: |
@@ -45,11 +44,12 @@ jobs:
       - name: testing-control
         shell: bash -l {0}
         run: |
-          make nbtest -e path="examples/control/nbtests"  recursive=False
-      - name: end
+          make nbtest -e path="examples/control-nbtests"  recursive=False
+      - name: testing-inference
         shell: bash -l {0}
         run: |
-          echo "skipped inference and forcast"
-    
-
-                # make nbtest
+          make nbtest -e path="examples/inference/nbtests/" recursive=False
+      - name: testing-forecast
+        shell: bash -l {0}
+        run: |
+          make nbtest -e path="examples/forecast/nbtests/" recursive=False

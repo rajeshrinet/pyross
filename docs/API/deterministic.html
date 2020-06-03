@@ -25,6 +25,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -82,7 +83,7 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Deterministic simulations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#integratorsclass">IntegratorsClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#commonmethods">CommonMethods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#spp">Spp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
@@ -169,19 +170,261 @@
   <div class="section" id="deterministic-simulations">
 <h1>Deterministic simulations<a class="headerlink" href="#deterministic-simulations" title="Permalink to this headline">¶</a></h1>
 <p>Deterministic simulations with compartment models and age structure.</p>
-<div class="section" id="integratorsclass">
-<h2>IntegratorsClass<a class="headerlink" href="#integratorsclass" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pyross.deterministic.IntegratorsClass">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">IntegratorsClass</code><a class="headerlink" href="#pyross.deterministic.IntegratorsClass" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of all integrator used by various deterministic models listed below.</p>
-<dl class="method">
-<dt id="pyross.deterministic.IntegratorsClass.simulator">
-<code class="sig-name descname">simulator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.IntegratorsClass.simulator" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="commonmethods">
+<h2>CommonMethods<a class="headerlink" href="#commonmethods" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.CommonMethods">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">CommonMethods</code><a class="headerlink" href="#pyross.deterministic.CommonMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parent class used for all classes listed below.
+It includes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Integrators used by various deterministic models listed below.</p></li>
+<li><p>Method to get time series of S, etc by passing a dict of data</p></li>
+<li><p>Method to set the contactMatrix array, CM</p></li>
+</ul>
+</div></blockquote>
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.A">
+<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.A" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>A</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Activated population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>E</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.I">
+<code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.I" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ia</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ia</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ic">
+<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ic</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ICU hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Icp">
+<code class="sig-name descname">Icp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Icp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Icp</strong> – and recovered) population time series</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(intermediate stage between ICU</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ih">
+<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ih" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ic</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ihp">
+<code class="sig-name descname">Ihp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ihp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ihp</strong> – and recovered) population time series</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(intermediate stage between symptomatics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Im">
+<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Im" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ic</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mortality time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Is</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Isp">
+<code class="sig-name descname">Isp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Isp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Isp</strong> – and recovered) population time series</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(intermediate stage between symptomatics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>R</strong> (<em>Removed population time series</em>)</p></li>
+<li><p><strong>For SEAI8R</strong> (<em>R=N(t)-(S+E+Ia+Is+Is’+Ih+Ih’+Ic+Ic’)</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>S</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Sx">
+<code class="sig-name descname">Sx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Sx" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Generic compartment Sx</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.simulator">
+<code class="sig-name descname">simulator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.simulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x0</strong> (<em>np.array</em>) – Initial number of compartment values.</p></li>
+<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state vector (number of compartment values).
+An array of size M*(model_dimension-1),
+where x0[i+j*M] should be the initial
+value of model class i of age group j.
+The removed R class must be left out.
+If Ni is dynamical, then the last M points store Ni.</p></li>
 <li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
 average number of contacts made per day by an
 individual in class i with an individual in class j</p></li>
@@ -190,12 +433,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -209,20 +453,44 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="spp">
 <h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.Spp">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.deterministic.Spp" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Generic user-defined epidemic model.</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.</p></li>
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
 <li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
 I.e len(contactMatrix)</p></li>
 <li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<p class="rubric">Examples</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
+<span class="go">        &quot;S&quot; : {</span>
+<span class="go">            &quot;constant&quot;  : [ [&quot;k&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;I&quot; : {</span>
+<span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;beta&#39;: 0.1,</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;k&#39;: 1,</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<dl class="py method">
 <dt id="pyross.deterministic.Spp.model_class_data">
 <code class="sig-name descname">model_class_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.model_class_data" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -238,10 +506,15 @@ I.e len(contactMatrix)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.Spp.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x0</strong> (<em>np.array</em><em> or </em><em>dict</em>) – Initial conditions. If it is an array it should have length
@@ -261,12 +534,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -280,23 +554,29 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="sir">
 <h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.deterministic.SIR" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Infected, Removed (SIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
 </dl>
 </p></li>
@@ -306,74 +586,48 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SIR.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<p class="rubric">Examples</p>
+<p>An example of the SIR class</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="mi">1</span>                   <span class="c1"># SIR model with no age structure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ni</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>    <span class="c1"># only one age group</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Ni</span><span class="p">)</span>          <span class="c1"># total population</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span>  <span class="o">=</span> <span class="mf">0.2</span>             <span class="c1"># Infection rate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gIa</span>   <span class="o">=</span> <span class="mf">0.1</span>             <span class="c1"># Removal rate of asymptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gIs</span>   <span class="o">=</span> <span class="mf">0.1</span>             <span class="c1"># Removal rate of symptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">0</span>               <span class="c1"># Fraction of asymptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsa</span>   <span class="o">=</span> <span class="mi">1</span>               <span class="c1"># self-isolation of symtomatic infectives</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ia0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>     <span class="c1"># Intial asymptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Is0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>     <span class="c1"># Initial symptomatic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R0</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>     <span class="c1"># No removed individuals initially</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S0</span>  <span class="o">=</span> <span class="n">N</span><span class="o">-</span><span class="p">(</span><span class="n">Ia0</span><span class="o">+</span><span class="n">Is0</span><span class="o">+</span><span class="n">R0</span><span class="p">)</span>    <span class="c1"># S + Ia + Is + R = N</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># there is no contact structure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">contactMatrix</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># duration of simulation and data file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Tf</span> <span class="o">=</span> <span class="mi">160</span><span class="p">;</span>  <span class="n">Nt</span><span class="o">=</span><span class="mi">160</span><span class="p">;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># instantiate model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="n">alpha</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">:</span><span class="n">beta</span><span class="p">,</span> <span class="s1">&#39;gIa&#39;</span><span class="p">:</span><span class="n">gIa</span><span class="p">,</span> <span class="s1">&#39;gIs&#39;</span><span class="p">:</span><span class="n">gIs</span><span class="p">,</span><span class="s1">&#39;fsa&#39;</span><span class="p">:</span><span class="n">fsa</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># simulate model using two possible ways</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">S0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span> <span class="n">contactMatrix</span><span class="p">,</span> <span class="n">Tf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">S0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">)),</span> <span class="n">contactMatrix</span><span class="p">,</span> <span class="n">Tf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
 <dt id="pyross.deterministic.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -387,12 +641,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>DEPRICATED</em><em>)</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -406,17 +661,19 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="sikr">
 <h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.deterministic.SIkR" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Infected, Removed (SIkR). Method of k-stages of I</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gI: float</dt><dd><p>rate of removal from infectives.</p>
+<dt>gI: float</dt><dd><p>Rate of removal from infectives.</p>
 </dd>
 <dt>kI: int</dt><dd><p>number of stages of infection.</p>
 </dd>
@@ -428,58 +685,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SIkR.I">
-<code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.I" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIkR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SIkR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -492,12 +706,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -511,25 +726,31 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="seir">
 <h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.deterministic.SEIR" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gE: float, np.array (M,)</dt><dd><p>Rate of removal from exposed individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
 </dl>
 </p></li>
@@ -539,90 +760,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEIR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -637,12 +783,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -656,19 +803,22 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="sekikr">
 <h2>SEkIkR<a class="headerlink" href="#sekikr" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkR" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Infected, Removed (SEkIkR).
+Method of k-stages of E and I</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gI: float</dt><dd><p>rate of removal from infected individuals.</p>
+<dt>gI: float</dt><dd><p>Rate of removal from infected individuals.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Rate of removal from exposed individuals.</p>
 </dd>
 <dt>kI: int</dt><dd><p>number of stages of infectives.</p>
 </dd>
@@ -682,74 +832,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkR.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkR.I">
-<code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.I" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -763,12 +854,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -782,23 +874,30 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="sekikikr">
 <h2>SEkIkIkR<a class="headerlink" href="#sekikikr" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEkIkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkIkR" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Infected, Removed (SEkIkR).
+Method of k-stages of E, Ia, and Is</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic infected individuals.</p>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic infected individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic infected individuals.</p>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic infected individuals.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Rate of removal from exposed individuals.</p>
 </dd>
 <dt>kI: int</dt><dd><p>number of stages of asymptomatic infectives.</p>
 </dd>
@@ -814,90 +913,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkIkR.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkIkR.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkIkR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkIkR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEkIkIkR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEkIkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -912,12 +936,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -931,44 +956,56 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="sei8r">
 <h2>SEI8R<a class="headerlink" href="#sei8r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEI8R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEI8R</code><a class="headerlink" href="#pyross.deterministic.SEI8R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Infected, Removed (SEI8R)
+The infected class has 8 groups:</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>Ih: hospitalized</p></li>
+<li><p>Ic: ICU</p></li>
+<li><p>Im: Mortality</p></li>
+</ul>
+<p>Is —&gt; Ih, Is’-&gt; R
+Ih —&gt; Ic, Ih’-&gt; R
+Ic —&gt; Im, Ic’-&gt; R</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>Rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gIsp: float</dt><dd><p>rate of removal from symptomatic individuals towards buffer.</p>
+<dt>gIsp: float</dt><dd><p>Rate of removal from symptomatic individuals towards buffer.</p>
 </dd>
-<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
+<dt>gIh: float</dt><dd><p>Rate of removal for hospitalised individuals.</p>
 </dd>
-<dt>gIhp: float</dt><dd><p>rate of removal from hospitalised individuals towards buffer.</p>
+<dt>gIhp: float</dt><dd><p>Rate of removal from hospitalised individuals towards buffer.</p>
 </dd>
-<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
+<dt>gIc: float</dt><dd><p>Rate of removal for idividuals in intensive care.</p>
 </dd>
-<dt>gIcp: float</dt><dd><p>rate of removal from ICU individuals towards buffer.</p>
+<dt>gIcp: float</dt><dd><p>Rate of removal from ICU individuals towards buffer.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
+<dt>fh<span class="classifier">float</span></dt><dd><p>Fraction by which hospitalised individuals are isolated.</p>
 </dd>
-<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
-sa is rate of additional/removal of population by birth etc</p>
+<dt>sa: float, np.array (M,)</dt><dd><p>Daily arrival of new susceptables.</p>
 </dd>
-<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>Fraction hospitalised from Is</p>
 </dd>
-<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>Fraction sent to intensive care from hospitalised.</p>
 </dd>
 <dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
@@ -980,156 +1017,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Ic">
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ic" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ICU hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Ih">
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Ih" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Im">
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Im" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>mortality time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><p>Removed population time series</p>
-<p>R = N(t) - (S + E + Ia + Is + Ih + Ic)</p>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEI8R.population">
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.population" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>population</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEI8R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -1147,12 +1043,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1166,27 +1063,35 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="seair">
 <h2>SEAIR<a class="headerlink" href="#seair" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEAIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIR</code><a class="headerlink" href="#pyross.deterministic.SEAIR" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+</ul>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>Rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>Rate of removal from activated individuals.</p>
 </dd>
 </dl>
 </p></li>
@@ -1196,106 +1101,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.A">
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.A" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>A</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Activated population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIR.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEAIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -1311,12 +1125,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1330,44 +1145,56 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="seai8r">
 <h2>SEAI8R<a class="headerlink" href="#seai8r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEAI8R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAI8R</code><a class="headerlink" href="#pyross.deterministic.SEAI8R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Activated, Infected, Removed (SEAI5R)
+The infected class has 8 groups:</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>Ih: hospitalized</p></li>
+<li><p>Ic: ICU</p></li>
+<li><p>Im: Mortality</p></li>
+</ul>
+<p>Is —&gt; Ih, Is’-&gt; R
+Ih —&gt; Ic, Ih’-&gt; R
+Ic —&gt; Im, Ic’-&gt; R</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
+<dt>gE: float</dt><dd><p>Rate of removal from exposeds individuals.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gIsp: float</dt><dd><p>rate of removal from symptomatic individuals towards buffer.</p>
+<dt>gIsp: float</dt><dd><p>Rate of removal from symptomatic individuals towards buffer.</p>
 </dd>
-<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
+<dt>gIh: float</dt><dd><p>Rate of removal for hospitalised individuals.</p>
 </dd>
-<dt>gIhp: float</dt><dd><p>rate of removal from hospitalised individuals towards buffer.</p>
+<dt>gIhp: float</dt><dd><p>Rate of removal from hospitalised individuals towards buffer.</p>
 </dd>
-<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
+<dt>gIc: float</dt><dd><p>Rate of removal for idividuals in intensive care.</p>
 </dd>
-<dt>gIcp: float</dt><dd><p>rate of removal from ICU individuals towards buffer.</p>
+<dt>gIcp: float</dt><dd><p>Rate of removal from ICU individuals towards buffer.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
+<dt>fh<span class="classifier">float</span></dt><dd><p>Fraction by which hospitalised individuals are isolated.</p>
 </dd>
-<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
-sa is rate of additional/removal of population by birth etc</p>
+<dt>sa: float, np.array (M,)</dt><dd><p>Daily arrival of new susceptables.</p>
 </dd>
-<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
+<dt>hh: float, np.array (M,)</dt><dd><p>Fraction hospitalised from Is</p>
 </dd>
-<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
+<dt>cc: float, np.array (M,)</dt><dd><p>Fraction sent to intensive care from hospitalised.</p>
 </dd>
 <dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
 </dd>
@@ -1379,172 +1206,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.A">
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.A" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>A</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Activates population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Ic">
-<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ic" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ICU hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Ih">
-<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Ih" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>hospitalized population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Im">
-<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Im" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ic’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>mortality time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><p>Removed population time series</p>
-<p>R = N(t) - (S + E + A+ Ia + Is + Ih + Ic)</p>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAI8R.population">
-<code class="sig-name descname">population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.population" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>population</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEAI8R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -1562,12 +1232,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1581,36 +1252,45 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="seairq">
 <h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ" title="Permalink to this definition">¶</a></dt>
-<dd><p>To initialise the SEAIRQ class,</p>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected,
+Infected, Removed, Quarantined (SEAIRQ)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+<li><p>Q: quarantined</p></li>
+</ul>
+<p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float, np.array (M,)</dt><dd><p>Rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float, np.array (M,)</dt><dd><p>Rate of removal from activated individuals.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>tE: float</dt><dd><p>testing rate and contact tracing of exposeds</p>
+<dt>tE: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of exposeds</p>
 </dd>
-<dt>tA: float</dt><dd><p>testing rate and contact tracing of activateds</p>
+<dt>tA: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of activateds</p>
 </dd>
-<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+<dt>tIa: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
 </dd>
-<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
+<dt>tIs: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of symptomatics</p>
 </dd>
 </dl>
 </p></li>
@@ -1620,122 +1300,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.A">
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.A" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>A</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Activated population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong> – Exposed population time series</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.Q">
-<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.Q" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>Q</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Quarantined population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong> – Susceptible population time series</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEAIRQ.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -1752,15 +1325,16 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><p><strong>data</strong> – contains the following keys:</p>
 <ul class="simple">
-<li><p>’X’: output path from integrator</p></li>
-<li><p>’t’: time points evaluated at,</p></li>
+<li><p>X : output path from integrator</p></li>
+<li><p>t : time points evaluated at,</p></li>
 <li><p>’param’: input param to integrator.</p></li>
 </ul>
 </p>
@@ -1776,31 +1350,40 @@ The default is ‘odeint’.</p></li>
 </div>
 <div class="section" id="seairq-testing">
 <h2>SEAIRQ_testing<a class="headerlink" href="#seairq-testing" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.deterministic.SEAIRQ_testing">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIRQ_testing</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+<li><p>Q: quarantined</p></li>
+</ul>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
 <dl class="simple">
-<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
 </dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
 </dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
 </dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
 </dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+<dt>gE: float</dt><dd><p>Rate of removal from exposed individuals.</p>
 </dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
+<dt>gA: float</dt><dd><p>Rate of removal from activated individuals.</p>
 </dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
 </dd>
-<dt>ars: float</dt><dd><p>fraction of population admissible for random and symptomatic tests</p>
+<dt>ars: float</dt><dd><p>Fraction of population admissible for random and symptomatic tests</p>
 </dd>
-<dt>kapE: float</dt><dd><p>fraction of positive tests for exposed individuals</p>
+<dt>kapE: float</dt><dd><p>Fraction of positive tests for exposed individuals</p>
 </dd>
 </dl>
 </p></li>
@@ -1810,122 +1393,15 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.A">
-<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.A" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>A</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Activated population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.E">
-<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.E" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>E</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Exposed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.Ia">
-<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Ia" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Ia’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Asymptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.Is">
-<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Is" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>symptomatics population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.Q">
-<code class="sig-name descname">Q</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.Q" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>Q</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Quarantined population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.R">
-<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.R" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>R</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Removed population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pyross.deterministic.SEAIRQ_testing.S">
-<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.S" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>S</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Susceptible population time series</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.deterministic.SEAIRQ_testing.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.simulate" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internaly calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
@@ -1943,12 +1419,13 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
-<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take. The default is 100000.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>X: output path from integrator, ‘t’: time points evaluated at,
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
 ‘param’: input param to integrator.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -1982,7 +1459,7 @@ The default is ‘odeint’.</p></li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
 
     </p>
   </div>

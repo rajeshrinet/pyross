@@ -4,21 +4,25 @@ cimport cython
 
 ctypedef np.float_t DTYPE_t
 
-cdef class IntegratorsClass:
+cdef class CommonMethods:
     cdef:
         readonly int N, M, kI, kE, nClass
         readonly double gIh, gIc, fh, ep, gI
         readonly double gIsp, gIcp, gIhp, ars, kapE
-        readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR, sa, iaa, hh, cc, mm, alpha
-        readonly dict paramList
+        readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR
+        readonly np.ndarray population, sa, iaa, hh, cc, mm, alpha
+        readonly dict paramList, readData
 
     cpdef set_contactMatrix(self, double t, contactMatrix)
+
+
+
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR(IntegratorsClass):
+cdef class SIR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIR)
 
@@ -38,7 +42,7 @@ cdef class SIR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIRS(IntegratorsClass):
+cdef class SIRS(CommonMethods):
     """
     Susceptible, Infected, Removed, Susceptible (SIRS)
 
@@ -56,7 +60,7 @@ cdef class SIRS(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEIR(IntegratorsClass):
+cdef class SEIR(CommonMethods):
     """
     Susceptible, Exposed, Infected, Removed (SEIR)
 
@@ -71,7 +75,7 @@ cdef class SEIR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI8R(IntegratorsClass):
+cdef class SEI8R(CommonMethods):
     """
     Susceptible, Exposed, Infected, Removed (SEIR). The infected class has 5 groups.
 
@@ -103,7 +107,7 @@ cdef class SEI8R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIkR(IntegratorsClass):
+cdef class SIkR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIkR). Method of k-stages of I
     """
@@ -118,7 +122,7 @@ cdef class SIkR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkR(IntegratorsClass):
+cdef class SEkIkR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIkR). Method of k-stages of I
 
@@ -135,7 +139,7 @@ cdef class SEkIkR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEkIkIkR(IntegratorsClass):
+cdef class SEkIkIkR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIkR). Method of k-stages of I
 
@@ -152,7 +156,7 @@ cdef class SEkIkIkR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIR(IntegratorsClass):
+cdef class SEAIR(CommonMethods):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
 
@@ -172,7 +176,7 @@ cdef class SEAIR(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI8R(IntegratorsClass):
+cdef class SEAI8R(CommonMethods):
     """
     Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
 
@@ -203,7 +207,7 @@ cdef class SEAI8R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ(IntegratorsClass):
+cdef class SEAIRQ(CommonMethods):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 
@@ -224,7 +228,7 @@ cdef class SEAIRQ(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAIRQ_testing(IntegratorsClass):
+cdef class SEAIRQ_testing(CommonMethods):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 
@@ -248,7 +252,7 @@ cdef class SEAIRQ_testing(IntegratorsClass):
 @cython.boundscheck(True)
 @cython.cdivision(False)
 @cython.nonecheck(True)
-cdef class Spp(IntegratorsClass):
+cdef class Spp(CommonMethods):
     """
     Given a model specification, the Spp class generates a custome-made compartment epidemic model.
     """
@@ -269,7 +273,7 @@ cdef class Spp(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI5R(IntegratorsClass):
+cdef class SEI5R(CommonMethods):
     cdef:
         readonly double beta, gE, gA, gIa, gIs, fsa
     """
@@ -292,7 +296,7 @@ cdef class SEI5R(IntegratorsClass):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEAI5R(IntegratorsClass):
+cdef class SEAI5R(CommonMethods):
     cdef:
         readonly double beta, gE, gA, gIa, gIs, fsa
     """

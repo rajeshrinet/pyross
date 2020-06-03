@@ -9,6 +9,12 @@ cimport numpy as np
 cimport cython
 import time
 
+try:
+    # Optional support for nested sampling.
+    import nestle
+except ImportError:
+    nestle = None
+
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
@@ -123,14 +129,7 @@ cdef class SIR_type:
                                contactMatrix=None, s=None, scale=None, tangent=None):
         """Objective function for minimization call in infer_parameters."""
         # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(len(flat_guess_range)):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(params[flat_guess_range[j]])
+        orig_params = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
 
         parameters = self.fill_params_dict(keys, orig_params)
         self.set_params(parameters)
@@ -211,60 +210,16 @@ cdef class SIR_type:
         estimates: numpy.array
             The MAP parameter estimate
         '''
-        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
-        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
-        # (infer_scale_parameter is True).
-        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
-        n_age_dep = np.sum(age_dependent)
-        if not hasattr(infer_scale_parameter, "__len__"):
-            # infer_scale_parameter can be either set for all age-dependent parameters or individually
-            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
-        is_scale_parameter = np.zeros(len(guess), dtype=np.bool)
-        k = 0
-        for j in range(len(guess)):
-            if age_dependent[j]:
-                is_scale_parameter[j] = infer_scale_parameter[k]
-                k += 1
-
-        n_scaled_age_dep = np.sum(infer_scale_parameter)
-        flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
-
-        # Define a new flat guess and a list of slices that correspond to the intitial guess
-        flat_guess       = np.zeros(flat_guess_size)
-        flat_stds        = np.zeros(flat_guess_size)
-        flat_bounds      = np.zeros((flat_guess_size, 2))
-        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
-        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
-        i = 0; j = 0
-        while i < flat_guess_size:
-            if age_dependent[j] and is_scale_parameter[j]:
-                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
-                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
-                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
-                scaled_guesses.append(guess[j])
-                flat_guess_range.append(i)
-                i += 1
-            elif age_dependent[j]:
-                flat_guess[i:i+self.M]    = guess[j]
-                flat_stds[i:i+self.M]     = stds[j]
-                flat_bounds[i:i+self.M,:] = bounds[j,:]
-                flat_guess_range.append(list(range(i, i+self.M)))
-                i += self.M
-            else:
-                flat_guess[i]    = guess[j]
-                flat_stds[i]     = stds[j]
-                flat_bounds[i,:] = bounds[j,:]
-                flat_guess_range.append(i)
-                i += 1
-            j += 1
-
+        # Transfer the guesses, stds, ... which can contain arrays as entries for age-dependend rates to a flat vector for inference.
+        flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
         s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
             flat_cma_stds = flat_stds
         else:
-            flat_cma_stds = np.zeros(flat_guess_size)
+            flat_cma_stds = np.zeros(len(flat_guess))
             for i in range(len(guess)):
                 flat_cma_stds[flat_guess_range[i]] = cma_stds[i]
 
@@ -275,38 +230,92 @@ cdef class SIR_type:
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
         params = res[0]
-        # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(len(flat_guess_range)):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(params[flat_guess_range[j]])
+        # Get the parameters (in their original structure) from the flattened parameter vector.
+        orig_params = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
         if full_output:
             return np.array(orig_params), res[1]
         else:
             return np.array(orig_params)
 
 
-    def _infer_control_to_minimize(self, params, grad=0, bounds=None, eps=None, x=None, Tf=None, Nf=None, generator=None,
-                                   s=None, scale=None):
-        """Objective function for minimization call in infer_control."""
-        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-            return INFINITY
+    def nested_sampling_inference(self, keys, guess, stds, bounds, np.ndarray x, double Tf, Py_ssize_t Nf, contactMatrix,
+                                  tangent=True, infer_scale_parameter=False, return_samples=True, verbose=False,
+                                  npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
+        '''Compute the evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on 
+        all classes is available.
+        '''
 
+        if nestle is None:
+            raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+
+        flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
+
+        k = len(flat_guess)
+        ppf_bounds = np.zeros((k, 2))
+        ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
+        ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
+        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+
+        def prior_transform(x):
+            # Tranform into bounded region
+            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
+            return lognorm.ppf(y, s, scale=scale)
+
+        def to_sample(params):
+            params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
+            parameters = self.fill_params_dict(keys, params_unflat)
+            logP = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=False)
+            logP += np.sum(lognorm.logpdf(params, s, scale=scale))
+            return logP
+
+        if verbose:
+            def callback(d):
+                if d["it"] % 100 == 0:
+                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
+        else:
+            callback=None
+
+        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
+                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+
+        log_evidence = result.logz
+
+        if return_samples:
+            unflattened_samples = []
+            for sample in result.samples:
+                sample_unflat = self._unflatten_parameters(sample, flat_guess_range, is_scale_parameter, scaled_guesses)
+                unflattened_samples.append(sample)
+            weighted_samples = (unflattened_samples, result.weights)
+            
+            return log_evidence, weighted_samples
+
+        return log_evidence
+
+
+    def _infer_control_to_minimize(self, params, grad=0, keys=None, bounds=None, x=None, Tf=None, Nf=None, generator=None,
+                                   intervention_fun=None, tangent=None, s=None, scale=None):
+        """Objective function for minimization call in infer_control."""
         parameters = self.make_params_dict()
         model =self.make_det_model(parameters)
-        times = [Tf+1]
-        interventions = [params]
-        contactMatrix = generator.interventions_temporal(times, interventions)
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
+        kwargs = {k:params[i] for (i, k) in enumerate(keys)}
+        if intervention_fun is None:
+            contactMatrix=generator.constant_contactMatrix(**kwargs)
+        else:
+            contactMatrix=generator.intervention_custom_temporal(intervention_fun, **kwargs)
+        if tangent:
+            minus_logp = self.obtain_log_p_for_traj_tangent_space(x, Tf, Nf, model, contactMatrix)
+        else:
+            minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
 
-    def infer_control(self, guess, stds, x, Tf, Nf, generator, bounds, verbose=False, ftol=1e-6, eps=1e-5,
+    def infer_control(self, keys, guess, stds, x, Tf, Nf, generator, bounds,
+                      intervention_fun=None, tangent=False,
+                      verbose=False, ftol=1e-6,
                       global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """
@@ -333,6 +342,11 @@ cdef class SIR_type:
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2).
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: double
@@ -362,12 +376,12 @@ cdef class SIR_type:
             MAP estimate of the control parameters
         """
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
         if cma_stds is None:
             # Use prior standard deviations here
             cma_stds = stds
 
-        minimize_args = {'bounds':bounds, 'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale}
+        minimize_args = {'keys':keys, 'bounds':bounds, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale,
+                          'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -404,7 +418,8 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
+    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False, 
+                        infer_scale_parameter=False):
         '''
         Computes the Hessian of the MAP estimatesself.
 
@@ -434,41 +449,55 @@ cdef class SIR_type:
         hess: 2d numpy.array
             The Hessian
         '''
-        cdef:
-            Py_ssize_t k=maps.shape[0], i, j
-            double xx0
-            np.ndarray g1, g2, s, scale, hess = np.empty((k, k))
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
+        bounds = np.zeros((len(maps), 2)) # This does not matter here.
+        flat_maps, _, _, flat_maps_range, is_scale_parameter, scaled_maps \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
         def minuslogP(y):
-            parameters = self.fill_params_dict(keys, y)
-            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
+            parameters = self.fill_params_dict(keys, y_unflat)
+            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
-        g1 = approx_fprime(maps, minuslogP, eps)
+        
+        k = len(flat_maps)
+        hess = np.empty((k, k))
+        g1 = approx_fprime(flat_maps, minuslogP, eps)
         for j in range(k):
-            xx0 = maps[j]
-            maps[j] += eps
-            g2 = approx_fprime(maps, minuslogP, eps)
+            xx0 = flat_maps[j]
+            flat_maps[j] += eps
+            g2 = approx_fprime(flat_maps, minuslogP, eps)
             hess[:,j] = (g2 - g1)/eps
-            maps[j] = xx0
+            flat_maps[j] = xx0
         return hess
 
-    def error_bars(self, keys, maps, prior_mean, prior_stds,
-                        x, Tf, Nf, contactMatrix, eps=1.e-3):
-        hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds,
-                                x,Tf,Nf,contactMatrix,eps)
+    def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, 
+                   tangent=False, infer_scale_parameter=False):
+        hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps,
+                                       tangent, infer_scale_parameter)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
-    def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3):
-        # M variate process, M=3 for SIIR model
+    def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
+                       tangent=False, infer_scale_parameter=False):
         cdef double logP_MAPs
         cdef Py_ssize_t k
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
+
+        bounds = np.zeros((len(maps), 2)) # Create dummy bounds to pass to flatten function.
+        flat_maps, _, _, _, _, _ \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
         parameters = self.fill_params_dict(keys, maps)
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-        logP_MAPs += np.sum(lognorm.logpdf(maps, s, scale=scale))
-        k = maps.shape[0]
-        A = self.hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps)
+        logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
+        k = flat_prior_mean.shape[0]
+        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent, 
+                                 infer_scale_parameter)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix, tangent=False):
@@ -544,14 +573,7 @@ cdef class SIR_type:
         inits =  np.copy(params[flat_param_guess_size:])
 
         # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(len(flat_guess_range)):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(params[flat_guess_range[j]])
+        orig_params = self._unflatten_parameters(params[:flat_param_guess_size], flat_guess_range, is_scale_parameter, scaled_guesses)
 
         parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
@@ -667,121 +689,76 @@ cdef class SIR_type:
         assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
         assert len(guess) == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
 
+        # Transfer the parameter parts of guess, stds, ... which can contain arrays as entries for age-dependent rates to a flat list
+        flat_param_guess, flat_param_stds, flat_param_bounds, flat_param_guess_range, is_scale_parameter, scaled_param_guesses \
+            = self._flatten_parameters(guess[:param_dim], stds[:param_dim], bounds[:param_dim], infer_scale_parameter)
 
-        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
-        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
-        # (infer_scale_parameter is True).
-        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
-        n_age_dep = np.sum(age_dependent)
-        if not hasattr(infer_scale_parameter, "__len__"):
-            # infer_scale_parameter can be either set for all age-dependent parameters or individually
-            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
-        is_scale_parameter = np.zeros(param_dim, dtype=np.bool)
-        k = 0
-        for j in range(param_dim):
-            if age_dependent[j]:
-                is_scale_parameter[j] = infer_scale_parameter[k]
-                k += 1
-
-        n_scaled_age_dep = np.sum(infer_scale_parameter)
-        flat_param_guess_size  = param_dim - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
-
-        # Define a new flat guess and a list of slices that correspond to the intitial guess
-        flat_guess       = np.zeros(flat_param_guess_size)
-        flat_stds        = np.zeros(flat_param_guess_size)
-        flat_bounds      = np.zeros((flat_param_guess_size, 2))
-        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
-        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
-        i = 0; j = 0
-        while i < flat_param_guess_size:
-            if age_dependent[j] and is_scale_parameter[j]:
-                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
-                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
-                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
-                scaled_guesses.append(guess[j])
-                flat_guess_range.append(i)
-                i += 1
-            elif age_dependent[j]:
-                flat_guess[i:i+self.M]    = guess[j]
-                flat_stds[i:i+self.M]     = stds[j]
-                flat_bounds[i:i+self.M,:] = bounds[j,:]
-                flat_guess_range.append(list(range(i, i+self.M)))
-                i += self.M
-            else:
-                flat_guess[i]    = guess[j]
-                flat_stds[i]     = stds[j]
-                flat_bounds[i,:] = bounds[j,:]
-                flat_guess_range.append(i)
-                i += 1
-            j += 1
-
-        # concatenate the flattend param guess with init guess
+        # Concatenate the flattend parameter guess with init guess
         init_guess = guess[param_dim:]
         init_stds = stds[param_dim:]
         init_bounds = bounds[param_dim:]
-        guess = np.concatenate([flat_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([flat_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([flat_bounds, init_bounds], axis=0).astype(DTYPE)
+        flat_guess = np.concatenate([flat_param_guess, init_guess]).astype(DTYPE)
+        flat_stds = np.concatenate([flat_param_stds,init_stds]).astype(DTYPE)
+        flat_bounds = np.concatenate([flat_param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         if cma_stds is None:
             # Use prior standard deviations here
-            flat_cma_stds = stds
+            flat_cma_stds = flat_stds
         else:
-            flat_cma_stds_params = np.zeros(flat_param_guess_size)
+            flat_cma_stds_params = np.zeros(len(flat_param_guess))
             cma_stds_init = cma_stds[param_dim:]
             for i in range(param_dim):
-                flat_cma_stds_params[flat_guess_range[i]] = cma_stds[i]
+                flat_cma_stds_params[flat_param_guess_range[i]] = cma_stds[i]
             flat_cma_stds = np.concatenate([flat_cma_stds_params, cma_stds_init])
 
         minimize_args = {'param_keys':param_keys, 'init_fltr':init_fltr,
                         'is_scale_parameter':is_scale_parameter,
-                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                        'flat_param_guess_size':flat_param_guess_size,
+                        'scaled_guesses':scaled_param_guesses, 'flat_guess_range':flat_param_guess_range,
+                        'flat_param_guess_size':len(flat_param_guess),
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
                          's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
-        res = minimization(self._latent_infer_parameters_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+        res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, 
+                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
 
         estimates = res[0]
-        # Restore parameters from flattened parameters
-        orig_params = []
-        k=0
-        for j in range(param_dim):
-            if is_scale_parameter[j]:
-                orig_params.append(np.array([estimates[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
-                k += 1
-            else:
-                orig_params.append(estimates[flat_guess_range[j]])
-        orig_params += list(estimates[flat_param_guess_size:])
+
+        # Get the parameters (in their original structure) from the flattened parameter vector.
+        flat_param_estimates = estimates[:len(flat_param_guess)]
+        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter, 
+                                                 scaled_param_guesses)
+        orig_params = [*orig_params, *estimates[len(flat_param_guess):]]
+
         if full_output:
             return np.array(orig_params), res[1]
         else:
             return np.array(orig_params)
 
 
-    def _latent_infer_control_to_minimize(self, params, grad = 0, bounds=None, eps=None, generator=None, x0=None,
-                                          obs=None, fltr=None, Tf=None, Nf=None, s=None, scale=None):
+    def _latent_infer_control_to_minimize(self, params, grad = 0, keys=None, bounds=None, generator=None, x0=None,
+                                          obs=None, fltr=None, Tf=None, Nf=None,
+                                          intervention_fun=None, tangent=None,
+                                          s=None, scale=None):
         """Objective function for minimization call in latent_infer_control."""
-        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-            return INFINITY
-
         parameters = self.make_params_dict()
         model = self.make_det_model(parameters)
-        times = [Tf+1]
-        interventions = [params]
-        contactMatrix = generator.interventions_temporal(times, interventions)
-        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
+        kwargs = {k:params[i] for (i, k) in enumerate(keys)}
+        if intervention_fun is None:
+            contactMatrix = generator.constant_contactMatrix(**kwargs)
+        else:
+            contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
-    def latent_infer_control(self, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
+    def latent_infer_control(self, keys, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
-                            verbose=False, double ftol=1e-5, double eps=1e-4, global_max_iter=100,
+                            intervention_fun=None, tangent=False,
+                            verbose=False, double ftol=1e-5, global_max_iter=100,
                             local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None, full_output=False):
         """
@@ -792,6 +769,8 @@ cdef class SIR_type:
 
         Parameters
         ----------
+        keys: list
+            A list of keys for the control parameters to be inferred.
         guess: numpy.array
             Prior expectation (and initial guess) for the control parameter values.
         stds: numpy.array
@@ -813,12 +792,15 @@ cdef class SIR_type:
         bounds: 2d numpy.array
             Bounds for the parameters (number of parameters x 2).
             Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
             Set to True to see intermediate outputs from the optimizer.
         ftol: double
             Relative tolerance of logp
-        eps: double
-            Disallow paramters closer than `eps` to the boundary (to avoid numerical instabilities).
         global_max_iter: int, optional
             Number of global optimisations performed.
         local_max_iter: int, optional
@@ -842,8 +824,8 @@ cdef class SIR_type:
         -------
         params: numpy.array
             MAP estimate of control parameters
-        res: OptimizeResult object
-            returned if full_output is True
+        y_result: float (returned if full_output is True)
+            logp for MAP estimates
 
         """
 
@@ -853,8 +835,8 @@ cdef class SIR_type:
             # Use prior standard deviations here
             cma_stds = stds
 
-        minimize_args = {'bounds':bounds, 'eps':eps, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
-                         'Nf':Nf, 's':s, 'scale':scale}
+        minimize_args = {'keys':keys, 'bounds':bounds, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
+                         'Nf':Nf, 's':s, 'scale':scale, 'intervention_fun':intervention_fun, 'tangent': tangent}
         res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
@@ -1256,6 +1238,8 @@ cdef class SIR_type:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
         full_fltr = sparse.block_diag([fltr,]*(Nf-1))
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+        if not pyross.utils.is_positive_definite(cov_red):
+            cov_red = pyross.utils.nearest_positive_definite(cov_red)
         obs_flattened = np.ravel(obs)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
@@ -1406,10 +1390,10 @@ cdef class SIR_type:
         cdef:
             double [:, :] U=self.U
             double epsilon=1./self.N
-            Py_ssize_t i, j
+            Py_ssize_t i, j, steps=self.steps
         for i in range(self.dim):
             x0[i] += epsilon
-            pos = self.integrate(x0, t1, t2, 2, model, contactMatrix)[1]
+            pos = self.integrate(x0, t1, t2, steps, model, contactMatrix)[steps-1]
             for j in range(self.dim):
                 U[j, i] = (pos[j]-xf[j])/(epsilon)
             x0[i] -= epsilon
@@ -1491,6 +1475,70 @@ cdef class SIR_type:
         else:
             raise Exception("Error: det_method not found. use set_det_method to reset.")
         return sol
+
+    def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
+        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
+        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
+        # (infer_scale_parameter is True).
+        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
+        n_age_dep = np.sum(age_dependent)
+        if not hasattr(infer_scale_parameter, "__len__"):
+            # infer_scale_parameter can be either set for all age-dependent parameters or individually
+            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
+        is_scale_parameter = np.zeros(len(guess), dtype=np.bool)
+        k = 0
+        for j in range(len(guess)):
+            if age_dependent[j]:
+                is_scale_parameter[j] = infer_scale_parameter[k]
+                k += 1
+
+        n_scaled_age_dep = np.sum(infer_scale_parameter)
+        flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
+
+        # Define a new flat guess and a list of slices that correspond to the intitial guess
+        flat_guess       = np.zeros(flat_guess_size)
+        flat_stds        = np.zeros(flat_guess_size)
+        flat_bounds      = np.zeros((flat_guess_size, 2))
+        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
+        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
+        i = 0; j = 0
+        while i < flat_guess_size:
+            if age_dependent[j] and is_scale_parameter[j]:
+                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
+                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
+                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
+                scaled_guesses.append(guess[j])
+                flat_guess_range.append(i)
+                i += 1
+            elif age_dependent[j]:
+                flat_guess[i:i+self.M]    = guess[j]
+                flat_stds[i:i+self.M]     = stds[j]
+                flat_bounds[i:i+self.M,:] = bounds[j,:]
+                flat_guess_range.append(list(range(i, i+self.M)))
+                i += self.M
+            else:
+                flat_guess[i]    = guess[j]
+                flat_stds[i]     = stds[j]
+                flat_bounds[i,:] = bounds[j,:]
+                flat_guess_range.append(i)
+                i += 1
+            j += 1
+
+        return flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses
+
+    def _unflatten_parameters(self, params, flat_guess_range, is_scale_parameter, scaled_guesses):
+        # Restore parameters from flattened parameters
+        orig_params = []
+        k=0
+        for j in range(len(flat_guess_range)):
+            if is_scale_parameter[j]:
+                orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
+                k += 1
+            else:
+                orig_params.append(params[flat_guess_range[j]])
+        
+        return orig_params
+
 
 @cython.wraparound(False)
 @cython.boundscheck(False)

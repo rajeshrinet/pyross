@@ -25,6 +25,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -165,7 +166,7 @@
 <p>Forecasting with the inferred parameters, error bars and, if there are latent variables, inferred initial conditions.</p>
 <div class="section" id="sir">
 <h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.forecast.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.forecast.SIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIR)
@@ -199,14 +200,14 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.forecast.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dl class="py method">
+<dt id="id0">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -267,7 +268,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 </div>
 <div class="section" id="sir-latent">
 <h2>SIR_latent<a class="headerlink" href="#sir-latent" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.forecast.SIR_latent">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SIR_latent</code><a class="headerlink" href="#pyross.forecast.SIR_latent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIR)
@@ -310,14 +311,14 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.forecast.SIR_latent.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SIR_latent.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dl class="py method">
+<dt id="id1">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -376,7 +377,7 @@ sample_inits : List of initial state vectors tried.</p>
 </div>
 <div class="section" id="seir">
 <h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.forecast.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.forecast.SEIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -413,14 +414,14 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.forecast.SEIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dl class="py method">
+<dt id="id2">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -482,7 +483,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 </div>
 <div class="section" id="seir-latent">
 <h2>SEIR_latent<a class="headerlink" href="#seir-latent" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.forecast.SEIR_latent">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEIR_latent</code><a class="headerlink" href="#pyross.forecast.SEIR_latent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -528,14 +529,14 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.forecast.SEIR_latent.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEIR_latent.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dl class="py method">
+<dt id="id3">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -594,7 +595,7 @@ sample_inits : List of initial state vectors tried.</p>
 </div>
 <div class="section" id="seairq">
 <h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.forecast.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.forecast.SEAIRQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -642,14 +643,14 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.forecast.SEAIRQ.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dl class="py method">
+<dt id="id4">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -713,7 +714,7 @@ sample_parameters : list of parameters sampled to make trajectories.</p>
 </div>
 <div class="section" id="seairq-latent">
 <h2>SEAIRQ_latent<a class="headerlink" href="#seairq-latent" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.forecast.SEAIRQ_latent">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEAIRQ_latent</code><a class="headerlink" href="#pyross.forecast.SEAIRQ_latent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -776,14 +777,14 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.forecast.SEAIRQ_latent.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEAIRQ_latent.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt>
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dl class="py method">
+<dt id="id5">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -862,7 +863,7 @@ sample_inits : List of initial state vectors tried.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
 
     </p>
   </div>

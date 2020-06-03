@@ -1,10 +1,11 @@
 cython
-jupyter
-matplotlib
 numpy
-pandas
-scipy
+scipy 
+nlopt
 pathos
 cma
-nlopt
-
+matplotlib
+ipython
+jupyter
+nbconvert
+pandas

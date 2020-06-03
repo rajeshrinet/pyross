@@ -16,8 +16,8 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'PyRoss'
-copyright = '2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh'
-author = 'Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh'
+copyright = '2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk'
+author = 'Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk'
 
 # The full version, including alpha/beta/rc tags
 release = '1.0.0'

@@ -25,6 +25,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -87,7 +88,8 @@
 <li class="toctree-l1"><a class="reference internal" href="control.html">Control with Non-Pharmaceutical interventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contact matrix class</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#contactmatrixfunction">ContactMatrixFunction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contact-matrix-function">Contact Matrix Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spatial-contact-matrix">Spatial Contact Matrix</a></li>
 </ul>
 </li>
 </ul>
@@ -156,10 +158,10 @@
             
   <div class="section" id="contact-matrix-class">
 <h1>Contact matrix class<a class="headerlink" href="#contact-matrix-class" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contact-matrix-function">
+<h2>Contact Matrix Function<a class="headerlink" href="#contact-matrix-function" title="Permalink to this headline">¶</a></h2>
 <p>Generates contact matrix for given interventions</p>
-<div class="section" id="contactmatrixfunction">
-<h2>ContactMatrixFunction<a class="headerlink" href="#contactmatrixfunction" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.contactMatrix.ContactMatrixFunction">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.contactMatrix.</code><code class="sig-name descname">ContactMatrixFunction</code><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a time dependent contact matrix</p>
@@ -173,7 +175,7 @@
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.contactMatrix.ContactMatrixFunction.constant_contactMatrix">
 <code class="sig-name descname">constant_contactMatrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.constant_contactMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constant contact matrix</p>
@@ -194,14 +196,15 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.contactMatrix.ContactMatrixFunction.intervention_custom_temporal">
 <code class="sig-name descname">intervention_custom_temporal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.intervention_custom_temporal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom temporal interventions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>intervention_func</strong> (<em>callable</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>, where t is time and kwargs are other keyword arguments for the function.
+<li><p><strong>intervention_func</strong> (<em>callable</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>,
+where t is time and kwargs are other keyword arguments for the function.
 The function must return (aW, aS, aO).</p></li>
 <li><p><strong>kwargs</strong> (<em>dict</em>) – Keyword arguments for the function.</p></li>
 </ul>
@@ -214,7 +217,8 @@ The function must return (aW, aS, aO).</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>An example for an custom temporal intervetion that allows for some anticipation and reaction time</p>
+<p>An example for an custom temporal intervetion that
+allows for some anticipation and reaction time</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># using keyword arguments for parameters of the intervention</span>
 <span class="go">        a = (1-np.tanh((t-loc)/width))/2</span>
 <span class="go">        return a, a, a</span>
@@ -223,7 +227,7 @@ The function must return (aW, aS, aO).</p></li>
 </div>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.contactMatrix.ContactMatrixFunction.interventions_temporal">
 <code class="sig-name descname">interventions_temporal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.interventions_temporal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temporal interventions</p>
@@ -231,7 +235,8 @@ The function must return (aW, aS, aO).</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time</strong> (<em>np.array</em>) – Ordered array with temporal boundaries between the different interventions.</p></li>
-<li><p><strong>interventions</strong> (<em>np.array</em>) – Ordered matrix with prefactors of CW, CS, CO matrices during the different time intervals.
+<li><p><strong>interventions</strong> (<em>np.array</em>) – Ordered matrix with prefactors of CW, CS, CO matrices
+during the different time intervals.
 Note that len(interventions) = len(times) + 1</p></li>
 </ul>
 </dd>
@@ -244,7 +249,7 @@ Note that len(interventions) = len(times) + 1</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.contactMatrix.ContactMatrixFunction.interventions_threshold">
 <code class="sig-name descname">interventions_threshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.ContactMatrixFunction.interventions_threshold" title="Permalink to this definition">¶</a></dt>
 <dd><p>Temporal interventions</p>
@@ -253,7 +258,8 @@ Note that len(interventions) = len(times) + 1</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>threshold</strong> (<em>np.array</em>) – Ordered array with temporal boundaries between the different interventions.</p></li>
 <li><p><strong>interventions</strong> (<em>np.array</em>) – Array of shape [K+1,3] with prefactors during different phases of intervention
-The current state of the intervention is defined by the largest integer “index” such that state[j] &gt;= thresholds[index,j] for all j.</p></li>
+The current state of the intervention is defined by
+the largest integer “index” such that state[j] &gt;= thresholds[index,j] for all j.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -265,6 +271,94 @@ The current state of the intervention is defined by the largest integer “index
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="spatial-contact-matrix">
+<h2>Spatial Contact Matrix<a class="headerlink" href="#spatial-contact-matrix" title="Permalink to this headline">¶</a></h2>
+<p>Approximates the spatial contact matrix given the locations, populations and areas of
+the geographical regions and the overall age structured contact matrix.</p>
+<dl class="py class">
+<dt id="pyross.contactMatrix.SpatialContactMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.contactMatrix.</code><code class="sig-name descname">SpatialContactMatrix</code><a class="headerlink" href="#pyross.contactMatrix.SpatialContactMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class for generating a minimal spatial compartmental model.</p>
+<blockquote>
+<div><p>Let :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>mu,</p>
+</div></blockquote>
+<p>u` denote spatial index and i, j denote age group index,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[C^{\mu\]</div>
+</div></blockquote>
+<p>u}_{ij} =
+rac{1}{a_{ij}} k^{mu
+u} g^{mu
+u}_{ij} f^{mu
+u}_{ij} C_{ij}</p>
+<blockquote>
+<div><p>where
+.. math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span> <span class="o">=</span> \<span class="n">sum_</span><span class="p">{</span>\<span class="n">mu</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>u} k^{mu
+u}_{ij} g^{mu
+u}_{ij} sqrt{
+rac{ N_i^mu N_j^
+u} {N_i N_j}} </p>
+<blockquote>
+<div><p>k^{mu</p>
+</div></blockquote>
+<p>u} = exp ( - b_{mu
+u} | r^mu - r^
+u <a href="#id3"><span class="problematic" id="id4">|</span></a>) </p>
+<blockquote>
+<div><p>b_{mu,</p>
+</div></blockquote>
+<p>v} = (
+ho^mu
+ho^
+u)^{-c} </p>
+<blockquote>
+<div><p>g^{mu</p>
+</div></blockquote>
+<p>u}_{ij} = (
+ho^mu_i
+ho^
+u_j)^b </p>
+<blockquote>
+<div><p>f^{mu</p>
+</div></blockquote>
+<p>u}_{ij} = sqrt{
+rac{N_i N_j^
+u}{N_i^mu N_j}}</p>
+<blockquote>
+<div><p>where <span class="math notranslate nohighlight">\(C_{ij}\)</span> is the non-spatial age structured contact matrix,
+:math:<a href="#id5"><span class="problematic" id="id6">`</span></a></p>
+</div></blockquote>
+<dl>
+<dt>ho^mu_i` is the population density of age group i</dt><dd><p>in spatial location <span class="math notranslate nohighlight">\(\mu\)</span>,
+:math:<a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+</dd>
+<dt>ho_i` is the total population density of age group i,</dt><dd><p><span class="math notranslate nohighlight">\(r^\mu\)</span> is the spatial position of the <span class="math notranslate nohighlight">\(\mu\)</span> is the population of the age group i at <span class="math notranslate nohighlight">\(\mu\)</span>,
+<span class="math notranslate nohighlight">\(N_i\)</span> is the total population of the age group i,
+and b, c are free parameters</p>
+<dl class="simple">
+<dt>b: float</dt><dd><p>Parameter b in the above equation.</p>
+</dd>
+<dt>c: float</dt><dd><p>Paramter c in the above equation.</p>
+</dd>
+<dt>populations: np.array(n_loc, M)</dt><dd><p>The population of each age group (total number of age group = M)
+in each location (total number of location = n_loc ).</p>
+</dd>
+<dt>areas: np.array(n_loc)</dt><dd><p>The area of each geographical region.</p>
+</dd>
+<dt>coordinates: np.array(n_loc, 2)</dt><dd><p>The GPS coordinates of each geographical region.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -288,7 +382,7 @@ The current state of the intervention is defined by the largest integer “index
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
 
     </p>
   </div>

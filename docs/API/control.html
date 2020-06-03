@@ -25,6 +25,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -169,17 +170,17 @@
 <h1>Control with Non-Pharmaceutical interventions<a class="headerlink" href="#control-with-non-pharmaceutical-interventions" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="control-integration">
 <h2>control_integration<a class="headerlink" href="#control-integration" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.control_integration">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">control_integration</code><a class="headerlink" href="#pyross.control.control_integration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Integrator class to implement control through changing the contact matrix
 as a function of the current state.</p>
-<dl class="method">
+<dl class="py method">
 <dt>
 <code class="sig-name descname">simulate_deteministic : Performs a deterministic simulation.</code></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.control_integration.simulate_deterministic">
 <code class="sig-name descname">simulate_deterministic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.control_integration.simulate_deterministic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs detemrinistic numerical integration</p>
@@ -214,7 +215,7 @@ contactMatricies</p></li>
 </div>
 <div class="section" id="sir">
 <h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.control.SIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIR)
@@ -246,7 +247,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -256,7 +257,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="sekikikr">
 <h2>SEkIkIkR<a class="headerlink" href="#sekikikr" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEkIkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEkIkIkR</code><a class="headerlink" href="#pyross.control.SEkIkIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -295,12 +296,12 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkIkR.E">
 <code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.E" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -316,7 +317,7 @@ I.e len(contactMatrix)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkIkR.Ia">
 <code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.Ia" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -324,7 +325,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
+<dd class="field-even"><p><strong>Is</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>symptomatics population time series</p>
@@ -332,7 +333,7 @@ I.e len(contactMatrix)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkIkR.Is">
 <code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.Is" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -340,7 +341,7 @@ I.e len(contactMatrix)</p></li>
 <dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>‘Is’</strong></p>
+<dd class="field-even"><p><strong>Is</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>symptomatics population time series</p>
@@ -348,7 +349,7 @@ I.e len(contactMatrix)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkIkR.R">
 <code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.R" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -364,7 +365,7 @@ I.e len(contactMatrix)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkIkR.S">
 <code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.S" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -385,7 +386,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="sirs">
 <h2>SIRS<a class="headerlink" href="#sirs" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SIRS">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIRS</code><a class="headerlink" href="#pyross.control.SIRS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed, Susceptible (SIRS)
@@ -424,7 +425,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SIRS.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIRS.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -434,7 +435,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="seir">
 <h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.control.SEIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -469,7 +470,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -479,7 +480,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="sei5r">
 <h2>SEI5R<a class="headerlink" href="#sei5r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.control.SEI5R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
@@ -537,7 +538,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEI5R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEI5R.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -547,7 +548,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="sikr">
 <h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.control.SIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIkR)
@@ -577,7 +578,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -587,7 +588,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="sekikr">
 <h2>SEkIkR<a class="headerlink" href="#sekikr" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEkIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.control.SEkIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIkR)
@@ -622,7 +623,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEkIkR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -632,7 +633,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="seair">
 <h2>SEAIR<a class="headerlink" href="#seair" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEAIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAIR</code><a class="headerlink" href="#pyross.control.SEAIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
@@ -670,7 +671,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEAIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -680,7 +681,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="seai5r">
 <h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEAI5R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.control.SEAI5R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
@@ -731,7 +732,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEAI5R.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAI5R.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -741,7 +742,7 @@ I.e len(contactMatrix)</p></li>
 </div>
 <div class="section" id="seairq">
 <h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.control.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.control.SEAIRQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
@@ -785,7 +786,7 @@ I.e len(contactMatrix)</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.control.SEAIRQ.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -815,7 +816,7 @@ I.e len(contactMatrix)</p></li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
 
     </p>
   </div>

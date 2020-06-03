@@ -25,6 +25,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -259,12 +260,12 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 <p>The functions are documented under the parent class <cite>SIR_type</cite>.</p>
 <div class="section" id="sir-type">
 <h2>SIR_type<a class="headerlink" href="#sir-type" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.inference.SIR_type">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR_type</code><a class="headerlink" href="#pyross.inference.SIR_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parent class for inference for all SIR-type classes listed below</p>
 <p>All subclasses use the same functions to perform inference, which are documented below.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.compute_hessian">
 <code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the Hessian of the MAP estimatesself.</p>
@@ -291,7 +292,7 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.compute_hessian_latent">
 <code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the Hessian over the parameters and initial conditions.</p>
@@ -320,7 +321,7 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.fill_initial_conditions">
 <code class="sig-name descname">fill_initial_conditions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_initial_conditions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the full initial condition given partial initial conditions and the observed data</p>
@@ -342,7 +343,7 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.fill_params_dict">
 <code class="sig-name descname">fill_params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_params_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a full dictionary for epidemiological parameters with some changed values</p>
@@ -364,19 +365,19 @@ for the others, use the values stored in the class.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.hessian">
 <code class="sig-name descname">hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED. Use compute_hessian instead.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.hessian_latent">
 <code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.hessian_latent" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.infer_control">
 <code class="sig-name descname">infer_control</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.infer_control" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
@@ -395,6 +396,9 @@ on all classes is available (with latent variables, use SIR_type.latent_infer_co
 parameters.</p></li>
 <li><p><strong>bounds</strong> (<em>2d numpy.array</em>) – Bounds for the parameters (number of parameters x 2).
 Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p></li>
+<li><p><strong>intervention_fun</strong> (<em>callable</em><em>, </em><em>optional</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>, where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO). If not set, assume intervention that’s constant in time and infer (aW, aS, aO).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
@@ -417,7 +421,7 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.infer_parameters">
 <code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.infer_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
@@ -466,14 +470,14 @@ age-dependent parameter individually</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.inference">
 <code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
 <p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.integrate">
 <code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.integrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>An light weight integrate method similar to <cite>simulate</cite> in pyross.deterministic</p>
@@ -500,7 +504,7 @@ individual in class i with an individual in class j</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.latent_infer_control">
 <code class="sig-name descname">latent_infer_control</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_infer_control" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
@@ -510,6 +514,7 @@ all age groups. This function infers the scaling parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> (<em>list</em>) – A list of keys for the control parameters to be inferred.</p></li>
 <li><p><strong>guess</strong> (<em>numpy.array</em>) – Prior expectation (and initial guess) for the control parameter values.</p></li>
 <li><p><strong>stds</strong> (<em>numpy.array</em>) – Standard deviations for the log normal prior of the control parameters</p></li>
 <li><p><strong>x0</strong> (<em>numpy.array</em>) – Initial conditions.</p></li>
@@ -522,9 +527,11 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 parameters.</p></li>
 <li><p><strong>bounds</strong> (<em>2d numpy.array</em>) – Bounds for the parameters (number of parameters x 2).
 Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon</p></li>
+<li><p><strong>intervention_fun</strong> (<em>callable</em><em>, </em><em>optional</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>, where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO). If not set, assume intervention that’s constant in time and infer (aW, aS, aO).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
-<li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
 <li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
 <li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
@@ -539,14 +546,14 @@ Note that the upper bound must be smaller than the absolute physical upper bound
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>params</strong> (<em>numpy.array</em>) – MAP estimate of control parameters</p></li>
-<li><p><strong>res</strong> (<em>OptimizeResult object</em>) – returned if full_output is True</p></li>
+<li><p><strong>y_result</strong> (<em>float (returned if full_output is True)</em>) – logp for MAP estimates</p></li>
 </ul>
 </p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.latent_infer_parameters">
 <code class="sig-name descname">latent_infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_infer_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
@@ -599,13 +606,13 @@ age-dependent parameter individually</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.latent_inference">
 <code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_inference" title="Permalink to this definition">¶</a></dt>
 <dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.make_det_model">
 <code class="sig-name descname">make_det_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.make_det_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a determinisitic model of the same epidemiological class and same parameters</p>
@@ -622,7 +629,7 @@ age-dependent parameter individually</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.minus_logp_red">
 <code class="sig-name descname">minus_logp_red</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.minus_logp_red" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes -logp for a latent trajectory</p>
@@ -649,7 +656,15 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.nested_sampling_inference">
+<code class="sig-name descname">nested_sampling_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.nested_sampling_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+using nested sampling as implemented in the <cite>nestle</cite> Python package. This function assumes that full data on
+all classes is available.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.set_det_method">
 <code class="sig-name descname">set_det_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_det_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
@@ -660,7 +675,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.set_lyapunov_method">
 <code class="sig-name descname">set_lyapunov_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_lyapunov_method" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
@@ -671,7 +686,7 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.set_params">
 <code class="sig-name descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets epidemiological parameters used for evaluating -log(p)</p>
@@ -690,7 +705,7 @@ Same keys as the one used to initialise the class.</p>
 </div>
 <div class="section" id="spp">
 <h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.inference.Spp">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.inference.Spp" title="Permalink to this definition">¶</a></dt>
 <dd><p>User-defined epidemic model.</p>
@@ -742,7 +757,7 @@ Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘
 </div>
 <div class="section" id="sir">
 <h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.inference.SIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.inference.SIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIR)</p>
@@ -788,7 +803,7 @@ Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘
 </div>
 <div class="section" id="seir">
 <h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.inference.SEIR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.inference.SEIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEIR)</p>
@@ -836,7 +851,7 @@ Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘
 </div>
 <div class="section" id="seairq">
 <h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="pyross.inference.SEAIRQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.inference.SEAIRQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)</p>
@@ -917,7 +932,7 @@ Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Tim Ekeh, Julian Kappler, Lukas Kikuchi, Irene Li, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, and Rajesh Singh
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
 
     </p>
   </div>
