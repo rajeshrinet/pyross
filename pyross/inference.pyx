@@ -242,7 +242,7 @@ cdef class SIR_type:
                                   tangent=True, infer_scale_parameter=False, return_samples=True, verbose=False,
                                   npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
         '''Compute the evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
-        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on 
+        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
         all classes is available.
         '''
 
@@ -289,7 +289,7 @@ cdef class SIR_type:
                 sample_unflat = self._unflatten_parameters(sample, flat_guess_range, is_scale_parameter, scaled_guesses)
                 unflattened_samples.append(sample)
             weighted_samples = (unflattened_samples, result.weights)
-            
+
             return log_evidence, weighted_samples
 
         return log_evidence
@@ -418,7 +418,7 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False, 
+    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False,
                         infer_scale_parameter=False):
         '''
         Computes the Hessian of the MAP estimatesself.
@@ -462,7 +462,7 @@ cdef class SIR_type:
             minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
-        
+
         k = len(flat_maps)
         hess = np.empty((k, k))
         g1 = approx_fprime(flat_maps, minuslogP, eps)
@@ -474,7 +474,7 @@ cdef class SIR_type:
             flat_maps[j] = xx0
         return hess
 
-    def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, 
+    def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
                    tangent=False, infer_scale_parameter=False):
         hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps,
                                        tangent, infer_scale_parameter)
@@ -496,7 +496,7 @@ cdef class SIR_type:
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
         logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
         k = flat_prior_mean.shape[0]
-        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent, 
+        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent,
                                  infer_scale_parameter)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
@@ -720,7 +720,7 @@ cdef class SIR_type:
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
                          's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
-        res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, 
+        res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol,
                            global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
@@ -729,7 +729,7 @@ cdef class SIR_type:
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
         flat_param_estimates = estimates[:len(flat_param_guess)]
-        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter, 
+        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter,
                                                  scaled_param_guesses)
         orig_params = [*orig_params, *estimates[len(flat_param_guess):]]
 
@@ -1243,10 +1243,10 @@ cdef class SIR_type:
         obs_flattened = np.ravel(obs)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
-        cov_red_inv=np.linalg.inv(cov_red)
+        cov_red_inv=np.linalg.pinv(cov_red, hermitian=True)
         log_p= - (dev@cov_red_inv@dev)*(self.N/2)
-        _, ldet=np.linalg.slogdet(cov_red)
-        log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
+        _, ldet=np.linalg.slogdet(cov_red_inv)
+        log_p -= (-ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
     cdef double obtain_log_p_for_traj_tangent_space(self, double [:, :] x, double Tf, Py_ssize_t Nf, model, contactMatrix):
@@ -1354,6 +1354,8 @@ cdef class SIR_type:
                 full_cov_inv[i][i-1]=-temp
             xm[i+1]=xf
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
+        if not pyross.utils.is_positive_definite(full_cov_inv):
+            full_cov_inv = pyross.utils.nearest_positive_definite(full_cov_inv)
         full_cov=np.linalg.inv(full_cov_inv)
         return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
 
@@ -1383,6 +1385,8 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
+        if not pyross.utils.is_positive_definite(full_cov_inv):
+            full_cov_inv = pyross.utils.nearest_positive_definite(full_cov_inv)
         full_cov=np.linalg.inv(full_cov_inv)
         return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
 
@@ -1536,7 +1540,7 @@ cdef class SIR_type:
                 k += 1
             else:
                 orig_params.append(params[flat_guess_range[j]])
-        
+
         return orig_params
 
 

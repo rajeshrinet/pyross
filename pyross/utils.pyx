@@ -242,7 +242,7 @@ cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
             sol[i, j] = sol[i-1, j] + 0.5*(k1[j] + dt*fx[j])
     return sol
 
-cpdef nearest_positive_definite(double [:, :] B):
+cpdef nearest_positive_definite(double [:, :] A):
     """Find the nearest positive-definite matrix to input
 
     [1] https://gist.github.com/fasiha/fdb5cec2054e6f1c6ae35476045a0bbd
@@ -253,11 +253,12 @@ cpdef nearest_positive_definite(double [:, :] B):
     matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
     """
     cdef:
-        np.ndarray[DTYPE_t, ndim=2] V, H, A2, A3, I
+        np.ndarray[DTYPE_t, ndim=2] B, V, H, A2, A3, I
         np.ndarray[DTYPE_t, ndim=1] s
         double spacing, mineig
         int k
 
+    B = np.add(A, np.transpose(A))/2
     _, s, V = np.linalg.svd(B)
     H = np.dot(V.T, np.dot(np.diag(s), V))
     A2 = np.add(B, H) / 2
@@ -271,7 +272,7 @@ cpdef nearest_positive_definite(double [:, :] B):
         k = 1
         while not is_positive_definite(A3):
             mineig = np.min(np.real(np.linalg.eigvals(A3)))
-            A3 += I * (-mineig * k**2 + spacing)
+            A3 += I * (np.abs(mineig) * k**2 + spacing)
             k += 1
         return A3
 
@@ -279,7 +280,11 @@ cpdef is_positive_definite(double [:, :] B):
     """Returns true when input is positive-definite, via Cholesky"""
     try:
         _ = np.linalg.cholesky(B)
-        return True
+        sign, _ = np.linalg.slogdet(B)
+        if sign > 0:
+            return True
+        else:
+            return False
     except np.linalg.LinAlgError:
         return False
 
