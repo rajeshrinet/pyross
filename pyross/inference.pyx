@@ -2047,7 +2047,6 @@ cdef class SEAIRQ(SIR_type):
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
 
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -2059,50 +2058,61 @@ cdef class SEAIRQ_testing(SIR_type):
     Is: symptomatic
     A : Asymptomatic and infectious
 
-    Attributes
-    ----------
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * E: exposed
+    * A: asymptomatic and infectious
+    * Q: quarantined
 
-    N : int
-        Total popuation.
-    M : int
-        Number of compartments of individual for each class.
-    steps : int
-        Number of internal integration points used for interpolation.
-    dim : int
-        6 * M.
-    fi : np.array(M)
-        Age group size as a fraction of total population
-    alpha : float or np.array(M)
-        Fraction of infected who are asymptomatic.
-    beta : float
-        Rate of spread of infection.
-    gIa : float
-        Rate of removal from asymptomatic individuals.
-    gIs : float
-        Rate of removal from symptomatic individuals.
-    gE : float
-        rate of removal from exposed individuals.
-    gA : float
-        rate of removal from activated individuals.
-    fsa : float
-        fraction by which symptomatic individuals self isolate.
-    ars : float
-        fraction of population admissible for random and symptomatic tests
-    kapE : float
-        fraction of positive tests for exposed individuals
-    testRate: python function
-        number of tests per day and age group
+    To initialise the SEAIRQ class,
+
+    Parameters
+    ----------
+    parameters: dict
+        Contains the following keys:
+
+        alpha: float or np.array(M)
+            Fraction of infected who are asymptomatic.
+        beta: float
+            Rate of spread of infection.
+        gIa: float
+            Rate of removal from asymptomatic individuals.
+        gIs: float
+            Rate of removal from symptomatic individuals.
+        gE: float
+            rate of removal from exposed individuals.
+        gA: float
+            rate of removal from activated individuals.
+        fsa: float
+            fraction by which symptomatic individuals self isolate.
+        ars : float
+            fraction of population admissible for random and symptomatic tests
+        kapE : float
+            fraction of positive tests for exposed individuals
+        testRate: python function
+            number of tests per day and age group
+    M: int
+        Number of age groups.
+    fi: float numpy.array
+        Fraction of each age group.
+    N: int
+        Total population.
     steps: int
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
         The minimal is 4, as required by the cubic spline fit used for interpolation.
+        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
+        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
     det_method: str, optional
-        Not yet configured for this class.
+        The integration method used for deterministic integration.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     """
+
     cdef:
-        readonly double gE, gA, tE, tA, tIa, tIs, ars, kapE
+        readonly np.ndarray gE, gA, ars, kapE
         readonly object testRate
 
     def __init__(self, parameters, testRate, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
@@ -2115,17 +2125,23 @@ cdef class SEAIRQ_testing(SIR_type):
 
     def set_params(self, parameters):
         super().set_params(parameters)
-        self.gE    = parameters.get('gE')                       # removal rate of E class
-        self.gA    = parameters.get('gA')                       # removal rate of A class
-        self.fsa   = parameters.get('fsa')                      # the self-isolation parameter of symptomatics
-        self.ars    = parameters.get('ars')                     # fraction of population admissible for testing
-        self.kapE    = parameters.get('kapE')                   # fraction of positive tests for exposed
-
-    def set_testRate(self,testRate):
+        self.gE = pyross.utils.age_dep_rates(parameters['gE'], self.M, 'gE')
+        self.gA = pyross.utils.age_dep_rates(parameters['gA'], self.M, 'gA')
+        self.ars = pyross.utils.age_dep_rates(parameters['ars'], self.M, 'ars')
+        self.kapE = pyross.utils.age_dep_rates(parameters['kapE'], self.M, 'kapE')
+        
+        
+    def set_testRate(self, testRate):
         self.testRate=testRate
 
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+        model.set_testRate(self.testRate)
+        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
+        
     def make_det_model(self, parameters):
-        return pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
+        det_model = pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
+        det_model.set_testRate(self.testRate)
+        return det_model
 
 
     def make_params_dict(self, params=None):
@@ -2156,10 +2172,7 @@ cdef class SEAIRQ_testing(SIR_type):
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, s, e, a, Ia, Is, Q, TR
-            double [:, :] CM=self.CM
-            double [:] fi=self.fi
-            double beta=self.beta, fsa=self.fsa
-            Py_ssize_t m, n, M=self.M
+            Py_ssize_t M=self.M
         x = spline(t)
         s = x[0:M]
         e = x[M:2*M]
@@ -2169,85 +2182,112 @@ cdef class SEAIRQ_testing(SIR_type):
         q = x[5*M:6*M]
         TR=self.testRate(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        for m in range(M):
-            for n in range(M):
-                l[m] += beta*CM[m,n]*(Ia[n]+a[n]+fsa*Is[n])/fi[n]
+        self.fill_lambdas(a, Ia, Is, l)
         self.jacobian(s, e, a, Ia, Is, q, l, TR)
         self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
-        self.flatten_lyaponuv()
         self.compute_dsigdt(sig)
+
+
+    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+        cdef:
+            double [:] s, e, a, Ia, Is, Q, TR
+            Py_ssize_t M=self.M
+        s = x[0:M]
+        e = x[M:2*M]
+        a = x[2*M:3*M]
+        Ia = x[3*M:4*M]
+        Is = x[4*M:5*M]
+        q = x[5*M:6*M]
+        self.CM = contactMatrix(t)
+        TR=self.testRate(t)
+        cdef double [:] l=np.zeros((M), dtype=DTYPE)
+        self.fill_lambdas(a, Ia, Is, l)
+        self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
+        if jacobian:
+            self.jacobian(s, e, a, Ia, Is, q, l, TR)
+
+    cdef fill_lambdas(self, double [:] a, double [:] Ia, double [:] Is, double [:] l):
+        cdef:
+            double [:, :] CM=self.CM
+            double [:] fsa=self.fsa, beta=self.beta, fi=self.fi
+            Py_ssize_t m, n, M=self.M
+        for m in range(M):
+            for n in range(M):
+                l[m] += beta[m]*CM[m,n]*(Ia[n]+a[n]+fsa[n]*Is[n])/fi[n]
 
     cdef jacobian(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l, double [:] TR):
         cdef:
-            Py_ssize_t m, n, M=self.M,
-            double N=self.N
-            double gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
-            double ars=self.ars, kapE=self.kapE, beta=self.beta
+            Py_ssize_t m, n, M=self.M, dim=self.dim
+            double N = self.N
+            double [:] gE=self.gE, gA=self.gA, gIa=self.gIa, gIs=self.gIs, fsa=self.fsa
+            double [:] ars=self.ars, kapE=self.kapE, beta=self.beta
             double t0, tE, tA, tIa, tIs
             double [:] alpha=self.alpha, balpha=1-self.alpha, fi=self.fi
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
         for m in range(M):
-            t0 = 1./(ars*(self.fi[m]-q[m]-Is[m])+Is[m])
-            tE = TR[m]*ars*kapE*t0/N
-            tA= TR[m]*ars*t0/N
-            tIa = TR[m]*ars*t0/N
+            t0 = 1./(ars[m]*(self.fi[m]-q[m]-Is[m])+Is[m])
+            tE = TR[m]*ars[m]*kapE[m]*t0/N
+            tA= TR[m]*ars[m]*t0/N
+            tIa = TR[m]*ars[m]*t0/N
             tIs = TR[m]*t0/N
 
             for n in range(M):
-                J[0, m, 2, n] = -s[m]*beta*CM[m, n]/fi[n]
-                J[0, m, 3, n] = -s[m]*beta*CM[m, n]/fi[n]
-                J[0, m, 4, n] = -s[m]*beta*CM[m, n]*fsa/fi[n]
-                J[1, m, 2, n] = s[m]*beta*CM[m, n]/fi[n]
-                J[1, m, 3, n] = s[m]*beta*CM[m, n]/fi[n]
-                J[1, m, 4, n] = s[m]*beta*CM[m, n]*fsa/fi[n]
+                J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
+                J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
+                J[0, m, 4, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]/fi[n]
+                J[1, m, 3, n] = s[m]*beta[m]*CM[m, n]/fi[n]
+                J[1, m, 4, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
             J[0, m, 0, m] = -l[m]
             J[1, m, 0, m] = l[m]
-            J[1, m, 1, m] = - gE - tE
-            J[1, m, 4, m] += (1-ars)*tE*t0*e[m]
-            J[1, m, 5, m] = -ars*tE*t0*e[m]
-            J[2, m, 1, m] = gE
-            J[2, m, 2, m] = - gA - tA
-            J[2, m, 4, m] = (1-ars)*tA*t0*a[m]
-            J[2, m, 5, m] = - ars*tA*t0*a[m]
-            J[3, m, 2, m] = alpha[m]*gA
-            J[3, m, 3, m] = - gIa - tIa
-            J[3, m, 4, m] = (1-ars)*tIa*t0*Ia[m]
-            J[3, m, 5, m] = - ars*tIa*t0*Ia[m]
-            J[4, m, 2, m] = balpha[m]*gA
-            J[4, m, 4, m] = - gIs - tIs + (1-ars)*tIs*t0*Is[m]
-            J[4, m, 5, m] = - ars*tIs*t0*Is[m]
+            J[1, m, 1, m] = - gE[m] - tE
+            J[1, m, 4, m] += (1-ars[m])*tE*t0*e[m]
+            J[1, m, 5, m] = -ars[m]*tE*t0*e[m]
+            J[2, m, 1, m] = gE[m]
+            J[2, m, 2, m] = - gA[m] - tA
+            J[2, m, 4, m] = (1-ars[m])*tA*t0*a[m]
+            J[2, m, 5, m] = - ars[m]*tA*t0*a[m]
+            J[3, m, 2, m] = alpha[m]*gA[m]
+            J[3, m, 3, m] = - gIa[m] - tIa
+            J[3, m, 4, m] = (1-ars[m])*tIa*t0*Ia[m]
+            J[3, m, 5, m] = - ars[m]*tIa*t0*Ia[m]
+            J[4, m, 2, m] = balpha[m]*gA[m]
+            J[4, m, 4, m] = - gIs[m] - tIs + (1-ars[m])*tIs*t0*Is[m]
+            J[4, m, 5, m] = - ars[m]*tIs*t0*Is[m]
             J[5, m, 1, m] = tE
             J[5, m, 2, m] = tA
             J[5, m, 3, m] = tIa
-            J[5, m, 4, m] = tIs - (1-ars)*t0*(tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m])
-            J[5, m, 5, m] = ars*t0*(tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m])
+            J[5, m, 4, m] = tIs - (1-ars[m])*t0*(tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m])
+            J[5, m, 5, m] = ars[m]*t0*(tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m])
+        self.J_mat = self.J.reshape((dim, dim))
 
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] a, double [:] Ia, double [:] Is, double [:] q, double [:] l, double [:] TR):
         cdef:
             Py_ssize_t m, M=self.M
-            double beta=self.beta, gIa=self.gIa, gIs=self.gIs, gE=self.gE, gA=self.gA,  N=self.N
-            double ars=self.ars, kapE=self.kapE
+            double N=self.N
+            double [:] beta=self.beta, gIa=self.gIa, gIs=self.gIs, gE=self.gE, gA=self.gA
+            double [:] ars=self.ars, kapE=self.kapE
             double tE, tA, tIa, tIs
             double [:] alpha=self.alpha, balpha=1-self.alpha
             double [:, :, :, :] B = self.B
         for m in range(M): # only fill in the upper triangular form
-            t0 = 1./(ars*(self.fi[m]-q[m]-Is[m])+Is[m])
-            tE = TR[m]*ars*kapE*t0/N
-            tA= TR[m]*ars*t0/N
-            tIa = TR[m]*ars*t0/N
+            t0 = 1./(ars[m]*(self.fi[m]-q[m]-Is[m])+Is[m])
+            tE = TR[m]*ars[m]*kapE[m]*t0/N
+            tA= TR[m]*ars[m]*t0/N
+            tIa = TR[m]*ars[m]*t0/N
             tIs = TR[m]*t0/N
 
             B[0, m, 0, m] = l[m]*s[m]
             B[0, m, 1, m] =  - l[m]*s[m]
-            B[1, m, 1, m] = l[m]*s[m] + (gE+tE)*e[m]
-            B[1, m, 2, m] = -gE*e[m]
-            B[2, m, 2, m] = gE*e[m]+(gA+tA)*a[m]
-            B[2, m, 3, m] = -alpha[m]*gA*a[m]
-            B[2, m, 4, m] = -balpha[m]*gA*a[m]
-            B[3, m, 3, m] = alpha[m]*gA*a[m]+(gIa+tIa)*Ia[m]
-            B[4, m, 4, m] = balpha[m]*gA*a[m] + (gIs+tIs)*Is[m]
+            B[1, m, 1, m] = l[m]*s[m] + (gE[m]+tE)*e[m]
+            B[1, m, 2, m] = -gE[m]*e[m]
+            B[2, m, 2, m] = gE[m]*e[m]+(gA[m]+tA)*a[m]
+            B[2, m, 3, m] = -alpha[m]*gA[m]*a[m]
+            B[2, m, 4, m] = -balpha[m]*gA[m]*a[m]
+            B[3, m, 3, m] = alpha[m]*gA[m]*a[m]+(gIa[m]+tIa)*Ia[m]
+            B[4, m, 4, m] = balpha[m]*gA[m]*a[m] + (gIs[m]+tIs)*Is[m]
             B[1, m, 5, m] = -tE*e[m]
             B[2, m, 5, m] = -tA*a[m]
             B[3, m, 5, m] = -tIa*Ia[m]
@@ -2255,23 +2295,9 @@ cdef class SEAIRQ_testing(SIR_type):
             B[5, m, 5, m] = tE*e[m]+tA*a[m]+tIa*Ia[m]+tIs*Is[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
-        cdef:
-            np.ndarray S, E, A, Ia, Is, Q
-            double N=self.N
-            double [:, :] sol
-            Py_ssize_t M=self.M
-        # need to switch to extensive variables to calculate test rate correctly in deterministic model
-        S = np.asarray(x0[0:M])*N
-        E = np.asarray(x0[M:2*M])*N
-        A = np.asarray(x0[2*M:3*M])*N
-        Ia = np.asarray(x0[3*M:4*M])*N
-        Is = np.asarray(x0[4*M:5*M])*N
-        Q = np.asarray(x0[5*M:])*N
-        data = model.simulate(S, E, A, Ia, Is, Q, contactMatrix, self.testRate, t2, steps, Ti=t1, maxNumSteps=maxNumSteps)
-        sol = data['X']/N
-        return sol
 
+        
+        
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)

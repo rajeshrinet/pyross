@@ -2973,10 +2973,10 @@ cdef class SEAIRQ_testing(stochastic_integration):
     """
     Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
 
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * A: Asymptomatic and infectious
     * E: exposed
+    * A: Asymptomatic and infectious
+    * Ia: asymptomatic
+    * Is: symptomatic   
     * Q: quarantined
 
     ...
@@ -3151,7 +3151,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
             double [:] Ni   = self.Ni
             #
             double [:,:] CM = self.CM
-            double [:,:] rates = self.rates
+            double [:] rates = self.rates
             double [:] alpha= self.alpha
             int nRpa = self.nReactions_per_agegroup
 

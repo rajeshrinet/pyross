@@ -536,7 +536,7 @@ cdef class SIR(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -660,7 +660,7 @@ cdef class SIkR(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -798,7 +798,7 @@ cdef class SEIR(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -947,7 +947,7 @@ cdef class SEkIkR(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1120,7 +1120,7 @@ cdef class SEkIkIkR(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1362,7 +1362,7 @@ cdef class SEI8R(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1528,7 +1528,7 @@ cdef class SEAIR(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1777,7 +1777,7 @@ cdef class SEAI8R(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -1955,7 +1955,7 @@ cdef class SEAIRQ(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -2007,8 +2007,6 @@ cdef class SEAIRQ(CommonMethods):
         return data
 
 
-
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -2030,23 +2028,23 @@ cdef class SEAIRQ_testing(CommonMethods):
     parameters: dict
         Contains the following keys:
 
-        alpha: float
+        alpha: float, np.array (M,)
             Fraction of infected who are asymptomatic.
-        beta: float
+        beta: float, np.array (M,)
             Rate of spread of infection.
-        gIa: float
+        gIa: float, np.array (M,)
             Rate of removal from asymptomatic individuals.
-        gIs: float
+        gIs: float, np.array (M,)
             Rate of removal from symptomatic individuals.
-        gE: float
+        gE: float, np.array (M,)
             Rate of removal from exposed individuals.
-        gA: float
+        gA: float, np.array (M,)
             Rate of removal from activated individuals.
-        fsa: float
+        fsa: float, np.array (M,)
             Fraction by which symptomatic individuals self isolate.
-        ars: float
+        ars: float, np.array (M,)
             Fraction of population admissible for random and symptomatic tests
-        kapE: float
+        kapE: float, np.array (M,)
             Fraction of positive tests for exposed individuals
     M: int
         Number of compartments of individual for each class.
@@ -2057,48 +2055,43 @@ cdef class SEAIRQ_testing(CommonMethods):
 
     def __init__(self, parameters, M, Ni):
         self.nClass= 6
-        self.beta  = parameters['beta']       # Infection rate
-        self.gIa   = parameters['gIa']        # Removal rate of Ia
-        self.gIs   = parameters['gIs']        # Removal rate of Is
-        self.gE    = parameters['gE']         # Removal rate of E
-        self.gA    = parameters['gA']         # rate to go from A to Ia and Is
-        self.fsa   = parameters['fsa']        # The self-isolation parameter
+        self.alpha = pyross.utils.age_dep_rates(parameters['alpha'], M, 'alpha')
+        self.beta = pyross.utils.age_dep_rates(parameters['beta'], M, 'beta')
+        self.gIa = pyross.utils.age_dep_rates(parameters['gIa'], M, 'gIa')
+        self.gIs = pyross.utils.age_dep_rates(parameters['gIs'], M, 'gIs')
+        self.gE = pyross.utils.age_dep_rates(parameters['gE'], M, 'gE')
+        self.gA = pyross.utils.age_dep_rates(parameters['gA'], M, 'gA')
+        self.fsa = pyross.utils.age_dep_rates(parameters['fsa'], M, 'fsa')
 
-        self.ars    = parameters['ars']       # Fraction of population admissible for testing
-        self.kapE    = parameters['kapE']     # Fraction of positive tests for exposed
-
-        alpha      = parameters['alpha']
-
-        self.paramList = parameters
+        self.ars = pyross.utils.age_dep_rates(parameters['ars'], M, 'ars')
+        self.kapE = pyross.utils.age_dep_rates(parameters['kapE'], M, 'kapE')
 
         self.N     = np.sum(Ni)
         self.M     = M
         self.Ni    = np.zeros( self.M, dtype=DTYPE)  
         self.Ni    = Ni
 
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix
-        self.TR    = np.zeros( self.M, dtype = DTYPE)           # test rate
-        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # Right hand side
+        self.paramList = parameters
 
-        self.alpha    = np.zeros( self.M, dtype = DTYPE)
-        if np.size(alpha)==1:
-            self.alpha = alpha*np.ones(M)
-        elif np.size(alpha)==M:
-            self.alpha= alpha
-        else:
-            raise Exception('alpha can be a number or an array of size M')
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dxdt  = np.zeros( 6*self.M, dtype=DTYPE)           # Right hand side
 
         self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
                         'Qi':[5,6], 'Rind':6}
         self.population = self.Ni
+        self.testRate = None
+    
+    cpdef set_testRate(self, testRate):
+        self.testRate = testRate
 
 
     cpdef rhs(self, xt, tt):
         cdef:
             int N=self.N, M=self.M, i, j
-            double beta=self.beta, rateS, lmda, t0, tE, tA, tIa, tIs
-            double ars=self.ars, kapE=self.kapE
-            double fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
+            double [:] beta=self.beta
+            double rateS, lmda, t0, tE, tA, tIa, tIs
+            double [:] ars=self.ars, kapE=self.kapE
+            double [:] fsa=self.fsa, gE=self.gE, gIa=self.gIa, gIs=self.gIs, gA=self.gA
             double gAA, gAS
 
 
@@ -2110,30 +2103,31 @@ cdef class SEAIRQ_testing(CommonMethods):
             double [:] Q    = xt[5*M:6*M]
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
-            double [:]   TR = self.TR
             double [:] dxdt = self.dxdt
 
             double [:] alpha= self.alpha
 
+            double [:] TR = self.testRate(tt)
+            
         for i in range(M):
-            lmda=0;   gAA=gA*alpha[i];  gAS=gA-gAA
+            lmda=0;   gAA=gA[i]*alpha[i];  gAS=gA[i]-gAA
             for j in range(M):
-                 lmda += beta*CM[i,j]*(A[j]+Ia[j]+fsa*Is[j])/Ni[j]
+                 lmda += beta[i]*CM[i,j]*(A[j]+Ia[j]+fsa[j]*Is[j])/Ni[j]
             rateS = lmda*S[i]
 
 
-            t0 = 1./(ars*(Ni[i]-Q[i]-Is[i])+Is[i])
-            tE = TR[i]*ars*kapE*t0
-            tA= TR[i]*ars*t0
-            tIa = TR[i]*ars*t0
+            t0 = 1./(ars[i]*(Ni[i]-Q[i]-Is[i])+Is[i])
+            tE = TR[i]*ars[i]*kapE[i]*t0
+            tA= TR[i]*ars[i]*t0
+            tIa = TR[i]*ars[i]*t0
             tIs = TR[i]*t0
 
 
             dxdt[i]     = -rateS                                      # \dot S
-            dxdt[i+M]   =  rateS   - (gE+tE)     *E[i]                # \dot E
-            dxdt[i+2*M] = gE* E[i] - (gA+tA     )*A[i]                # \dot A
-            dxdt[i+3*M] = gAA*A[i] - (gIa+tIa   )*Ia[i]               # \dot Ia
-            dxdt[i+4*M] = gAS*A[i] - (gIs+tIs   )*Is[i]               # \dot Is
+            dxdt[i+M]   =  rateS   - (gE[i]+tE)     *E[i]                # \dot E
+            dxdt[i+2*M] = gE[i]* E[i] - (gA[i]+tA     )*A[i]                # \dot A
+            dxdt[i+3*M] = gAA*A[i] - (gIa[i]+tIa   )*Ia[i]               # \dot Ia
+            dxdt[i+4*M] = gAS*A[i] - (gIs[i]+tIs   )*Is[i]               # \dot Is
             dxdt[i+5*M] = tE*E[i]+tA*A[i]+tIa*Ia[i]+tIs*Is[i]         # \dot Q
 
         return
@@ -2185,13 +2179,16 @@ cdef class SEAIRQ_testing(CommonMethods):
 
         Returns
         -------
-        dict
-             X: output path from integrator,  t : time points evaluated at,
-            'param': input param to integrator.
+        data: dict
+            contains the following keys:
 
+            *  X : output path from integrator
+            *  t : time points evaluated at,
+            * 'param': input param to integrator.
         """
 
         x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0))
+        self.testRate = testRate
         data = self.simulator(x0, contactMatrix, Tf, Nf, 
                               integrator, Ti, maxNumSteps, **kwargs)
         return data
@@ -2321,7 +2318,7 @@ cdef class SIRS(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -2588,7 +2585,7 @@ cdef class Spp(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -2889,7 +2886,7 @@ cdef class SEI5R(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 
@@ -3124,7 +3121,7 @@ cdef class SEAI5R(CommonMethods):
         Simulates a compartment model given initial conditions,
         choice of integrator and other parameters. 
         Returns the time series data and parameters in a dict. 
-        Internaly calls the method 'simulator' of CommonMethods
+        internally calls the method 'simulator' of CommonMethods
         
         ...
 

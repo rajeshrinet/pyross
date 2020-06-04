@@ -8,8 +8,8 @@ cdef class CommonMethods:
     cdef:
         readonly int N, M, kI, kE, nClass
         readonly double gIh, gIc, fh, ep, gI
-        readonly double gIsp, gIcp, gIhp, ars, kapE
-        readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR
+        readonly double gIsp, gIcp, gIhp
+        readonly np.ndarray rp0, Ni, dxdt, CM, FM
         readonly np.ndarray population, sa, iaa, hh, cc, mm, alpha
         readonly dict paramList, readData
 
@@ -241,9 +241,11 @@ cdef class SEAIRQ_testing(CommonMethods):
     """
 
     cdef:
-        readonly double beta, gE, gA, gIa, gIs, fsa
-        readonly double tS, tE, tA, tIa, tIs
+        readonly np.ndarray beta, gE, gA, gIa, gIs, fsa
+        readonly np.ndarray ars, kapE
+        object testRate
     cpdef rhs(self, rp, tt)
+    cpdef set_testRate(self, testRate)
 
 
 
