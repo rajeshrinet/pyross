@@ -93,6 +93,7 @@ def parse_model_spec(model_spec, param_keys):
         constant_dict = {}
         linear_dict = {}
         infection_dict = {}
+        
         for class_name in class_list:
             reaction_dict = model_spec[class_name]
             if 'constant' in reaction_dict.keys():
@@ -163,16 +164,50 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         rate_index = params_index_dict[rate]
                         infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        
+        # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)  
+        test_pos_list = []
+        test_freq_list = []
+        if "test_pos" in model_spec and "test_freq" in model_spec:
+            test_pos_strings = model_spec['test_pos']
+            test_freq_strings = model_spec['test_freq']
+            
+            if len(test_pos_strings) != len(class_list)+1 or len(test_freq_strings) != len(class_list)+1:
+                raise Exception('Test parameters must be specified for every class (including R)')
+                
+            for rate in test_pos_strings:
+                rate_index = params_index_dict[rate]
+                test_pos_list.append(rate_index)
+            for rate in test_freq_strings:
+                rate_index = params_index_dict[rate]
+                test_freq_list.append(rate_index)
+                
+            for class_name in class_list: # add quarantine classes
+                class_index_dict[class_name+'Q'] = nClass
+                nClass += 1 
+            class_index_dict['NiQ'] = nClass
+            nClass += 1
+                
+                
+                
 
     except KeyError:
-        raise Exception('No reactions for some classses. Please check model_spec again')
+        raise Exception('No reactions for some classes. Please check model_spec again')
 
     # set the product index
     set_destination(linear_terms_list, linear_terms_destination_dict)
     set_destination(infection_terms_list, infection_terms_destination_dict)
+    
+    
+        
+    
+    
+        
     res = (nClass, class_index_dict, np.array(constant_term_list, dtype=np.intc, ndmin=2),
                                      np.array(linear_terms_list, dtype=np.intc, ndmin=2),
-                                     np.array(infection_terms_list, dtype=np.intc, ndmin=2))
+                                     np.array(infection_terms_list, dtype=np.intc, ndmin=2),
+                                     np.array(test_pos_list, dtype=np.intc, ndmin=1),
+                                     np.array(test_freq_list, dtype=np.intc, ndmin=1))
     return res
 
 def set_destination(term_list, destination_dict):
