@@ -3613,3 +3613,405 @@ cdef class Spp(stochastic_integration):
         param_dict = self.make_parameters_dict()
         out_dict.update(param_dict)
         return out_dict
+
+cdef class SppQ(stochastic_integration):
+    """
+    Generic user-defined epidemic model with quarantine.
+
+    ...
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        A dictionary containing the model parameters.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(3*M, )
+        Initial number in each compartment and class
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx, random testing (without false positives/negatives), and quarantine
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+            
+            "test_pos"  : [ "p_falsepos", "p_truepos", "p_falsepos"] ,
+            "test_freq" : [ "tf", "tf", "tf"] 
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'p_falsepos': 0
+            'p_truepos': 1
+            'tf': 1
+        }
+    """
+
+    cdef:
+        readonly double beta, gIa, gIs, fsa
+        readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
+        readonly int nClassU, nClassUwoN
+        readonly object testRate
+        np.ndarray parameters
+        np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
+        np.ndarray _lambdas
+        list param_keys
+        dict class_index_dict
+
+    def __init__(self, model_spec, parameters, M, Ni):
+        cdef:
+            int i, m
+            int nRpa # short for number of reactions per age group
+            int nClass, nClassU, nClassUwoN, offset
+            Py_ssize_t S_index, infection_index,
+            Py_ssize_t reagent_index, product_index
+            int sign, class_index
+
+
+        self.N = np.sum(Ni)
+        self.M = M
+        self.Ni = np.array(Ni, dtype=long)
+
+        self.param_keys = list(parameters.keys())
+        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
+        self.nClass = res[0]
+        nClass = self.nClass
+        
+        self.class_index_dict = res[1]
+        self.constant_terms = res[2]
+        self.linear_terms = res[3]
+        self.infection_terms = res[4]
+        self.test_pos = res[5]
+        self.test_freq = res[6]
+        self.update_model_parameters(parameters)
+        self._lambdas = np.zeros((self.infection_terms.shape[0], M))
+        
+        if self.constant_terms.size > 0:
+            self.nClassU = self.nClass // 2 # number of unquarantined classes with constant terms
+            self.nClassUwoN = self.nClassU - 1 
+        else:
+            self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
+            self.nClassUwoN = self.nClassU
+        nClassU = self.nClassU
+        nClassUwoN = self.nClassUwoN
+            
+        
+        self.nReactions_per_agegroup = len(self.constant_terms) + \
+                    + len(self.linear_terms) * 2 + \
+                    + len(self.infection_terms) + \
+                    + nClassUwoN + 1
+        self.nReactions = self.M * self.nReactions_per_agegroup
+        self.dim_state_vec = self.nClass * self.M
+
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.testRate = None
+        self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate vector
+        self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
+        self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
+        # (for event-driven simulations)
+
+        # Set seed for pseudo-random number generator (if provided)
+        try:
+            self.initialize_random_number_generator(
+                                  supplied_seed=parameters['seed'])
+        except KeyError:
+            self.initialize_random_number_generator()
+
+        # create vectors of change for reactions
+        self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
+                                          dtype=long)
+        # self.vectors_of_change[i,j] = change in population j at reaction i
+        nRpa = self.nReactions_per_agegroup
+        S_index=self.class_index_dict['S']
+        for m in range(M):
+            #
+            if self.constant_terms.size > 0:
+                for i in range(self.constant_terms.shape[0]):
+                    #rate_index = constant_terms[i, 0]
+                    class_index = self.constant_terms[i, 1]
+                    sign = self.constant_terms[i, 2]
+                    #term = parameters[rate_index, m]*sign
+                    #
+                    self.vectors_of_change[i + m*nRpa,m + M*class_index] = sign
+                    self.vectors_of_change[i + m*nRpa,m + M*(nClass-1)] = sign
+
+            offset = len(self.constant_terms)
+            for i in range(self.linear_terms.shape[0]):
+                #rate_index = linear_terms[i, 0]
+                reagent_index = self.linear_terms[i, 1]
+                product_index = self.linear_terms[i, 2]
+                #term = parameters[rate_index, m] * xt[m + M*reagent_index]
+                self.vectors_of_change[offset + 2*i   + m*nRpa,m + M*reagent_index] -= 1
+                self.vectors_of_change[offset + 2*i+1 + m*nRpa,m + M*(reagent_index+nClassU)] -= 1
+                if product_index != -1:
+                    self.vectors_of_change[offset + 2*i   + m*nRpa,m + M*product_index] += 1
+                    self.vectors_of_change[offset + 2*i+1 + m*nRpa,m + M*(product_index+nClassU)] += 1
+                    #dxdt[m + M*product_index] += term
+
+            offset += len(self.linear_terms) * 2
+            for i in range(self.infection_terms.shape[0]):
+                #rate_index = infection_terms[i, 0]
+                reagent_index = self.infection_terms[i, 1]
+                product_index = self.infection_terms[i, 2]
+                #term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
+                self.vectors_of_change[offset + i + m*nRpa,m+M*S_index] -= 1
+                if product_index != -1:
+                    self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
+                    
+            offset += len(self.infection_terms)
+            for i in range(nClassUwoN):
+                self.vectors_of_change[offset + i + m*nRpa, m + M*i] -= 1
+                self.vectors_of_change[offset + i + m*nRpa, m + M*(i+nClassU)] += 1
+                self.vectors_of_change[offset + i + m*nRpa, m + M*(nClass-1)] += 1
+            self.vectors_of_change[offset + nClassUwoN + m*nRpa, m + M*(nClass-1)] += 1
+
+
+
+    cdef rate_vector(self, xt, tt):
+        cdef:
+            int N=self.N, M=self.M, m, n, i, j, index, rate_index
+            long [:] Ni   = self.Ni
+            double [:] ld   = self.lld
+            double [:,:] CM = self.CM
+            double [:] rates = self.rates
+            int nRpa = self.nReactions_per_agegroup
+            int [:, :] constant_terms=self.constant_terms
+            int [:, :] linear_terms=self.linear_terms
+            int [:, :] infection_terms=self.infection_terms
+            int [:] test_pos=self.test_pos
+            int [:] test_freq=self.test_freq
+            double [:, :] parameters=self.parameters
+            double [:,:] lambdas = self._lambdas
+            long [:] Ri
+            int offset, nClass = self.nClass, nClassU = self.nClassU, nClassUwoN = self.nClassUwoN
+            int S_index=self.class_index_dict['S']
+            double TR = self.testRate(tt)
+            double Ntestpop, tau0
+
+        
+        if constant_terms.size > 0:
+            for i in range(M):
+                Ni[i] = xt[(nClass-1)*M + i]  # update Ni
+        
+        # Compute lambda
+        for i in range(infection_terms.shape[0]):
+            infective_index = infection_terms[i, 1]
+            for m in range(M):
+                lambdas[i, m] = 0
+                for n in range(M):
+                    index = n + M*infective_index
+                    lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
+
+        # Compute non-quarantined recovered
+        Ri = Ni.copy() 
+        for m in range(M):
+            Ri[m] -= xt[(nClass-1)*M+m] # subtract total quarantined
+            for i in range(nClassUwoN):
+                Ri[m] -= xt[i*M+m] # subtract non-quarantined class
+                        
+        # Compute normalisation of testing rates
+        Ntestpop=0
+        for m in range(M):
+            for i in range(nClassUwoN):
+                Ntestpop += parameters[test_freq[i], m] * xt[i*M+m]
+            Ntestpop += parameters[test_freq[nClassUwoN], m] * Ri[m]
+        tau0 = TR / Ntestpop
+        
+
+
+
+        for m in range(M):
+            if constant_terms.size > 0:
+                for i in range(constant_terms.shape[0]):
+                    rate_index = constant_terms[i, 0]
+                    rate = parameters[rate_index, m]
+                    #
+                    rates[i + m*nRpa] = rate
+
+            offset = len(constant_terms)
+            for i in range(linear_terms.shape[0]):
+                rate_index = linear_terms[i, 0]
+                reagent_index = linear_terms[i, 1]
+                rate = parameters[rate_index, m] * xt[m + M*reagent_index]
+                rates[offset + 2*i   + m*nRpa] = rate
+                rate = parameters[rate_index, m] * xt[m + M*(reagent_index+nClassU)]
+                rates[offset + 2*i+1 + m*nRpa] = rate
+
+            offset += len(linear_terms) * 2
+            for i in range(infection_terms.shape[0]):
+                rate_index = infection_terms[i, 0]
+                rate = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
+                rates[offset + i + m*nRpa] = rate
+                
+            offset += len(self.infection_terms)
+            for i in range(nClassUwoN):
+                rate = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m] * xt[m+M*i]
+                rates[offset + i + m*nRpa] = rate
+            rate = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m] * Ri[m]
+            rates[offset + nClassUwoN + m*nRpa] = rate
+
+        return
+
+
+    def update_model_parameters(self, parameters):
+        nParams = len(self.param_keys)
+        self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        try:
+            for (i, key) in enumerate(self.param_keys):
+                param = parameters[key]
+                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+        except KeyError:
+            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
+
+    cpdef set_testRate(self, testRate):
+        self.testRate = testRate
+
+    def make_parameters_dict(self):
+        param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
+        return param_dict
+    
+
+    def model_class_data(self, model_class_key, data):
+        """
+        Parameters
+        ----------
+        data: dict
+            The object returned by `simulate`.
+
+        Returns
+        -------
+            The population of class `model_class_key` as a time series
+        """
+        X = data['X']
+
+        if model_class_key == 'R':
+            X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+            if self.constant_terms.size > 0:
+                Os = X_reshaped[:,(self.nClassU-1),:] - X_reshaped[:,(self.nClass-1),:] - np.sum(X_reshaped[:,0:(self.nClassU-1),:], axis=1)
+            else:
+                Os = self.Ni - X_reshaped[:,-1,:] - np.sum(X_reshaped[:,0:self.nClassU,:], axis=1)
+        elif model_class_key == 'RQ':
+            X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+            Os = X_reshaped[:,(self.nClass-1),:] - np.sum(X_reshaped[:,(self.nClassU):(self.nClass-1),:], axis=1)
+        else:
+            class_index = self.class_index_dict[model_class_key]
+            Os = X[:, class_index*self.M:(class_index+1)*self.M]
+        return Os
+
+
+
+    cpdef simulate(self, x0, contactMatrix, testRate, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1,
+                ):
+        """
+        Performs the Stochastic Simulation Algorithm (SSA)
+
+        Parameters
+        ----------
+        x0: np.array
+            Initial condition.
+        contactMatrix: python function(t)
+            The social contact matrix C_{ij} denotes the
+            average number of contacts made per day by an
+            individual in class i with an individual in class j
+        testRate: python function(t)
+            The total number of PCR tests performed per day
+        Tf: float
+            Final time of integrator
+        Nf: Int
+            Number of time points to evaluate.
+        method: str, optional
+            SSA to use, either 'gillespie' or 'tau_leaping'.
+            The default is 'gillespie'.
+        nc: TYPE, optional
+        epsilon: TYPE, optional
+        tau_update_frequency: TYPE, optional
+
+        Returns
+        -------
+        dict
+             X: output path from integrator,  t : time points evaluated at,
+            'event_occured' , 'param': input param to integrator.
+
+        """
+        cdef:
+            int M = self.M, i, n_class_for_init
+            long [:] xt = self.xt
+            list class_list, skipped_classes
+            dict param_dict
+        
+        if type(x0) == list:
+            x0 = np.array(x0)
+
+        if type(x0) == np.ndarray:
+
+            n_class_for_init = self.nClass
+            if self.constant_terms.size > 0:
+                n_class_for_init -= 1
+            if x0.size != n_class_for_init*M:
+                raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
+                    % ( n_class_for_init*M) )
+        elif type(x0) == dict:
+            # Check if any classes are not included in x0
+
+            class_list = list(self.class_index_dict.keys())
+            if self.constant_terms.size > 0:
+                class_list.remove('Ni')
+
+            skipped_classes = []
+            for O in class_list:
+                if not O in x0:
+                    skipped_classes.append(O)
+            if len(skipped_classes) > 0:
+                raise Exception("Missing classes in initial conditions: %s" % skipped_classes)
+
+
+            # Construct initial condition array
+            x0_arr = np.zeros(0)
+
+            for O in class_list:
+                x0_arr = np.concatenate( [x0_arr, x0[O]] )
+            x0 = x0_arr
+
+        if self.constant_terms.size == 0:
+            for i in range(len(x0)):
+                xt[i] = x0[i]
+        else: # add Ni to x0
+            for i in range((self.nClassU-1)*M):
+                xt[i] = x0[i]
+            for i in range(M):
+                xt[i+(self.nClassU-1)*M] = self.Ni[i]
+            for i in range((self.nClassU-1)*M, len(x0)):
+                xt[i+M] = x0[i]
+
+        self.testRate = testRate
+            
+        if method.lower() == 'gillespie':
+            t_arr, out_arr =  self.simulate_gillespie(contactMatrix=contactMatrix,
+                                     Tf= Tf, Nf= Nf)
+        else:
+            t_arr, out_arr =  self.simulate_tau_leaping(contactMatrix=contactMatrix,
+                                  Tf=Tf, Nf=Nf,
+                                  nc=nc,
+                                  epsilon= epsilon,
+                                  tau_update_frequency=tau_update_frequency)
+
+        out_dict = {'X':out_arr, 't':t_arr,
+                     'Ni':self.Ni, 'M':self.M}
+        param_dict = self.make_parameters_dict()
+        out_dict.update(param_dict)
+        return out_dict
