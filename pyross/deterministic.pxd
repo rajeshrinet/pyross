@@ -8,8 +8,8 @@ cdef class CommonMethods:
     cdef:
         readonly int N, M, kI, kE, nClass
         readonly double gIh, gIc, fh, ep, gI
-        readonly double gIsp, gIcp, gIhp, ars, kapE
-        readonly np.ndarray rp0, Ni, dxdt, CM, FM, TR
+        readonly double gIsp, gIcp, gIhp
+        readonly np.ndarray rp0, Ni, dxdt, CM, FM
         readonly np.ndarray population, sa, iaa, hh, cc, mm, alpha
         readonly dict paramList, readData
 
@@ -241,9 +241,11 @@ cdef class SEAIRQ_testing(CommonMethods):
     """
 
     cdef:
-        readonly double beta, gE, gA, gIa, gIs, fsa
-        readonly double tS, tE, tA, tIa, tIs
+        readonly np.ndarray beta, gE, gA, gIa, gIs, fsa
+        readonly np.ndarray ars, kapE
+        readonly object testRate
     cpdef rhs(self, rp, tt)
+    cpdef set_testRate(self, testRate)
 
 
 
@@ -267,6 +269,26 @@ cdef class Spp(CommonMethods):
     cpdef rhs(self, rp, tt)
 
 
+@cython.wraparound(False)
+@cython.boundscheck(True)
+@cython.cdivision(False)
+@cython.nonecheck(True)
+cdef class SppQ(CommonMethods):
+    """
+    Given a model specification, the SppQ class generates a custome-made model just like Spp, but automatically adds a quarantined version of every compartment
+    """
+
+    cdef:
+        readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
+        readonly np.ndarray parameters
+        readonly list param_keys
+        readonly dict class_index_dict
+        readonly np.ndarray _lambdas
+        readonly int nClassU
+        readonly object testRate
+
+    cpdef rhs(self, rp, tt)
+    cpdef set_testRate(self, testRate)
 
 
 @cython.wraparound(False)

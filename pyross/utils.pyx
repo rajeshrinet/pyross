@@ -93,6 +93,7 @@ def parse_model_spec(model_spec, param_keys):
         constant_dict = {}
         linear_dict = {}
         infection_dict = {}
+        
         for class_name in class_list:
             reaction_dict = model_spec[class_name]
             if 'constant' in reaction_dict.keys():
@@ -163,16 +164,50 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         rate_index = params_index_dict[rate]
                         infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        
+        # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)  
+        test_pos_list = []
+        test_freq_list = []
+        if "test_pos" in model_spec and "test_freq" in model_spec:
+            test_pos_strings = model_spec['test_pos']
+            test_freq_strings = model_spec['test_freq']
+            
+            if len(test_pos_strings) != len(class_list)+1 or len(test_freq_strings) != len(class_list)+1:
+                raise Exception('Test parameters must be specified for every class (including R)')
+                
+            for rate in test_pos_strings:
+                rate_index = params_index_dict[rate]
+                test_pos_list.append(rate_index)
+            for rate in test_freq_strings:
+                rate_index = params_index_dict[rate]
+                test_freq_list.append(rate_index)
+                
+            for class_name in class_list: # add quarantine classes
+                class_index_dict[class_name+'Q'] = nClass
+                nClass += 1 
+            class_index_dict['NiQ'] = nClass
+            nClass += 1
+                
+                
+                
 
     except KeyError:
-        raise Exception('No reactions for some classses. Please check model_spec again')
+        raise Exception('No reactions for some classes. Please check model_spec again')
 
     # set the product index
     set_destination(linear_terms_list, linear_terms_destination_dict)
     set_destination(infection_terms_list, infection_terms_destination_dict)
+    
+    
+        
+    
+    
+        
     res = (nClass, class_index_dict, np.array(constant_term_list, dtype=np.intc, ndmin=2),
                                      np.array(linear_terms_list, dtype=np.intc, ndmin=2),
-                                     np.array(infection_terms_list, dtype=np.intc, ndmin=2))
+                                     np.array(infection_terms_list, dtype=np.intc, ndmin=2),
+                                     np.array(test_pos_list, dtype=np.intc, ndmin=1),
+                                     np.array(test_freq_list, dtype=np.intc, ndmin=1))
     return res
 
 def set_destination(term_list, destination_dict):
@@ -242,7 +277,7 @@ cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
             sol[i, j] = sol[i-1, j] + 0.5*(k1[j] + dt*fx[j])
     return sol
 
-cpdef nearest_positive_definite(double [:, :] B):
+cpdef nearest_positive_definite(double [:, :] A):
     """Find the nearest positive-definite matrix to input
 
     [1] https://gist.github.com/fasiha/fdb5cec2054e6f1c6ae35476045a0bbd
@@ -253,11 +288,12 @@ cpdef nearest_positive_definite(double [:, :] B):
     matrix" (1988): https://doi.org/10.1016/0024-3795(88)90223-6
     """
     cdef:
-        np.ndarray[DTYPE_t, ndim=2] V, H, A2, A3, I
+        np.ndarray[DTYPE_t, ndim=2] B, V, H, A2, A3, I
         np.ndarray[DTYPE_t, ndim=1] s
         double spacing, mineig
         int k
 
+    B = np.add(A, np.transpose(A))/2
     _, s, V = np.linalg.svd(B)
     H = np.dot(V.T, np.dot(np.diag(s), V))
     A2 = np.add(B, H) / 2
@@ -271,7 +307,7 @@ cpdef nearest_positive_definite(double [:, :] B):
         k = 1
         while not is_positive_definite(A3):
             mineig = np.min(np.real(np.linalg.eigvals(A3)))
-            A3 += I * (-mineig * k**2 + spacing)
+            A3 += I * (np.abs(mineig) * k**2 + spacing)
             k += 1
         return A3
 
@@ -279,7 +315,11 @@ cpdef is_positive_definite(double [:, :] B):
     """Returns true when input is positive-definite, via Cholesky"""
     try:
         _ = np.linalg.cholesky(B)
-        return True
+        sign, _ = np.linalg.slogdet(B)
+        if sign > 0:
+            return True
+        else:
+            return False
     except np.linalg.LinAlgError:
         return False
 
