@@ -173,7 +173,7 @@ def parse_model_spec(model_spec, param_keys):
             test_freq_strings = model_spec['test_freq']
             
             if len(test_pos_strings) != len(class_list)+1 or len(test_freq_strings) != len(class_list)+1:
-                raise Exception('Test parameters must be specified for every class (including R)')
+                raise Exception('Test parameters must be specified for every class (including R). {} parameters expected'.format(len(class_list)+1))
                 
             for rate in test_pos_strings:
                 rate_index = params_index_dict[rate]
