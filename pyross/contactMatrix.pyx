@@ -214,9 +214,147 @@ cdef class CustomTemporalProtocol(Protocol):
     def __call__(self, double t):
         return self.intervention_func(t, **self.kwargs)
 
-
 cdef class SpatialContactMatrix:
-    '''A class for generating a minimal spatial compartmental model.
+    '''A class for generating a spatial compartmental model with commute data
+
+    Let :math:`\\mu, \\nu` denote spatial index and i, j denote age group index.
+
+    .. math::
+        C^{\\mu\\nu}_{ij} = \\frac{1}{N^\\mu_i} \widetilde{C}^{\\mu \\nu}_{ij}
+
+    Parameters
+    ----------
+    b: float
+        Parameter b in the above equation
+    populations: np.array(n_loc, M)
+        Populations of regions by age groups. Here n_loc is the number of regions
+        and M is the number of age groups.
+    areas: np.array(n_loc)
+        Areas of the geographical regions.
+    commutes: np.array(n_loc, n_loc, M)
+        Each entry commute[mu, nu, i] needs to be the number of people of age
+        group i commuting from :math:`\\mu` to :math:`\\nu`.
+        Entries with :math:`\\mu = \\nu` are ignored.
+    '''
+    cdef:
+        readonly np.ndarray Ni, pops, commute_fraction,
+        readonly np.ndarray density_factor, norm_factor, local_contacts
+        readonly Py_ssize_t n_loc, M
+        readonly double work_ratio
+
+    def __init__(self, double b, double work_ratio, np.ndarray populations,
+                    np.ndarray areas, np.ndarray commutes):
+        cdef:
+            double [:, :] densities
+        self.n_loc = populations.shape[0]
+        if self.n_loc != commutes.shape[0] or self.n_loc !=commutes.shape[1]:
+            raise Exception('The first two dimensions of `commutes` must be \
+                             the number of regions')
+        if self.n_loc != areas.shape[0] :
+            raise Exception('The first dimension of populations \
+                             areas must be equal')
+
+        self.M = populations.shape[1]
+        if self.M != commutes.shape[2]:
+            raise Exception('The last dimension of `commutes` must be \
+                             the number of age groups')
+
+        self.Ni = np.sum(populations, axis=0)
+        self.work_ratio = work_ratio
+
+        # for pops, etc, pops[0] gives the values without commutors
+        # and pops[1] gives the values with commutors
+        self.pops = np.empty((2, self.n_loc, self.M), dtype=DTYPE)
+        self.commute_fraction = np.empty((self.n_loc, self.n_loc, self.M), dtype=DTYPE)
+        self.density_factor = np.empty((2, self.n_loc, self.M, self.M), dtype=DTYPE)
+        self.norm_factor = np.zeros((2, self.M, self.M), dtype=DTYPE)
+        self.local_contacts = np.empty((2, self.n_loc, self.M, self.M), dtype=DTYPE)
+
+        self.pops[0] = populations
+        self._process_commute(populations.astype('float'), commutes.astype('float'))
+        rho = np.sum(populations)/np.sum(areas)
+        self._compute_density_factor(b, rho, areas.astype('float'))
+
+    def spatial_contact_matrix(self, np.ndarray CM):
+        self._compute_local_contacts(CM.astype('float'))
+        cdef:
+            Py_ssize_t mu, nu, i, j, M=self.M, n_loc=self.n_loc
+            double [:, :, :] f=self.commute_fraction,
+            double [:, :, :] C=self.local_contacts[0], CC=self.local_contacts[1]
+            double [:, :] pop=self.pops[0], commute_time_pop=self.pops[1]
+            np.ndarray spatial_CM
+            double p, cc, work_ratio=self.work_ratio
+        spatial_CM = np.zeros((n_loc, M, n_loc, M))
+        for i in range(M):
+            for j in range(M):
+                for mu in range(n_loc):
+                    p = pop[mu, i]
+                    spatial_CM[mu, i, mu, j] = C[mu, i, j]*(1-work_ratio)
+                    for nu in range(n_loc):
+                        for eta in range(n_loc):
+                            cc = CC[eta, i, j]
+                            f1 = f[mu, eta, i]
+                            f2 = f[nu, eta, j]
+                            spatial_CM[mu, i, nu, j] += f1*f2*cc*work_ratio
+                        spatial_CM[mu, i, nu, j] /= p
+        return spatial_CM
+
+    cdef _process_commute(self, double [:, :] pop, double [:, :, :] commutes):
+        cdef:
+            Py_ssize_t i, mu, nu
+            double influx, outflux, p, f
+            double [:, :, :] pops=self.pops
+            double [:, :, :] commute_fraction=self.commute_fraction
+        for i in range(self.M):
+            for mu in range(self.n_loc):
+                influx = np.sum(commutes[:, mu, i])
+                outflux = np.sum(commutes[mu, :, i])
+                p = pops[0, mu, i] + influx - outflux
+                pops[1, mu, i] = p
+                commute_fraction[mu, mu, i] = 1
+                for nu in range(self.n_loc):
+                    if nu != mu:
+                        f = commutes[nu, mu, i]/p
+                        commute_fraction[nu, mu, i] = f
+                        commute_fraction[mu, mu, i] -= f
+
+
+    cdef _compute_density_factor(self, double b, double rho, double [:] areas):
+        cdef:
+            Py_ssize_t mu, i, j, a
+            double rhoi, rhoj
+            double [:, :, :] pops=self.pops
+            double [:, :, :, :] density_factor=self.density_factor
+            double [:, :, :] norm_factor=self.norm_factor
+        for mu in range(self.n_loc):
+            for i in range(self.M):
+                for j in range(self.M):
+                    for a in range(2):
+                        rhoi = pops[a, mu, i]/areas[mu]
+                        rhoj = pops[a, mu, j]/areas[mu]
+                        density_factor[a, mu, i, j] = pow(rhoi*rhoj/rho**2, b)
+                        norm_factor[a, i, j] += density_factor[a, mu, i, j]
+
+
+    cdef _compute_local_contacts(self, double [:, :] CM):
+        cdef:
+            Py_ssize_t mu, i, j, M=self.M, n_loc=self.n_loc
+            double [:] Ni = self.Ni
+            double [:, :, :, :] local_contacts=self.local_contacts
+            double [:, :, :] norm=self.norm_factor
+            double [:, :, :, :] density_factor=self.density_factor
+            double c, d
+        for mu in range(n_loc):
+            for i in range(M):
+                for j in range(M):
+                    c = CM[i, j] * Ni[i]
+                    for a in range(2):
+                        d = density_factor[a, mu, i, j]
+                        local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
+
+
+cdef class MinimalSpatialContactMatrix:
+    '''A class for generating a minimal spatial compartmental model
 
     Let :math:`\\mu, \\nu` denote spatial index and i, j denote age group index,
 
@@ -284,7 +422,7 @@ cdef class SpatialContactMatrix:
         cdef:
             Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
             double [:] Ni=self.Ni
-            double [:, :, :, :] spatial_CM=np.empty((n_loc, M, n_loc, M),
+            np.ndarray spatial_CM=np.empty((n_loc, M, n_loc, M),
                                                         dtype=DTYPE)
             double [:, :] a=self.normalisation_factor, k=self.spatial_kernel
             double [:, :, :, :] g=self.density_factor, f=self.rescale_factor
