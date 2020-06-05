@@ -2730,7 +2730,8 @@ cdef class SppQ(CommonMethods):
 
     Examples
     --------
-    An example of model_spec and parameters for SIR class with a constant influx, random testing (without false positives/negatives), and quarantine
+    An example of model_spec and parameters for SIR class with a constant influx, 
+    random testing (without false positives/negatives), and quarantine
 
     >>> model_spec = {
             "classes" : ["S", "I"],

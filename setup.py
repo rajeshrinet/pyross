@@ -1,6 +1,6 @@
 import numpy
 import os, sys
-import setuptools
+#import setuptools
 #from setuptools import setup, Extension
 from distutils.core import setup
 from Cython.Build import cythonize
@@ -38,6 +38,6 @@ setup(
         ),
     libraries=[],
     packages=["pyross"],
-    install_requires=["cython","numpy","scipy","cma","pathos","nlopt"],
+    #install_requires=["cython","numpy","scipy","cma","pathos","nlopt"],
     package_data={"pyross": ["*.pxd"]},
 )
