@@ -238,26 +238,91 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
-    def nested_sampling_inference(self, keys, guess, stds, bounds, np.ndarray x, double Tf, Py_ssize_t Nf, contactMatrix,
-                                  tangent=True, infer_scale_parameter=False, return_samples=True, verbose=False,
+    def nested_sampling_inference(self, keys, guess, stds, np.ndarray x, double Tf, Py_ssize_t Nf, contactMatrix,
+                                  bounds=None, tangent=False, infer_scale_parameter=False, verbose=False,
                                   npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
-        '''Compute the evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
-        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on 
+        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
         all classes is available.
+
+        This function provides a computational alterantive to `log_G_evidence` and `infer_parameters`. It does not use
+        the Laplace approximation to compute the evidence and, in addition,  returns a set of representative samples that can
+        be used to compute a posterior mean estimate (insted of the MAP estimate). This approach approach is much more resource
+        intensive and typically only viable for small models or tangent space inference.
+
+        Parameters
+        ----------
+        keys: list
+            A list of names for parameters to be inferred
+        guess: numpy.array or list
+            Prior expectation (and initial guess) for the parameter values. Age-dependent
+            rates can be inferred by supplying a guess that is an array instead a single float.
+        stds: numpy.array
+            Standard deviations for the log normal prior of the parameters
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        bounds: np.array(len(guess), 2), optional
+            Bound the prior within the values specified by this. This can be used to avoid sampling the posterior
+            in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
+            a bias to the result, therefore one must make sure that the blocked regions are negligible.
+        tangent: bool, optional
+            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the nested sampling procedure.
+        npoints: int
+            Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
+            number the more accurate and expensive is the evidence computation.
+        method: str
+            Nested sampling method used int `nestle.sample`, see their documentation. Default is `single`, for multimodel posteriors,
+            use `multi`.
+        max_iter: int
+            Maximum number of iterations of the nested sampling algorithm.
+        dlogz: float, optional
+            Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with `decline_factor`.
+        decline_factor: float, optional
+            Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
+            `decline_factor * nsamples` consecutive samples. This option is mutually exclusive with `dlogz`.
+
+        Returns
+        -------
+        log_evidence:
+            The nested sampling estimate of the log-evidence.
+        (samples, weights):
+            A set of weighted samples approximating the posterios distribution.
         '''
 
         if nestle is None:
             raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+
+        enable_bounds = True
+        if bounds is None:
+            enable_bounds = False
+            bounds = np.zeros((len(guess), 2))
 
         flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
         s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
 
         k = len(flat_guess)
+        # We sample the prior by inverse transform sampling from the unite cube. To implement bounds (if supplied)
+        # we shrink the unit cube according the the provided bounds in each dimension.
         ppf_bounds = np.zeros((k, 2))
-        ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
-        ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
-        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+        if enable_bounds:
+            ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
+            ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
+            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+        else:
+            ppf_bounds[:, 1] = 1.0
 
         def prior_transform(x):
             # Tranform into bounded region
@@ -283,16 +348,13 @@ cdef class SIR_type:
 
         log_evidence = result.logz
 
-        if return_samples:
-            unflattened_samples = []
-            for sample in result.samples:
-                sample_unflat = self._unflatten_parameters(sample, flat_guess_range, is_scale_parameter, scaled_guesses)
-                unflattened_samples.append(sample)
-            weighted_samples = (unflattened_samples, result.weights)
-            
-            return log_evidence, weighted_samples
+        unflattened_samples = []
+        for sample in result.samples:
+            sample_unflat = self._unflatten_parameters(sample, flat_guess_range, is_scale_parameter, scaled_guesses)
+            unflattened_samples.append(sample)
+        weighted_samples = (unflattened_samples, result.weights)
 
-        return log_evidence
+        return log_evidence, weighted_samples
 
 
     def _infer_control_to_minimize(self, params, grad=0, keys=None, bounds=None, x=None, Tf=None, Nf=None, generator=None,
@@ -418,7 +480,7 @@ cdef class SIR_type:
         hess[:, 1] *= beta_rescale
         return hess
 
-    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False, 
+    def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False,
                         infer_scale_parameter=False):
         '''
         Computes the Hessian of the MAP estimatesself.
@@ -462,7 +524,7 @@ cdef class SIR_type:
             minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
-        
+
         k = len(flat_maps)
         hess = np.empty((k, k))
         g1 = approx_fprime(flat_maps, minuslogP, eps)
@@ -474,7 +536,7 @@ cdef class SIR_type:
             flat_maps[j] = xx0
         return hess
 
-    def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, 
+    def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
                    tangent=False, infer_scale_parameter=False):
         hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps,
                                        tangent, infer_scale_parameter)
@@ -496,7 +558,7 @@ cdef class SIR_type:
         logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
         logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
         k = flat_prior_mean.shape[0]
-        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent, 
+        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent,
                                  infer_scale_parameter)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
@@ -720,7 +782,7 @@ cdef class SIR_type:
                          'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
                          's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
-        res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, 
+        res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol,
                            global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
@@ -729,7 +791,7 @@ cdef class SIR_type:
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
         flat_param_estimates = estimates[:len(flat_param_guess)]
-        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter, 
+        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter,
                                                  scaled_param_guesses)
         orig_params = [*orig_params, *estimates[len(flat_param_guess):]]
 
@@ -737,6 +799,169 @@ cdef class SIR_type:
             return np.array(orig_params), res[1]
         else:
             return np.array(orig_params)
+
+
+    def nested_sampling_latent_inference(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds,
+                                         np.ndarray obs, np.ndarray fltr, double Tf, Py_ssize_t Nf, contactMatrix,
+                                         bounds=None, np.ndarray obs0=None, np.ndarray fltr0=None, tangent=False,
+                                         infer_scale_parameter=False, verbose=False,
+                                         return_samples=True, npoints=100, method='single', max_iter=1000, dlogz=None,
+                                         decline_factor=None):
+        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        with latent variables using nested sampling as implemented in the `nestle` Python package.
+
+        This function provides a computational alterantive to `latent_infer_parameters`. It computes an estimate of the evidence and,
+        in addition, returns a set of representative samples that can be used to compute a posterior mean estimate (insted of the MAP
+        estimate). This approach approach is much more resource intensive and typically only viable for small models or tangent space inference.
+
+        Parameters
+        ----------
+        param_keys: list
+            A list of parameters to be inferred.
+        init_fltr: boolean array
+            True for initial conditions to be inferred.
+            Shape = (nClass*M)
+            Total number of True = total no. of variables - total no. of observed
+        guess: numpy.array or list
+            Prior expectation for the parameter values listed, and prior for initial conditions.
+            Expect of length len(param_keys)+ (total no. of variables - total no. of observed).
+            Age-dependent rates can be inferred by supplying a guess that is an array instead a single float.
+        stds: numpy.array
+            Standard deviations for the log normal prior.
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
+        Tf: float
+            Total time of the trajectory
+        Nf: int
+            Total number of data points along the trajectory
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        bounds: np.array(len(guess), 2), optional
+            Bound the prior within the values specified by this array. This can be used to avoid sampling the posterior
+            in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
+            a bias to the result, therefore one must make sure that the blocked regions are negligible.
+        obs0: numpy.array, optional
+            Observed initial condition, if more detailed than obs[0,:]
+        fltr0: 2d numpy.array, optional
+            Matrix filter for obs0
+        tangent: bool, optional
+            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the nested sampling procedure.
+        npoints: int
+            Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
+            number the more accurate and expensive is the evidence computation.
+        method: str
+            Nested sampling method used int `nestle.sample`, see their documentation. Default is `single`, for multimodel posteriors,
+            use `multi`.
+        max_iter: int
+            Maximum number of iterations of the nested sampling algorithm.
+        dlogz: float, optional
+            Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with `decline_factor`.
+        decline_factor: float, optional
+            Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
+            `decline_factor * nsamples` consecutive samples. This option is mutually exclusive with `dlogz`.
+
+        Returns
+        -------
+        log_evidence:
+            The nested sampling estimate of the log-evidence.
+        (samples, weights):
+            A set of weighted samples approximating the posterios distribution.
+        '''
+
+        if nestle is None:
+            raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+
+        param_dim = len(param_keys)
+
+        enable_bounds = True
+        if bounds is None:
+            enable_bounds = False
+            bounds = np.zeros((len(guess), 2))
+
+        if obs0 is None or fltr0 is None:
+            # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
+            obs0=obs[0,:]
+            fltr0=fltr
+
+        assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
+        assert len(guess) == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
+
+        # Transfer the parameter parts of guess, stds, ... which can contain arrays as entries for age-dependent rates to a flat list
+        flat_param_guess, flat_param_stds, flat_param_bounds, flat_param_guess_range, is_scale_parameter, scaled_param_guesses \
+            = self._flatten_parameters(guess[:param_dim], stds[:param_dim], bounds[:param_dim], infer_scale_parameter)
+        flat_param_guess_size = len(flat_param_guess)
+
+        # Concatenate the flattend parameter guess with init guess
+        init_guess = guess[param_dim:]
+        init_stds = stds[param_dim:]
+        init_bounds = bounds[param_dim:]
+        flat_guess = np.concatenate([flat_param_guess, init_guess]).astype(DTYPE)
+        flat_stds = np.concatenate([flat_param_stds,init_stds]).astype(DTYPE)
+        flat_bounds = np.concatenate([flat_param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
+
+        k = len(flat_guess)
+        ppf_bounds = np.zeros((k, 2))
+        ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
+        ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
+        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+
+        def prior_transform(x):
+            # Tranform into bounded region
+            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
+            return lognorm.ppf(y, s, scale=scale)
+
+        def to_sample(params):
+            # Todo: replace this by latent_infer_parameters minimisation function.
+            inits =  np.copy(params[flat_param_guess_size:])
+
+            # Restore parameters from flattened parameters
+            params_unflat = self._unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
+                                                       scaled_param_guesses)
+
+            parameters = self.fill_params_dict(param_keys, params_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+
+            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
+            minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+
+            return minus_logp
+
+        if verbose:
+            def callback(d):
+                if d["it"] % 100 == 0:
+                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
+        else:
+            callback=None
+
+        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
+                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+
+        log_evidence = result.logz
+
+        unflattened_samples = []
+        for sample in result.samples:
+            sample_unflat = self._unflatten_parameters(sample[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
+                                                        scaled_param_guesses)
+            sample_unflat = [*sample_unflat, *sample[flat_param_guess_size:]]
+            unflattened_samples.append(np.array(sample))
+        weighted_samples = (unflattened_samples, result.weights)
+
+        return log_evidence, weighted_samples
 
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, keys=None, bounds=None, generator=None, x0=None,
@@ -1536,7 +1761,7 @@ cdef class SIR_type:
                 k += 1
             else:
                 orig_params.append(params[flat_guess_range[j]])
-        
+
         return orig_params
 
 
