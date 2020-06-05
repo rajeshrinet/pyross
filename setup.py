@@ -23,7 +23,7 @@ else:
 
 setup(
     name="pyross",
-    version="1.1.4",
+    version="1.1.5",
     url="https://github.com/rajeshrinet/pyross",
     author="The PyRoss team",
     author_email = "pyross@googlegroups.com",
@@ -38,6 +38,6 @@ setup(
         ),
     libraries=[],
     packages=["pyross"],
-    #install_requires=["cython","numpy","scipy","cma","pathos","nlopt"],
+    install_requires=["cython","numpy","scipy","cma","pathos","nlopt"],
     package_data={"pyross": ["*.pxd"]},
 )
