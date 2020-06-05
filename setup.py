@@ -1,5 +1,6 @@
 import numpy
 import os, sys
+import setuptools
 #from setuptools import setup, Extension
 from distutils.core import setup
 from Cython.Build import cythonize
@@ -22,7 +23,7 @@ else:
 
 setup(
     name="pyross",
-    version="1.1.3",
+    version="1.1.4",
     url="https://github.com/rajeshrinet/pyross",
     author="The PyRoss team",
     author_email = "pyross@googlegroups.com",

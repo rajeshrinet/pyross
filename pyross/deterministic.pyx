@@ -1752,7 +1752,7 @@ cdef class SEAI8R(CommonMethods):
         for i in range(M):
             lmda=0;
             for j in range(M):
-                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+                 lmda += beta*CM[i,j]*( A[j]+Ia[j] + fsa*(Is[j]+Isp[j]) )/Ni[j]
             rateS = lmda*S[i]
             #
             dxdt[i]      = -rateS  + sa[i]                           # \dot S
