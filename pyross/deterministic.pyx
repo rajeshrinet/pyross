@@ -1216,8 +1216,6 @@ cdef class SEI8R(CommonMethods):
             Rate of removal from ICU individuals towards buffer.
         fsa: float
             Fraction by which symptomatic individuals self isolate.
-        fh  : float
-            Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
             Daily arrival of new susceptables.
         hh: float, np.array (M,)
@@ -1245,7 +1243,6 @@ cdef class SEI8R(CommonMethods):
         self.gIc   = parameters['gIc']            # Removal rate of Ih
         self.gIcp  = parameters['gIcp']           # Removal rate of Ixp
         self.fsa   = parameters['fsa']            # Self-isolation of symptomatics
-        self.fh    = parameters['fh']             # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']          # Fraction of asymptomatics
         sa         = parameters['sa']             # Rate of additional/removal of population by birth etc
         hh         = parameters['hh']             # Fraction of infected who gets hospitalized
@@ -1311,7 +1308,7 @@ cdef class SEI8R(CommonMethods):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
-            double fsa=self.fsa, fh=self.fh, gE=self.gE
+            double fsa=self.fsa, gE=self.gE
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double gIsp=self.gIsp, gIhp=self.gIhp, gIcp=self.gIcp
             double ce1, ce2
@@ -1338,7 +1335,7 @@ cdef class SEI8R(CommonMethods):
         for i in range(M):
             lmda=0;
             for j in range(M):
-                 lmda += beta*CM[i,j]*(Ia[j]+fsa*Is[j]+fh*Ih[j])/Ni[j]
+                 lmda += beta*CM[i,j]*( Ia[j] + fsa*(Is[j]+Isp[j]) )/Ni[j]
             rateS = lmda*S[i]
             #
             dxdt[i]     = -rateS + sa[i]                         # \dot S
@@ -1626,8 +1623,6 @@ cdef class SEAI8R(CommonMethods):
             Rate of removal from ICU individuals towards buffer.
         fsa: float
             Fraction by which symptomatic individuals self isolate.
-        fh  : float
-            Fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
             Daily arrival of new susceptables.
         hh: float, np.array (M,)
@@ -1656,7 +1651,6 @@ cdef class SEAI8R(CommonMethods):
         self.gIc   = parameters['gIc']         # Removal rate of Ih
         self.gIcp  = parameters['gIcp']        # Removal rate of Ixp
         self.fsa   = parameters['fsa']         # Self-isolation of symptomatics
-        self.fh    = parameters['fh']          # Self-isolation of hospitalizeds
         alpha      = parameters['alpha']       # Fraction of asymptomatics
         sa         = parameters['sa']          # Rate of additional/removal of population by birth etc
         hh         = parameters['hh']          # Fraction of infected who gets hospitalized
@@ -1724,7 +1718,7 @@ cdef class SEAI8R(CommonMethods):
         cdef:
             int N=self.N, M=self.M, i, j
             double beta=self.beta, rateS, lmda
-            double fsa=self.fsa, fh=self.fh, gE=self.gE, gA=self.gA
+            double fsa=self.fsa, gE=self.gE, gA=self.gA
             double gIs=self.gIs, gIa=self.gIa, gIh=self.gIh, gIc=self.gIh
             double gIsp=self.gIsp, gIhp=self.gIhp, gIcp=self.gIcp
             double ce1, ce2
