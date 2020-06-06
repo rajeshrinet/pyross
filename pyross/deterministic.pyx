@@ -2705,7 +2705,7 @@ cdef class Spp(CommonMethods):
 @cython.nonecheck(False)
 cdef class SppQ(CommonMethods):
     """
-    Generic user-defined epidemic model.
+    Generic user-defined epidemic model with quarantine.
 
     ...
 
@@ -2771,9 +2771,9 @@ cdef class SppQ(CommonMethods):
         self.testRate = None
         
         if self.constant_terms.size > 0:
-            self.nClassU = self.nClass / 2 # number of unquarantined classes with constant terms
+            self.nClassU = self.nClass // 2 # number of unquarantined classes with constant terms
         else:
-            self.nClassU = (self.nClass - 1) / 2 # number of unquarantined classes w/o constant terms
+            self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
             
         
 
@@ -2788,6 +2788,7 @@ cdef class SppQ(CommonMethods):
         except KeyError:
             raise Exception('The parameters passed does not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
+            
     cpdef set_testRate(self, testRate):
         self.testRate = testRate
 
@@ -2825,14 +2826,14 @@ cdef class SppQ(CommonMethods):
                     index = n + M*infective_index
                     lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
 
-        # caluclate non-quarantined recovered
+        # Compute non-quarantined recovered
         Ri = Ni.copy() 
         for m in range(M):
             Ri[m] -= xt_arr[(nClass-1)*M+m] # subtract total quarantined
             for i in range(nClassUwoN):
                 Ri[m] -= xt_arr[i*M+m] # subtract non-quarantined class
         
-        # calculate normalisation of testing rates
+        # Compute normalisation of testing rates
         Ntestpop=0
         for m in range(M):
             for i in range(nClassUwoN):
