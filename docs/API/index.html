@@ -154,12 +154,13 @@
             
   <div class="section" id="pyross-api">
 <h1>PyRoss API<a class="headerlink" href="#pyross-api" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/banner.jpg"><img alt="PyRoss banner" src="_images/banner.jpg" style="width: 800px;" /></a>
 <p>PyRoss is a numerical library for inference, prediction and non-pharmaceutical interventions in age-structured epidemiological compartment models.</p>
 <p>The library is designed to be model-agnostic and allows the user to define models in a JSON format. The most common epidemiological models, and several less common ones, come pre-defined with the library. Models can include stages to allow for non-exponentially distributed compartmental residence times. Currently, pre-defined models include ones with multiple infectious (symptomatic, asymptomatic etc) and non-infectious (exposed, asymptomatic etc) classes.</p>
 <p>The library supports models formulated stochastically (as chemical master equations) or deterministically (as systems of differential equations). A hybrid algorithm transits dynamically between these depending on the magnitude of the compartmental fluctuations.</p>
 <p>Inference on pre-defined or user-defined models is performed using model-adapted Gaussian processes on the epidemiological manifold or its tangent space. This method allows for latent variable inference and fast computation of the model evidence and the Fisher information matrix. These estimates are convolved with the instrinsic stochasticty of the dynamics to provide Bayesian forecasts of the progress of the epidemic.</p>
 <p>Non-pharmaceutical interventions are implemented as modifications of the contact structures of the model. Optimised control of these structures, given cost functions, is possible. This feature is being actively developed to be better integrated with the library.</p>
-<a class="reference internal image-reference" href="_images/banner.jpg"><img alt="PyRoss banner" src="_images/banner.jpg" style="width: 800px;" /></a>
+<p>See installation instructions and more details in the <a class="reference external" href="https://github.com/rajeshrinet/pyross/blob/master/README.md">README.md</a> on GitHub.</p>
 </div>
 <div class="section" id="worked-out-examples">
 <h1>Worked out examples<a class="headerlink" href="#worked-out-examples" title="Permalink to this headline">¶</a></h1>
@@ -217,7 +218,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk 
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
 
     </p>
   </div>

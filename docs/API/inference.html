@@ -659,9 +659,106 @@ e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
 <dl class="py method">
 <dt id="pyross.inference.SIR_type.nested_sampling_inference">
 <code class="sig-name descname">nested_sampling_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.nested_sampling_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+<dd><p>Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
 using nested sampling as implemented in the <cite>nestle</cite> Python package. This function assumes that full data on
 all classes is available.</p>
+<p>This function provides a computational alterantive to <cite>log_G_evidence</cite> and <cite>infer_parameters</cite>. It does not use
+the Laplace approximation to compute the evidence and, in addition,  returns a set of representative samples that can
+be used to compute a posterior mean estimate (insted of the MAP estimate). This approach approach is much more resource
+intensive and typically only viable for small models or tangent space inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> (<em>list</em>) – A list of names for parameters to be inferred</p></li>
+<li><p><strong>guess</strong> (<em>numpy.array</em><em> or </em><em>list</em>) – Prior expectation (and initial guess) for the parameter values. Age-dependent
+rates can be inferred by supplying a guess that is an array instead a single float.</p></li>
+<li><p><strong>stds</strong> (<em>numpy.array</em>) – Standard deviations for the log normal prior of the parameters</p></li>
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes))</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>bounds</strong> (<em>np.array</em><em>(</em><em>len</em><em>(</em><em>guess</em><em>)</em><em>, </em><em>2</em><em>)</em><em>, </em><em>optional</em>) – Bound the prior within the values specified by this. This can be used to avoid sampling the posterior
+in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
+a bias to the result, therefore one must make sure that the blocked regions are negligible.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
+<li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+age-dependent parameter individually</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the nested sampling procedure.</p></li>
+<li><p><strong>npoints</strong> (<em>int</em>) – Argument of <cite>nestle.sample</cite>. The number of active points used in the nested sampling algorithm. The higher the
+number the more accurate and expensive is the evidence computation.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Nested sampling method used int <cite>nestle.sample</cite>, see their documentation. Default is <cite>single</cite>, for multimodel posteriors,
+use <cite>multi</cite>.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Maximum number of iterations of the nested sampling algorithm.</p></li>
+<li><p><strong>dlogz</strong> (<em>float</em><em>, </em><em>optional</em>) – Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with <cite>decline_factor</cite>.</p></li>
+<li><p><strong>decline_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
+<cite>decline_factor * nsamples</cite> consecutive samples. This option is mutually exclusive with <cite>dlogz</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>log_evidence</em> – The nested sampling estimate of the log-evidence.</p></li>
+<li><p><em>(samples, weights)</em> – A set of weighted samples approximating the posterios distribution.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.nested_sampling_latent_inference">
+<code class="sig-name descname">nested_sampling_latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.nested_sampling_latent_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+with latent variables using nested sampling as implemented in the <cite>nestle</cite> Python package.</p>
+<p>This function provides a computational alterantive to <cite>latent_infer_parameters</cite>. It computes an estimate of the evidence and,
+in addition, returns a set of representative samples that can be used to compute a posterior mean estimate (insted of the MAP
+estimate). This approach approach is much more resource intensive and typically only viable for small models or tangent space inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_keys</strong> (<em>list</em>) – A list of parameters to be inferred.</p></li>
+<li><p><strong>init_fltr</strong> (<em>boolean array</em>) – True for initial conditions to be inferred.
+Shape = (nClass*M)
+Total number of True = total no. of variables - total no. of observed</p></li>
+<li><p><strong>guess</strong> (<em>numpy.array</em><em> or </em><em>list</em>) – Prior expectation for the parameter values listed, and prior for initial conditions.
+Expect of length len(param_keys)+ (total no. of variables - total no. of observed).
+Age-dependent rates can be inferred by supplying a guess that is an array instead a single float.</p></li>
+<li><p><strong>stds</strong> (<em>numpy.array</em>) – Standard deviations for the log normal prior.</p></li>
+<li><p><strong>obs</strong> (<em>2d numpy.array</em>) – The observed trajectories with reduced number of variables
+(number of data points, (age groups * observed model classes))</p></li>
+<li><p><strong>fltr</strong> (<em>2d numpy.array</em>) – A matrix of shape (no. observed variables, no. total variables),
+such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>Nf</strong> (<em>int</em>) – Total number of data points along the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>bounds</strong> (<em>np.array</em><em>(</em><em>len</em><em>(</em><em>guess</em><em>)</em><em>, </em><em>2</em><em>)</em><em>, </em><em>optional</em>) – Bound the prior within the values specified by this array. This can be used to avoid sampling the posterior
+in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
+a bias to the result, therefore one must make sure that the blocked regions are negligible.</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0,:]</p></li>
+<li><p><strong>fltr0</strong> (<em>2d numpy.array</em><em>, </em><em>optional</em>) – Matrix filter for obs0</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
+<li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+age-dependent parameter individually</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the nested sampling procedure.</p></li>
+<li><p><strong>npoints</strong> (<em>int</em>) – Argument of <cite>nestle.sample</cite>. The number of active points used in the nested sampling algorithm. The higher the
+number the more accurate and expensive is the evidence computation.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Nested sampling method used int <cite>nestle.sample</cite>, see their documentation. Default is <cite>single</cite>, for multimodel posteriors,
+use <cite>multi</cite>.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Maximum number of iterations of the nested sampling algorithm.</p></li>
+<li><p><strong>dlogz</strong> (<em>float</em><em>, </em><em>optional</em>) – Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with <cite>decline_factor</cite>.</p></li>
+<li><p><strong>decline_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
+<cite>decline_factor * nsamples</cite> consecutive samples. This option is mutually exclusive with <cite>dlogz</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>log_evidence</em> – The nested sampling estimate of the log-evidence.</p></li>
+<li><p><em>(samples, weights)</em> – A set of weighted samples approximating the posterios distribution.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

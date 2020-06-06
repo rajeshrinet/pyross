@@ -281,82 +281,21 @@ the geographical regions and the overall age structured contact matrix.</p>
 <dl class="py class">
 <dt id="pyross.contactMatrix.SpatialContactMatrix">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.contactMatrix.</code><code class="sig-name descname">SpatialContactMatrix</code><a class="headerlink" href="#pyross.contactMatrix.SpatialContactMatrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>A class for generating a minimal spatial compartmental model.</p>
-<blockquote>
-<div><p>Let :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>mu,</p>
-</div></blockquote>
-<p>u` denote spatial index and i, j denote age group index,</p>
-<blockquote>
-<div><div class="math notranslate nohighlight">
-\[C^{\mu\]</div>
-</div></blockquote>
-<p>u}_{ij} =
-rac{1}{a_{ij}} k^{mu
-u} g^{mu
-u}_{ij} f^{mu
-u}_{ij} C_{ij}</p>
-<blockquote>
-<div><p>where
-.. math:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a_</span><span class="p">{</span><span class="n">ij</span><span class="p">}</span> <span class="o">=</span> \<span class="n">sum_</span><span class="p">{</span>\<span class="n">mu</span>
-</pre></div>
-</div>
-</div></blockquote>
-<p>u} k^{mu
-u}_{ij} g^{mu
-u}_{ij} sqrt{
-rac{ N_i^mu N_j^
-u} {N_i N_j}} </p>
-<blockquote>
-<div><p>k^{mu</p>
-</div></blockquote>
-<p>u} = exp ( - b_{mu
-u} | r^mu - r^
-u <a href="#id3"><span class="problematic" id="id4">|</span></a>) </p>
-<blockquote>
-<div><p>b_{mu,</p>
-</div></blockquote>
-<p>v} = (
-ho^mu
-ho^
-u)^{-c} </p>
-<blockquote>
-<div><p>g^{mu</p>
-</div></blockquote>
-<p>u}_{ij} = (
-ho^mu_i
-ho^
-u_j)^b </p>
-<blockquote>
-<div><p>f^{mu</p>
-</div></blockquote>
-<p>u}_{ij} = sqrt{
-rac{N_i N_j^
-u}{N_i^mu N_j}}</p>
-<blockquote>
-<div><p>where <span class="math notranslate nohighlight">\(C_{ij}\)</span> is the non-spatial age structured contact matrix,
-:math:<a href="#id5"><span class="problematic" id="id6">`</span></a></p>
-</div></blockquote>
-<dl>
-<dt>ho^mu_i` is the population density of age group i</dt><dd><p>in spatial location <span class="math notranslate nohighlight">\(\mu\)</span>,
-:math:<a href="#id7"><span class="problematic" id="id8">`</span></a></p>
-</dd>
-<dt>ho_i` is the total population density of age group i,</dt><dd><p><span class="math notranslate nohighlight">\(r^\mu\)</span> is the spatial position of the <span class="math notranslate nohighlight">\(\mu\)</span> is the population of the age group i at <span class="math notranslate nohighlight">\(\mu\)</span>,
-<span class="math notranslate nohighlight">\(N_i\)</span> is the total population of the age group i,
-and b, c are free parameters</p>
-<dl class="simple">
-<dt>b: float</dt><dd><p>Parameter b in the above equation.</p>
-</dd>
-<dt>c: float</dt><dd><p>Paramter c in the above equation.</p>
-</dd>
-<dt>populations: np.array(n_loc, M)</dt><dd><p>The population of each age group (total number of age group = M)
-in each location (total number of location = n_loc ).</p>
-</dd>
-<dt>areas: np.array(n_loc)</dt><dd><p>The area of each geographical region.</p>
-</dd>
-<dt>coordinates: np.array(n_loc, 2)</dt><dd><p>The GPS coordinates of each geographical region.</p>
-</dd>
-</dl>
+<dd><p>A class for generating a spatial compartmental model with commute data</p>
+<p>Let <span class="math notranslate nohighlight">\(\mu, \nu\)</span> denote spatial index and i, j denote age group index.</p>
+<div class="math notranslate nohighlight">
+\[C^{\mu\nu}_{ij} = \frac{1}{N^\mu_i} \widetilde{C}^{\mu \nu}_{ij}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>float</em>) – Parameter b in the above equation</p></li>
+<li><p><strong>populations</strong> (<em>np.array</em><em>(</em><em>n_loc</em><em>, </em><em>M</em><em>)</em>) – Populations of regions by age groups. Here n_loc is the number of regions
+and M is the number of age groups.</p></li>
+<li><p><strong>areas</strong> (<em>np.array</em><em>(</em><em>n_loc</em><em>)</em>) – Areas of the geographical regions.</p></li>
+<li><p><strong>commutes</strong> (<em>np.array</em><em>(</em><em>n_loc</em><em>, </em><em>n_loc</em><em>, </em><em>M</em><em>)</em>) – Each entry commute[mu, nu, i] needs to be the number of people of age
+group i commuting from <span class="math notranslate nohighlight">\(\mu\)</span> to <span class="math notranslate nohighlight">\(\nu\)</span>.
+Entries with <span class="math notranslate nohighlight">\(\mu = \nu\)</span> are ignored.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
