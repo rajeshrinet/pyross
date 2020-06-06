@@ -19,7 +19,6 @@ SppQ
     :members:
 
 
-
 SIR
 ----------------------
 .. autoclass:: pyross.stochastic.SIR
@@ -33,16 +32,6 @@ SIkR
 SEIR
 -------------------------
 .. autoclass:: pyross.stochastic.SEIR
-    :members:
-
-SEI5R
---------------------------
-.. autoclass:: pyross.stochastic.SEI5R
-    :members:
-
-SEAI5R
-----------------------------
-.. autoclass:: pyross.stochastic.SEAI5R
     :members:
 
 SEAIRQ

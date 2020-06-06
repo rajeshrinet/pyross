@@ -583,17 +583,11 @@ random testing (without false positives/negatives), and quarantine</p>
 <span class="go">        &quot;I&quot; : {</span>
 <span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
 <span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
-<span class="go">        }</span>
-</pre></div>
-</div>
-<blockquote>
-<div><blockquote>
-<div><p>“test_pos”  : [ “p_falsepos”, “p_truepos”, “p_falsepos”] ,
-“test_freq” : [ “tf”, “tf”, “tf”]</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        },</span>
+<span class="go">        &quot;test_pos&quot;  : [ &quot;p_falsepos&quot;, &quot;p_truepos&quot;, &quot;p_falsepos&quot;] ,</span>
+<span class="go">        &quot;test_freq&quot; : [ &quot;tf&quot;, &quot;tf&quot;, &quot;tf&quot;]</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
 <span class="go">        &#39;beta&#39;: 0.1,</span>
 <span class="go">        &#39;gamma&#39;: 0.1,</span>
 <span class="go">        &#39;p_falsepos&#39;: 0</span>
@@ -1259,7 +1253,7 @@ The default is 100000.</p></li>
 <dl class="py class">
 <dt id="pyross.deterministic.SEAI8R">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAI8R</code><a class="headerlink" href="#pyross.deterministic.SEAI8R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Activated, Infected, Removed (SEAI5R)
+<dd><p>Susceptible, Exposed, Activated, Infected, Removed (SEAI8R)
 The infected class has 8 groups:</p>
 <ul class="simple">
 <li><p>Ia: asymptomatic</p></li>

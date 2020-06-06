@@ -27,10 +27,6 @@ SEIR
 .. autoclass:: pyross.control.SEIR
     :members:
 
-SEI5R
-----------------------
-.. autoclass:: pyross.control.SEI5R
-    :members:
 
 SIkR
 ----------------------
@@ -48,10 +44,6 @@ SEAIR
 .. autoclass:: pyross.control.SEAIR
     :members:
 
-SEAI5R
------------------------
-.. autoclass:: pyross.control.SEAI5R
-    :members:
 
 SEAIRQ
 -----------------------

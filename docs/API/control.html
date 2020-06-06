@@ -92,11 +92,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#sekikikr">SEkIkIkR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sirs">SIRS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sei5r">SEI5R</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sekikr">SEkIkR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seair">SEAIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#seai5r">SEAI5R</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
 </ul>
 </li>
@@ -478,74 +476,6 @@ I.e len(contactMatrix)</p></li>
 </dd></dl>
 
 </div>
-<div class="section" id="sei5r">
-<h2>SEI5R<a class="headerlink" href="#sei5r" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="pyross.control.SEI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.control.SEI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Ih, R
-Ih —&gt; Ic, R
-Ic —&gt; Im, R</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of removal for hospitalised individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate of removal for idividuals in intensive care.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>fh<span class="classifier">float</span></dt><dd><p>fraction by which hospitalised individuals are isolated.</p>
-</dd>
-<dt>sa: float, np.array (M,)</dt><dd><p>daily arrival of new susceptables.
-sa is rate of additional/removal of population by birth etc</p>
-</dd>
-<dt>hh: float, np.array (M,)</dt><dd><p>fraction hospitalised from Is</p>
-</dd>
-<dt>cc: float, np.array (M,)</dt><dd><p>fraction sent to intensive care from hospitalised.</p>
-</dd>
-<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
-I.e len(contactMatrix)</p></li>
-<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>8*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="pyross.control.SEI5R.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEI5R.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="sikr">
 <h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
@@ -674,67 +604,6 @@ I.e len(contactMatrix)</p></li>
 <dl class="py method">
 <dt id="pyross.control.SEAIR.simulate">
 <code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="seai5r">
-<h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="pyross.control.SEAI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.control.SEAI5R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Exposed, Activates, Infected, Removed (SEAIR)
-The infected class has 5 groups:
-* Ia: asymptomatic
-* Is: symptomatic
-* Ih: hospitalized
-* Ic: ICU
-* Im: Mortality</p>
-<p>S  —&gt; E
-E  —&gt; Ia, Is
-Ia —&gt; R
-Is —&gt; Ih, R
-Ih —&gt; Ic, R
-Ic —&gt; Im, R
-:param parameters:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
-</dd>
-<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
-</dd>
-<dt>gIh: float</dt><dd><p>rate of hospitalisation of infected individuals.</p>
-</dd>
-<dt>gIc: float</dt><dd><p>rate hospitalised individuals are moved to intensive care.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
-I.e len(contactMatrix)</p></li>
-<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>9*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="pyross.control.SEAI5R.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAI5R.simulate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

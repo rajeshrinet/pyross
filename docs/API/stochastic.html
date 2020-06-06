@@ -90,8 +90,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sei5r">SEI5R</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#seai5r">SEAI5R</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seairq-testing">SEAIRQ_testing</a></li>
 </ul>
@@ -594,17 +592,11 @@ random testing (without false positives/negatives), and quarantine</p>
 <span class="go">        &quot;I&quot; : {</span>
 <span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
 <span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
-<span class="go">        }</span>
-</pre></div>
-</div>
-<blockquote>
-<div><blockquote>
-<div><p>“test_pos”  : [ “p_falsepos”, “p_truepos”, “p_falsepos”] ,
-“test_freq” : [ “tf”, “tf”, “tf”]</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        },</span>
+<span class="go">        &quot;test_pos&quot;  : [ &quot;p_falsepos&quot;, &quot;p_truepos&quot;, &quot;p_falsepos&quot;] ,</span>
+<span class="go">        &quot;test_freq&quot; : [ &quot;tf&quot;, &quot;tf&quot;, &quot;tf&quot;]</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
 <span class="go">        &#39;beta&#39;: 0.1,</span>
 <span class="go">        &#39;gamma&#39;: 0.1,</span>
 <span class="go">        &#39;p_falsepos&#39;: 0</span>
@@ -832,22 +824,6 @@ I.e len(contactMatrix)</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-</div>
-<div class="section" id="sei5r">
-<h2>SEI5R<a class="headerlink" href="#sei5r" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="pyross.stochastic.SEI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEI5R</code><a class="headerlink" href="#pyross.stochastic.SEI5R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="seai5r">
-<h2>SEAI5R<a class="headerlink" href="#seai5r" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="pyross.stochastic.SEAI5R">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.stochastic.</code><code class="sig-name descname">SEAI5R</code><a class="headerlink" href="#pyross.stochastic.SEAI5R" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </div>
 <div class="section" id="seairq">
