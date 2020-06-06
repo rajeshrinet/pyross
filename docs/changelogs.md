@@ -1,7 +1,7 @@
 # PyRoss changelogs
 
 ## 1.1.7 
-* Update doc, current version
+* Remove all I5 classes
 
 ## 1.1.6 
 * Add SppQ stochastic
