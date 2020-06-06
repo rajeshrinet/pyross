@@ -23,7 +23,7 @@ else:
 
 setup(
     name="pyross",
-    version="1.1.5",
+    version="1.1.7",
     url="https://github.com/rajeshrinet/pyross",
     author="The PyRoss team",
     author_email = "pyross@googlegroups.com",

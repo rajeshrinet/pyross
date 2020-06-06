@@ -14,6 +14,11 @@ Spp
 .. autoclass:: pyross.deterministic.Spp
     :members:
 
+SppQ
+--------------------------
+.. autoclass:: pyross.deterministic.SppQ
+    :members:
+
 SIR
 --------------------------
 .. autoclass:: pyross.deterministic.SIR

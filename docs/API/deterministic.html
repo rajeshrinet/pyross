@@ -85,6 +85,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Deterministic simulations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#commonmethods">CommonMethods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#spp">Spp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sppq">SppQ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
@@ -529,6 +530,118 @@ others.</p></li>
 <li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
 average number of contacts made per day by an
 individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sppq">
+<h2>SppQ<a class="headerlink" href="#sppq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SppQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SppQ</code><a class="headerlink" href="#pyross.deterministic.SppQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic user-defined epidemic model with quarantine.</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx,
+random testing (without false positives/negatives), and quarantine</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
+<span class="go">        &quot;S&quot; : {</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;I&quot; : {</span>
+<span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
+<span class="go">        }</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>“test_pos”  : [ “p_falsepos”, “p_truepos”, “p_falsepos”] ,
+“test_freq” : [ “tf”, “tf”, “tf”]</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;beta&#39;: 0.1,</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;p_falsepos&#39;: 0</span>
+<span class="go">        &#39;p_truepos&#39;: 1</span>
+<span class="go">        &#39;tf&#39;: 1</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pyross.deterministic.SppQ.model_class_data">
+<code class="sig-name descname">model_class_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SppQ.model_class_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – The object returned by <cite>simulate</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>The population of class <cite>model_class_key</cite> as a time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.SppQ.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SppQ.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em><em> or </em><em>dict</em>) – Initial conditions. If it is an array it should have length
+M*(model_dimension-1), where x0[i + j*M] should be the initial
+value of model class i of age group j. The removed R class
+must be left out. If it is a dict then
+it should have a key corresponding to each model class,
+with a 1D array containing the initial condition for each
+age group as value. One of the classes may be left out,
+in which case its initial values will be inferred from the
+others.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>testRate</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The total number of PCR tests performed per day</p></li>
 <li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
 <li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
 <li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
