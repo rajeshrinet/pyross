@@ -74,56 +74,6 @@ cdef class SIR_type:
         self.flat_indices1 = np.ravel_multi_index((r, c), (self.dim, self.dim))
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
-
-    def _inference_to_minimize(self, params, grad=0, bounds=None, eps=None, beta_rescale=None, x=None, Tf=None, Nf=None,
-                               contactMatrix=None, s=None, scale=None):
-        """Objective function for minimization call in inference."""
-        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-            return INFINITY
-
-        local_params = params.copy()
-        local_params[1] /= beta_rescale
-        parameters = self.make_params_dict(local_params)
-        self.set_params(parameters)
-        model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(lognorm.logpdf(local_params, s, scale=scale))
-        return minus_logp
-
-
-    def inference(self, guess, stds, x, Tf, Nf, contactMatrix, beta_rescale=1, bounds=None, verbose=False,
-                  ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
-                  enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
-        """Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model
-
-        Deprecated. Use `infer_parameters` instead.
-        """
-
-        # make bounds if it does not exist and rescale
-        if bounds is None:
-            bounds = np.array([[eps, g*5] for g in guess])
-            bounds[0][1] = min(bounds[0][1], 1-2*eps)
-        bounds = np.array(bounds)
-        guess[1] *= beta_rescale
-        bounds[1] *= beta_rescale
-        stds[1] *= beta_rescale
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        if cma_stds is None:
-            # Use prior standard deviations here
-            cma_stds = stds
-
-        minimize_args={'bounds':bounds, 'eps':eps, 'beta_rescale':beta_rescale, 'x':x, 'Tf':Tf, 'Nf':Nf,
-                         'contactMatrix':contactMatrix, 's':s, 'scale':scale}
-        res = minimization(self._inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
-        estimates = res[0]
-        estimates[1] /= beta_rescale
-        return estimates
-
     def _infer_parameters_to_minimize(self, params, grad=0, keys=None, is_scale_parameter=None, scaled_guesses=None,
                                flat_guess_range=None, eps=None, x=None, Tf=None, Nf=None,
                                contactMatrix=None, s=None, scale=None, tangent=None):
@@ -451,34 +401,6 @@ cdef class SIR_type:
 
         return res[0]
 
-    def hessian(self, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, beta_rescale=1, eps=1.e-3):
-        '''
-        DEPRECATED. Use compute_hessian instead.
-        '''
-        maps[1] *= beta_rescale
-        cdef:
-            Py_ssize_t k=maps.shape[0], i, j
-            double xx0
-            np.ndarray g1, g2, s, scale, hess = np.empty((k, k))
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
-        def minuslogP(y):
-            y[1] /= beta_rescale
-            parameters = self.make_params_dict(y)
-            minuslogp = self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
-            y[1] *= beta_rescale
-            return minuslogp
-        g1 = approx_fprime(maps, minuslogP, eps)
-        for j in range(k):
-            xx0 = maps[j]
-            maps[j] += eps
-            g2 = approx_fprime(maps, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            maps[j] = xx0
-        maps[1] /= beta_rescale
-        hess[1, :] *= beta_rescale
-        hess[:, 1] *= beta_rescale
-        return hess
 
     def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False,
                         infer_scale_parameter=False):
@@ -571,60 +493,6 @@ cdef class SIR_type:
         else:
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         return minus_logp
-
-    def _latent_inference_to_minimize(self, params, grad = 0, bounds=None, eps=None, param_dim=None, rescale_factor=None,
-                beta_rescale=None, obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None, s=None, scale=None):
-        """Objective function for minimization call in laten_inference."""
-        if (params>(bounds[:, 1]-eps)).all() or (params < (bounds[:,0]+eps)).all():
-            return INFINITY
-        x0 =  params[param_dim:]/rescale_factor
-
-        local_params = params.copy()
-        local_params[1] /= beta_rescale
-        parameters = self.make_params_dict(local_params[:param_dim])
-        self.set_params(parameters)
-        model = self.make_det_model(parameters)
-        minus_logp = self.obtain_log_p_for_traj_red(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-        minus_logp -= np.sum(lognorm.logpdf(local_params, s, scale=scale))
-        return minus_logp
-
-
-    def latent_inference(self, np.ndarray guess, np.ndarray stds, np.ndarray obs, np.ndarray fltr,
-                            double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
-                            beta_rescale=1, verbose=False, double ftol=1e-5, double eps=1e-4,
-                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
-                            enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16, cma_stds=None):
-        """
-        DEPRECATED. Use `latent_infer_parameters` instead.
-        """
-        cdef:
-            double eps_for_params=eps, eps_for_init_cond = 0.5/self.N
-            double rescale_factor = eps_for_params/eps_for_init_cond
-            Py_ssize_t param_dim = guess.shape[0] - self.dim
-        guess[param_dim:] *= rescale_factor
-        guess[1] *= beta_rescale
-        bounds[param_dim:, :] *= rescale_factor
-        bounds[1, :] *= beta_rescale
-        stds[param_dim:] *= rescale_factor
-        stds[1] *= beta_rescale
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        if cma_stds is None:
-            # Use prior standard deviations here
-            cma_stds = stds
-
-        minimize_args = {'bounds':bounds, 'eps':eps, 'param_dim':param_dim, 'rescale_factor':rescale_factor, 'beta_rescale':beta_rescale,
-                         'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale}
-        res = minimization(self._latent_inference_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
-
-        params = res[0]
-        params[param_dim:] /= rescale_factor
-        params[1] /= beta_rescale
-        return params
 
     def _latent_infer_parameters_to_minimize(self, params, grad=0, param_keys=None, init_fltr=None,
                                             is_scale_parameter=None, scaled_guesses=None,
@@ -1130,56 +998,6 @@ cdef class SIR_type:
                                                 eps=0.5/self.N)
         return hess_params, hess_init
 
-
-
-    def hessian_latent(self, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                                    beta_rescale=1, eps=1.e-3):
-        '''
-        DEPRECATED. Use `compute_hessian_latent` instead.
-        '''
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
-        dim = maps.shape[0]
-        param_dim = dim - self.dim
-        map_params = maps[:param_dim]
-        map_x0 = maps[param_dim:]
-        s_params = s[:param_dim]
-        a_x0 = s[param_dim:]
-        scale_params = scale[:param_dim]
-        scale_x0 = scale[param_dim:]
-        hess_params = self.latent_hess_params(map_params, map_x0, s_params, scale_params,
-                                                obs, fltr, Tf, Nf, contactMatrix,
-                                                beta_rescale=beta_rescale, eps=eps)
-        hess_init = self.latent_hess_init(map_x0, map_params, a_x0, scale_x0,
-                                                obs, fltr, Tf, Nf, contactMatrix,
-                                                eps=0.5/self.N)
-        return hess_params, hess_init
-
-    def latent_hess_params(self, map_params, x0, s_params, scale_params,
-                                    obs, fltr, Tf, Nf, contactMatrix,
-                                    beta_rescale=1, eps=1e-3):
-        cdef Py_ssize_t j
-        dim = map_params.shape[0]
-        hess = np.empty((dim, dim))
-        map_params[1] *= beta_rescale
-        def minuslogP(y):
-            y[1] /= beta_rescale
-            parameters = self.make_params_dict(y)
-            minuslogp = self.minus_logp_red(parameters, x0, obs, fltr, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(lognorm.logpdf(y, s_params, scale=scale_params))
-            y[1] *= beta_rescale
-            return minuslogp
-        g1 = approx_fprime(map_params, minuslogP, eps)
-        for j in range(dim):
-            temp = map_params[j]
-            map_params[j] += eps
-            g2 = approx_fprime(map_params, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            map_params[j] = temp
-        map_params[1] /= beta_rescale
-        hess[1, :] *= beta_rescale
-        hess[:, 1] *= beta_rescale
-        return hess
-
     def latent_hess_selected_params(self, keys, map_params, x0, s_params, scale_params,
                                     obs, fltr, Tf, Nf, contactMatrix,
                                     beta_rescale=1, eps=1e-3):
@@ -1204,29 +1022,6 @@ cdef class SIR_type:
         map_params[1] /= beta_rescale
         hess[1, :] *= beta_rescale
         hess[:, 1] *= beta_rescale
-        return hess
-
-
-
-    def latent_hess_init(self, map_x0, params, a_x0, scale_x0,
-                            obs, fltr, Tf, Nf, contactMatrix,
-                                    eps=1e-6):
-        cdef Py_ssize_t j
-        dim = map_x0.shape[0]
-        hess = np.empty((dim, dim))
-        parameters = self.make_params_dict(params)
-        model = self.make_det_model(parameters)
-        def minuslogP(y):
-            minuslogp = self.obtain_log_p_for_traj_red(y, obs, fltr, Tf, Nf, model, contactMatrix)
-            minuslogp -= np.sum(lognorm.logpdf(y, a_x0, scale=scale_x0))
-            return minuslogp
-        g1 = approx_fprime(map_x0, minuslogP, eps)
-        for j in range(dim):
-            temp = map_x0[j]
-            map_x0[j] += eps
-            g2 = approx_fprime(map_x0, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            map_x0[j] = temp
         return hess
 
     def latent_hess_selected_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
@@ -1287,14 +1082,11 @@ cdef class SIR_type:
         cdef Py_ssize_t nClass=int(self.dim/self.M)
         if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
             raise Exception("the sum over x0 is larger than fi")
+        if fltr.ndim != 2:
+            raise Exception("fltr must be two dimensional")
         self.set_params(parameters)
         model = self.make_det_model(parameters)
-        if fltr.ndim == 1:
-            print('Vector filter is deprecated. Use matrix filter instead. Also does not support tangent.')
-            minus_logp = self.obtain_log_p_for_traj_red(x0, obs, fltr, Tf, Nf, model, contactMatrix)
-        else:
-            assert fltr.ndim == 2
-            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
         return minus_logp
 
     def set_lyapunov_method(self, lyapunov_method):
@@ -1427,27 +1219,6 @@ cdef class SIR_type:
             mean, cov = self.estimate_cond_mean_cov(xi, ti, tf, model, contactMatrix)
             dev = np.subtract(xf, mean)
             log_p += self.log_cond_p(dev, cov)
-        return -log_p
-
-    cdef double obtain_log_p_for_traj_red(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
-                                            double Tf, Py_ssize_t Nf, model, contactMatrix):
-        cdef:
-            Py_ssize_t reduced_dim=(Nf-1)*int(np.sum(fltr))
-            double [:, :] xm
-            double [:] xm_red, dev, obs_flattened
-            np.ndarray[BOOL_t, ndim=1, cast=True] full_fltr
-            np.ndarray[DTYPE_t, ndim=2] cov_red, full_cov
-
-        xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
-        full_fltr = np.tile(fltr, (Nf-1))
-        cov_red = full_cov[full_fltr][:, full_fltr]
-        obs_flattened = np.ravel(obs)
-        xm_red = np.ravel(np.compress(fltr, xm, axis=1))
-        dev=np.subtract(obs_flattened, xm_red)
-        cov_red_inv=np.linalg.inv(cov_red)
-        log_p= - (dev@cov_red_inv@dev)*(self.N/2)
-        _,ldet=np.linalg.slogdet(cov_red)
-        log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
     cdef double obtain_log_p_for_traj_matrix_fltr(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
