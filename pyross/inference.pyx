@@ -1013,9 +1013,6 @@ cdef class SIR_type:
             flat_maps[j] = xx0
         return hess
 
-<<<<<<< HEAD
-=======
-
     def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
                           tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
         hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
@@ -1054,8 +1051,6 @@ cdef class SIR_type:
                                         contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
-
->>>>>>> 15a9ba838e75f4c2dbfd3b421f9d38282bb15cad
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix, tangent=False):
         '''Computes -logp for a latent trajectory
@@ -1395,7 +1390,6 @@ cdef class SIR_type:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
             double [:] time_points=np.linspace(0, Tf, Nf)
-<<<<<<< HEAD
             double [:] xt
             double [:, :] cov, U, J_dt, temp
             double [:, :, :, :] full_cov
@@ -1426,10 +1420,8 @@ cdef class SIR_type:
             double [:] time_points=np.linspace(0, Tf, Nf)
             double [:] xt
             double [:, :] cov, U, J_dt
-=======
             double [:] xt, B_vec=self.B_vec
             double [:, :] cov, U, J_dt, J_mat=self.J_mat
->>>>>>> 15a9ba838e75f4c2dbfd3b421f9d38282bb15cad
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double t, dt=time_points[1]
         xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix)
