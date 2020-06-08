@@ -466,6 +466,7 @@ cdef class SIR_type:
 
     def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
                        tangent=False, infer_scale_parameter=False):
+        """Compute the evidence using a Laplace approximation at the MAP estimate."""
         cdef double logP_MAPs
         cdef Py_ssize_t k
 
@@ -810,7 +811,7 @@ cdef class SIR_type:
             minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
             minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
-            return minus_logp
+            return -minus_logp
 
         if verbose:
             def callback(d):
@@ -946,7 +947,7 @@ cdef class SIR_type:
 
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                                    beta_rescale=1, eps=1.e-3, obs0=None, fltr0=None):
+                               tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
         '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
@@ -973,82 +974,83 @@ cdef class SIR_type:
 
         Returns
         -------
-        hess_params: numpy.array
-            The Hessian over parameters
-        hess_init: numpy.array
-            The Hessian over initial conditions
+        hess: numpy.array
+            The Hessian over (flat) parameters and initial conditions.
         '''
+        param_dim = len(param_keys)
 
-        s, scale = pyross.utils.make_log_norm_dist(prior_mean, prior_stds)
-        dim = maps.shape[0]
-        param_dim = dim - self.dim
-        map_params = maps[:param_dim]
-        map_x0 = maps[param_dim:]
-        s_params = s[:param_dim]
-        a_x0 = s[param_dim:]
-        scale_params = scale[:param_dim]
-        scale_x0 = scale[param_dim:]
-        hess_params = self.latent_hess_selected_params(param_keys, map_params, map_x0, s_params, scale_params,
-                                                obs, fltr, Tf, Nf, contactMatrix,
-                                                beta_rescale=beta_rescale, eps=eps)
+        if obs0 is None or fltr0 is None:
+            # Use the same filter and observation for initial condition as for the rest of the trajectory, unless
+            # specified otherwise
+            obs0=obs[0,:]
+            fltr0=fltr
+
+        bounds = np.zeros((len(maps), 2)) # This does not matter here
+        flat_maps, _, _, flat_maps_range, is_scale_parameter, scaled_maps \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
+
+        def minuslogP(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
+            inits =  np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            minuslogp = self.minus_logp_red(parameters, x0, obs[1:], fltr, Tf, Nf, contactMatrix)
+            minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
+            return minuslogp
+
+        k = len(flat_maps)
+        hess = np.empty((k, k))
+        g1 = approx_fprime(flat_maps, minuslogP, eps)
+        for j in range(k):
+            xx0 = flat_maps[j]
+            flat_maps[j] += eps
+            g2 = approx_fprime(flat_maps, minuslogP, eps)
+            hess[:,j] = (g2 - g1)/eps
+            flat_maps[j] = xx0
+        return hess
+
+
+    def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
+                          tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+        hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
+                                              contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
+        return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
+
+
+    def log_G_evidence_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
+                              tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+        """Compute the evidence using a Laplace approximation at the MAP estimate."""
+        cdef double logP_MAPs
+        cdef Py_ssize_t k
+
+        param_dim = len(param_keys)
 
         if obs0 is None or fltr0 is None:
             # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
             obs0=obs[0,:]
             fltr0=fltr
-        hess_init = self.latent_hess_selected_init(init_fltr, map_x0, map_params, a_x0, scale_x0,
-                                                obs, fltr, Tf, Nf, contactMatrix, obs0, fltr0,
-                                                eps=0.5/self.N)
-        return hess_params, hess_init
 
-    def latent_hess_selected_params(self, keys, map_params, x0, s_params, scale_params,
-                                    obs, fltr, Tf, Nf, contactMatrix,
-                                    beta_rescale=1, eps=1e-3):
-        cdef Py_ssize_t j
-        dim = map_params.shape[0]
-        hess = np.empty((dim, dim))
-        map_params[1] *= beta_rescale
-        def minuslogP(y):
-            y[1] /= beta_rescale
-            parameters = self.fill_params_dict(keys, y)
-            minuslogp = self.minus_logp_red(parameters, x0, obs[1:], fltr, Tf, Nf, contactMatrix)
-            minuslogp -= np.sum(lognorm.logpdf(y, s_params, scale=scale_params))
-            y[1] *= beta_rescale
-            return minuslogp
-        g1 = approx_fprime(map_params, minuslogP, eps)
-        for j in range(dim):
-            temp = map_params[j]
-            map_params[j] += eps
-            g2 = approx_fprime(map_params, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            map_params[j] = temp
-        map_params[1] /= beta_rescale
-        hess[1, :] *= beta_rescale
-        hess[:, 1] *= beta_rescale
-        return hess
+        bounds = np.zeros((len(maps), 2))  # Create dummy bounds to pass to flatten function.
+        flat_maps, _, _, _, _, _ \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
 
-    def latent_hess_selected_init(self, init_fltr, map_x0, params, a_x0, scale_x0,
-                            obs, fltr, Tf, Nf, contactMatrix, obs0, fltr0,
-                                    eps=1e-6):
-        cdef Py_ssize_t j
-        dim = map_x0.shape[0]
-        hess = np.empty((dim, dim))
-        parameters = self.make_params_dict(params)
-        model = self.make_det_model(parameters)
-        def minuslogP(y):
-            x0 = self.fill_initial_conditions(y, obs0, init_fltr, fltr0)
-            minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix)
-            minuslogp -= np.sum(lognorm.logpdf(y, a_x0, scale=scale_x0))
-            return minuslogp
-        g1 = approx_fprime(map_x0, minuslogP, eps)
-        for j in range(dim):
-            temp = map_x0[j]
-            map_x0[j] += eps
-            g2 = approx_fprime(map_x0, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            map_x0[j] = temp
-        return hess
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
+        inits =  np.copy(maps[param_dim:])
+        x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+        parameters = self.fill_params_dict(param_keys, maps)
+        logP_MAPs = -self.minus_logp_red(parameters, x0, obs[1:], fltr, Tf, Nf, contactMatrix)
+        logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
 
+        k = flat_prior_mean.shape[0]
+        A = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
+                                        contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
+        return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
 
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,

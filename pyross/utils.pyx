@@ -363,7 +363,6 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
 
     except sp.linalg.LinAlgError:
         # Not positive definite:
-        print("Use eigenvalues")
         eigvals, eigvecs = np.linalg.eigh(A)
 
         # Set all small or negative eigenvalues to 0 and compute pseudo-inverse and
