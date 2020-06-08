@@ -1,4 +1,6 @@
 import  numpy as np
+import scipy as sp
+import scipy.linalg
 cimport numpy as np
 cimport cython
 from libc.math cimport sqrt, pow, log, sin, cos, atan2, sqrt
@@ -93,7 +95,7 @@ def parse_model_spec(model_spec, param_keys):
         constant_dict = {}
         linear_dict = {}
         infection_dict = {}
-        
+
         for class_name in class_list:
             reaction_dict = model_spec[class_name]
             if 'constant' in reaction_dict.keys():
@@ -164,32 +166,32 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         rate_index = params_index_dict[rate]
                         infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
-                        
-        # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)  
+
+        # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
         test_pos_list = []
         test_freq_list = []
         if "test_pos" in model_spec and "test_freq" in model_spec:
             test_pos_strings = model_spec['test_pos']
             test_freq_strings = model_spec['test_freq']
-            
+
             if len(test_pos_strings) != len(class_list)+1 or len(test_freq_strings) != len(class_list)+1:
                 raise Exception('Test parameters must be specified for every class (including R). {} parameters expected'.format(len(class_list)+1))
-                
+
             for rate in test_pos_strings:
                 rate_index = params_index_dict[rate]
                 test_pos_list.append(rate_index)
             for rate in test_freq_strings:
                 rate_index = params_index_dict[rate]
                 test_freq_list.append(rate_index)
-                
+
             for class_name in class_list: # add quarantine classes
                 class_index_dict[class_name+'Q'] = nClass
-                nClass += 1 
+                nClass += 1
             class_index_dict['NiQ'] = nClass
             nClass += 1
-                
-                
-                
+
+
+
 
     except KeyError:
         raise Exception('No reactions for some classes. Please check model_spec again')
@@ -197,12 +199,12 @@ def parse_model_spec(model_spec, param_keys):
     # set the product index
     set_destination(linear_terms_list, linear_terms_destination_dict)
     set_destination(infection_terms_list, infection_terms_destination_dict)
-    
-    
-        
-    
-    
-        
+
+
+
+
+
+
     res = (nClass, class_index_dict, np.array(constant_term_list, dtype=np.intc, ndmin=2),
                                      np.array(linear_terms_list, dtype=np.intc, ndmin=2),
                                      np.array(infection_terms_list, dtype=np.intc, ndmin=2),
@@ -322,6 +324,57 @@ cpdef is_positive_definite(double [:, :] B):
             return False
     except np.linalg.LinAlgError:
         return False
+
+
+cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double eps=1e-13):
+    """ Solve the linear system Ax=b and return x and the log-determinant of A for a
+    symmetric matrix A that should be positive definite but might be close to singular
+    or slightly non-positive.
+
+    If A is symmteric positive, this function simply solves the linear system and computes
+    the determinant using a Cholesky decomposition. Otherwise, it computes the pseudo-inverse
+    and pseudo-determinant of A accounting only for positive and large-enough eigenvalues.
+
+    Parameters
+    ----------
+    A: numpy.array(dims=2)
+        The symmetric matrix.
+    b: numpy.array(dims=1)
+        The right-hand side of the linear equation.
+    eps: float, optional
+        Any eigenvalue smaller than eps*max_eigenval is ignored for the computation of the
+        pseudo-inverse.
+
+    Returns
+    -------
+    x: numpy.array(dims=1)
+        The solution of Ax=b.
+    log_det:
+        The (pseudo-)log-determinant of A.
+    """
+    cdef:
+        double log_det
+        np.ndarray[DTYPE_t, ndim=1] x
+    try:
+        chol_fact = sp.linalg.cho_factor(A)
+        log_det = 2*np.sum(np.log(np.diag(chol_fact[0])))
+        x = sp.linalg.cho_solve(chol_fact, b)
+        return x, log_det
+
+    except sp.linalg.LinAlgError:
+        # Not positive definite:
+        eigvals, eigvecs = np.linalg.eigh(A)
+
+        # Set all small or negative eigenvalues to 0 and compute pseudo-inverse and
+        # pseudo-determinant.
+        eigvals[eigvals < eps] = 0
+        log_det = np.sum(np.log(eigvals[eigvals > 0]))
+
+        eigvals[eigvals != 0] = 1/eigvals[eigvals != 0]
+
+        x = eigvecs @ (np.diag(eigvals) @ (eigvecs.T @ b))
+        return x, log_det
+
 
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
