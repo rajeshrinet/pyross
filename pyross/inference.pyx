@@ -781,9 +781,12 @@ cdef class SIR_type:
 
         k = len(flat_guess)
         ppf_bounds = np.zeros((k, 2))
-        ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
-        ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
-        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+        if enable_bounds:
+            ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
+            ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
+            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+        else:
+            ppf_bounds[:,1] = 1.0
 
         def prior_transform(x):
             # Tranform into bounded region
