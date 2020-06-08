@@ -1418,8 +1418,6 @@ cdef class SIR_type:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
             double [:] time_points=np.linspace(0, Tf, Nf)
-            double [:] xt
-            double [:, :] cov, U, J_dt
             double [:] xt, B_vec=self.B_vec
             double [:, :] cov, U, J_dt, J_mat=self.J_mat
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
