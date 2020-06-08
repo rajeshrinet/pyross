@@ -1468,10 +1468,9 @@ cdef class SIR_type:
         obs_flattened = np.ravel(obs)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
-        cov_red_inv=np.linalg.pinv(cov_red, hermitian=True)
-        log_p= - (dev@cov_red_inv@dev)*(self.N/2)
-        _, ldet=np.linalg.slogdet(cov_red_inv)
-        log_p -= (-ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
+        cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
+        log_p = -np.dot(dev, cov_red_inv_dev)*(self.N/2)
+        log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
 
     cdef double obtain_log_p_for_traj_tangent_space(self, double [:, :] x, double Tf, Py_ssize_t Nf, model, contactMatrix):
@@ -1589,8 +1588,8 @@ cdef class SIR_type:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
             double [:] time_points=np.linspace(0, Tf, Nf)
-            double [:] xt
-            double [:, :] cov, U, J_dt
+            double [:] xt, B_vec=self.B_vec
+            double [:, :] cov, U, J_dt, J_mat=self.J_mat
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double t, dt=time_points[1]
         xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix)
@@ -1599,8 +1598,8 @@ cdef class SIR_type:
             t = time_points[i]
             xt = xm[i]
             self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
-            cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-            J_dt = np.multiply(dt, self.J_mat)
+            cov = np.multiply(dt, self.convert_vec_to_mat(B_vec))
+            J_dt = np.multiply(dt, J_mat)
             U = np.add(np.identity(dim), J_dt)
             invcov=np.linalg.inv(cov)
             full_cov_inv[i][i]=invcov
