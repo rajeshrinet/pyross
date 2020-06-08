@@ -1046,8 +1046,6 @@ cdef class SIR_type:
             map_x0[j] = temp
         return hess
 
-
-
     def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix, tangent=False):
         '''Computes -logp for a latent trajectory
@@ -1274,15 +1272,17 @@ cdef class SIR_type:
         log_cond_p -= (ldet - self.dim*log(self.N))/2
         return log_cond_p
 
-    cdef estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
+    cdef estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix, cov0=None):
         cdef:
             double [:, :] cov_array
-            double [:] cov
+            double [:] cov, sigma0
             double [:, :] x, cov_mat
-            np.ndarray sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
             Py_ssize_t steps = self.steps
             double [:] time_points = np.linspace(t1, t2, steps)
-
+        if cov0 is None:
+            sigma0 = np.zeros((self.vec_size), dtype=DTYPE)
+        else:
+            sigma0 = self.convert_mat_to_vec(cov0)
         x = self.integrate(x0, t1, t2, steps, model, contactMatrix)
         spline = make_interp_spline(time_points, x)
 
@@ -1330,6 +1330,35 @@ cdef class SIR_type:
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
             double [:] time_points=np.linspace(0, Tf, Nf)
             double [:] xi, xf
+            double [:, :] cov, temp
+            double [:, :, :, :] full_cov
+            double ti, tf
+        xm[0]=x0
+        cov = np.zeros((dim, dim), dtype=DTYPE)
+        full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
+        for i in range(Nf-1):
+            ti = time_points[i]
+            tf = time_points[i+1]
+            xi = xm[i]
+            (xf, cov) = self.estimate_cond_mean_cov(xi, ti, tf, model,
+                                                    contactMatrix, cov0=cov)
+            self.obtain_time_evol_op(xi, xf, ti, tf, model, contactMatrix)
+            full_cov[i, :, i, :] = cov
+            if i>0:
+                for j in range(0, i):
+                    temp = np.dot(full_cov[j, :, i-1, :], self.U.T)
+                    full_cov[j, :, i, :] = temp
+                    full_cov[i, :, j, :] = temp.T
+            xm[i+1]=xf
+        # returns mean and cov for all but first (fixed!) time point
+        return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim))
+
+    cdef obtain_full_mean_invcov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            Py_ssize_t dim=self.dim, i
+            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
+            double [:] time_points=np.linspace(0, Tf, Nf)
+            double [:] xi, xf
             double [:, :] cov
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double ti, tf
@@ -1350,12 +1379,37 @@ cdef class SIR_type:
                 full_cov_inv[i][i-1]=-temp
             xm[i+1]=xf
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        if not pyross.utils.is_positive_definite(full_cov_inv):
-            full_cov_inv = pyross.utils.nearest_positive_definite(full_cov_inv)
-        full_cov=np.linalg.inv(full_cov_inv)
-        return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
+        return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
 
     cdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+        cdef:
+            Py_ssize_t dim=self.dim, i
+            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
+            double [:] time_points=np.linspace(0, Tf, Nf)
+            double [:] xt
+            double [:, :] cov, U, J_dt, temp
+            double [:, :, :, :] full_cov
+            double t, dt=time_points[1]
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix)
+        full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
+        cov = np.zeros((dim, dim), dtype=DTYPE)
+        for i in range(Nf-1):
+            t = time_points[i]
+            xt = xm[i]
+            self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
+            J_dt = np.multiply(dt, self.J_mat)
+            U = np.add(np.identity(dim), J_dt)
+            cov = np.dot(np.dot(U, cov), U.T)
+            cov = np.add(cov, np.multiply(dt, self.convert_vec_to_mat(self.B_vec)))
+            full_cov[i, :, i, :] = cov
+            if i>0:
+                for j in range(0, i):
+                    temp = np.dot(full_cov[j, :, i-1, :], U.T)
+                    full_cov[j, :, i, :] = temp
+                    full_cov[i, :, j, :] = temp.T
+        return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
+
+    cdef obtain_full_mean_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
@@ -1381,10 +1435,7 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        if not pyross.utils.is_positive_definite(full_cov_inv):
-            full_cov_inv = pyross.utils.nearest_positive_definite(full_cov_inv)
-        full_cov=np.linalg.inv(full_cov_inv)
-        return xm[1:], full_cov # returns mean and cov for all but first (fixed!) time point
+        return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
@@ -1416,13 +1467,26 @@ cdef class SIR_type:
             Py_ssize_t i, j, count=0, dim=self.dim
         cov_mat = np.empty((dim, dim), dtype=DTYPE)
         for i in range(dim):
-            cov_mat[i, i] =cov[count]
+            cov_mat[i, i] = cov[count]
             count += 1
             for j in range(i+1, dim):
                 cov_mat[i, j] = cov[count]
                 cov_mat[j, i] = cov[count]
                 count += 1
         return cov_mat
+
+    cpdef convert_mat_to_vec(self, double [:, :] cov_mat):
+        cdef:
+            double [:] cov_vec
+            Py_ssize_t i, j, count=0, dim=self.dim
+        cov_vec = np.empty((self.vec_size), dtype=DTYPE)
+        for i in range(dim):
+            cov_vec[count] = cov_mat[i, i]
+            count += 1
+            for j in range(i+1, dim):
+                cov_vec[count] = cov_mat[i, j]
+                count += 1
+        return cov_vec
 
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         pass # to be implemented in subclasses
