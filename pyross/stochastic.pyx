@@ -2931,7 +2931,7 @@ cdef class SppQ(stochastic_integration):
                     #term = parameters[rate_index, m]*sign
                     #
                     self.vectors_of_change[i + m*nRpa,m + M*class_index] = sign
-                    self.vectors_of_change[i + m*nRpa,m + M*(nClass-1)] = sign
+                    self.vectors_of_change[i + m*nRpa,m + M*(nClassU-1)] = sign
 
             offset = len(self.constant_terms)
             for i in range(self.linear_terms.shape[0]):
