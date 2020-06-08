@@ -405,7 +405,7 @@ cdef class SIR_type:
     def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False,
                         infer_scale_parameter=False):
         '''
-        Computes the Hessian of the MAP estimatesself.
+        Computes the Hessian of the MAP estimate.
 
         Parameters
         ----------
@@ -425,7 +425,7 @@ cdef class SIR_type:
             Number of data points along the trajectory
         contactMatrix: callable
             A function that takes time (t) as an argument and returns the contactMatrix
-        eps: float, optional
+        eps: float or numpy.array, optional
             The step size of the Hessian calculation, default=1e-3
 
         Returns
@@ -447,15 +447,7 @@ cdef class SIR_type:
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
-        k = len(flat_maps)
-        hess = np.empty((k, k))
-        g1 = approx_fprime(flat_maps, minuslogP, eps)
-        for j in range(k):
-            xx0 = flat_maps[j]
-            flat_maps[j] += eps
-            g2 = approx_fprime(flat_maps, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            flat_maps[j] = xx0
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps)
         return hess
 
     def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
@@ -965,8 +957,8 @@ cdef class SIR_type:
             Total number of data points along the trajectory
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
-        eps: float, optional
-            Step size in the calculation of the Hessian
+        eps: float or numpy.array, optional
+            Step size in the calculation of the Hessian.
         obs0: numpy.array, optional
             Observed initial condition, if more detailed than obs[0,:]
         fltr0: 2d numpy.array, optional
@@ -998,19 +990,13 @@ cdef class SIR_type:
             inits =  np.copy(y_unflat[param_dim:])
             x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
             parameters = self.fill_params_dict(param_keys, y_unflat)
-            minuslogp = self.minus_logp_red(parameters, x0, obs[1:], fltr, Tf, Nf, contactMatrix)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
-        k = len(flat_maps)
-        hess = np.empty((k, k))
-        g1 = approx_fprime(flat_maps, minuslogP, eps)
-        for j in range(k):
-            xx0 = flat_maps[j]
-            flat_maps[j] += eps
-            g2 = approx_fprime(flat_maps, minuslogP, eps)
-            hess[:,j] = (g2 - g1)/eps
-            flat_maps[j] = xx0
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps)
         return hess
 
 

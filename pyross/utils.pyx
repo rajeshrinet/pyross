@@ -376,6 +376,49 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         return x, log_det
 
 
+def hessian_finite_difference(pos, function, eps=1e-3):
+    """Forward finite-difference computation of the Hessian of a function.
+
+    Parameters
+    ----------
+    pos:numpy.array(dims=1)
+        Position at which the hessian is to be computed.
+    function: function(numpy.array)
+        Function of interest.
+    pos: float or numpy.array(dims=1), optional
+        Step size used for FD computation (can be parameter dependant).
+
+    Returns
+    -------
+    hess: numpy.array(dims=2)
+        Hessian of function at pos.
+    """
+    k = len(pos)
+    if not hasattr(eps, "__len__"):
+        eps = eps*np.ones(k)
+
+    hessian = np.empty((k, k))
+
+    val_central = function(pos)
+    val1 = np.zeros(k)
+    for i in range(k):
+        pos[i] += eps[i]
+        val1[i] = function(pos)
+        pos[i] -= eps[i]
+
+    for i in range(k):
+        pos[i] += eps[i]
+        for j in range(k):
+            pos[j] += eps[j]
+            val2 = function(pos)
+            pos[j] -= eps[j]
+
+            hessian[i, j] = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
+        pos[i] -= eps[i]
+
+    return 1/2 * (hessian + hessian.T)
+
+
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
         double lat1=coord1[0], lon1=coord1[1], lat2=coord2[0], lon2=coord2[1]
