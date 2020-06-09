@@ -2,6 +2,7 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
 [![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
 ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
+[![PyPI version](https://badge.fury.io/py/pyross.svg)](https://badge.fury.io/py/pyross)
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg)
 ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) 
@@ -27,6 +28,8 @@ The library supports models formulated **stochastically** (as chemical master eq
 **Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimised control** of these structures, given **cost functions**, is possible. This feature is being actively developed to be better integrated with the library.
 
 [PyRossGeo](https://github.com/lukastk/PyRossGeo) is a companion library that supports **spatially resolved compartment models** with explicit **commuting networks**.
+
+[PyRossTSI](https://github.com/rajeshrinet/pyrossTSI) is a another companion library that supports **time since infection models** in Python. 
 
 The libraries are named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
@@ -78,6 +81,7 @@ Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/e
 ```
 
 ### Pip
+Install the latest [PyPI](https://pypi.org/project/pyross/) version
 
 ```
 pip install pyross
