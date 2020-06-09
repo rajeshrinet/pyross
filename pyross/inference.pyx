@@ -1290,8 +1290,6 @@ cdef class SIR_type:
             raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
 
         cov_mat = self.convert_vec_to_mat(cov)
-        if not pyross.utils.is_positive_definite(cov_mat):
-            cov_mat = pyross.utils.nearest_positive_definite(cov_mat)
         return x[steps-1], cov_mat
 
     cdef estimate_dx_and_cov(self, double [:] xt, double t, double dt, model, contactMatrix):
@@ -1303,8 +1301,6 @@ cdef class SIR_type:
         dx_det = np.multiply(dt/self.N, model.dxdt)
         self.compute_tangent_space_variables(xt, t, contactMatrix)
         cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-        if not pyross.utils.is_positive_definite(cov):
-            cov_mat = pyross.utils.nearest_positive_definite(cov)
         return dx_det, cov
 
     cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
@@ -2562,8 +2558,8 @@ cdef class Spp(SIR_type):
                     B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
-        
-        
+
+
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -2607,7 +2603,7 @@ cdef class SppQ(SIR_type):
 
     Examples
     --------
-    An example of model_spec and parameters for SIR class with a constant influx, 
+    An example of model_spec and parameters for SIR class with a constant influx,
     random testing (without false positives/negatives), and quarantine
 
     >>> model_spec = {
@@ -2620,7 +2616,7 @@ cdef class SppQ(SIR_type):
                 "infection" : [ ["I", "beta"] ]
             },
             "test_pos"  : [ "p_falsepos", "p_truepos", "p_falsepos"] ,
-            "test_freq" : [ "tf", "tf", "tf"] 
+            "test_freq" : [ "tf", "tf", "tf"]
         }
     >>> parameters = {
             'beta': 0.1,
@@ -2655,14 +2651,14 @@ cdef class SppQ(SIR_type):
         self.det_model = pyross.deterministic.SppQ(model_spec, parameters, M, fi*N)
         self.testRate =  testRate
         self.det_model.set_testRate(testRate)
-        
+
         if self.constant_terms.size > 0:
             self.nClassU = self.nClass // 2 # number of unquarantined classes with constant terms
-            self.nClassUwoN = self.nClassU - 1 
+            self.nClassUwoN = self.nClassU - 1
         else:
             self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
             self.nClassUwoN = self.nClassU
-        
+
 
 
     def set_params(self, parameters):
@@ -2678,7 +2674,7 @@ cdef class SppQ(SIR_type):
     def set_testRate(self, testRate):
         self.testRate=testRate
         self.det_model.set_testRate(testRate)
-        
+
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
         model.set_testRate(self.testRate)
         return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
@@ -2693,7 +2689,7 @@ cdef class SppQ(SIR_type):
     def make_params_dict(self, params=None):
         param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
         return param_dict
-    
+
     cdef calculate_test_r(self, double [:] x, double [:] r, double TR):
         cdef:
             Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN, M=self.M
@@ -2703,7 +2699,7 @@ cdef class SppQ(SIR_type):
             double ntestpop=0, tau0=0
             double [:, :] parameters=self.parameters
             Py_ssize_t m, i
-        
+
          # Compute non-quarantined recovered
         for m in range(M):
             r[m] = fi[m] - x[(nClass-1)*M+m] # subtract total quarantined
@@ -2787,7 +2783,7 @@ cdef class SppQ(SIR_type):
             double [:] rate
             double term, term2, term3
             double [:] fi=self.fi
-                
+
         # infection terms (no infection terms in Q classes, perfect quarantine)
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
@@ -2813,17 +2809,17 @@ cdef class SppQ(SIR_type):
                 J[reagent_index + nClassU, m, reagent_index + nClassU, m] -= rate[m]
                 if product_index>-1:
                     J[product_index, m, reagent_index, m] += rate[m]
-                    J[product_index + nClassU, m, reagent_index + nClassU, m] += rate[m]                    
+                    J[product_index + nClassU, m, reagent_index + nClassU, m] += rate[m]
         # quarantining terms
         for m in range(M):
-            for i in range(nClassUwoN):         
+            for i in range(nClassUwoN):
                 term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m]
                 term2 = term * x[i*M+m] / ntestpop
                 J[i, m, i, m] -= term
                 J[i+nClassU, m, i, m] += term
                 J[nClass-1,  m, i, m] += term
                 for n in range(M):
-                    for j in range(nClassUwoN):  
+                    for j in range(nClassUwoN):
                         term3 = term2 * (parameters[test_freq[j],n] - parameters[test_freq[nClassUwoN],n])
                         J[i, m, j, n] += term3
                         J[i+nClassU, m, j, n] -= term3
@@ -2844,16 +2840,16 @@ cdef class SppQ(SIR_type):
                 J[nClass-1, m, nClassUwoN, m] += term
             J[nClass-1, m, nClass-1, m] -= term
             for n in range(M):
-                for j in range(nClassUwoN): 
+                for j in range(nClassUwoN):
                     term3 = term2 * (parameters[test_freq[j],n] - parameters[test_freq[nClassUwoN],n])
                     J[nClass-1,  m, j, n] -= term3
                 term3 = term2 * parameters[test_freq[nClassUwoN],n]
                 if self.constant_terms.size > 0:
                     J[nClass-1,  m, nClassUwoN, n] -= term3
                 J[nClass-1,  m, nClass-1, n] += term3
-                   
-                    
-                    
+
+
+
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] x, double [:, :] l, double [:] r, double tau0):
@@ -2914,7 +2910,7 @@ cdef class SppQ(SIR_type):
                     B[product_index+nClassU, m, product_index+nClassU, m] += rate[m]*reagent[m]
                     B[reagent_index+nClassU, m, product_index+nClassU, m] += -rate[m]*reagent[m]
                     B[product_index+nClassU, m, reagent_index+nClassU, m] += -rate[m]*reagent[m]
-          
+
         for m in range(M):
             for i in range(nClassUwoN): # only fill in the upper triangular form
                 term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m] * x[m+M*i]
@@ -2923,10 +2919,9 @@ cdef class SppQ(SIR_type):
                 B[nClass-1, m, nClassU-1, m] += term
                 B[i, m, i+nClassU, m] -= term
                 B[i, m, nClass-1, m] -= term
-                B[i+nClassU, m, nClass-1, m] += term    
+                B[i+nClassU, m, nClass-1, m] += term
             term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m] * r[m]
             B[nClass-1, m, nClassU-1, m] += term
-                    
-                    
-        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
+
+        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
