@@ -14,5 +14,6 @@ dependencies:
   - pandas
   - ipython
   - nbconvert
+  - xlrd
   - pip:
     - cma
