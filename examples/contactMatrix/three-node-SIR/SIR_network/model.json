@@ -1,0 +1,20 @@
+{
+    "settings" : {
+        "classes" : ["S", "I", "R"]
+    },
+
+    "S" : {
+        "linear"    : [],
+        "infection" : [ ["I", "-beta"] ]
+    },
+
+    "I" : {
+        "linear"    : [ ["I", "-gamma"] ],
+        "infection" : [ ["I", "beta"] ]
+    },
+
+    "R" : {
+        "linear"    : [ ["I", "gamma"] ],
+        "infection" : []
+    }
+}
