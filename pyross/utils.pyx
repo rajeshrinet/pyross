@@ -397,7 +397,7 @@ def hessian_finite_difference(pos, function, eps=1e-3):
     if not hasattr(eps, "__len__"):
         eps = eps*np.ones(k)
 
-    hessian = np.empty((k, k))
+    hessian = np.empt((k, k))
 
     val_central = function(pos)
     val1 = np.zeros(k)
@@ -418,6 +418,27 @@ def hessian_finite_difference(pos, function, eps=1e-3):
 
     return 1/2 * (hessian + hessian.T)
 
+cpdef make_fltr(fltr_list, n_list):
+    fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]
+    return np.array(fltr) 
+
+cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
+    if fltr.ndim == 2:
+        return np.array([fltr]*Nf)
+    elif fltr.shape[0] == Nf:
+        return fltr
+    else:
+        raise Exception("fltr must be a 2D array or an array of 2D arrays")
+
+cpdef process_obs(np.ndarray obs, Py_ssize_t Nf):
+    if obs.shape[0] != Nf:
+        raise Exception("Wrong length of obs")
+    if obs.ndim == 2:
+        return np.ravel(obs)
+    elif obs.ndim == 1:
+        return np.concatenate(obs)
+    else:
+        raise Exception("Obs must be a 2D array or an array of 1D arrays")
 
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:

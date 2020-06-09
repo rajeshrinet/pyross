@@ -506,7 +506,7 @@ cdef class SIR_type:
         penalty = self._penalty_from_negative_values(x0)
         x0[x0<0] = 0.1/self.N # set to be small and positive
 
-        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
         # add penalty for being negative
@@ -592,7 +592,7 @@ cdef class SIR_type:
         cma_stds: int, optional
             The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
         obs0: numpy.array, optional
-            Observed initial condition, if more detailed than obs[0,:]
+            Observed initial condition, if more detailed than obs[0]
         fltr0: 2d numpy.array, optional
             Matrix filter for obs0
 
@@ -604,10 +604,14 @@ cdef class SIR_type:
         cdef:
             Py_ssize_t param_dim = len(param_keys)
 
+        fltr = pyross.utils.process_fltr(fltr, Nf)
         if obs0 is None or fltr0 is None:
             # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
-            obs0=obs[0,:]
-            fltr0=fltr
+            obs0=obs[0]
+            fltr0=fltr[0]
+
+        obs = pyross.utils.process_obs(obs[1:], Nf-1)
+        fltr = fltr[1:]
 
         assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
         assert len(guess) == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
@@ -706,7 +710,7 @@ cdef class SIR_type:
             in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
             a bias to the result, therefore one must make sure that the blocked regions are negligible.
         obs0: numpy.array, optional
-            Observed initial condition, if more detailed than obs[0,:]
+            Observed initial condition, if more detailed than obs[0]
         fltr0: 2d numpy.array, optional
             Matrix filter for obs0
         tangent: bool, optional
@@ -749,10 +753,14 @@ cdef class SIR_type:
             enable_bounds = False
             bounds = np.zeros((len(guess), 2))
 
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+
         if obs0 is None or fltr0 is None:
             # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
-            obs0=obs[0,:]
-            fltr0=fltr
+            obs0=obs[0]
+            fltr0=fltr[0]
+        obs = pyross.utils.process_obs(obs[1:], Nf-1)
+        fltr = fltr[1:]
 
         assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
         assert len(guess) == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
@@ -800,7 +808,7 @@ cdef class SIR_type:
 
             x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
 
-            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
+            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
             minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
             return -minus_logp
@@ -840,7 +848,7 @@ cdef class SIR_type:
             contactMatrix = generator.constant_contactMatrix(**kwargs)
         else:
             contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
-        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent=tangent)
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
@@ -917,7 +925,8 @@ cdef class SIR_type:
             logp for MAP estimates
 
         """
-
+        fltr = pyross.utils.process_fltr(fltr[1:], Nf-1)
+        obs = pyross.utils.process_obs(obs[1:], Nf-1)
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         if cma_stds is None:
@@ -960,7 +969,7 @@ cdef class SIR_type:
         eps: float or numpy.array, optional
             Step size in the calculation of the Hessian.
         obs0: numpy.array, optional
-            Observed initial condition, if more detailed than obs[0,:]
+            Observed initial condition, if more detailed than obs[0]
         fltr0: 2d numpy.array, optional
             Matrix filter for obs0
 
@@ -970,12 +979,16 @@ cdef class SIR_type:
             The Hessian over (flat) parameters and initial conditions.
         '''
         param_dim = len(param_keys)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
 
         if obs0 is None or fltr0 is None:
             # Use the same filter and observation for initial condition as for the rest of the trajectory, unless
             # specified otherwise
-            obs0=obs[0,:]
-            fltr0=fltr
+            obs0=obs[0]
+            fltr0=fltr[0]
+
+        obs = pyross.utils.process_obs(obs[1:], Nf-1)
+        fltr = fltr[1:]
 
         bounds = np.zeros((len(maps), 2)) # This does not matter here
         flat_maps, _, _, flat_maps_range, is_scale_parameter, scaled_maps \
@@ -992,7 +1005,7 @@ cdef class SIR_type:
             parameters = self.fill_params_dict(param_keys, y_unflat)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
-            minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs[1:], fltr, Tf, Nf, model, contactMatrix, tangent)
+            minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
@@ -1013,11 +1026,12 @@ cdef class SIR_type:
         cdef Py_ssize_t k
 
         param_dim = len(param_keys)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
 
         if obs0 is None or fltr0 is None:
             # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
-            obs0=obs[0,:]
-            fltr0=fltr
+            obs0=obs[0]
+            fltr0=fltr[0]
 
         bounds = np.zeros((len(maps), 2))  # Create dummy bounds to pass to flatten function.
         flat_maps, _, _, _, _, _ \
@@ -1029,7 +1043,7 @@ cdef class SIR_type:
         inits =  np.copy(maps[param_dim:])
         x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
         parameters = self.fill_params_dict(param_keys, maps)
-        logP_MAPs = -self.minus_logp_red(parameters, x0, obs[1:], fltr, Tf, Nf, contactMatrix)
+        logP_MAPs = -self.minus_logp_red(parameters, x0, obs[1:], fltr[1:], Tf, Nf, contactMatrix)
         logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
 
         k = flat_prior_mean.shape[0]
@@ -1037,7 +1051,7 @@ cdef class SIR_type:
                                         contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
-    def minus_logp_red(self, parameters, double [:] x0, double [:, :] obs,
+    def minus_logp_red(self, parameters, double [:] x0, np.ndarray obs,
                             np.ndarray fltr, double Tf, int Nf, contactMatrix, tangent=False):
         '''Computes -logp for a latent trajectory
 
@@ -1071,8 +1085,9 @@ cdef class SIR_type:
         cdef Py_ssize_t nClass=int(self.dim/self.M)
         if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
             raise Exception("the sum over x0 is larger than fi")
-        if fltr.ndim != 2:
-            raise Exception("fltr must be two dimensional")
+
+        fltr = pyross.utils.process_fltr(fltr, Nf-1)
+        obs = pyross.utils.process_obs(obs, Nf-1)
         self.set_params(parameters)
         model = self.make_det_model(parameters)
         minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
@@ -1210,23 +1225,22 @@ cdef class SIR_type:
             log_p += self.log_cond_p(dev, cov)
         return -log_p
 
-    cdef double obtain_log_p_for_traj_matrix_fltr(self, double [:] x0, double [:, :] obs, np.ndarray fltr,
+    cdef double obtain_log_p_for_traj_matrix_fltr(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, Py_ssize_t Nf, model, contactMatrix, tangent=False):
         cdef:
-            Py_ssize_t reduced_dim=(Nf-1)*fltr.shape[0]
+            Py_ssize_t reduced_dim=fltr.shape[0]*fltr.shape[1]
             double [:, :] xm
-            double [:] xm_red, dev, obs_flattened
+            double [:] xm_red, dev
             np.ndarray[DTYPE_t, ndim=2] cov_red, full_cov
         if tangent:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, model, contactMatrix)
         else:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, model, contactMatrix)
-        full_fltr = sparse.block_diag([fltr,]*(Nf-1))
+        full_fltr = sparse.block_diag(fltr)
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
-        obs_flattened = np.ravel(obs)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
-        cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev, eps=1e-15)
+        cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
         log_p = -np.dot(dev, cov_red_inv_dev)*(self.N/2)
         log_p -= (ldet-reduced_dim*log(self.N))/2 + (reduced_dim/2)*log(2*PI)
         return -log_p
@@ -1312,14 +1326,15 @@ cdef class SIR_type:
             double [:, :] cond_cov, cov, temp
             double [:, :, :, :] full_cov
             double ti, tf
-        xm[0]=x0
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         for i in range(Nf-1):
             ti = time_points[i]
             tf = time_points[i+1]
             xi = xm[i]
-            (xf, cond_cov) = self.estimate_cond_mean_cov(xi, ti, tf, model,
+            xf = xm[i+1]
+            _, cond_cov = self.estimate_cond_mean_cov(xi, ti, tf, model,
                                                     contactMatrix)
             self.obtain_time_evol_op(xi, xf, ti, tf, model, contactMatrix)
             cov = np.add(self.U@cov@self.U.T, cond_cov)
@@ -1329,7 +1344,6 @@ cdef class SIR_type:
                     temp = full_cov[j, :, i-1, :]@self.U.T
                     full_cov[j, :, i, :] = temp
                     full_cov[i, :, j, :] = temp.T
-            xm[i+1]=xf
         # returns mean and cov for all but first (fixed!) time point
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim))
 
@@ -1342,13 +1356,14 @@ cdef class SIR_type:
             double [:, :] cov
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double ti, tf
-        xm[0]=x0
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
         full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
         for i in range(Nf-1):
             ti = time_points[i]
             tf = time_points[i+1]
             xi = xm[i]
-            xf, cov = self.estimate_cond_mean_cov(xi, ti, tf, model, contactMatrix)
+            xf = xm[i+1]
+            _, cov = self.estimate_cond_mean_cov(xi, ti, tf, model, contactMatrix)
             self.obtain_time_evol_op(xi, xf, ti, tf, model, contactMatrix)
             invcov=np.linalg.inv(cov)
             full_cov_inv[i][i]=invcov
@@ -1357,7 +1372,6 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i-1] += np.transpose(self.U)@temp
                 full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
                 full_cov_inv[i][i-1]=-temp
-            xm[i+1]=xf
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
         return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
 
@@ -1370,7 +1384,7 @@ cdef class SIR_type:
             double [:, :] cov, cond_cov, U, J_dt, temp
             double [:, :, :, :] full_cov
             double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix)
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -1378,6 +1392,8 @@ cdef class SIR_type:
             xt = xm[i]
             self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
             cond_cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
+            if False in np.isfinite(self.B_vec):
+                print(np.array(xt), t, self.B_vec)
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
             cov = np.dot(np.dot(U, cov), U.T)
@@ -1399,7 +1415,7 @@ cdef class SIR_type:
             double [:, :] cov, U, J_dt, J_mat=self.J_mat
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix)
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
         full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
         for i in range(Nf-1):
             t = time_points[i]
@@ -1463,7 +1479,7 @@ cdef class SIR_type:
         pass # to be implemented in subclass
 
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, method=None, maxNumSteps=100000):
         """An light weight integrate method similar to `simulate` in pyross.deterministic
 
         Parameters
@@ -1494,18 +1510,21 @@ cdef class SIR_type:
             model.set_contactMatrix(t, contactMatrix)
             model.rhs(np.multiply(xt, self.N), t)
             return model.dxdt/self.N
-        if self.det_method=='LSODA':
+
+        if method is None:
+            method = self.det_method
+        if method=='LSODA':
             time_points = np.linspace(t1, t2, steps)
             sol = solve_ivp(rhs0, [t1,t2], x0, method='LSODA', t_eval=time_points, max_step=maxNumSteps).y.T
-        elif self.det_method=='RK45':
+        elif method=='RK45':
             time_points = np.linspace(t1, t2, steps)
             sol = solve_ivp(rhs0, [t1,t2], x0, method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
-        elif self.det_method=='euler':
+        elif method=='euler':
             sol = pyross.utils.forward_euler_integration(rhs0, x0, t1, t2, steps)
-        elif self.det_method=='RK2':
+        elif method=='RK2':
             sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
         else:
-            raise Exception("Error: det_method not found. use set_det_method to reset.")
+            raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
         return sol
 
     def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
