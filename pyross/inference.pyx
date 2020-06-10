@@ -1539,6 +1539,7 @@ cdef class SIR_type:
         elif method=='RK2':
             sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
         else:
+            print(method)
             raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
         return sol
 
@@ -2200,7 +2201,7 @@ cdef class SEAIRQ_testing(SIR_type):
     def set_testRate(self, testRate):
         self.testRate=testRate
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, method=None, maxNumSteps=100000):
         model.set_testRate(self.testRate)
         return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
 
@@ -2709,9 +2710,9 @@ cdef class SppQ(SIR_type):
         self.testRate=testRate
         self.det_model.set_testRate(testRate)
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, method=None, maxNumSteps=100000):
         model.set_testRate(self.testRate)
-        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
+        return super().integrate(x0, t1, t2, steps, model, contactMatrix, method, maxNumSteps)
 
     def make_det_model(self, parameters):
         # small hack to make this class work with SIR_type
