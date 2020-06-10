@@ -347,11 +347,11 @@ class UtilsPythonTest(unittest.TestCase):
         guess = np.array([1.0, 1.0])
         bounds = np.array([[-2.0, 2.0], [-2.0, 2.0]])
         x, y = pyross.utils_python.minimization(f1, guess, bounds, enable_global=True, enable_local=False,
-                                                ftol=1e-4, cma_random_seed=1, verbose=False)
+                                                ftol=1e-5, global_atol=1e-3, cma_random_seed=1, verbose=False)
         self.assertTrue(np.abs(y - 1.0) < 1e-3)
 
         x, y = pyross.utils_python.minimization(f2, guess, bounds, enable_global=True, enable_local=False,
-                                                ftol=1e-4, verbose=False, cma_random_seed=2)
+                                                ftol=1e-5, global_atol=1e-3, verbose=False, cma_random_seed=2)
         self.assertTrue(np.abs(y - 1.0) < 1e-3)
 
         # Test local optimisation
@@ -363,7 +363,7 @@ class UtilsPythonTest(unittest.TestCase):
 
         # And now combined
         x, y = pyross.utils_python.minimization(f2, guess, bounds, enable_global=True, enable_local=True,
-                                        ftol=1e-5, global_ftol_factor=100, verbose=False, cma_random_seed=4)
+                                        ftol=1e-5, global_atol=1e-3, verbose=False, cma_random_seed=4)
         self.assertTrue(np.abs(y - 1.0) < 1e-4)
 
 
