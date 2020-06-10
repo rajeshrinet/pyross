@@ -14,9 +14,9 @@ cdef class CommonMethods:
     """
     Parent class used for all classes listed below. 
     It includes:
-        * Integrators used by various deterministic models listed below.
-        * Method to get time series of S, etc by passing a dict of data
-        * Method to set the contactMatrix array, CM
+    a) Integrators used by various deterministic models listed below.
+    b) Method to get time series of S, etc by passing a dict of data.
+    c) Method to set the contactMatrix array, CM
     """
 
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
@@ -2706,7 +2706,6 @@ cdef class Spp(CommonMethods):
 cdef class SppQ(CommonMethods):
     """
     Generic user-defined epidemic model with quarantine.
-
     ...
 
     Parameters
@@ -2929,7 +2928,7 @@ cdef class SppQ(CommonMethods):
             The default is 'odeint'.
         maxNumSteps: int, optional
             maximum number of steps the integrator can take.
-            The default is 100000.
+            The default value is 100000.
         **kwargs: kwargs for integrator
 
         Returns

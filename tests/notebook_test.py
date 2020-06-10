@@ -28,6 +28,8 @@ def run_notebook_tests(path, recursive=False):
     ignore_list = [os.path.join(cwd, 'control/ex04-SIR-optimal_control.ipynb'),
                    os.path.join(cwd, 'inference/nbtests/ex06_inference_latent_SEIR.ipynb'),
                    os.path.join(cwd, 'inference/nbtests/ex_inference_tangent_space_SIR.ipynb'),
+                   os.path.join(cwd, 'stochastic/ex6-SEAIRQ.ipynb'),
+                   os.path.join(cwd, 'stochastic/ex3-SIkR.ipynb'),
                     ]
 
     for ignored_book in ignore_list:
