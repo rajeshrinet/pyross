@@ -288,7 +288,7 @@ cdef class SIR_type:
         else:
             ppf_bounds[:, 1] = 1.0
 
-        
+
         def prior_transform(x):
             # Tranform into bounded region
             y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
@@ -418,7 +418,7 @@ cdef class SIR_type:
 
 
     def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False,
-                        infer_scale_parameter=False):
+                        infer_scale_parameter=False, fd_method="central"):
         '''
         Computes the Hessian of the MAP estimate.
 
@@ -442,6 +442,8 @@ cdef class SIR_type:
             A function that takes time (t) as an argument and returns the contactMatrix
         eps: float or numpy.array, optional
             The step size of the Hessian calculation, default=1e-3
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
         Returns
         -------
@@ -462,17 +464,17 @@ cdef class SIR_type:
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps)
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
 
     def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
-                   tangent=False, infer_scale_parameter=False):
+                   tangent=False, infer_scale_parameter=False, fd_method="central"):
         hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps,
-                                       tangent, infer_scale_parameter)
+                                       tangent, infer_scale_parameter, fd_method=fd_method)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
     def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
-                       tangent=False, infer_scale_parameter=False):
+                       tangent=False, infer_scale_parameter=False, fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate."""
         cdef double logP_MAPs
         cdef Py_ssize_t k
@@ -489,7 +491,7 @@ cdef class SIR_type:
         logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
         k = flat_prior_mean.shape[0]
         A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent,
-                                 infer_scale_parameter)
+                                 infer_scale_parameter, fd_method=fd_method)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix, tangent=False):
@@ -963,7 +965,7 @@ cdef class SIR_type:
 
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                               tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+                               tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
         '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
@@ -987,6 +989,8 @@ cdef class SIR_type:
             Observed initial condition, if more detailed than obs[0]
         fltr0: 2d numpy.array, optional
             Matrix filter for obs0
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
         Returns
         -------
@@ -1024,18 +1028,18 @@ cdef class SIR_type:
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps)
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
 
     def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                          tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+                          tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
         hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
-                                              contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
+                                              contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
     def log_G_evidence_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                              tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+                              tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate."""
         cdef double logP_MAPs
         cdef Py_ssize_t k
@@ -1063,7 +1067,7 @@ cdef class SIR_type:
 
         k = flat_prior_mean.shape[0]
         A = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
-                                        contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
+                                        contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def minus_logp_red(self, parameters, double [:] x0, np.ndarray obs,

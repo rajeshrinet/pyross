@@ -376,7 +376,7 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         return x, log_det
 
 
-def hessian_finite_difference(pos, function, eps=1e-3):
+def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
     """Forward finite-difference computation of the Hessian of a function.
 
     Parameters
@@ -387,6 +387,8 @@ def hessian_finite_difference(pos, function, eps=1e-3):
         Function of interest.
     pos: float or numpy.array(dims=1), optional
         Step size used for FD computation (can be parameter dependant).
+    method: str
+        Different options for the FD computation: "forward" or "central".
 
     Returns
     -------
@@ -397,30 +399,54 @@ def hessian_finite_difference(pos, function, eps=1e-3):
     if not hasattr(eps, "__len__"):
         eps = eps*np.ones(k)
 
-    hessian = np.empt((k, k))
+    hessian = np.empty((k, k))
 
-    val_central = function(pos)
-    val1 = np.zeros(k)
-    for i in range(k):
-        pos[i] += eps[i]
-        val1[i] = function(pos)
-        pos[i] -= eps[i]
+    if method == "forward":
+        val_central = function(pos)
+        val1 = np.zeros(k)
+        for i in range(k):
+            pos[i] += eps[i]
+            val1[i] = function(pos)
+            pos[i] -= eps[i]
 
-    for i in range(k):
-        pos[i] += eps[i]
-        for j in range(k):
-            pos[j] += eps[j]
-            val2 = function(pos)
-            pos[j] -= eps[j]
+        for i in range(k):
+            pos[i] += eps[i]
+            for j in range(k):
+                pos[j] += eps[j]
+                val2 = function(pos)
+                pos[j] -= eps[j]
 
-            hessian[i, j] = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
-        pos[i] -= eps[i]
+                hessian[i, j] = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
+            pos[i] -= eps[i]
 
-    return 1/2 * (hessian + hessian.T)
+        return 1/2 * (hessian + hessian.T)
+
+    if method == "central":
+        orig_pos = pos.copy()
+        for i in range(k):
+            for j in range(i+1):
+                pos = orig_pos.copy()
+                pos[i] += eps[i]
+                pos[j] += eps[j]
+                val1 = function(pos)
+                pos[j] -= 2*eps[j]
+                val2 = function(pos)
+                pos = orig_pos.copy()
+                pos[i] -= eps[i]
+                pos[j] += eps[j]
+                val3 = function(pos)
+                pos[j] -= 2*eps[j]
+                val4 = function(pos)
+                hessian[i, j] = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
+                hessian[j, i] = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
+
+        return hessian
+
+    raise Exception("Finite-difference method must be 'forward' or 'central'.")
 
 cpdef make_fltr(fltr_list, n_list):
     fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]
-    return np.array(fltr) 
+    return np.array(fltr)
 
 cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     if fltr.ndim == 2:
@@ -503,7 +529,7 @@ def getPopulation(country='India', M=16):
     ----------
     country: string
         Default is 'India'
-    M: int 
+    M: int
         Deafault is 16 age-groups
     """
 
@@ -512,7 +538,7 @@ def getPopulation(country='India', M=16):
     u3 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Germany-2019.csv'
     u4 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Italy-2019.csv'
     u5 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Denmark-2019.csv'
-    
+
     import pandas as pd
     if country=='India':
         data = pd.read_csv(u1, sep=',',header=None, skiprows=[0])
@@ -527,28 +553,28 @@ def getPopulation(country='India', M=16):
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     elif country=='Germany':
         data = pd.read_csv(u3, sep=',',header=None, skiprows=[0])
         N_m  = np.array((data[1]))[0:M]
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     elif country=='Italy':
         data = pd.read_csv(u4, sep=',',header=None, skiprows=[0])
         N_m  = np.array((data[1]))[0:M]
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     elif country=='Denmark':
         data = pd.read_csv(u5, sep=',',header=None, skiprows=[0])
         N_m  = np.array((data[1]))[0:M]
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     else:
         print('not implemnted, please do it locally')
 
