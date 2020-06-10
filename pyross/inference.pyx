@@ -5,6 +5,7 @@ from scipy.optimize import minimize, approx_fprime
 from scipy.stats import lognorm
 import numpy as np
 from scipy.interpolate import make_interp_spline
+from scipy.misc import derivative
 cimport numpy as np
 cimport cython
 import time
@@ -466,6 +467,140 @@ cdef class SIR_type:
 
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
+    
+    def FIM(self, param_keys, init_fltr, maps, obs, fltr, Tf, Nf,
+            contactMatrix, dx=None, tangent=False, infer_scale_parameter=False):
+        '''
+        Computes the Fisher Information Matrix (FIM) of the model.
+        Parameters
+        ----------
+        param_keys: list
+            A list of parameters to be inferred.
+        init_fltr: boolean array
+            True for initial conditions to be inferred.
+            Shape = (nClass*M)
+            Total number of True = total no. of variables - total no. of observed
+        maps: numpy.array
+            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
+        obs: numpy.array
+            The observed data with the initial datapoint
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        dx: float, optional
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect 
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the 
+            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
+        Returns
+        -------
+        FIM: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        fltr0 = fltr # Assume time-independent filter for now
+        obs0 = obs[0]
+        
+        param_dim = len(param_keys)
+        
+        bounds = np.zeros((len(maps), 2)) # This does not matter here
+        prior_stds = np.zeros((len(maps))) # This does not matter here
+            
+        flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
+            =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        
+        def partial_derivative(func, var, point, dx):
+            args = point[:]
+            def wraps(x):
+                args[var] = x
+                return func(args)
+            return derivative(wraps, point[var], dx=dx)
+        
+        def _mean(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            if tangent:
+                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, 
+                                                                       Nf, model, 
+                                                                       contactMatrix)
+            else:
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, 
+                                                         Nf, model, 
+                                                         contactMatrix)
+            return np.ravel(xm) 
+        
+        def _cov(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            if tangent:
+                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, 
+                                                                       Nf, model, 
+                                                                       contactMatrix)
+            else:
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, 
+                                                         Nf, model, 
+                                                         contactMatrix)
+            return full_cov
+        
+        def _invcov(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            if tangent:
+                full_invcov = self.obtain_full_invcov_tangent_space(x0, Tf,
+                                                                     Nf, model,
+                                                                     contactMatrix)
+            else:
+                full_invcov = self.obtain_full_invcov(x0, Tf,
+                                                       Nf, model,
+                                                       contactMatrix)
+            return full_invcov
+        
+        cov = _cov(flat_maps)
+        if dx == None:
+            dx = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
+            
+        invcov = _invcov(flat_maps)
+        
+        dim = len(flat_maps)
+        FIM = np.zeros((dim,dim))
+        
+        rows,cols = np.triu_indices(dim)
+        for i,j in zip(rows,cols):
+            dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
+            dmu_j = partial_derivative(_mean, var=j, point=flat_maps, dx=dx)
+            dcov_i = partial_derivative(_cov, var=i, point=flat_maps, dx=dx)
+            dcov_j = partial_derivative(_cov, var=j, point=flat_maps, dx=dx)
+            t1 = dmu_i@cov@dmu_j
+            t2 = np.multiply(0.5,np.trace(invcov@dcov_i@invcov@dcov_j))
+            FIM[i,j] = t1 + t2
+        i_lower = np.tril_indices(dim,-1)
+        FIM[i_lower] = FIM.T[i_lower]
+        return FIM
 
     def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
                    tangent=False, infer_scale_parameter=False, fd_method="central"):
@@ -1365,7 +1500,7 @@ cdef class SIR_type:
         # returns mean and cov for all but first (fixed!) time point
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim))
 
-    cpdef obtain_full_mean_invcov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+    cpdef obtain_full_invcov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
@@ -1391,7 +1526,7 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
+        return full_cov_inv # returns invcov for all but first (fixed!) time point
 
     cpdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
@@ -1424,7 +1559,7 @@ cdef class SIR_type:
                     full_cov[i, :, j, :] = temp.T
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
 
-    cpdef obtain_full_mean_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+    cpdef obtain_full_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
@@ -1450,7 +1585,7 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
+        return full_cov_inv # returns invcov for all but first (fixed!) time point
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
