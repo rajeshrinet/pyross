@@ -15,6 +15,11 @@ try:
 except ImportError:
     nestle = None
 
+try: ## optional support for symbolic differentiation
+    import sympy
+except ImportError:
+    sympy=None
+
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
@@ -90,6 +95,15 @@ cdef class SIR_type:
             minus_logp = self.obtain_log_p_for_traj(x, Tf, Nf, model, contactMatrix)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
+
+    def symbolic_test(self):
+        if sympy == None:
+            pass
+        else:
+            x  =  sympy.symbols('x')
+            expr = sympy.sin(x)
+            diff = sympy.diff(expr, x)
+            return diff, float(x.subs(x, 2))
 
     def infer_parameters(self, keys, guess, stds, bounds, np.ndarray x,
                         double Tf, Py_ssize_t Nf, contactMatrix,
@@ -274,6 +288,7 @@ cdef class SIR_type:
         else:
             ppf_bounds[:, 1] = 1.0
 
+        
         def prior_transform(x):
             # Tranform into bounded region
             y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
