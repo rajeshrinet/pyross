@@ -14,7 +14,7 @@ except ImportError:
 
 
 def minimization(objective_fct, guess, bounds, global_max_iter=100,
-                local_max_iter=100, ftol=1e-2, global_atol=10,
+                local_max_iter=100, ftol=1e-2, global_atol=1,
                  enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None,
                  cma_random_seed=None, verbose=True, args_dict={}):
     """ Compute the global minimum of the objective function.

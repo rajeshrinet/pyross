@@ -2206,7 +2206,7 @@ cdef class SEAIRQ_testing(SIR_type):
 
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, method=None, maxNumSteps=100000):
         model.set_testRate(self.testRate)
-        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
+        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps=maxNumSteps, method=method)
 
     def make_det_model(self, parameters):
         det_model = pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)

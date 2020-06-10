@@ -579,3 +579,25 @@ def getPopulation(country='India', M=16):
         print('not implemnted, please do it locally')
 
     return Ni
+
+
+def get_summed_CM(CH0, CW0, CS0, CO0, M, M0, Ni, Ni0):
+    CH = np.zeros((M, M))
+    CW = np.zeros((M, M))
+    CS = np.zeros((M, M))
+    CO = np.zeros((M, M))
+
+    for i in range(16):
+        CH0[i,:] = Ni0[i]*CH0[i,:]
+        CS0[i,:] = Ni0[i]*CS0[i,:]
+        CW0[i,:] = Ni0[i]*CW0[i,:]
+        CO0[i,:] = Ni0[i]*CO0[i,:]
+
+    for i in range(M):
+        for j in range(M):
+            i1, j1 = i*M, j*M
+            CH[i,j] = np.sum( CH0[i1:i1+M,j1:j1+M]  )/Ni[i]
+            CW[i,j] = np.sum( CW0[i1:i1+M,j1:j1+M]  )/Ni[i]
+            CS[i,j] = np.sum( CS0[i1:i1+M,j1:j1+M]  )/Ni[i]
+            CO[i,j] = np.sum( CO0[i1:i1+M,j1:j1+M]  )/Ni[i]
+    return CH, CW, CS, CO
