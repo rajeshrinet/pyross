@@ -95,7 +95,7 @@ cdef class SIR_type:
                         double Tf, Py_ssize_t Nf, contactMatrix,
                         tangent=False,
                         infer_scale_parameter=False, verbose=False, full_output=False,
-                        ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                        ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_atol=1,
                         enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
         This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
@@ -142,8 +142,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global optimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -176,7 +176,7 @@ cdef class SIR_type:
         minimize_args={'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                        'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale, 'tangent':tangent}
         res = minimization(self._infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
         params = res[0]
@@ -328,7 +328,7 @@ cdef class SIR_type:
     def infer_control(self, keys, guess, stds, x, Tf, Nf, generator, bounds,
                       intervention_fun=None, tangent=False,
                       verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
+                      global_max_iter=100, local_max_iter=100, global_atol=1., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
@@ -369,8 +369,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global optimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -395,7 +395,7 @@ cdef class SIR_type:
         minimize_args = {'keys':keys, 'bounds':bounds, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale,
                           'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
@@ -528,7 +528,7 @@ cdef class SIR_type:
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
                             tangent=False, infer_scale_parameter=False,
                             verbose=False, full_output=False, double ftol=1e-5,
-                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                            global_max_iter=100, local_max_iter=100, global_atol=1,
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None):
         """
@@ -579,8 +579,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global optimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -648,7 +648,7 @@ cdef class SIR_type:
                          's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
         res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol,
-                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
 
@@ -856,7 +856,7 @@ cdef class SIR_type:
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
                             intervention_fun=None, tangent=False,
                             verbose=False, double ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
+                            local_max_iter=100, global_atol=1., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None, full_output=False):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
@@ -902,8 +902,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global minimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -936,7 +936,7 @@ cdef class SIR_type:
         minimize_args = {'keys':keys, 'bounds':bounds, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
                          'Nf':Nf, 's':s, 'scale':scale, 'intervention_fun':intervention_fun, 'tangent': tangent}
         res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
         params = res[0]
@@ -1333,8 +1333,7 @@ cdef class SIR_type:
             ti = time_points[i]
             tf = time_points[i+1]
             xi = xm[i]
-            xf = xm[i+1]
-            _, cond_cov = self.estimate_cond_mean_cov(xi, ti, tf, model,
+            xf, cond_cov = self.estimate_cond_mean_cov(xi, ti, tf, model,
                                                     contactMatrix)
             self.obtain_time_evol_op(xi, xf, ti, tf, model, contactMatrix)
             cov = np.add(self.U@cov@self.U.T, cond_cov)

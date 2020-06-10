@@ -13,7 +13,8 @@ except ImportError:
     pathos_mp = None
 
 
-def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_iter=100, ftol=1e-2, global_ftol_factor=10.,
+def minimization(objective_fct, guess, bounds, global_max_iter=100,
+                local_max_iter=100, ftol=1e-2, global_atol=10,
                  enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None,
                  cma_random_seed=None, verbose=True, args_dict={}):
     """ Compute the global minimum of the objective function.
@@ -36,8 +37,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
         The maximum number of iterations for the local algorithm.
     ftol: float
         Relative function value stopping criterion for the optimisation algorithms.
-    global_ftol_factor: float
-        For the global optimisation, `ftol` gets multiplied by this.
+    global_atol: float
+        The absolute tolerance for global optimisation.
     enable_global: bool
         Enable (or disable) the global minimisation part.
     enable_local: bool
@@ -88,7 +89,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100, local_max_it
 
         options = cma.CMAOptions()
         options['bounds'] = [bounds[:, 0], bounds[:, 1]]
-        options['tolfunrel'] = ftol * global_ftol_factor
+        options['tolfun'] = global_atol
         options['popsize'] = cma_population
 
         if cma_stds is None:
