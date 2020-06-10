@@ -15,10 +15,6 @@ try:
 except ImportError:
     nestle = None
 
-try: ## optional support for symbolic differentiation
-    import sympy
-except ImportError:
-    sympy=None
 
 import pyross.deterministic
 cimport pyross.deterministic
@@ -97,6 +93,11 @@ cdef class SIR_type:
         return minus_logp
 
     def symbolic_test(self):
+        try: ## optional support for symbolic differentiation
+            import sympy
+        except ImportError:
+            sympy=None
+
         if sympy == None:
             pass
         else:
