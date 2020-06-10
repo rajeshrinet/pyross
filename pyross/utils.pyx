@@ -492,3 +492,38 @@ def plotSIR(data, showPlot=True):
         pass
     else:
         plt.show()
+
+
+
+def getPopulation(country="India", M=16):
+    import pandas as pd
+    """
+    Takes coutry name and number, M, of age-groups as argument
+    Returns population structured in M age-groups
+    """
+
+    u1 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/India-2019.csv'
+    u2 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/UK.csv'
+
+    if country=='India':
+        data = pd.read_csv(u1, sep=',',header=None, skiprows=[0])
+        
+        N_m = np.array((data[1]))[0:M]
+        N_f = np.array((data[2]))[0:M]
+        
+        Ni = N_m + N_f
+        Ni = Ni[0:M];  Ni=Ni.astype('double')
+
+    elif country=='UK':
+        data = pd.read_csv(u2, sep=',',header=None, skiprows=[0])
+        
+        M=16 # 16 age-groups
+        N_m = np.array((data[1]))[0:M]
+        N_f = np.array((data[2]))[0:M]
+        
+        Ni = N_m + N_f
+        Ni = Ni[0:M];  Ni=Ni.astype('double')
+    else:
+        print('not implemnted, please do it locally')
+
+    return Ni
