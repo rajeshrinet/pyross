@@ -475,7 +475,6 @@ def plotSIR(data, showPlot=True):
     plt.fill_between(t, 0, sumS/N, color="#348ABD", alpha=0.3)
     plt.plot(t, sumS/N, '-', color="#348ABD", label='$S$', lw=4)
 
-
     plt.fill_between(t, 0, sumI/N, color='#A60628', alpha=0.3)
     plt.plot(t, sumI/N, '-', color='#A60628', label='$I$', lw=4)
 
@@ -492,3 +491,65 @@ def plotSIR(data, showPlot=True):
         pass
     else:
         plt.show()
+
+
+
+def getPopulation(country='India', M=16):
+    """
+    Takes coutry name and number, M, of age-groups as argument
+    Returns population structured in M age-groups
+
+    Parameters
+    ----------
+    country: string
+        Default is 'India'
+    M: int 
+        Deafault is 16 age-groups
+    """
+
+    u1 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/India-2019.csv'
+    u2 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/UK.csv'
+    u3 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Germany-2019.csv'
+    u4 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Italy-2019.csv'
+    u5 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Denmark-2019.csv'
+    
+    import pandas as pd
+    if country=='India':
+        data = pd.read_csv(u1, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
+    elif country=='UK':
+        data = pd.read_csv(u2, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+    
+    elif country=='Germany':
+        data = pd.read_csv(u3, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+    
+    elif country=='Italy':
+        data = pd.read_csv(u4, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+    
+    elif country=='Denmark':
+        data = pd.read_csv(u5, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+    
+    else:
+        print('not implemnted, please do it locally')
+
+    return Ni

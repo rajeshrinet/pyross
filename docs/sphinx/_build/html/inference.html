@@ -268,7 +268,7 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 <dl class="py method">
 <dt id="pyross.inference.SIR_type.compute_hessian">
 <code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the Hessian of the MAP estimatesself.</p>
+<dd><p>Computes the Hessian of the MAP estimate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -280,7 +280,7 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 <li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
 <li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
 <li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
-<li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -306,17 +306,16 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 <li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
 <li><p><strong>Nf</strong> (<em>int</em>) – Total number of data points along the trajectory</p></li>
 <li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
-<li><p><strong>eps</strong> (<em>float</em><em>, </em><em>optional</em>) – Step size in the calculation of the Hessian</p></li>
-<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0,:]</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – Step size in the calculation of the Hessian.</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0]</p></li>
 <li><p><strong>fltr0</strong> (<em>2d numpy.array</em><em>, </em><em>optional</em>) – Matrix filter for obs0</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>hess_params</strong> (<em>numpy.array</em>) – The Hessian over parameters</p></li>
-<li><p><strong>hess_init</strong> (<em>numpy.array</em>) – The Hessian over initial conditions</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>hess</strong> – The Hessian over (flat) parameters and initial conditions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
 </dd></dl>
@@ -363,18 +362,6 @@ for the others, use the values stored in the class.</p>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pyross.inference.SIR_type.hessian">
-<code class="sig-name descname">hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.hessian" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use compute_hessian instead.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pyross.inference.SIR_type.hessian_latent">
-<code class="sig-name descname">hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.hessian_latent" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use <cite>compute_hessian_latent</cite> instead.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -468,13 +455,6 @@ age-dependent parameter individually</p></li>
 <dd class="field-odd"><p>numpy.array</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="pyross.inference.SIR_type.inference">
-<code class="sig-name descname">inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model</p>
-<p>Deprecated. Use <cite>infer_parameters</cite> instead.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -593,7 +573,7 @@ age-dependent parameter individually</p></li>
 <li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
 <li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
 <li><p><strong>cma_stds</strong> (<em>int</em><em>, </em><em>optional</em>) – The standard deviation used in cma global optimisation. If not specified, <cite>cma_stds</cite> is set to <cite>stds</cite>.</p></li>
-<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0,:]</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0]</p></li>
 <li><p><strong>fltr0</strong> (<em>2d numpy.array</em><em>, </em><em>optional</em>) – Matrix filter for obs0</p></li>
 </ul>
 </dd>
@@ -607,9 +587,15 @@ age-dependent parameter individually</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyross.inference.SIR_type.latent_inference">
-<code class="sig-name descname">latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>DEPRECATED. Use <cite>latent_infer_parameters</cite> instead.</p>
+<dt id="pyross.inference.SIR_type.log_G_evidence">
+<code class="sig-name descname">log_G_evidence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.log_G_evidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the evidence using a Laplace approximation at the MAP estimate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.log_G_evidence_latent">
+<code class="sig-name descname">log_G_evidence_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.log_G_evidence_latent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the evidence using a Laplace approximation at the MAP estimate.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -734,7 +720,7 @@ such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
 <li><p><strong>bounds</strong> (<em>np.array</em><em>(</em><em>len</em><em>(</em><em>guess</em><em>)</em><em>, </em><em>2</em><em>)</em><em>, </em><em>optional</em>) – Bound the prior within the values specified by this array. This can be used to avoid sampling the posterior
 in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
 a bias to the result, therefore one must make sure that the blocked regions are negligible.</p></li>
-<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0,:]</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0]</p></li>
 <li><p><strong>fltr0</strong> (<em>2d numpy.array</em><em>, </em><em>optional</em>) – Matrix filter for obs0</p></li>
 <li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
 <li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter

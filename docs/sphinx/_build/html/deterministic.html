@@ -177,14 +177,10 @@
 <dt id="pyross.deterministic.CommonMethods">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">CommonMethods</code><a class="headerlink" href="#pyross.deterministic.CommonMethods" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parent class used for all classes listed below.
-It includes:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Integrators used by various deterministic models listed below.</p></li>
-<li><p>Method to get time series of S, etc by passing a dict of data</p></li>
-<li><p>Method to set the contactMatrix array, CM</p></li>
-</ul>
-</div></blockquote>
+It includes:
+a) Integrators used by various deterministic models listed below.
+b) Method to get time series of S, etc by passing a dict of data.
+c) Method to set the contactMatrix array, CM</p>
 <dl class="py method">
 <dt id="pyross.deterministic.CommonMethods.A">
 <code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.A" title="Permalink to this definition">¶</a></dt>
@@ -558,8 +554,8 @@ The default is 100000.</p></li>
 <dl class="py class">
 <dt id="pyross.deterministic.SppQ">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SppQ</code><a class="headerlink" href="#pyross.deterministic.SppQ" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generic user-defined epidemic model with quarantine.</p>
-<p>…</p>
+<dd><p>Generic user-defined epidemic model with quarantine.
+…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -642,7 +638,7 @@ individual in class i with an individual in class j</p></li>
 <li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
 The default is ‘odeint’.</p></li>
 <li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
-The default is 100000.</p></li>
+The default value is 100000.</p></li>
 <li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
 </ul>
 </dd>
