@@ -1,9 +1,10 @@
 name: Notebooks
 
-on:
-    schedule:
-      # 4am daily
-      - cron:  '0 1 * * *'
+on: push
+#on:
+#    schedule:
+#      # 4am daily
+#      - cron:  '0 1 * * *'
 
 jobs:
 
@@ -44,7 +45,7 @@ jobs:
       - name: testing-control
         shell: bash -l {0}
         run: |
-          make nbtest -e path="examples/control-nbtests"  recursive=False
+          make nbtest -e path="examples/control/nbtests"  recursive=False
       - name: testing-inference
         shell: bash -l {0}
         run: |
