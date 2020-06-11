@@ -24,7 +24,7 @@ except ImportError:
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
-from pyross.utils_python import minimization
+from pyross.utils_python import minimization, nested_sampling
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -203,9 +203,25 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
+    def _nested_sampling_prior_transform(self, x, s=None, scale=None, ppf_bounds=None):
+        # Tranform a sample x ~ Unif([0,1]^d) to a sample of the prior using inverse tranform sampling.
+        y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
+        return lognorm.ppf(y, s, scale=scale)
+
+    def _nested_sampling_loglike(self, params, keys=None, is_scale_parameter=None, scaled_guesses=None,
+                                 flat_guess_range=None, x=None, Tf=None, Nf=None, contactMatrix=None,
+                                 s=None, scale=None, tangent=None):
+        # Compute the log-likelihood for the given parameters.
+        params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
+        parameters = self.fill_params_dict(keys, params_unflat)
+        logP = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=False)
+        logP += np.sum(lognorm.logpdf(params, s, scale=scale))
+        return logP
+
     def nested_sampling_inference(self, keys, guess, stds, np.ndarray x, double Tf, Py_ssize_t Nf, contactMatrix,
                                   bounds=None, tangent=False, infer_scale_parameter=False, verbose=False,
-                                  npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
+                                  queue_size=1, max_workers=None, npoints=100, method='single', max_iter=1000,
+                                  dlogz=None, decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
         all classes is available.
@@ -244,6 +260,11 @@ cdef class SIR_type:
             age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
+        queue_size: int
+            Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+            is computed in parallel (if queue_size > 1).
+        max_workers: int
+            The maximal number of processes used to compute samples.
         npoints: int
             Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
             number the more accurate and expensive is the evidence computation.
@@ -289,28 +310,14 @@ cdef class SIR_type:
         else:
             ppf_bounds[:, 1] = 1.0
 
+        prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
+        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses,
+                        'flat_guess_range':flat_guess_range, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
+                        's':s, 'scale':scale, 'tangent':tangent}
 
-        def prior_transform(x):
-            # Tranform into bounded region
-            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
-            return lognorm.ppf(y, s, scale=scale)
-
-        def to_sample(params):
-            params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
-            parameters = self.fill_params_dict(keys, params_unflat)
-            logP = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=False)
-            logP += np.sum(lognorm.logpdf(params, s, scale=scale))
-            return logP
-
-        if verbose:
-            def callback(d):
-                if d["it"] % 100 == 0:
-                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
-        else:
-            callback=None
-
-        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
-                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+        result = nested_sampling(self._nested_sampling_loglike, self._nested_sampling_prior_transform, k, queue_size,
+                                 max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
+                                 prior_transform_args)
 
         log_evidence = result.logz
 
@@ -467,7 +474,7 @@ cdef class SIR_type:
 
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
-    
+
     def FIM(self, param_keys, init_fltr, maps, obs, fltr, Tf, Nf,
             contactMatrix, dx=None, tangent=False, infer_scale_parameter=False):
         '''
@@ -494,8 +501,8 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that takes time (t) as an argument and returns the contactMatrix
         dx: float, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect 
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the 
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
             diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is false.
@@ -510,22 +517,22 @@ cdef class SIR_type:
         '''
         fltr0 = fltr # Assume time-independent filter for now
         obs0 = obs[0]
-        
+
         param_dim = len(param_keys)
-        
+
         bounds = np.zeros((len(maps), 2)) # This does not matter here
         prior_stds = np.zeros((len(maps))) # This does not matter here
-            
+
         flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
             =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-        
+
         def partial_derivative(func, var, point, dx):
             args = point[:]
             def wraps(x):
                 args[var] = x
                 return func(args)
             return derivative(wraps, point[var], dx=dx)
-        
+
         def _mean(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
@@ -535,15 +542,15 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             if tangent:
-                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, 
-                                                                       Nf, model, 
+                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf,
+                                                                       Nf, model,
                                                                        contactMatrix)
             else:
-                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, 
-                                                         Nf, model, 
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf,
+                                                         Nf, model,
                                                          contactMatrix)
-            return np.ravel(xm) 
-        
+            return np.ravel(xm)
+
         def _cov(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
@@ -553,15 +560,15 @@ cdef class SIR_type:
             self.set_params(parameters)
             model = self.make_det_model(parameters)
             if tangent:
-                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, 
-                                                                       Nf, model, 
+                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf,
+                                                                       Nf, model,
                                                                        contactMatrix)
             else:
-                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, 
-                                                         Nf, model, 
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf,
+                                                         Nf, model,
                                                          contactMatrix)
             return full_cov
-        
+
         def _invcov(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
@@ -579,16 +586,16 @@ cdef class SIR_type:
                                                        Nf, model,
                                                        contactMatrix)
             return full_invcov
-        
+
         cov = _cov(flat_maps)
         if dx == None:
             dx = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
-            
+
         invcov = _invcov(flat_maps)
-        
+
         dim = len(flat_maps)
         FIM = np.zeros((dim,dim))
-        
+
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
             dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
@@ -818,12 +825,34 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
+    def _nested_sampling_loglike_latent(self, params, param_keys=None, init_fltr=None,
+                                        is_scale_parameter=None, scaled_param_guesses=None,
+                                        flat_param_guess_range=None, flat_param_guess_size=None,
+                                        obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None,
+                                        s=None, scale=None, obs0=None, fltr0=None, tangent=None):
+        # Todo: replace this by latent_infer_parameters minimisation function.
+        inits =  np.copy(params[flat_param_guess_size:])
+
+        # Restore parameters from flattened parameters
+        params_unflat = self._unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
+                                                    scaled_param_guesses)
+
+        parameters = self.fill_params_dict(param_keys, params_unflat)
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+
+        x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+
+        return -minus_logp
+
     def nested_sampling_latent_inference(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds,
                                          np.ndarray obs, np.ndarray fltr, double Tf, Py_ssize_t Nf, contactMatrix,
                                          bounds=None, np.ndarray obs0=None, np.ndarray fltr0=None, tangent=False,
-                                         infer_scale_parameter=False, verbose=False,
-                                         return_samples=True, npoints=100, method='single', max_iter=1000, dlogz=None,
-                                         decline_factor=None):
+                                         infer_scale_parameter=False, verbose=False, queue_size=1, max_workers=None,
+                                         npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         with latent variables using nested sampling as implemented in the `nestle` Python package.
 
@@ -873,6 +902,11 @@ cdef class SIR_type:
             age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
+        queue_size: int
+            Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+            is computed in parallel (if queue_size > 1).
+        max_workers: int
+            The maximal number of processes used to compute samples.
         npoints: int
             Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
             number the more accurate and expensive is the evidence computation.
@@ -941,39 +975,15 @@ cdef class SIR_type:
         else:
             ppf_bounds[:,1] = 1.0
 
-        def prior_transform(x):
-            # Tranform into bounded region
-            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
-            return lognorm.ppf(y, s, scale=scale)
+        prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
+        loglike_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'is_scale_parameter':is_scale_parameter,
+                        'scaled_param_guesses':scaled_param_guesses, 'flat_param_guess_range':flat_param_guess_range,
+                        'flat_param_guess_size':len(flat_param_guess), 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf,
+                        'contactMatrix':contactMatrix, 's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
-        def to_sample(params):
-            # Todo: replace this by latent_infer_parameters minimisation function.
-            inits =  np.copy(params[flat_param_guess_size:])
-
-            # Restore parameters from flattened parameters
-            params_unflat = self._unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
-                                                       scaled_param_guesses)
-
-            parameters = self.fill_params_dict(param_keys, params_unflat)
-            self.set_params(parameters)
-            model = self.make_det_model(parameters)
-
-            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-
-            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
-            minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
-
-            return -minus_logp
-
-        if verbose:
-            def callback(d):
-                if d["it"] % 100 == 0:
-                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
-        else:
-            callback=None
-
-        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
-                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+        result = nested_sampling(self._nested_sampling_loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
+                                 max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
+                                 prior_transform_args)
 
         log_evidence = result.logz
 
