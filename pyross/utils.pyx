@@ -596,8 +596,8 @@ def get_summed_CM(CH0, CW0, CS0, CO0, M, M0, Ni, Ni0):
     for i in range(M):
         for j in range(M):
             i1, j1 = i*M, j*M
-            CH[i,j] = np.sum( CH0[i1:i1+M,j1:j1+M]  )
-            CW[i,j] = np.sum( CW0[i1:i1+M,j1:j1+M]  )
-            CS[i,j] = np.sum( CS0[i1:i1+M,j1:j1+M]  )
-            CO[i,j] = np.sum( CO0[i1:i1+M,j1:j1+M]  )
+            CH[i,j] = np.sum( CH0[i1:i1+M,j1:j1+M] )/Ni[i]
+            CW[i,j] = np.sum( CW0[i1:i1+M,j1:j1+M] )/Ni[i]
+            CS[i,j] = np.sum( CS0[i1:i1+M,j1:j1+M] )/Ni[i]
+            CO[i,j] = np.sum( CO0[i1:i1+M,j1:j1+M] )/Ni[i]
     return CH, CW, CS, CO
