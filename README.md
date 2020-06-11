@@ -1,5 +1,5 @@
 ## PyRoss: Infectious disease models in Python 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
 [![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
 ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
 [![PyPI version](https://badge.fury.io/py/pyross.svg)](https://badge.fury.io/py/pyross)
