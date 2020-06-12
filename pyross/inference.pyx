@@ -582,9 +582,11 @@ cdef class SIR_type:
                                                                      Nf, model,
                                                                      contactMatrix)
             else:
-                full_invcov = self.obtain_full_invcov(x0, Tf,
-                                                       Nf, model,
-                                                       contactMatrix)
+                cov = _cov(y)
+                full_invcov = np.linalg.inv(cov)
+                #full_invcov = self.obtain_full_invcov(x0, Tf,
+                #                                       Nf, model,
+                #                                       contactMatrix) not PD
             return full_invcov
 
         cov = _cov(flat_maps)
@@ -1536,6 +1538,8 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
+        if not pyross.utils.is_positive_definite(full_cov_inv):
+                full_cov_inv = pyross.utils.nearest_positive_definite(full_cov_inv)
         return full_cov_inv # returns invcov for all but first (fixed!) time point
 
     cpdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
@@ -1585,6 +1589,8 @@ cdef class SIR_type:
             xt = xm[i]
             self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
             cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
+            if not pyross.utils.is_positive_definite(cov):
+                cov = pyross.utils.nearest_positive_definite(cov)
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
             invcov=np.linalg.inv(cov)
