@@ -475,7 +475,7 @@ cdef class SIR_type:
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
 
-    def FIM(self, param_keys, init_fltr, maps, obs, fltr, Tf, Nf,
+    def FIM(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
             contactMatrix, dx=None, tangent=False, infer_scale_parameter=False):
         '''
         Computes the Fisher Information Matrix (FIM) of the model.
@@ -489,8 +489,8 @@ cdef class SIR_type:
             Total number of True = total no. of variables - total no. of observed
         maps: numpy.array
             MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
-        obs: numpy.array
-            The observed data with the initial datapoint
+        obs0: numpy.array
+            The observed initial data
         fltr: boolean sequence or array
             True for observed and False for unobserved.
             e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
@@ -515,16 +515,21 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        fltr0 = fltr # Assume time-independent filter for now
-        obs0 = obs[0]
-
         param_dim = len(param_keys)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        
+        fltr0 = fltr[0]
+        obs0 = obs0[0]
+        
+        fltr = fltr[1:]
 
         bounds = np.zeros((len(maps), 2)) # This does not matter here
         prior_stds = np.zeros((len(maps))) # This does not matter here
 
         flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
             =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        
+        full_fltr = sparse.block_diag(fltr)
 
         def partial_derivative(func, var, point, dx):
             args = point[:]
@@ -549,7 +554,9 @@ cdef class SIR_type:
                 xm, full_cov = self.obtain_full_mean_cov(x0, Tf,
                                                          Nf, model,
                                                          contactMatrix)
-            return np.ravel(xm)
+            xm = np.ravel(xm)
+            xm_red = full_fltr@xm
+            return xm_red
 
         def _cov(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
@@ -567,7 +574,8 @@ cdef class SIR_type:
                 xm, full_cov = self.obtain_full_mean_cov(x0, Tf,
                                                          Nf, model,
                                                          contactMatrix)
-            return full_cov
+            cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+            return cov_red
 
         def _invcov(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
@@ -587,7 +595,8 @@ cdef class SIR_type:
                 #full_invcov = self.obtain_full_invcov(x0, Tf,
                 #                                       Nf, model,
                 #                                       contactMatrix) not PD
-            return full_invcov
+            invcov_red = full_fltr@full_invcov@np.transpose(full_fltr)
+            return invcov_red
 
         cov = _cov(flat_maps)
         if dx == None:
@@ -610,6 +619,57 @@ cdef class SIR_type:
         i_lower = np.tril_indices(dim,-1)
         FIM[i_lower] = FIM.T[i_lower]
         return FIM
+    
+    def FIM_det(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
+            contactMatrix, measurement_error=1e-2, dx=None, infer_scale_parameter=False,
+               method="central"):
+        param_dim = len(param_keys)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        
+        fltr0 = fltr[0]
+        obs0 = obs0[0]
+        
+        fltr = fltr[1:]
+
+        bounds = np.zeros((len(maps), 2)) # This does not matter here
+        prior_stds = np.zeros((len(maps))) # This does not matter here
+
+        flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
+            =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        
+        full_fltr = sparse.block_diag(fltr)
+        
+        def minuslogP(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
+            inits =  np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minuslogp = self.obtain_log_p_for_det(x0, full_fltr, Tf, Nf, model, 
+                                                  contactMatrix, measurement_error)
+            return minuslogp
+        
+        if dx == None:
+            dx = np.sqrt(np.spacing(minuslogP(flat_maps)))
+        
+        FIM_det = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps=dx,
+                                                         method=method)
+        return FIM_det
+    
+    def obtain_log_p_for_det(self, x0, full_fltr, Tf, Nf, model, contactMatrix,
+                            measurement_error):
+        xm = self.integrate(x0,0,Tf,Nf,model,contactMatrix)
+        xm = np.ravel(xm[1:])
+        sigma_sq = measurement_error*measurement_error
+        inv_sigma_sq = 1/sigma_sq
+        invcov_diag = np.repeat(inv_sigma_sq, repeats=len(xm))
+        invcov = np.diag(invcov_diag)
+        invcov_red = full_fltr@invcov@np.transpose(full_fltr)
+        xm_red = full_fltr@xm
+        log_p = -np.dot(xm_red, np.dot(invcov_red,xm_red))*(self.N/2)
+        # ignore constant factor from constant measurement error
+        return -log_p
 
     def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
                    tangent=False, infer_scale_parameter=False, fd_method="central"):
