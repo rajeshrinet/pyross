@@ -478,7 +478,7 @@ cdef class SIR_type:
     def FIM(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
             contactMatrix, dx=None, tangent=False, infer_scale_parameter=False):
         '''
-        Computes the Fisher Information Matrix (FIM) of the model.
+        Computes the Fisher Information Matrix (FIM) of the stochastic model.
         Parameters
         ----------
         param_keys: list
@@ -546,15 +546,8 @@ cdef class SIR_type:
             parameters = self.fill_params_dict(param_keys, y_unflat)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
-            if tangent:
-                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf,
-                                                                       Nf, model,
-                                                                       contactMatrix)
-            else:
-                xm, full_cov = self.obtain_full_mean_cov(x0, Tf,
-                                                         Nf, model,
-                                                         contactMatrix)
-            xm = np.ravel(xm)
+            xm = self.integrate(x0,0,Tf,Nf,model,contactMatrix, method='LSODA')
+            xm = np.ravel(xm[1:])
             xm_red = full_fltr@xm
             return xm_red
 
@@ -621,8 +614,46 @@ cdef class SIR_type:
         return FIM
     
     def FIM_det(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
-            contactMatrix, measurement_error=1e-2, dx=None, infer_scale_parameter=False,
-               method="central"):
+               contactMatrix, measurement_error=1e-2, dx=None,
+                infer_scale_parameter=False):
+        '''
+        Computes the Fisher Information Matrix (FIM) of the deterministic model.
+        Parameters
+        ----------
+        param_keys: list
+            A list of parameters to be inferred.
+        init_fltr: boolean array
+            True for initial conditions to be inferred.
+            Shape = (nClass*M)
+            Total number of True = total no. of variables - total no. of observed
+        maps: numpy.array
+            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
+        obs0: numpy.array
+            The observed initial data
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        measurement_error: float, optional
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
+        dx: float, optional
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
+        Returns
+        -------
+        FIM_det: 2d numpy.array
+            The Fisher Information Matrix
+        '''
         param_dim = len(param_keys)
         fltr = pyross.utils.process_fltr(fltr, Nf)
         
@@ -639,37 +670,45 @@ cdef class SIR_type:
         
         full_fltr = sparse.block_diag(fltr)
         
-        def minuslogP(y):
-            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
-            inits =  np.copy(y_unflat[param_dim:])
+        def partial_derivative(func, var, point, dx):
+            args = point[:]
+            def wraps(x):
+                args[var] = x
+                return func(args)
+            return derivative(wraps, point[var], dx=dx)
+        
+        def _mean(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
             x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
             parameters = self.fill_params_dict(param_keys, y_unflat)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
-            minuslogp = self.obtain_log_p_for_det(x0, full_fltr, Tf, Nf, model, 
-                                                  contactMatrix, measurement_error)
-            return minuslogp
+            xm = self.integrate(x0,0,Tf,Nf,model,contactMatrix, method='LSODA')
+            xm = np.ravel(xm[1:])
+            xm_red = full_fltr@xm
+            return xm_red
+        
+        sigma_sq = measurement_error*measurement_error
+        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(Nf-1)))
+        cov = np.diag(cov_diag)
+        cov_red = full_fltr@cov@np.transpose(full_fltr)
         
         if dx == None:
-            dx = np.sqrt(np.spacing(minuslogP(flat_maps)))
+            dx = np.sqrt(np.spacing(np.amin(np.abs(_mean(flat_maps)))))
         
-        FIM_det = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps=dx,
-                                                         method=method)
+        dim = len(flat_maps)
+        FIM_det = np.zeros((dim,dim))
+        
+        rows,cols = np.triu_indices(dim)
+        for i,j in zip(rows,cols):
+            dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
+            dmu_j = partial_derivative(_mean, var=j, point=flat_maps, dx=dx)
+            FIM_det[i,j] = dmu_i@cov_red@dmu_j
+        i_lower = np.tril_indices(dim,-1)
+        FIM_det[i_lower] = FIM_det.T[i_lower]
         return FIM_det
-    
-    def obtain_log_p_for_det(self, x0, full_fltr, Tf, Nf, model, contactMatrix,
-                            measurement_error):
-        xm = self.integrate(x0,0,Tf,Nf,model,contactMatrix)
-        xm = np.ravel(xm[1:])
-        sigma_sq = measurement_error*measurement_error
-        inv_sigma_sq = 1/sigma_sq
-        invcov_diag = np.repeat(inv_sigma_sq, repeats=len(xm))
-        invcov = np.diag(invcov_diag)
-        invcov_red = full_fltr@invcov@np.transpose(full_fltr)
-        xm_red = full_fltr@xm
-        log_p = -np.dot(xm_red, np.dot(invcov_red,xm_red))*(self.N/2)
-        # ignore constant factor from constant measurement error
-        return -log_p
 
     def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
                    tangent=False, infer_scale_parameter=False, fd_method="central"):
