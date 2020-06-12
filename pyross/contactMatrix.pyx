@@ -750,6 +750,26 @@ data from above
 '''
 
 
+
+def get_CM(country='India'):
+    """
+    Returns CH, CW, CS, CO of the given country 
+    Default is India
+    """
+    uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
+    uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
+    uS = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_school_1.xlsx'
+    uO = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'
+
+    import pandas as pd
+    CH = np.array(pd.read_excel(uH,  sheet_name=country))
+    CW = np.array(pd.read_excel(uW,  sheet_name=country))
+    CS = np.array(pd.read_excel(uS,  sheet_name=country))
+    CO = np.array(pd.read_excel(uO,  sheet_name=country))
+    return CH, CW, CS, CO
+
+
+
 def China():
     CH=np.array([[0.50245185, 0.39319654, 0.22049273, 0.11464803, 0.21323029,
         0.38346006, 0.46250082, 0.42127211, 0.20640593, 0.07465477,
@@ -1738,6 +1758,21 @@ def France():
     return CH, CW, CS, CO
 
 
+def Germany():
+    """
+    Returns CH, CW, CS, CO of the country supplied
+    """
+    uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
+    uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
+    uS = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_school_1.xlsx'
+    uO = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'
+
+    import pandas as pd
+    CH = np.array(pd.read_excel(uH,  sheet_name='Germany'))
+    CW = np.array(pd.read_excel(uW,  sheet_name='Germany'))
+    CS = np.array(pd.read_excel(uS,  sheet_name='Germany'))
+    CO = np.array(pd.read_excel(uO,  sheet_name='Germany'))
+    return CH, CW, CS, CO
 
 
 def India():
