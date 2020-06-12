@@ -9,75 +9,6 @@ cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
 import matplotlib.pyplot as plt
 
-class GPR:
-    def __init__(self, nS, nT, iP, nP, xS, xT, yT):
-        self.nS   =  nS           # # of test data points
-        self.nT   =  nT           # # of training data points
-        self.iP   =  iP           # # inverse of sigma
-        self.nP   =  nP           # # number of priors
-        self.xS   =  xS           # test input
-        self.xT   =  xT           # training input
-        self.yT   =  yT           # training output
-
-        self.yS   =  0            # test output
-        self.yP   =  0            # prior output
-        self.K    =  0            # kernel
-        self.Ks   =  0            # kernel
-        self.Kss  =  0            # kernel
-        self.mu   =  0            # mean
-        self.sd   =  0            # stanndard deviation
-
-
-    def calcDistM(self, r, s):
-        '''Calculate distance matrix between 2 1D arrays'''
-        return r[..., np.newaxis] - s[np.newaxis, ...]
-
-
-    def calcKernels(self):
-        '''Calculate the kernel'''
-        cc = self.iP*0.5
-        self.K   = np.exp(-cc*self.calcDistM(self.xT, self.xT)**2)
-        self.Ks  = np.exp(-cc*self.calcDistM(self.xT, self.xS)**2)
-        self.Kss = np.exp(-cc*self.calcDistM(self.xS, self.xS)**2)
-        return
-
-
-    def calcPrior(self):
-        '''Calculate the prior'''
-        L  = np.linalg.cholesky(self.Kss + 1e-6*np.eye(self.nS))
-        G  = np.random.normal(size=(self.nS, self.nP))
-        yP = np.dot(L, G)
-        return
-
-
-    def calcMuSigma(self):
-        '''Calculate the mean'''
-        self.mu =  np.dot(self.Ks.T, np.linalg.solve(self.K, self.yT))
-
-        vv = self.Kss - np.dot(self.Ks.T, np.linalg.solve(self.K, self.Ks))
-        self.sd = np.sqrt(np.abs(np.diag(vv)))
-
-        # Posterior
-        L       = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
-        self.yS = self.mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
-        return
-
-
-    def plotResults(self):
-        plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
-        plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
-        plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')
-
-        # fill 95% confidence interval (2*sd about the mean)
-        plt.fill_between(self.xS.flat, self.mu-2*self.sd, self.mu+2*self.sd, color="#348ABD", alpha=0.4, label='2 sigma')
-        plt.axis('tight'); plt.legend(fontsize=15); plt.rcParams.update({'font.size':18})
-
-
-    def runGPR(self):
-        self.calcKernels()
-        self.calcPrior()
-        self.calcMuSigma()
-        self.plotResults()
 
 
 def parse_model_spec(model_spec, param_keys):
@@ -601,3 +532,74 @@ def get_summed_CM(CH0, CW0, CS0, CO0, M, M0, Ni, Ni0):
             CS[i,j] = np.sum( CS0[i1:i1+M,j1:j1+M] )/Ni[i]
             CO[i,j] = np.sum( CO0[i1:i1+M,j1:j1+M] )/Ni[i]
     return CH, CW, CS, CO
+
+
+class GPR:
+    def __init__(self, nS, nT, iP, nP, xS, xT, yT):
+        self.nS   =  nS           # # of test data points
+        self.nT   =  nT           # # of training data points
+        self.iP   =  iP           # # inverse of sigma
+        self.nP   =  nP           # # number of priors
+        self.xS   =  xS           # test input
+        self.xT   =  xT           # training input
+        self.yT   =  yT           # training output
+
+        self.yS   =  0            # test output
+        self.yP   =  0            # prior output
+        self.K    =  0            # kernel
+        self.Ks   =  0            # kernel
+        self.Kss  =  0            # kernel
+        self.mu   =  0            # mean
+        self.sd   =  0            # stanndard deviation
+
+
+    def calcDistM(self, r, s):
+        '''Calculate distance matrix between 2 1D arrays'''
+        return r[..., np.newaxis] - s[np.newaxis, ...]
+
+
+    def calcKernels(self):
+        '''Calculate the kernel'''
+        cc = self.iP*0.5
+        self.K   = np.exp(-cc*self.calcDistM(self.xT, self.xT)**2)
+        self.Ks  = np.exp(-cc*self.calcDistM(self.xT, self.xS)**2)
+        self.Kss = np.exp(-cc*self.calcDistM(self.xS, self.xS)**2)
+        return
+
+
+    def calcPrior(self):
+        '''Calculate the prior'''
+        L  = np.linalg.cholesky(self.Kss + 1e-6*np.eye(self.nS))
+        G  = np.random.normal(size=(self.nS, self.nP))
+        yP = np.dot(L, G)
+        return
+
+
+    def calcMuSigma(self):
+        '''Calculate the mean'''
+        self.mu =  np.dot(self.Ks.T, np.linalg.solve(self.K, self.yT))
+
+        vv = self.Kss - np.dot(self.Ks.T, np.linalg.solve(self.K, self.Ks))
+        self.sd = np.sqrt(np.abs(np.diag(vv)))
+
+        # Posterior
+        L       = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
+        self.yS = self.mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
+        return
+
+
+    def plotResults(self):
+        plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
+        plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
+        plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')
+
+        # fill 95% confidence interval (2*sd about the mean)
+        plt.fill_between(self.xS.flat, self.mu-2*self.sd, self.mu+2*self.sd, color="#348ABD", alpha=0.4, label='2 sigma')
+        plt.axis('tight'); plt.legend(fontsize=15); plt.rcParams.update({'font.size':18})
+
+
+    def runGPR(self):
+        self.calcKernels()
+        self.calcPrior()
+        self.calcMuSigma()
+        self.plotResults()

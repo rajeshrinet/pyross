@@ -142,6 +142,8 @@ cdef class ContactMatrixFunction:
         return self.contactMatrix
 
 
+
+
 cdef class Protocol:
 
     def __init__(self):
@@ -180,6 +182,9 @@ cdef class TemporalProtocol(Protocol):
                 index = -1
         return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
 
+
+
+
 cdef class ThresholdProtocol(Protocol):
     cdef:
         np.ndarray thresholds, interventions
@@ -202,6 +207,8 @@ cdef class ThresholdProtocol(Protocol):
         return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
 
 
+
+
 cdef class CustomTemporalProtocol(Protocol):
     cdef:
         object intervention_func
@@ -213,6 +220,9 @@ cdef class CustomTemporalProtocol(Protocol):
 
     def __call__(self, double t):
         return self.intervention_func(t, **self.kwargs)
+
+
+
 
 cdef class SpatialContactMatrix:
     '''A class for generating a spatial compartmental model with commute data
@@ -351,6 +361,8 @@ cdef class SpatialContactMatrix:
                     for a in range(2):
                         d = density_factor[a, mu, i, j]
                         local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
+
+
 
 
 cdef class MinimalSpatialContactMatrix:
@@ -541,9 +553,6 @@ cdef class SIR(ContactMatrixFunction):
                 r0[tt] = np.real(np.max(np.linalg.eigvals(L)))
 
         return r0
-
-
-
 
 
 
@@ -751,15 +760,32 @@ data from above
 
 
 
-def get_CM(country='India'):
+def getCM(country='India'):
     """
+    Method to compute contact matrices of a country 
+
+    Parameters
+    ----------
+    country: string 
+        Default is India
+    
     Returns CH, CW, CS, CO of the given country 
-    Default is India
+
+    CH: home, 
+    CW: work, 
+    CS: school, 
+    CO: other locations 
+
+    The data is read from sheets at: 
+    https://github.com/rajeshrinet/pyross/tree/master/examples/data/contact_matrices_152_countries
     """
-    uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
-    uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
-    uS = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_school_1.xlsx'
-    uO = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'
+    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
+    u2 ='/data/contact_matrices_152_countries/MUestimates_'
+
+    uH = u1 + u2 + 'home_1.xlsx'
+    uW = u1 + u2 + 'work_1.xlsx'
+    uS = u1 + u2 + 'school_1.xlsx'
+    uO = u1 + u2 + 'other_locations_1.xlsx'
 
     import pandas as pd
     CH = np.array(pd.read_excel(uH,  sheet_name=country))

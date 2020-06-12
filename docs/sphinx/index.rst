@@ -56,3 +56,4 @@ API Reference
    control
    forecast
    contact_matrix
+   utils

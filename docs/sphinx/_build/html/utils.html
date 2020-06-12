@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; PyRoss 1.0.0 documentation</title>
+  <title>Utils: Miscellaneous methods &mdash; PyRoss 1.0.0 documentation</title>
   
 
   
@@ -26,7 +26,6 @@
         <script src="_static/doctools.js"></script>
         <script src="_static/language_data.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script src="_static/searchtools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -36,7 +35,8 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Contact matrix class" href="contact_matrix.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -63,7 +63,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -80,7 +80,7 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
@@ -88,7 +88,7 @@
 <li class="toctree-l1"><a class="reference internal" href="control.html">Control with Non-Pharmaceutical interventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contact_matrix.html">Contact matrix class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils: Miscellaneous methods</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils: Miscellaneous methods</a></li>
 </ul>
 
             
@@ -134,12 +134,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Utils: Miscellaneous methods</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
+            <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -151,24 +153,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="utils-miscellaneous-methods">
+<h1>Utils: Miscellaneous methods<a class="headerlink" href="#utils-miscellaneous-methods" title="Permalink to this headline">¶</a></h1>
+<dl class="py method">
+<dt id="pyross.utils.getPopulation">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">getPopulation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.utils.getPopulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes coutry name and number, M, of age-groups as argument
+Returns population structured in M age-groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country</strong> (<em>string</em>) – Default is ‘India’</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Deafault is 16 age-groups</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
-  
-  <div id="search-results">
-  
-  </div>
+<dl class="py method">
+<dt id="pyross.utils.hessian_finite_difference">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">hessian_finite_difference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.utils.hessian_finite_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward finite-difference computation of the Hessian of a function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>(</em><em>dims=1</em><em>)</em><em>, </em><em>optional</em>) – Position at which the hessian is to be computed.</p></li>
+<li><p><strong>function</strong> (<em>function</em><em>(</em><em>numpy.array</em><em>)</em>) – Function of interest.</p></li>
+<li><p><strong>pos</strong> – Step size used for FD computation (can be parameter dependant).</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Different options for the FD computation: “forward” or “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>hess</strong> – Hessian of function at pos.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array(dims=2)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="contact_matrix.html" class="btn btn-neutral float-left" title="Contact matrix class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -201,14 +238,7 @@
   
   
     
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>

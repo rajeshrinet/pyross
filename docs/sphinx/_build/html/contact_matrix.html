@@ -300,6 +300,44 @@ Entries with <span class="math notranslate nohighlight">\(\mu = \nu\)</span> are
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt id="pyross.contactMatrix.getCM">
+<code class="sig-prename descclassname">contactMatrix.</code><code class="sig-name descname">getCM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.getCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to compute contact matrices of a country</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country</strong> (<em>string</em>) – Default is India</p></li>
+<li><p><strong>CH</strong><strong>, </strong><strong>CW</strong><strong>, </strong><strong>CS</strong><strong>, </strong><strong>CO of the given country</strong> (<em>Returns</em>) – </p></li>
+<li><p><strong>CH</strong> (<em>home</em><em>,</em>) – </p></li>
+<li><p><strong>CW</strong> (<em>work</em><em>,</em>) – </p></li>
+<li><p><strong>CS</strong> (<em>school</em><em>,</em>) – </p></li>
+<li><p><strong>CO</strong> (<em>other locations</em>) – </p></li>
+<li><p><strong>data is read from sheets at</strong> (<em>The</em>) – </p></li>
+<li><p><strong>https</strong> (<em>//github.com/rajeshrinet/pyross/tree/master/examples/data/contact_matrices_152_countries</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.contactMatrix.characterise_transient">
+<code class="sig-prename descclassname">contactMatrix.</code><code class="sig-name descname">characterise_transient</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.contactMatrix.characterise_transient" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the maximal eigenvalue (spectral abcissa),
+initial groth rate (numerical abcissa),
+the Kreiss constant (minimum bound of transient)
+and time of transient growth</p>
+<p>inputs:
+A: an MxM matrix
+tol: Used to find a first estimate of the pseudospectrum
+theta: normalizing factor found in Townley et al 2007, default 0
+ord: default 2, order of matrix norm</p>
+<dl class="simple">
+<dt>returns: [spectral abcissa, numerical abcissa, Kreiss constant ,</dt><dd><p>duration of transient, henrici’s departure from normalcy’]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 

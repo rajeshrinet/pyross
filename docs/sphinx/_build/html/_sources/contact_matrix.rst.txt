@@ -15,3 +15,10 @@ the geographical regions and the overall age structured contact matrix.
 
 .. autoclass:: pyross.contactMatrix.SpatialContactMatrix
     :members:
+
+.. automethod:: pyross.contactMatrix.getCM 
+
+
+.. automethod:: pyross.contactMatrix.characterise_transient
+
+
