@@ -1,4 +1,4 @@
-Contact matrix class
+Contact matrix
 ==================================
 
 Contact Matrix Function

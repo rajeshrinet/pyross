@@ -55,5 +55,5 @@ API Reference
    inference
    control
    forecast
-   contact_matrix
+   contactMatrix
    utils
