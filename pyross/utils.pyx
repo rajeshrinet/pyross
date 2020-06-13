@@ -463,12 +463,16 @@ def getPopulation(country='India', M=16):
     M: int
         Deafault is 16 age-groups
     """
+    u0 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/'
 
-    u1 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/India-2019.csv'
-    u2 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/UK.csv'
-    u3 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Germany-2019.csv'
-    u4 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Italy-2019.csv'
-    u5 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Denmark-2019.csv'
+    u1 = u0 + 'age_structures/India-2019.csv'
+    u2 = u0 + 'age_structures/UK.csv'
+    u3 = u0 + 'age_structures/Germany-2019.csv'
+    u4 = u0 + 'age_structures/Italy-2019.csv'
+    u5 = u0 + 'age_structures/Denmark-2019.csv'
+    u6 = u0 + 'age_structures/UK.csv'
+    u7 = u0 + 'age_structures/US.csv'
+    u8 = u0 + 'age_structures/China-2019.csv'
 
     import pandas as pd
     if country=='India':
@@ -506,8 +510,29 @@ def getPopulation(country='India', M=16):
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
+    elif country=='UK':
+        data = pd.read_csv(u6, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
+    elif country=='USA':
+        data = pd.read_csv(u7, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
+    elif country=='China':
+        data = pd.read_csv(u8, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
     else:
-        print('not implemnted, please do it locally')
+        print('Direct extraction of Ni is not implemnted , please do it locally')
 
     return Ni
 
@@ -602,4 +627,18 @@ class GPR:
         self.calcKernels()
         self.calcPrior()
         self.calcMuSigma()
-        self.plotResults()
+        self.plotResults() 
+
+
+def getDiagonalCM(country, M=16):
+    import pyross
+    if country=='UK':
+        CH, CW, CS, CO = pyross.contactMatrix.UK()
+    else:
+        CH, CW, CS, CO = pyross.contactMatrix.getCM(country)
+    CM=CH+CW+CS+CO
+    
+    x = np.zeros(M)
+    for i in range(M):
+        x[i] = 1*CM[i,i]
+    return x
