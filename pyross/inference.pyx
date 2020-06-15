@@ -49,6 +49,7 @@ cdef class SIR_type:
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
         readonly str det_method, lyapunov_method
+        readonly dict class_index_dict
 
 
     def __init__(self, parameters, nClass, M, fi, N, steps, det_method, lyapunov_method):
@@ -63,6 +64,7 @@ cdef class SIR_type:
         self.lyapunov_method=lyapunov_method
 
         self.dim = nClass*M
+        self.nClass = nClass
         self.vec_size = int(self.dim*(self.dim+1)/2)
         self.CM = np.empty((M, M), dtype=DTYPE)
         self.dsigmadt = np.zeros((self.vec_size), dtype=DTYPE)
@@ -1098,9 +1100,6 @@ cdef class SIR_type:
 
         cdef double minus_log_p
         cdef Py_ssize_t nClass=int(self.dim/self.M)
-        if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
-            raise Exception("the sum over x0 is larger than fi")
-
         fltr = pyross.utils.process_fltr(fltr, Nf-1)
         obs = pyross.utils.process_obs(obs, Nf-1)
         self.set_params(parameters)
@@ -1328,7 +1327,7 @@ cdef class SIR_type:
         model.set_contactMatrix(t, contactMatrix)
         model.rhs(np.multiply(xt, self.N), t)
         dx_det = np.multiply(dt/self.N, model.dxdt)
-        self.compute_tangent_space_variables(xt, t, contactMatrix)
+        self.compute_jacobian_and_b_matrix(xt, t, contactMatrix)
         cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
         return dx_det, cov
 
@@ -1404,7 +1403,8 @@ cdef class SIR_type:
         for i in range(Nf-1):
             t = time_points[i]
             xt = xm[i]
-            self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
+            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix,
+                                                b_matrix=True, jacobian=True)
             cond_cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             if False in np.isfinite(self.B_vec):
                 print(np.array(xt), t, self.B_vec)
@@ -1434,7 +1434,8 @@ cdef class SIR_type:
         for i in range(Nf-1):
             t = time_points[i]
             xt = xm[i]
-            self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
+            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix,
+                                                b_matrix=True, jacobian=True)
             cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
@@ -1447,6 +1448,43 @@ cdef class SIR_type:
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
         return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
+
+    cpdef find_fastest_growing_lin_mode(self, double t, contactMatrix):
+        cdef:
+            np.ndarray [DTYPE_t, ndim=2] J
+            np.ndarray [DTYPE_t, ndim=1] x0, mode=np.empty((self.dim), dtype=DTYPE)
+            list indices
+            Py_ssize_t S_index, M=self.M, i, j, n_inf, n, index
+        # assume no infected at the start and compute eig vecs for the infectious species
+        x0 = np.zeros((self.dim), dtype=DTYPE)
+        S_index = self.class_index_dict['S']
+        x0[S_index*M:(S_index+1)*M] = self.fi
+        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+                                                b_matrix=False, jacobian=True)
+        indices = self.infection_indices()
+        n_inf = len(indices)
+        J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
+        eigval, eigvec = sparse.linalg.eigs(J, return_eigenvectors=True, k=1, which='LR')
+        eigvec = np.abs(np.real(eigvec))[:, 0]
+        eigval = np.real(eigval)[0]
+
+        # substitute in infections and recompute fastest growing linear mode
+        for (j, i) in enumerate(indices):
+            x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
+            mode[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
+        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+                                                b_matrix=False, jacobian=True)
+        _, eigvec = sparse.linalg.eigs(self.J_mat, return_eigenvectors=True, k=1, which='LR')
+        mode = np.real(eigvec)[:, 0]
+        # non_inf_indices = np.delete(np.arange(self.nClass), indices)
+        # cdef double [:, :] J_mat=self.J_mat
+        # for i in non_inf_indices:
+        #     for n in range(M):
+        #         index = i*M+n
+        #         diag = J_mat[index, index]
+        #         J_mat[index, index] = 0
+        #         mode[index] = np.dot(J_mat[index, :], x0)/(eigval-diag)
+        return mode
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
@@ -1489,7 +1527,8 @@ cdef class SIR_type:
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         pass # to be implemented in subclasses
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                                    b_matrix=True, jacobian=False):
         pass # to be implemented in subclass
 
 
@@ -1520,7 +1559,7 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified. Only used if det_method is set to 'solve_ivp'.
         """
-        def rhs0(t, xt):
+        def rhs0(double t, double [:] xt):
             model.set_contactMatrix(t, contactMatrix)
             model.rhs(np.multiply(xt, self.N), t)
             return model.dxdt/self.N
@@ -1656,9 +1695,13 @@ cdef class SIR(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 3, M, fi, N, steps, det_method, lyapunov_method)
+        self.class_index_dict = {'S':0, 'Ia':1, 'Is':2}
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SIR(parameters, self.M, self.fi*self.N)
+
+    def infection_indices(self):
+        return [1, 2]
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1666,9 +1709,6 @@ cdef class SIR(SIR_type):
         else:
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'fsa':self.fsa}
         return parameters
-
-    def get_init_keys_dict(self):
-        return {'S':0, 'Ia':1, 'Is':2}
 
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
@@ -1684,7 +1724,8 @@ cdef class SIR(SIR_type):
         self.noise_correlation(s, Ia, Is, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                                b_matrix=True, jacobian=False):
         cdef:
             double [:] s, Ia, Is
             Py_ssize_t M=self.M
@@ -1694,9 +1735,12 @@ cdef class SIR(SIR_type):
         self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
-        self.noise_correlation(s, Ia, Is, l)
+        if b_matrix:
+            self.noise_correlation(s, Ia, Is, l)
         if jacobian:
             self.jacobian(s, l)
+
+
 
     cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1799,6 +1843,10 @@ cdef class SEIR(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 4, M, fi, N, steps, det_method, lyapunov_method)
+        self.class_index_dict = {'S':0, 'E':1, 'Ia':2, 'Is':3}
+
+    def infection_indices(self):
+        return [1, 2, 3]
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -1806,7 +1854,6 @@ cdef class SEIR(SIR_type):
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SEIR(parameters, self.M, self.fi*self.N)
-
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1816,9 +1863,6 @@ cdef class SEIR(SIR_type):
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2],
                             'gIs':params[3], 'gE': params[4], 'fsa':self.fsa}
         return parameters
-
-    def get_init_keys_dict(self):
-        return {'S':0, 'E':1, 'Ia':2, 'Is':3}
 
 
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
@@ -1836,7 +1880,8 @@ cdef class SEIR(SIR_type):
         self.noise_correlation(s, e, Ia, Is, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                            b_matrix=True, jacobian=False):
         cdef:
             double [:] s, e, Ia, Is
             Py_ssize_t M=self.M
@@ -1847,7 +1892,8 @@ cdef class SEIR(SIR_type):
         self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
-        self.noise_correlation(s, e, Ia, Is, l)
+        if b_matrix:
+            self.noise_correlation(s, e, Ia, Is, l)
         if jacobian:
             self.jacobian(s, l)
 
@@ -1879,7 +1925,7 @@ cdef class SEIR(SIR_type):
                 J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
                 J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
                 J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]/fi[n]
-                J[2, m, 3, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[1, m, 3, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] Ia, double [:] Is, double [:] l):
@@ -1967,9 +2013,10 @@ cdef class SEAIRQ(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
+        self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
 
-    def get_init_keys_dict(self):
-        return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
+    def infection_indices(self):
+        return [1, 2, 3, 4]
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -2031,7 +2078,8 @@ cdef class SEAIRQ(SIR_type):
         self.noise_correlation(s, e, a, Ia, Is, q, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                        b_matrix=True, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q
             Py_ssize_t M=self.M
@@ -2044,7 +2092,8 @@ cdef class SEAIRQ(SIR_type):
         self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
-        self.noise_correlation(s, e, a, Ia, Is, q, l)
+        if b_matrix:
+            self.noise_correlation(s, e, a, Ia, Is, q, l)
         if jacobian:
             self.jacobian(s, l)
 
@@ -2184,10 +2233,10 @@ cdef class SEAIRQ_testing(SIR_type):
     def __init__(self, parameters, testRate, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
         self.testRate=testRate
+        self.class_index = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
 
-    def get_init_keys_dict(self):
-        return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
-
+    def infection_indices(self):
+        return (1, 2, 3, 4)
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -2254,7 +2303,8 @@ cdef class SEAIRQ_testing(SIR_type):
         self.compute_dsigdt(sig)
 
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                            b_matrix=True, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q, TR
             Py_ssize_t M=self.M
@@ -2268,7 +2318,8 @@ cdef class SEAIRQ_testing(SIR_type):
         TR=self.testRate(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
-        self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
+        if b_matrix:
+            self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
         if jacobian:
             self.jacobian(s, e, a, Ia, Is, q, l, TR)
 
@@ -2428,7 +2479,6 @@ cdef class Spp(SIR_type):
         readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
         readonly list param_keys
-        readonly dict class_index_dict
         readonly pyross.deterministic.Spp det_model
 
 
@@ -2443,6 +2493,12 @@ cdef class Spp(SIR_type):
         super().__init__(parameters, self.nClass, M, fi, N, steps, det_method, lyapunov_method)
         self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*N)
 
+    def infection_indices(self):
+        indices = set()
+        for term in self.infection_terms:
+            infective_index = term[1]
+            indices.add(infective_index)
+        return list(indices)
 
     def set_params(self, parameters):
         nParams = len(self.param_keys)
@@ -2480,7 +2536,8 @@ cdef class Spp(SIR_type):
         self.noise_correlation(x, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                            b_matrix=True, jacobian=False):
         cdef:
             Py_ssize_t nClass=self.nClass, M=self.M
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
@@ -2489,9 +2546,10 @@ cdef class Spp(SIR_type):
         self.CM = contactMatrix(t)
         if self.constant_terms.size > 0:
             fi = x[(nClass-1)*M:]
-        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.fill_lambdas(x, l)
-        self.noise_correlation(x, l)
+        if b_matrix:
+            self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+            self.noise_correlation(x, l)
         if jacobian:
             self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
             self.jacobian(x, l)
@@ -2665,7 +2723,6 @@ cdef class SppQ(SIR_type):
         readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
         readonly np.ndarray parameters
         readonly list param_keys
-        readonly dict class_index_dict
         readonly Py_ssize_t nClassU, nClassUwoN
         readonly pyross.deterministic.SppQ det_model
         readonly object testRate
@@ -2693,6 +2750,12 @@ cdef class SppQ(SIR_type):
             self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
             self.nClassUwoN = self.nClassU
 
+    def infection_indices(self):
+        indices = set()
+        for term in self.infection_terms:
+            infective_index = term[1]
+            indices.add(infective_index)
+        return list(indices)
 
 
     def set_params(self, parameters):
@@ -2768,7 +2831,8 @@ cdef class SppQ(SIR_type):
         self.noise_correlation(x, l, r, tau0)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                        b_matrix=True, jacobian=False):
         cdef:
             Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, M=self.M
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
@@ -2781,10 +2845,11 @@ cdef class SppQ(SIR_type):
         TR = self.testRate(t)
         if self.constant_terms.size > 0:
             fi = x[(nClassU-1)*M:]
-        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.fill_lambdas(x, l)
         ntestpop, tau0 = self.calculate_test_r(x, r, TR)
-        self.noise_correlation(x, l, r, tau0)
+        if b_matrix:
+            self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+            self.noise_correlation(x, l, r, tau0)
         if jacobian:
             self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
             self.jacobian(x, l, r, ntestpop, tau0)
