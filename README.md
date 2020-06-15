@@ -1,5 +1,5 @@
 ## PyRoss: Infectious disease models in Python 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) 
 [![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
 ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
 [![PyPI version](https://badge.fury.io/py/pyross.svg)](https://badge.fury.io/py/pyross)
@@ -60,7 +60,7 @@ PyRoss requires the following software
 
 - Python 2.6+ or Python 3.4+
 - [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/)  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt) |  data files ([Pandas](https://pandas.pydata.org/), [xlrd](https://xlrd.readthedocs.io/en/latest/))
-- Optional:  integrators ([OdesPy](https://github.com/rajeshrinet/odespy)) |  parallelizing inference ([pathos](https://anaconda.org/conda-forge/pathos)) 
+- Optional:  integrators ([OdesPy](https://github.com/rajeshrinet/odespy)) |  parallelizing inference ([pathos](https://anaconda.org/conda-forge/pathos)) | nested sampling ([nestle](https://github.com/kbarbary/nestle))
 
 
 Clone (or download) the repository and use a terminal to install PyRoss (above [requirements](https://github.com/rajeshrinet/pyross/blob/master/requirements.txt) need to be satisfied)

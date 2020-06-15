@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hybrid simulations &mdash; PyRoss 1.0.0 documentation</title>
+  <title>Utils &mdash; PyRoss 1.0.0 documentation</title>
   
 
   
@@ -36,8 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Bayesian inference" href="inference.html" />
-    <link rel="prev" title="Stochastic simulations" href="stochastic.html" /> 
+    <link rel="prev" title="Forecasting" href="forecast.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,15 +83,12 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Hybrid simulations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils</a></li>
 </ul>
 
             
@@ -138,13 +134,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Hybrid simulations</li>
+      <li>Utils</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/hybrid.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -157,51 +153,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="hybrid-simulations">
-<h1>Hybrid simulations<a class="headerlink" href="#hybrid-simulations" title="Permalink to this headline">¶</a></h1>
-<p>Hybrid simulation scheme using a combination of stochastic and deterministic schemes.</p>
-<div class="section" id="sir">
-<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="pyross.hybrid.SIR">
-<em class="property">class </em><code class="sig-prename descclassname">pyross.hybrid.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.hybrid.SIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Susceptible, Infected, Removed (SIR)
-Ia: asymptomatic
-Is: symptomatic</p>
-<p>…</p>
+  <div class="section" id="utils">
+<h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<p>Miscellaneous classes and methods used in PyRoss which do not fit elsewhere.</p>
+<dl class="py method">
+<dt id="pyross.utils.getPopulation">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">getPopulation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.utils.getPopulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes coutry name and number, M, of age-groups as argument
+Returns population structured in M age-groups</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
-<dt>Contains the following keys:</dt><dd><dl class="simple">
-<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
-</dd>
-<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
-</dd>
-<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
-</dd>
-<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
-</dd>
-<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
-I.e len(contactMatrix)</p></li>
-<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+<li><p><strong>country</strong> (<em>string</em>) – Default is ‘India’</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Deafault is 16 age-groups</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt id="pyross.hybrid.SIR.simulate">
-<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.hybrid.SIR.simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
-</div>
+<dl class="py method">
+<dt id="pyross.utils.hessian_finite_difference">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">hessian_finite_difference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.utils.hessian_finite_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward finite-difference computation of the Hessian of a function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>(</em><em>dims=1</em><em>)</em><em>, </em><em>optional</em>) – Position at which the hessian is to be computed.</p></li>
+<li><p><strong>function</strong> (<em>function</em><em>(</em><em>numpy.array</em><em>)</em>) – Function of interest.</p></li>
+<li><p><strong>pos</strong> – Step size used for FD computation (can be parameter dependant).</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Different options for the FD computation: “forward” or “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>hess</strong> – Hessian of function at pos.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array(dims=2)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -212,10 +203,8 @@ I.e len(contactMatrix)</p></li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="inference.html" class="btn btn-neutral float-right" title="Bayesian inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="stochastic.html" class="btn btn-neutral float-left" title="Stochastic simulations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="forecast.html" class="btn btn-neutral float-left" title="Forecasting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

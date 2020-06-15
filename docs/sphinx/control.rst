@@ -1,4 +1,4 @@
-Control with Non-Pharmaceutical interventions
+Control with NPI 
 =================================================
 
 

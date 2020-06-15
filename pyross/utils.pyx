@@ -9,75 +9,6 @@ cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
 import matplotlib.pyplot as plt
 
-class GPR:
-    def __init__(self, nS, nT, iP, nP, xS, xT, yT):
-        self.nS   =  nS           # # of test data points
-        self.nT   =  nT           # # of training data points
-        self.iP   =  iP           # # inverse of sigma
-        self.nP   =  nP           # # number of priors
-        self.xS   =  xS           # test input
-        self.xT   =  xT           # training input
-        self.yT   =  yT           # training output
-
-        self.yS   =  0            # test output
-        self.yP   =  0            # prior output
-        self.K    =  0            # kernel
-        self.Ks   =  0            # kernel
-        self.Kss  =  0            # kernel
-        self.mu   =  0            # mean
-        self.sd   =  0            # stanndard deviation
-
-
-    def calcDistM(self, r, s):
-        '''Calculate distance matrix between 2 1D arrays'''
-        return r[..., np.newaxis] - s[np.newaxis, ...]
-
-
-    def calcKernels(self):
-        '''Calculate the kernel'''
-        cc = self.iP*0.5
-        self.K   = np.exp(-cc*self.calcDistM(self.xT, self.xT)**2)
-        self.Ks  = np.exp(-cc*self.calcDistM(self.xT, self.xS)**2)
-        self.Kss = np.exp(-cc*self.calcDistM(self.xS, self.xS)**2)
-        return
-
-
-    def calcPrior(self):
-        '''Calculate the prior'''
-        L  = np.linalg.cholesky(self.Kss + 1e-6*np.eye(self.nS))
-        G  = np.random.normal(size=(self.nS, self.nP))
-        yP = np.dot(L, G)
-        return
-
-
-    def calcMuSigma(self):
-        '''Calculate the mean'''
-        self.mu =  np.dot(self.Ks.T, np.linalg.solve(self.K, self.yT))
-
-        vv = self.Kss - np.dot(self.Ks.T, np.linalg.solve(self.K, self.Ks))
-        self.sd = np.sqrt(np.abs(np.diag(vv)))
-
-        # Posterior
-        L       = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
-        self.yS = self.mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
-        return
-
-
-    def plotResults(self):
-        plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
-        plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
-        plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')
-
-        # fill 95% confidence interval (2*sd about the mean)
-        plt.fill_between(self.xS.flat, self.mu-2*self.sd, self.mu+2*self.sd, color="#348ABD", alpha=0.4, label='2 sigma')
-        plt.axis('tight'); plt.legend(fontsize=15); plt.rcParams.update({'font.size':18})
-
-
-    def runGPR(self):
-        self.calcKernels()
-        self.calcPrior()
-        self.calcMuSigma()
-        self.plotResults()
 
 
 def parse_model_spec(model_spec, param_keys):
@@ -376,7 +307,7 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         return x, log_det
 
 
-def hessian_finite_difference(pos, function, eps=1e-3):
+def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
     """Forward finite-difference computation of the Hessian of a function.
 
     Parameters
@@ -387,6 +318,8 @@ def hessian_finite_difference(pos, function, eps=1e-3):
         Function of interest.
     pos: float or numpy.array(dims=1), optional
         Step size used for FD computation (can be parameter dependant).
+    method: str
+        Different options for the FD computation: "forward" or "central".
 
     Returns
     -------
@@ -397,30 +330,54 @@ def hessian_finite_difference(pos, function, eps=1e-3):
     if not hasattr(eps, "__len__"):
         eps = eps*np.ones(k)
 
-    hessian = np.empt((k, k))
+    hessian = np.empty((k, k))
 
-    val_central = function(pos)
-    val1 = np.zeros(k)
-    for i in range(k):
-        pos[i] += eps[i]
-        val1[i] = function(pos)
-        pos[i] -= eps[i]
+    if method == "forward":
+        val_central = function(pos)
+        val1 = np.zeros(k)
+        for i in range(k):
+            pos[i] += eps[i]
+            val1[i] = function(pos)
+            pos[i] -= eps[i]
 
-    for i in range(k):
-        pos[i] += eps[i]
-        for j in range(k):
-            pos[j] += eps[j]
-            val2 = function(pos)
-            pos[j] -= eps[j]
+        for i in range(k):
+            pos[i] += eps[i]
+            for j in range(k):
+                pos[j] += eps[j]
+                val2 = function(pos)
+                pos[j] -= eps[j]
 
-            hessian[i, j] = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
-        pos[i] -= eps[i]
+                hessian[i, j] = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
+            pos[i] -= eps[i]
 
-    return 1/2 * (hessian + hessian.T)
+        return 1/2 * (hessian + hessian.T)
+
+    if method == "central":
+        orig_pos = pos.copy()
+        for i in range(k):
+            for j in range(i+1):
+                pos = orig_pos.copy()
+                pos[i] += eps[i]
+                pos[j] += eps[j]
+                val1 = function(pos)
+                pos[j] -= 2*eps[j]
+                val2 = function(pos)
+                pos = orig_pos.copy()
+                pos[i] -= eps[i]
+                pos[j] += eps[j]
+                val3 = function(pos)
+                pos[j] -= 2*eps[j]
+                val4 = function(pos)
+                hessian[i, j] = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
+                hessian[j, i] = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
+
+        return hessian
+
+    raise Exception("Finite-difference method must be 'forward' or 'central'.")
 
 cpdef make_fltr(fltr_list, n_list):
     fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]
-    return np.array(fltr) 
+    return np.array(fltr)
 
 cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     if fltr.ndim == 2:
@@ -503,16 +460,20 @@ def getPopulation(country='India', M=16):
     ----------
     country: string
         Default is 'India'
-    M: int 
+    M: int
         Deafault is 16 age-groups
     """
+    u0 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/'
 
-    u1 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/India-2019.csv'
-    u2 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/UK.csv'
-    u3 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Germany-2019.csv'
-    u4 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Italy-2019.csv'
-    u5 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/age_structures/Denmark-2019.csv'
-    
+    u1 = u0 + 'age_structures/India-2019.csv'
+    u2 = u0 + 'age_structures/UK.csv'
+    u3 = u0 + 'age_structures/Germany-2019.csv'
+    u4 = u0 + 'age_structures/Italy-2019.csv'
+    u5 = u0 + 'age_structures/Denmark-2019.csv'
+    u6 = u0 + 'age_structures/UK.csv'
+    u7 = u0 + 'age_structures/US.csv'
+    u8 = u0 + 'age_structures/China-2019.csv'
+
     import pandas as pd
     if country=='India':
         data = pd.read_csv(u1, sep=',',header=None, skiprows=[0])
@@ -527,30 +488,51 @@ def getPopulation(country='India', M=16):
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     elif country=='Germany':
         data = pd.read_csv(u3, sep=',',header=None, skiprows=[0])
         N_m  = np.array((data[1]))[0:M]
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     elif country=='Italy':
         data = pd.read_csv(u4, sep=',',header=None, skiprows=[0])
         N_m  = np.array((data[1]))[0:M]
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
     elif country=='Denmark':
         data = pd.read_csv(u5, sep=',',header=None, skiprows=[0])
         N_m  = np.array((data[1]))[0:M]
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
-    
+
+    elif country=='UK':
+        data = pd.read_csv(u6, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
+    elif country=='USA':
+        data = pd.read_csv(u7, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
+    elif country=='China':
+        data = pd.read_csv(u8, sep=',',header=None, skiprows=[0])
+        N_m  = np.array((data[1]))[0:M]
+        N_f  = np.array((data[2]))[0:M]
+        Ni   = N_m + N_f
+        Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
     else:
-        print('not implemnted, please do it locally')
+        print('Direct extraction of Ni is not implemnted , please do it locally')
 
     return Ni
 
@@ -570,8 +552,93 @@ def get_summed_CM(CH0, CW0, CS0, CO0, M, M0, Ni, Ni0):
     for i in range(M):
         for j in range(M):
             i1, j1 = i*M, j*M
-            CH[i,j] = np.sum( CH0[i1:i1+M,j1:j1+M]  )/Ni[i]
-            CW[i,j] = np.sum( CW0[i1:i1+M,j1:j1+M]  )/Ni[i]
-            CS[i,j] = np.sum( CS0[i1:i1+M,j1:j1+M]  )/Ni[i]
-            CO[i,j] = np.sum( CO0[i1:i1+M,j1:j1+M]  )/Ni[i]
+            CH[i,j] = np.sum( CH0[i1:i1+M,j1:j1+M] )/Ni[i]
+            CW[i,j] = np.sum( CW0[i1:i1+M,j1:j1+M] )/Ni[i]
+            CS[i,j] = np.sum( CS0[i1:i1+M,j1:j1+M] )/Ni[i]
+            CO[i,j] = np.sum( CO0[i1:i1+M,j1:j1+M] )/Ni[i]
     return CH, CW, CS, CO
+
+
+class GPR:
+    def __init__(self, nS, nT, iP, nP, xS, xT, yT):
+        self.nS   =  nS           # # of test data points
+        self.nT   =  nT           # # of training data points
+        self.iP   =  iP           # # inverse of sigma
+        self.nP   =  nP           # # number of priors
+        self.xS   =  xS           # test input
+        self.xT   =  xT           # training input
+        self.yT   =  yT           # training output
+
+        self.yS   =  0            # test output
+        self.yP   =  0            # prior output
+        self.K    =  0            # kernel
+        self.Ks   =  0            # kernel
+        self.Kss  =  0            # kernel
+        self.mu   =  0            # mean
+        self.sd   =  0            # stanndard deviation
+
+
+    def calcDistM(self, r, s):
+        '''Calculate distance matrix between 2 1D arrays'''
+        return r[..., np.newaxis] - s[np.newaxis, ...]
+
+
+    def calcKernels(self):
+        '''Calculate the kernel'''
+        cc = self.iP*0.5
+        self.K   = np.exp(-cc*self.calcDistM(self.xT, self.xT)**2)
+        self.Ks  = np.exp(-cc*self.calcDistM(self.xT, self.xS)**2)
+        self.Kss = np.exp(-cc*self.calcDistM(self.xS, self.xS)**2)
+        return
+
+
+    def calcPrior(self):
+        '''Calculate the prior'''
+        L  = np.linalg.cholesky(self.Kss + 1e-6*np.eye(self.nS))
+        G  = np.random.normal(size=(self.nS, self.nP))
+        yP = np.dot(L, G)
+        return
+
+
+    def calcMuSigma(self):
+        '''Calculate the mean'''
+        self.mu =  np.dot(self.Ks.T, np.linalg.solve(self.K, self.yT))
+
+        vv = self.Kss - np.dot(self.Ks.T, np.linalg.solve(self.K, self.Ks))
+        self.sd = np.sqrt(np.abs(np.diag(vv)))
+
+        # Posterior
+        L       = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
+        self.yS = self.mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
+        return
+
+
+    def plotResults(self):
+        plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
+        plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
+        plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')
+
+        # fill 95% confidence interval (2*sd about the mean)
+        plt.fill_between(self.xS.flat, self.mu-2*self.sd, self.mu+2*self.sd, color="#348ABD", alpha=0.4, label='2 sigma')
+        plt.axis('tight'); plt.legend(fontsize=15); plt.rcParams.update({'font.size':18})
+
+
+    def runGPR(self):
+        self.calcKernels()
+        self.calcPrior()
+        self.calcMuSigma()
+        self.plotResults() 
+
+
+def getDiagonalCM(country, M=16):
+    import pyross
+    if country=='UK':
+        CH, CW, CS, CO = pyross.contactMatrix.UK()
+    else:
+        CH, CW, CS, CO = pyross.contactMatrix.getCM(country)
+    CM=CH+CW+CS+CO
+    
+    x = np.zeros(M)
+    for i in range(M):
+        x[i] = 1*CM[i,i]
+    return x

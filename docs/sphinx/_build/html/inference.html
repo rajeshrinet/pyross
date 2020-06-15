@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Control with Non-Pharmaceutical interventions" href="control.html" />
+    <link rel="next" title="Control with NPI" href="control.html" />
     <link rel="prev" title="Hybrid simulations" href="hybrid.html" /> 
 </head>
 
@@ -93,9 +93,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="control.html">Control with Non-Pharmaceutical interventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
 <li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contact_matrix.html">Contact matrix class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 
             
@@ -266,6 +267,84 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 <dd><p>Parent class for inference for all SIR-type classes listed below</p>
 <p>All subclasses use the same functions to perform inference, which are documented below.</p>
 <dl class="py method">
+<dt id="pyross.inference.SIR_type.FIM">
+<code class="sig-name descname">FIM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.FIM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Fisher Information Matrix (FIM) of the stochastic model.
+:param param_keys: A list of parameters to be inferred.
+:type param_keys: list
+:param init_fltr: True for initial conditions to be inferred.</p>
+<blockquote>
+<div><p>Shape = (nClass*M)
+Total number of True = total no. of variables - total no. of observed</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>maps</strong> (<em>numpy.array</em>) – MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em>) – The observed initial data</p></li>
+<li><p><strong>fltr</strong> (<em>boolean sequence</em><em> or </em><em>array</em>) – True for observed and False for unobserved.
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>dx</strong> (<em>float</em><em>, </em><em>optional</em>) – Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
+<li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+age-dependent parameter individually</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>FIM</strong> – The Fisher Information Matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.FIM_det">
+<code class="sig-name descname">FIM_det</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.FIM_det" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Fisher Information Matrix (FIM) of the deterministic model.
+:param param_keys: A list of parameters to be inferred.
+:type param_keys: list
+:param init_fltr: True for initial conditions to be inferred.</p>
+<blockquote>
+<div><p>Shape = (nClass*M)
+Total number of True = total no. of variables - total no. of observed</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>maps</strong> (<em>numpy.array</em>) – MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em>) – The observed initial data</p></li>
+<li><p><strong>fltr</strong> (<em>boolean sequence</em><em> or </em><em>array</em>) – True for observed and False for unobserved.
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>measurement_error</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.</p></li>
+<li><p><strong>dx</strong> (<em>float</em><em>, </em><em>optional</em>) – Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.</p></li>
+<li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+age-dependent parameter individually</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>FIM_det</strong> – The Fisher Information Matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pyross.inference.SIR_type.compute_hessian">
 <code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the Hessian of the MAP estimate.</p>
@@ -281,6 +360,7 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 <li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
 <li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
 <li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3</p></li>
+<li><p><strong>fd_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of finite-difference scheme used to compute the hessian, supports “forward” and “central”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -309,6 +389,7 @@ e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False,
 <li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – Step size in the calculation of the Hessian.</p></li>
 <li><p><strong>obs0</strong> (<em>numpy.array</em><em>, </em><em>optional</em>) – Observed initial condition, if more detailed than obs[0]</p></li>
 <li><p><strong>fltr0</strong> (<em>2d numpy.array</em><em>, </em><em>optional</em>) – Matrix filter for obs0</p></li>
+<li><p><strong>fd_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of finite-difference scheme used to compute the hessian, supports “forward” and “central”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -391,7 +472,7 @@ The function must return (aW, aS, aO). If not set, assume intervention that’s 
 <li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
 <li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
-<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em>) – The absolute tolerance for global optimisation.</p></li>
 <li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
 <li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
 <li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
@@ -440,7 +521,7 @@ age-dependent parameter individually</p></li>
 <li><p><strong>eps</strong> (<em>float</em>) – Disallow parameters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
 <li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
-<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em>) – The absolute tolerance for global optimisation.</p></li>
 <li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
 <li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
 <li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
@@ -514,7 +595,7 @@ The function must return (aW, aS, aO). If not set, assume intervention that’s 
 <li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
 <li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
-<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em>) – The absolute tolerance for global minimisation.</p></li>
 <li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
 <li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
 <li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
@@ -567,7 +648,7 @@ age-dependent parameter individually</p></li>
 <li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – Relative tolerance</p></li>
 <li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
 <li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
-<li><p><strong>global_ftol_factor</strong> (<em>float</em>) – The relative tolerance for global optimisation.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em>) – The absolute tolerance for global optimisation.</p></li>
 <li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
 <li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
 <li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
@@ -671,6 +752,9 @@ a bias to the result, therefore one must make sure that the blocked regions are 
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the nested sampling procedure.</p></li>
+<li><p><strong>queue_size</strong> (<em>int</em>) – Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+is computed in parallel (if queue_size &gt; 1).</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – The maximal number of processes used to compute samples.</p></li>
 <li><p><strong>npoints</strong> (<em>int</em>) – Argument of <cite>nestle.sample</cite>. The number of active points used in the nested sampling algorithm. The higher the
 number the more accurate and expensive is the evidence computation.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – Nested sampling method used int <cite>nestle.sample</cite>, see their documentation. Default is <cite>single</cite>, for multimodel posteriors,
@@ -727,6 +811,9 @@ a bias to the result, therefore one must make sure that the blocked regions are 
 for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
 age-dependent parameter individually</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the nested sampling procedure.</p></li>
+<li><p><strong>queue_size</strong> (<em>int</em>) – Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+is computed in parallel (if queue_size &gt; 1).</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – The maximal number of processes used to compute samples.</p></li>
 <li><p><strong>npoints</strong> (<em>int</em>) – Argument of <cite>nestle.sample</cite>. The number of active points used in the nested sampling algorithm. The higher the
 number the more accurate and expensive is the evidence computation.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – Nested sampling method used int <cite>nestle.sample</cite>, see their documentation. Default is <cite>single</cite>, for multimodel posteriors,
@@ -1003,7 +1090,7 @@ Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="control.html" class="btn btn-neutral float-right" title="Control with Non-Pharmaceutical interventions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="control.html" class="btn btn-neutral float-right" title="Control with NPI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="hybrid.html" class="btn btn-neutral float-left" title="Hybrid simulations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
