@@ -7,7 +7,7 @@ dependencies:
   - numpy
   - matplotlib
   - jupyter
-  - scipy 
+  - scipy
   - nlopt
   - pathos
   - pip
@@ -17,3 +17,4 @@ dependencies:
   - xlrd
   - pip:
     - cma
+    - git+https://github.com/kbarbary/nestle.git
