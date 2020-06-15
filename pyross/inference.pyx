@@ -519,10 +519,10 @@ cdef class SIR_type:
         '''
         param_dim = len(param_keys)
         fltr = pyross.utils.process_fltr(fltr, Nf)
-        
+
         fltr0 = fltr[0]
         obs0 = obs0[0]
-        
+
         fltr = fltr[1:]
 
         bounds = np.zeros((len(maps), 2)) # This does not matter here
@@ -530,7 +530,7 @@ cdef class SIR_type:
 
         flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
             =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-        
+
         full_fltr = sparse.block_diag(fltr)
 
         def partial_derivative(func, var, point, dx):
@@ -614,7 +614,7 @@ cdef class SIR_type:
         i_lower = np.tril_indices(dim,-1)
         FIM[i_lower] = FIM.T[i_lower]
         return FIM
-    
+
     def FIM_det(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
                contactMatrix, measurement_error=1e-2, dx=None,
                 infer_scale_parameter=False):
@@ -658,10 +658,10 @@ cdef class SIR_type:
         '''
         param_dim = len(param_keys)
         fltr = pyross.utils.process_fltr(fltr, Nf)
-        
+
         fltr0 = fltr[0]
         obs0 = obs0[0]
-        
+
         fltr = fltr[1:]
 
         bounds = np.zeros((len(maps), 2)) # This does not matter here
@@ -669,16 +669,16 @@ cdef class SIR_type:
 
         flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
             =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-        
+
         full_fltr = sparse.block_diag(fltr)
-        
+
         def partial_derivative(func, var, point, dx):
             args = point[:]
             def wraps(x):
                 args[var] = x
                 return func(args)
             return derivative(wraps, point[var], dx=dx)
-        
+
         def _mean(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
@@ -691,18 +691,18 @@ cdef class SIR_type:
             xm = np.ravel(xm[1:])
             xm_red = full_fltr@xm
             return xm_red
-        
+
         sigma_sq = measurement_error*measurement_error
         cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(Nf-1)))
         cov = np.diag(cov_diag)
         cov_red = full_fltr@cov@np.transpose(full_fltr)
-        
+
         if dx == None:
             dx = np.sqrt(np.spacing(np.amin(np.abs(_mean(flat_maps)))))
-        
+
         dim = len(flat_maps)
         FIM_det = np.zeros((dim,dim))
-        
+
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
             dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
@@ -1721,20 +1721,10 @@ cdef class SIR_type:
         # substitute in infections and recompute fastest growing linear mode
         for (j, i) in enumerate(indices):
             x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
-            mode[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
         self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
                                                 b_matrix=False, jacobian=True)
         _, eigvec = sparse.linalg.eigs(self.J_mat, return_eigenvectors=True, k=1, which='LR')
-        mode = np.real(eigvec)[:, 0]
-        # non_inf_indices = np.delete(np.arange(self.nClass), indices)
-        # cdef double [:, :] J_mat=self.J_mat
-        # for i in non_inf_indices:
-        #     for n in range(M):
-        #         index = i*M+n
-        #         diag = J_mat[index, index]
-        #         J_mat[index, index] = 0
-        #         mode[index] = np.dot(J_mat[index, :], x0)/(eigval-diag)
-        return mode
+        return np.real(eigvec)[:, 0]
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
@@ -2483,7 +2473,7 @@ cdef class SEAIRQ_testing(SIR_type):
     def __init__(self, parameters, testRate, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
         self.testRate=testRate
-        self.class_index = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
+        self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
 
     def infection_indices(self):
         return (1, 2, 3, 4)
@@ -2744,10 +2734,22 @@ cdef class Spp(SIR_type):
         self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*N)
 
     def infection_indices(self):
+        cdef Py_ssize_t a = 100
         indices = set()
+
+        # Find all the infection terms
         for term in self.infection_terms:
             infective_index = term[1]
             indices.add(infective_index)
+
+        # Find all the terms that turn into infection terms
+        while a > 0:
+            a = 0
+            for term in self.linear_terms:
+                product_index = term[2]
+                if product_index in indices:
+                    indices.add(term[1])
+                    a += 1
         return list(indices)
 
     def set_params(self, parameters):
