@@ -94,9 +94,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils: Miscellaneous methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 
             
@@ -269,7 +269,7 @@ Currently, all of the methods listed below are implemented for manifold, and <ci
 <dl class="py method">
 <dt id="pyross.inference.SIR_type.FIM">
 <code class="sig-name descname">FIM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.FIM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the Fisher Information Matrix (FIM) of the model.
+<dd><p>Computes the Fisher Information Matrix (FIM) of the stochastic model.
 :param param_keys: A list of parameters to be inferred.
 :type param_keys: list
 :param init_fltr: True for initial conditions to be inferred.</p>
@@ -281,7 +281,7 @@ Total number of True = total no. of variables - total no. of observed</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>maps</strong> (<em>numpy.array</em>) – MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p></li>
-<li><p><strong>obs</strong> (<em>numpy.array</em>) – The observed data with the initial datapoint</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em>) – The observed initial data</p></li>
 <li><p><strong>fltr</strong> (<em>boolean sequence</em><em> or </em><em>array</em>) – True for observed and False for unobserved.
 e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p></li>
 <li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
@@ -298,6 +298,45 @@ age-dependent parameter individually</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>FIM</strong> – The Fisher Information Matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.FIM_det">
+<code class="sig-name descname">FIM_det</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.FIM_det" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Fisher Information Matrix (FIM) of the deterministic model.
+:param param_keys: A list of parameters to be inferred.
+:type param_keys: list
+:param init_fltr: True for initial conditions to be inferred.</p>
+<blockquote>
+<div><p>Shape = (nClass*M)
+Total number of True = total no. of variables - total no. of observed</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>maps</strong> (<em>numpy.array</em>) – MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em>) – The observed initial data</p></li>
+<li><p><strong>fltr</strong> (<em>boolean sequence</em><em> or </em><em>array</em>) – True for observed and False for unobserved.
+e.g. if only <cite>Is</cite> is known for SIR with one age group, fltr = [False, False, True]</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>Nf</strong> (<em>float</em>) – Number of data points along the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>measurement_error</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.</p></li>
+<li><p><strong>dx</strong> (<em>float</em><em>, </em><em>optional</em>) – Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.</p></li>
+<li><p><strong>infer_scale_parameter</strong> (<em>bool</em><em> or </em><em>list of bools</em><em> (</em><em>size: number of age-dependenly specified parameters</em><em>)</em>) – Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+age-dependent parameter individually</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>FIM_det</strong> – The Fisher Information Matrix</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>2d numpy.array</p>

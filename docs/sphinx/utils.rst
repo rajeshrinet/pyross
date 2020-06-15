@@ -1,5 +1,7 @@
-Utils: Miscellaneous methods 
+Utils 
 ==================================
+
+Miscellaneous classes and methods used in PyRoss which do not fit elsewhere. 
 
 
 .. automethod:: pyross.utils.getPopulation

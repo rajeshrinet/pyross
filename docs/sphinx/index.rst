@@ -54,6 +54,6 @@ API Reference
    hybrid
    inference
    control
-   forecast
    contactMatrix
+   forecast
    utils
