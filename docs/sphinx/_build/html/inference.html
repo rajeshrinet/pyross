@@ -922,6 +922,66 @@ Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘
 <span class="go">    }</span>
 </pre></div>
 </div>
+<dl class="py method">
+<dt id="pyross.inference.Spp.FIM_sym">
+<code class="sig-name descname">FIM_sym</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.FIM_sym" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the FIM based off symbolic expressions. In development,</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.adj_RHS_mean">
+<code class="sig-name descname">adj_RHS_mean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.adj_RHS_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>RHS function for the adjoint gradient calculation of the time evolution operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_A_spp">
+<code class="sig-name descname">construct_A_spp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_A_spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>construct Spp A. x is a sympy matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_B_spp">
+<code class="sig-name descname">construct_B_spp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_B_spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp B. x is a sympy array</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_J_spp">
+<code class="sig-name descname">construct_J_spp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_J_spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp J. x is a sympy matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_l">
+<code class="sig-name descname">construct_l</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs sympy l. x is a sympy matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.dAd">
+<code class="sig-name descname">dAd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.dAd" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp B. param is a string or sympy symbol. Most likely you’ll wish to use ‘all’ string
+keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+p is a sympy array which contains epi parameters. nParams*M due to age dependence
+[dAdp]_ij = dA_j/dp_i</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.dBd">
+<code class="sig-name descname">dBd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.dBd" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp B. param is a string or sympy symbol. Most likely you’ll wish to use ‘all’ string
+keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+p is a sympy array which contains epi parameters. nParams*M due to age dependence
+[dBdp]_ijk = dB_jk/dp_i</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.lambdify_derivative_functions">
+<code class="sig-name descname">lambdify_derivative_functions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.lambdify_derivative_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create python functions from sympy expressions</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>

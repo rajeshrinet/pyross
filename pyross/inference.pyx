@@ -8,7 +8,8 @@ from scipy.interpolate import make_interp_spline
 from scipy.misc import derivative
 cimport numpy as np
 cimport cython
-import time
+import time, sympy
+from sympy import Array
 
 try:
     # Optional support for nested sampling.
@@ -96,18 +97,10 @@ cdef class SIR_type:
         return minus_logp
 
     def symbolic_test(self):
-        try: ## optional support for symbolic differentiation
-            import sympy
-        except ImportError:
-            sympy=None
-
-        if sympy == None:
-            pass
-        else:
-            x  =  sympy.symbols('x')
-            expr = sympy.sin(x)
-            diff = sympy.diff(expr, x)
-            return diff, float(x.subs(x, 2))
+        x  =  sympy.symbols('x')
+        expr = sympy.sin(x)
+        diff = sympy.diff(expr, x)
+        return diff, float(x.subs(x, 2))
 
     def infer_parameters(self, keys, guess, stds, bounds, np.ndarray x,
                         double Tf, Py_ssize_t Nf, contactMatrix,
