@@ -1,7 +1,10 @@
 ## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
-[![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
+
 ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
-![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg) [![PyPI version](https://badge.fury.io/py/pyross.svg)](https://badge.fury.io/py/pyross) [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)
+![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg) 
+[![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/pyross.svg)](https://badge.fury.io/py/pyross) 
+[![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)
 ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) 
 ![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) 
