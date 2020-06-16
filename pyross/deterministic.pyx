@@ -421,6 +421,17 @@ cdef class SIR(CommonMethods):
     
     * Ia: asymptomatic
     * Is: symptomatic 
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i}
+    .. math::
+        \dot{I}_{i}^{a} = \\alpha_{i}\lambda_{i}(t)S_{i}-\gamma_{I^{a}}I_{i}^{a},
+    .. math::
+        \dot{I}_{i}^{s}= \\bar{\\alpha_{i}}\lambda_{i}(t)S_{i}-\gamma_{I^{s}}I_{i}^{s},
+    .. math::
+        \dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\left(C_{ij}^{a}(t)\\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}(t)
+        \\frac{I_{j}^{s}}{N_{j}}\\right),\quad i,j=1,\ldots M
 
     ...
 
@@ -590,6 +601,17 @@ cdef class SIkR(CommonMethods):
     """
     Susceptible, Infected, Removed (SIkR). Method of k-stages of I
 
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i},
+    .. math::
+        \dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},
+    .. math::
+        \dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k}, 
+    .. math::
+        \dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.
+
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\\frac{I_{j}^{n}}{N_{j}},
     ...
 
     Parameters
@@ -713,7 +735,22 @@ cdef class SEIR(CommonMethods):
     Susceptible, Exposed, Infected, Removed (SEIR)
 
     * Ia: asymptomatic
-    * Is: symptomatic
+    * Is: symptomatic 
+     
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i}
+    .. math::
+        \dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}
+    .. math::
+        \dot{I}_{i}^{a} = \\alpha_{i}\gamma_{E}^{i}E_{i}-\gamma_{I^{a}}I_{i}^{a},
+    .. math::
+        \dot{I}_{i}^{s}= \\bar{\\alpha_{i}}\gamma_{E}^{i}E_{i}-\gamma_{I^{s}}I_{i}^{s},
+    .. math::
+        \dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\left(C_{ij}^{a}(t)\\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}(t)
+        \\frac{I_{j}^{s}}{N_{j}}\\right),\quad i,j=1,\ldots M
+
 
     ...
 
@@ -854,7 +891,22 @@ cdef class SEkIkR(CommonMethods):
     """
     Susceptible, Exposed, Infected, Removed (SEkIkR). 
     Method of k-stages of E and I
+    
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i},
+    .. math::
+        \dot{E}_{i}^{1}=\lambda_{i}(t)S_{i}-k_{E}\gamma_{E}E_{i}^{1}
+    .. math::
+        \dot{E}_{i}^{k}=k_{E}\gamma_{E}E_{i}^{k-1}-k_{E}\gamma_{E}E_{i}^{k}
+    .. math::
+        \dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},
+    .. math::
+        \dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k}, 
+    .. math::
+        \dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.
 
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\\frac{I_{j}^{n}}{N_{j}},
     ...
 
     Parameters
@@ -1004,7 +1056,26 @@ cdef class SEkIkIkR(CommonMethods):
     
     * Ia: asymptomatic
     * Is: symptomatic
-
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i},
+    .. math::
+        \dot{E}_{i}^{1}=\lambda_{i}(t)S_{i}-k_{E}\gamma_{E}E_{i}^{1}
+    .. math::
+        \dot{E}_{i}^{k_{E}}=k_{E}\gamma_{E}E_{i}^{k_{E}-1}-k_{E}\gamma_{E}E_{i}^{k_{E}}
+    .. math::
+        \dot{I}_{i}^{a1}=\\alpha_{i}k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I^{a}}I_{i}^{a1},
+    .. math::
+        \dot{I}_{i}^{ak_{I}}=k_{I^{a}}\gamma_{I^{a}}I_{i}^{a(k_{I}-1)}-k_{I}\gamma_{I^{a}}I_{i}^{ak_{I}},
+    .. math::
+        \dot{I}_{i}^{s1}=\\bar{\\alpha_{i}}k_{E}\gamma_{E}E_{i}^{k_{E}}-k_{I}\gamma_{I^{s}}I_{i}^{a1},
+    .. math::
+        \dot{I}_{i}^{sk_{I}}=k_{I}\gamma_{I^{s}}I_{i}^{s(k_{I}-1)}-k_{I}\gamma_{I^{s}}I_{i}^{sk_{I}},
+    .. math::
+        \dot{R}_{i}=k_{I}\gamma_{I^{a}}I_{i}^{ak_{I}}+k_{I}\gamma_{I^{s}}I_{i}^{sk_{I}}.
+    
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\sum_{n=1}^{k_{I}}\left(C_{ij}^{a}
+        \\frac{I_{j}^{an}}{N_{j}}+C_{ij}^{s}\\frac{I_{j}^{sn}}{N_{j}}\\right),
     ...
 
     Parameters
@@ -1183,10 +1254,38 @@ cdef class SEI8R(CommonMethods):
     * Ic: ICU
     * Im: Mortality
 
-    Is ---> Ih, Is'-> R
-    Ih ---> Ic, Ih'-> R
-    Ic ---> Im, Ic'-> R
-
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i}+\sigma_{i},
+    .. math::
+        \dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i},
+    .. math::
+        \dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}
+    .. math::
+        \dot{I}_{i}^{a}=\\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},
+    .. math::
+        \dot{I}_{i}^{s}=\\bar{\\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},
+    .. math::
+        \dot{I}_{i}^{s'}=\\bar{h}_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{s'}}I_{i}^{s'}
+    .. math::
+        \dot{I}_{i}^{h}=h_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{h}}I_{i}^{h},
+    .. math::
+        \dot{I}_{i}^{h'}=\\bar{c}_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{h'}}I_{i}^{h'},
+    .. math::
+        \dot{I}_{i}^{c}=c_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{c}}I_{i}^{c},
+    .. math::
+        \dot{I}_{i}^{c'}=\\bar{m}_{i}\gamma_{I^{c}}I_{i}^{c}-\gamma_{I^{c'}}I_{i}^{c'},
+    .. math::
+        \dot{I}_{i}^{m}=m_{i}\gamma_{I^{c}}I_{i}^{c},
+    .. math::
+        \dot{N}_{i}=\sigma_{i}-m_{i}\gamma_{I^{c}}I_{i}^{c}
+    .. math::
+        \dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s'}}I_{i}^{s'}+\gamma_{I^{h'}}I_{i}^{h'}+\gamma_{I^{c'}}I_{i}^{c'}.
+    
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\\frac{I_{j}^{a}}{N_{j}}+
+        +C_{ij}^{s}\\frac{I_{j}^{s}}{N_{j}}
+        +C_{ij}^{s}\\frac{I_{j}^{s'}}{N_{j}}
+        \\right),
     ...
 
     Parameters
@@ -1427,6 +1526,23 @@ cdef class SEAIR(CommonMethods):
     * Is: symptomatic
     * E: exposed
     * A: asymptomatic and infectious
+    
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i}
+    .. math::
+        \dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}
+    .. math::
+        \dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}
+    .. math::
+        \dot{I}_{i}^{a}=\\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},
+    .. math::
+        \dot{I}_{i}^{s}=\\bar{\\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},
+    .. math::
+        \dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.
+
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+        \\frac{A_{j}}{N_{j}}+C_{ij}^{s}\\frac{I_{j}^{s}}{N_{j}}\\right),
 
     ...
 
@@ -1590,9 +1706,39 @@ cdef class SEAI8R(CommonMethods):
     * Ic: ICU
     * Im: Mortality
 
-    Is ---> Ih, Is'-> R
-    Ih ---> Ic, Ih'-> R
-    Ic ---> Im, Ic'-> R
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i}+\sigma_{i},
+    .. math::
+        \dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i},
+    .. math::
+        \dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}
+    .. math::
+        \dot{I}_{i}^{a}=\\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},
+    .. math::
+        \dot{I}_{i}^{s}=\\bar{\\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},
+    .. math::
+        \dot{I}_{i}^{s'}=\\bar{h}_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{s'}}I_{i}^{s'}
+    .. math::
+        \dot{I}_{i}^{h}=h_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{h}}I_{i}^{h},
+    .. math::
+        \dot{I}_{i}^{h'}=\\bar{c}_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{h'}}I_{i}^{h'},
+    .. math::
+        \dot{I}_{i}^{c}=c_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{c}}I_{i}^{c},
+    .. math::
+        \dot{I}_{i}^{c'}=\\bar{m}_{i}\gamma_{I^{c}}I_{i}^{c}-\gamma_{I^{c'}}I_{i}^{c'},
+    .. math::
+        \dot{I}_{i}^{m}=m_{i}\gamma_{I^{c}}I_{i}^{c},
+    .. math::
+        \dot{N}_{i}=\sigma_{i}-m_{i}\gamma_{I^{c}}I_{i}^{c}
+    .. math::
+        \dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s'}}I_{i}^{s'}+\gamma_{I^{h'}}I_{i}^{h'}+\gamma_{I^{c'}}I_{i}^{c'}.
+    
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+        \\frac{A_{j}}{N_{j}}
+        +C_{ij}^{s}\\frac{I_{j}^{s}}{N_{j}}
+        +C_{ij}^{s}\\frac{I_{j}^{s'}}{N_{j}}
+        \\right),
 
     ...
 
@@ -1841,6 +1987,26 @@ cdef class SEAIRQ(CommonMethods):
     * E: exposed
     * A: asymptomatic and infectious
     * Q: quarantined 
+ 
+    .. math::
+        \dot{S_{i}}=-\lambda_{i}(t)S_{i}
+    .. math::
+        \dot{E}_{i}=\lambda_{i}(t)S_{i}-(\gamma_{E}+\\tau_{E})A_{i}
+    .. math::
+        \dot{A}_{i}=\gamma_{E}E_{i}-(\gamma_{A}+\\tau_{A})A_{i}
+    .. math::
+        \dot{I}_{i}^{a}=\\alpha_{i}\gamma_{A}A_{i}-(\gamma_{I^{a}}+\\tau_{I^a})I_{i}^{a},
+    .. math::
+        \dot{I}_{i}^{s}=\\bar{\\alpha_{i}}\gamma_{A}A_{i}-(\gamma_{I^{s}}+\\tau_{I^a})I_{i}^{s},
+    .. math::
+        \dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.
+    .. math::
+        \dot{Q}_{i}=\\tau_{S}S_{i}+\\tau_{E}E_{i}+\\tau_{A}A_{i}+\\tau_{I^{s}}I_{i}^{s}+\\tau_{I^{a}}I_{i}^{a}
+
+    .. math::
+        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+        \\frac{A_{j}}{N_{j}}+C_{ij}^{s}\\frac{I_{j}^{s}}{N_{j}}\\right),
+
 
     ...
 
@@ -3263,7 +3429,7 @@ cdef class SEAI5R(CommonMethods):
     * Ih: hospitalized	
     * Ic: ICU	
     * Im: Mortality	
-    ...	
+
     Parameters	
     ----------	
     parameters: dict	
