@@ -9,7 +9,7 @@ from scipy.misc import derivative
 cimport numpy as np
 cimport cython
 import time, sympy
-from sympy import Array
+from sympy import MutableDenseNDimArray as Array 
 
 try:
     # Optional support for nested sampling.
