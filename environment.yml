@@ -12,6 +12,7 @@ dependencies:
   - pathos
   - pip
   - pandas
+  - sympy
   - ipython
   - nbconvert
   - xlrd
