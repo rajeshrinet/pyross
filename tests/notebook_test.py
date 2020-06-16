@@ -17,8 +17,20 @@ def run_notebook_tests(path, recursive=False):
     """
     basepath = os.path.dirname(__file__)
     nbpath = os.path.abspath(os.path.join(basepath, "..", path))
-    # Ignore books with deliberate errors, but check they still exist
-    ignore_list = []
+
+    '''
+    Ignore notebooks which take longer or have deliberate errors, 
+    but check they still exists
+    '''
+    os.chdir('../examples/')
+
+    cwd =os.getcwd()
+    ignore_list = [os.path.join(cwd, 'control/ex04-SIR-optimal_control.ipynb'),
+                   os.path.join(cwd, 'inference/nbtests/ex06_inference_latent_SEIR.ipynb'),
+                   os.path.join(cwd, 'inference/nbtests/ex_inference_tangent_space_SIR.ipynb'),
+                   os.path.join(cwd, 'stochastic/ex6-SEAIRQ.ipynb'),
+                   os.path.join(cwd, 'stochastic/ex3-SIkR.ipynb'),
+                    ]
 
     for ignored_book in ignore_list:
         if not os.path.isfile(ignored_book):

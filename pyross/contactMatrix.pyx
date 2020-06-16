@@ -142,6 +142,8 @@ cdef class ContactMatrixFunction:
         return self.contactMatrix
 
 
+
+
 cdef class Protocol:
 
     def __init__(self):
@@ -180,6 +182,9 @@ cdef class TemporalProtocol(Protocol):
                 index = -1
         return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
 
+
+
+
 cdef class ThresholdProtocol(Protocol):
     cdef:
         np.ndarray thresholds, interventions
@@ -202,6 +207,8 @@ cdef class ThresholdProtocol(Protocol):
         return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
 
 
+
+
 cdef class CustomTemporalProtocol(Protocol):
     cdef:
         object intervention_func
@@ -213,6 +220,9 @@ cdef class CustomTemporalProtocol(Protocol):
 
     def __call__(self, double t):
         return self.intervention_func(t, **self.kwargs)
+
+
+
 
 cdef class SpatialContactMatrix:
     '''A class for generating a spatial compartmental model with commute data
@@ -351,6 +361,8 @@ cdef class SpatialContactMatrix:
                     for a in range(2):
                         d = density_factor[a, mu, i, j]
                         local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
+
+
 
 
 cdef class MinimalSpatialContactMatrix:
@@ -546,9 +558,6 @@ cdef class SIR(ContactMatrixFunction):
 
 
 
-
-
-
 """
 ---
 KreissPy
@@ -705,19 +714,22 @@ def _first_estimate( A, tol=0.001):
 
 def characterise_transient(A, tol=0.001, theta=0, ord=2):
     """
-    returns the maximal eigenvalue (spectral abcissa),
+    The maximal eigenvalue (spectral abcissa),
     initial groth rate (numerical abcissa),
     the Kreiss constant (minimum bound of transient)
     and time of transient growth
 
-    inputs:
-    A: an MxM matrix
-    tol: Used to find a first estimate of the pseudospectrum
+    Parameters 
+    -----------
+    A    : an MxM matrix
+    tol  : Used to find a first estimate of the pseudospectrum
     theta: normalizing factor found in Townley et al 2007, default 0
-    ord: default 2, order of matrix norm
+    ord  : default 2, order of matrix norm
 
-    returns: [spectral abcissa, numerical abcissa, Kreiss constant ,
-              duration of transient, henrici's departure from normalcy']
+    Returns 
+    ---------
+    [spectral abcissa, numerical abcissa, Kreiss constant, 
+    duration of transient, henrici's departure from normalcy]
 
     """
     guesses = _first_estimate(A, tol)
@@ -748,6 +760,60 @@ Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017)
 Below we provide the contact matrix for some of the countries using
 data from above
 '''
+
+
+def getCM(country='India', sheet=1):
+    """
+    Method to compute contact matrices of a given country
+    
+    The data is read from sheets at: 
+
+    https://github.com/rajeshrinet/pyross/tree/master/examples/data/contact_matrices_152_countries
+
+    Parameters
+    ----------
+    country: string 
+        Default is India
+    sheet: int 
+        Default is 1
+        sheet takes value 1 and 2
+
+    Returns
+    ----------
+    four np.arrays: CH, CW, CS, CO of the given country 
+
+    CH - home, 
+
+    CW - work, 
+
+    CS - school, 
+
+    CO - other locations 
+
+    """
+
+    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
+    u2 ='/data/contact_matrices_152_countries/MUestimates_'
+
+    if sheet==1:
+        uH = u1 + u2 + 'home_1.xlsx'
+        uW = u1 + u2 + 'work_1.xlsx'
+        uS = u1 + u2 + 'school_1.xlsx'
+        uO = u1 + u2 + 'other_locations_1.xlsx'
+    elif sheet==2:
+        uH = u1 + u2 + 'home_2.xlsx'
+        uW = u1 + u2 + 'work_2.xlsx'
+        uS = u1 + u2 + 'school_2.xlsx'
+        uO = u1 + u2 + 'other_locations_2.xlsx'
+    else:
+        raise Exception('There are only two sheets, choose 1 or 2')
+
+    import pandas as pd
+    CH = np.array(pd.read_excel(uH,  sheet_name=country))
+    CW = np.array(pd.read_excel(uW,  sheet_name=country))
+    CS = np.array(pd.read_excel(uS,  sheet_name=country))
+    CO = np.array(pd.read_excel(uO,  sheet_name=country))
+    return CH, CW, CS, CO
 
 
 def China():
@@ -1738,6 +1804,21 @@ def France():
     return CH, CW, CS, CO
 
 
+def Germany():
+    """
+    Returns CH, CW, CS, CO of the country supplied
+    """
+    uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
+    uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
+    uS = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_school_1.xlsx'
+    uO = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'
+
+    import pandas as pd
+    CH = np.array(pd.read_excel(uH,  sheet_name='Germany'))
+    CW = np.array(pd.read_excel(uW,  sheet_name='Germany'))
+    CS = np.array(pd.read_excel(uS,  sheet_name='Germany'))
+    CO = np.array(pd.read_excel(uO,  sheet_name='Germany'))
+    return CH, CW, CS, CO
 
 
 def India():

@@ -5,6 +5,7 @@ from scipy.optimize import minimize, approx_fprime
 from scipy.stats import lognorm
 import numpy as np
 from scipy.interpolate import make_interp_spline
+from scipy.misc import derivative
 cimport numpy as np
 cimport cython
 import time
@@ -19,7 +20,7 @@ except ImportError:
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
-from pyross.utils_python import minimization
+from pyross.utils_python import minimization, nested_sampling
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -45,6 +46,7 @@ cdef class SIR_type:
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
         readonly str det_method, lyapunov_method
+        readonly dict class_index_dict
 
 
     def __init__(self, parameters, nClass, M, fi, N, steps, det_method, lyapunov_method):
@@ -59,6 +61,7 @@ cdef class SIR_type:
         self.lyapunov_method=lyapunov_method
 
         self.dim = nClass*M
+        self.nClass = nClass
         self.vec_size = int(self.dim*(self.dim+1)/2)
         self.CM = np.empty((M, M), dtype=DTYPE)
         self.dsigmadt = np.zeros((self.vec_size), dtype=DTYPE)
@@ -110,7 +113,7 @@ cdef class SIR_type:
                         double Tf, Py_ssize_t Nf, contactMatrix,
                         tangent=False,
                         infer_scale_parameter=False, verbose=False, full_output=False,
-                        ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                        ftol=1e-6, eps=1e-5, global_max_iter=100, local_max_iter=100, global_atol=1,
                         enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         '''Compute the maximum a-posteriori (MAP) estimate of the parameters of the SIR type model.
         This function assumes that full data on all classes is available (with latent variables, use SIR_type.latent_inference).
@@ -157,8 +160,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global optimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -191,7 +194,7 @@ cdef class SIR_type:
         minimize_args={'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                        'eps':eps, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix, 's':s, 'scale':scale, 'tangent':tangent}
         res = minimization(self._infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
         params = res[0]
@@ -203,9 +206,25 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
+    def _nested_sampling_prior_transform(self, x, s=None, scale=None, ppf_bounds=None):
+        # Tranform a sample x ~ Unif([0,1]^d) to a sample of the prior using inverse tranform sampling.
+        y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
+        return lognorm.ppf(y, s, scale=scale)
+
+    def _nested_sampling_loglike(self, params, keys=None, is_scale_parameter=None, scaled_guesses=None,
+                                 flat_guess_range=None, x=None, Tf=None, Nf=None, contactMatrix=None,
+                                 s=None, scale=None, tangent=None):
+        # Compute the log-likelihood for the given parameters.
+        params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
+        parameters = self.fill_params_dict(keys, params_unflat)
+        logP = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=False)
+        logP += np.sum(lognorm.logpdf(params, s, scale=scale))
+        return logP
+
     def nested_sampling_inference(self, keys, guess, stds, np.ndarray x, double Tf, Py_ssize_t Nf, contactMatrix,
                                   bounds=None, tangent=False, infer_scale_parameter=False, verbose=False,
-                                  npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
+                                  queue_size=1, max_workers=None, npoints=100, method='single', max_iter=1000,
+                                  dlogz=None, decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
         all classes is available.
@@ -244,6 +263,11 @@ cdef class SIR_type:
             age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
+        queue_size: int
+            Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+            is computed in parallel (if queue_size > 1).
+        max_workers: int
+            The maximal number of processes used to compute samples.
         npoints: int
             Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
             number the more accurate and expensive is the evidence computation.
@@ -289,28 +313,14 @@ cdef class SIR_type:
         else:
             ppf_bounds[:, 1] = 1.0
 
-        
-        def prior_transform(x):
-            # Tranform into bounded region
-            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
-            return lognorm.ppf(y, s, scale=scale)
+        prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
+        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses,
+                        'flat_guess_range':flat_guess_range, 'x':x, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
+                        's':s, 'scale':scale, 'tangent':tangent}
 
-        def to_sample(params):
-            params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
-            parameters = self.fill_params_dict(keys, params_unflat)
-            logP = -self.obtain_minus_log_p(parameters, x, Tf, Nf, contactMatrix, tangent=False)
-            logP += np.sum(lognorm.logpdf(params, s, scale=scale))
-            return logP
-
-        if verbose:
-            def callback(d):
-                if d["it"] % 100 == 0:
-                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
-        else:
-            callback=None
-
-        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
-                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+        result = nested_sampling(self._nested_sampling_loglike, self._nested_sampling_prior_transform, k, queue_size,
+                                 max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
+                                 prior_transform_args)
 
         log_evidence = result.logz
 
@@ -344,7 +354,7 @@ cdef class SIR_type:
     def infer_control(self, keys, guess, stds, x, Tf, Nf, generator, bounds,
                       intervention_fun=None, tangent=False,
                       verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_ftol_factor=10., enable_global=True,
+                      global_max_iter=100, local_max_iter=100, global_atol=1., enable_global=True,
                       enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
@@ -385,8 +395,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global optimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -411,7 +421,7 @@ cdef class SIR_type:
         minimize_args = {'keys':keys, 'bounds':bounds, 'x':x, 'Tf':Tf, 'Nf':Nf, 'generator':generator, 's':s, 'scale':scale,
                           'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
@@ -419,7 +429,7 @@ cdef class SIR_type:
 
 
     def compute_hessian(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3, tangent=False,
-                        infer_scale_parameter=False):
+                        infer_scale_parameter=False, fd_method="central"):
         '''
         Computes the Hessian of the MAP estimate.
 
@@ -443,6 +453,8 @@ cdef class SIR_type:
             A function that takes time (t) as an argument and returns the contactMatrix
         eps: float or numpy.array, optional
             The step size of the Hessian calculation, default=1e-3
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
         Returns
         -------
@@ -463,17 +475,252 @@ cdef class SIR_type:
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps)
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
 
+    def FIM(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
+            contactMatrix, dx=None, tangent=False, infer_scale_parameter=False):
+        '''
+        Computes the Fisher Information Matrix (FIM) of the stochastic model.
+        Parameters
+        ----------
+        param_keys: list
+            A list of parameters to be inferred.
+        init_fltr: boolean array
+            True for initial conditions to be inferred.
+            Shape = (nClass*M)
+            Total number of True = total no. of variables - total no. of observed
+        maps: numpy.array
+            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
+        obs0: numpy.array
+            The observed initial data
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        dx: float, optional
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
+        Returns
+        -------
+        FIM: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        param_dim = len(param_keys)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+
+        fltr0 = fltr[0]
+        obs0 = obs0[0]
+
+        fltr = fltr[1:]
+
+        bounds = np.zeros((len(maps), 2)) # This does not matter here
+        prior_stds = np.zeros((len(maps))) # This does not matter here
+
+        flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
+            =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+
+        full_fltr = sparse.block_diag(fltr)
+
+        def partial_derivative(func, var, point, dx):
+            args = point[:]
+            def wraps(x):
+                args[var] = x
+                return func(args)
+            return derivative(wraps, point[var], dx=dx)
+
+        def _mean(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            xm = self.integrate(x0,0,Tf,Nf,model,contactMatrix, method='LSODA')
+            xm = np.ravel(xm[1:])
+            xm_red = full_fltr@xm
+            return xm_red
+
+        def _cov(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            if tangent:
+                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf,
+                                                                       Nf, model,
+                                                                       contactMatrix)
+            else:
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf,
+                                                         Nf, model,
+                                                         contactMatrix)
+            cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+            return cov_red
+
+        def _invcov(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            if tangent:
+                full_invcov = self.obtain_full_invcov_tangent_space(x0, Tf,
+                                                                     Nf, model,
+                                                                     contactMatrix)
+            else:
+                cov = _cov(y)
+                full_invcov = np.linalg.inv(cov)
+                #full_invcov = self.obtain_full_invcov(x0, Tf,
+                #                                       Nf, model,
+                #                                       contactMatrix) not PD
+            invcov_red = full_fltr@full_invcov@np.transpose(full_fltr)
+            return invcov_red
+
+        cov = _cov(flat_maps)
+        if dx == None:
+            dx = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
+
+        invcov = _invcov(flat_maps)
+
+        dim = len(flat_maps)
+        FIM = np.zeros((dim,dim))
+
+        rows,cols = np.triu_indices(dim)
+        for i,j in zip(rows,cols):
+            dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
+            dmu_j = partial_derivative(_mean, var=j, point=flat_maps, dx=dx)
+            dcov_i = partial_derivative(_cov, var=i, point=flat_maps, dx=dx)
+            dcov_j = partial_derivative(_cov, var=j, point=flat_maps, dx=dx)
+            t1 = dmu_i@cov@dmu_j
+            t2 = np.multiply(0.5,np.trace(invcov@dcov_i@invcov@dcov_j))
+            FIM[i,j] = t1 + t2
+        i_lower = np.tril_indices(dim,-1)
+        FIM[i_lower] = FIM.T[i_lower]
+        return FIM
+
+    def FIM_det(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
+               contactMatrix, measurement_error=1e-2, dx=None,
+                infer_scale_parameter=False):
+        '''
+        Computes the Fisher Information Matrix (FIM) of the deterministic model.
+        Parameters
+        ----------
+        param_keys: list
+            A list of parameters to be inferred.
+        init_fltr: boolean array
+            True for initial conditions to be inferred.
+            Shape = (nClass*M)
+            Total number of True = total no. of variables - total no. of observed
+        maps: numpy.array
+            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
+        obs0: numpy.array
+            The observed initial data
+        fltr: boolean sequence or array
+            True for observed and False for unobserved.
+            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
+        Tf: float
+            Total time of the trajectory
+        Nf: float
+            Number of data points along the trajectory
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        measurement_error: float, optional
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
+        dx: float, optional
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
+        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
+            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
+            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
+            age-dependent parameter individually
+        Returns
+        -------
+        FIM_det: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        param_dim = len(param_keys)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+
+        fltr0 = fltr[0]
+        obs0 = obs0[0]
+
+        fltr = fltr[1:]
+
+        bounds = np.zeros((len(maps), 2)) # This does not matter here
+        prior_stds = np.zeros((len(maps))) # This does not matter here
+
+        flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
+            =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+
+        full_fltr = sparse.block_diag(fltr)
+
+        def partial_derivative(func, var, point, dx):
+            args = point[:]
+            def wraps(x):
+                args[var] = x
+                return func(args)
+            return derivative(wraps, point[var], dx=dx)
+
+        def _mean(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+                                                  scaled_maps)
+            inits = np.copy(y_unflat[param_dim:])
+            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            xm = self.integrate(x0,0,Tf,Nf,model,contactMatrix, method='LSODA')
+            xm = np.ravel(xm[1:])
+            xm_red = full_fltr@xm
+            return xm_red
+
+        sigma_sq = measurement_error*measurement_error
+        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(Nf-1)))
+        cov = np.diag(cov_diag)
+        cov_red = full_fltr@cov@np.transpose(full_fltr)
+
+        if dx == None:
+            dx = np.sqrt(np.spacing(np.amin(np.abs(_mean(flat_maps)))))
+
+        dim = len(flat_maps)
+        FIM_det = np.zeros((dim,dim))
+
+        rows,cols = np.triu_indices(dim)
+        for i,j in zip(rows,cols):
+            dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
+            dmu_j = partial_derivative(_mean, var=j, point=flat_maps, dx=dx)
+            FIM_det[i,j] = dmu_i@cov_red@dmu_j
+        i_lower = np.tril_indices(dim,-1)
+        FIM_det[i_lower] = FIM_det.T[i_lower]
+        return FIM_det
+
     def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
-                   tangent=False, infer_scale_parameter=False):
+                   tangent=False, infer_scale_parameter=False, fd_method="central"):
         hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps,
-                                       tangent, infer_scale_parameter)
+                                       tangent, infer_scale_parameter, fd_method=fd_method)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
     def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
-                       tangent=False, infer_scale_parameter=False):
+                       tangent=False, infer_scale_parameter=False, fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate."""
         cdef double logP_MAPs
         cdef Py_ssize_t k
@@ -490,7 +737,7 @@ cdef class SIR_type:
         logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
         k = flat_prior_mean.shape[0]
         A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,Nf,contactMatrix,eps, tangent,
-                                 infer_scale_parameter)
+                                 infer_scale_parameter, fd_method=fd_method)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, int Nf, contactMatrix, tangent=False):
@@ -544,7 +791,7 @@ cdef class SIR_type:
                             double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
                             tangent=False, infer_scale_parameter=False,
                             verbose=False, full_output=False, double ftol=1e-5,
-                            global_max_iter=100, local_max_iter=100, global_ftol_factor=10.,
+                            global_max_iter=100, local_max_iter=100, global_atol=1,
                             enable_global=True, enable_local=True, cma_processes=0,
                             cma_population=16, cma_stds=None, np.ndarray obs0=None, np.ndarray fltr0=None):
         """
@@ -595,8 +842,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global optimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -664,7 +911,7 @@ cdef class SIR_type:
                          's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
         res = minimization(self._latent_infer_parameters_to_minimize, flat_guess, flat_bounds, ftol=ftol,
-                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
 
@@ -682,12 +929,34 @@ cdef class SIR_type:
             return np.array(orig_params)
 
 
+    def _nested_sampling_loglike_latent(self, params, param_keys=None, init_fltr=None,
+                                        is_scale_parameter=None, scaled_param_guesses=None,
+                                        flat_param_guess_range=None, flat_param_guess_size=None,
+                                        obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None,
+                                        s=None, scale=None, obs0=None, fltr0=None, tangent=None):
+        # Todo: replace this by latent_infer_parameters minimisation function.
+        inits =  np.copy(params[flat_param_guess_size:])
+
+        # Restore parameters from flattened parameters
+        params_unflat = self._unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
+                                                    scaled_param_guesses)
+
+        parameters = self.fill_params_dict(param_keys, params_unflat)
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+
+        x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+
+        return -minus_logp
+
     def nested_sampling_latent_inference(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds,
                                          np.ndarray obs, np.ndarray fltr, double Tf, Py_ssize_t Nf, contactMatrix,
                                          bounds=None, np.ndarray obs0=None, np.ndarray fltr0=None, tangent=False,
-                                         infer_scale_parameter=False, verbose=False,
-                                         return_samples=True, npoints=100, method='single', max_iter=1000, dlogz=None,
-                                         decline_factor=None):
+                                         infer_scale_parameter=False, verbose=False, queue_size=1, max_workers=None,
+                                         npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         with latent variables using nested sampling as implemented in the `nestle` Python package.
 
@@ -737,6 +1006,11 @@ cdef class SIR_type:
             age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
+        queue_size: int
+            Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+            is computed in parallel (if queue_size > 1).
+        max_workers: int
+            The maximal number of processes used to compute samples.
         npoints: int
             Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
             number the more accurate and expensive is the evidence computation.
@@ -805,39 +1079,15 @@ cdef class SIR_type:
         else:
             ppf_bounds[:,1] = 1.0
 
-        def prior_transform(x):
-            # Tranform into bounded region
-            y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
-            return lognorm.ppf(y, s, scale=scale)
+        prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
+        loglike_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'is_scale_parameter':is_scale_parameter,
+                        'scaled_param_guesses':scaled_param_guesses, 'flat_param_guess_range':flat_param_guess_range,
+                        'flat_param_guess_size':len(flat_param_guess), 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf,
+                        'contactMatrix':contactMatrix, 's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
 
-        def to_sample(params):
-            # Todo: replace this by latent_infer_parameters minimisation function.
-            inits =  np.copy(params[flat_param_guess_size:])
-
-            # Restore parameters from flattened parameters
-            params_unflat = self._unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
-                                                       scaled_param_guesses)
-
-            parameters = self.fill_params_dict(param_keys, params_unflat)
-            self.set_params(parameters)
-            model = self.make_det_model(parameters)
-
-            x0 = self.fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-
-            minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
-            minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
-
-            return -minus_logp
-
-        if verbose:
-            def callback(d):
-                if d["it"] % 100 == 0:
-                    print("Iteration {}: log_evidence = {}".format(d["it"], d["logz"]))
-        else:
-            callback=None
-
-        result = nestle.sample(to_sample, prior_transform, k, method=method, npoints=npoints, maxiter=max_iter,
-                               dlogz=dlogz, decline_factor=decline_factor, callback=callback)
+        result = nested_sampling(self._nested_sampling_loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
+                                 max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
+                                 prior_transform_args)
 
         log_evidence = result.logz
 
@@ -872,7 +1122,7 @@ cdef class SIR_type:
                             double Tf, Py_ssize_t Nf, generator, np.ndarray bounds,
                             intervention_fun=None, tangent=False,
                             verbose=False, double ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_ftol_factor=10., enable_global=True, enable_local=True,
+                            local_max_iter=100, global_atol=1., enable_global=True, enable_local=True,
                             cma_processes=0, cma_population=16, cma_stds=None, full_output=False):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
@@ -918,8 +1168,8 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        global_ftol_factor: float
-            The relative tolerance for global optimisation.
+        global_atol: float
+            The absolute tolerance for global minimisation.
         enable_global: bool, optional
             Set to True to enable global optimisation.
         enable_local: bool, optional
@@ -952,7 +1202,7 @@ cdef class SIR_type:
         minimize_args = {'keys':keys, 'bounds':bounds, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
                          'Nf':Nf, 's':s, 'scale':scale, 'intervention_fun':intervention_fun, 'tangent': tangent}
         res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_ftol_factor=global_ftol_factor,
+                           local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
         params = res[0]
@@ -964,7 +1214,7 @@ cdef class SIR_type:
 
 
     def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                               tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+                               tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
         '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
@@ -988,6 +1238,8 @@ cdef class SIR_type:
             Observed initial condition, if more detailed than obs[0]
         fltr0: 2d numpy.array, optional
             Matrix filter for obs0
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
         Returns
         -------
@@ -1025,18 +1277,18 @@ cdef class SIR_type:
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
 
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps)
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
         return hess
 
     def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                          tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+                          tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
         hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
-                                              contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
+                                              contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
         return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
     def log_G_evidence_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-                              tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None):
+                              tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate."""
         cdef double logP_MAPs
         cdef Py_ssize_t k
@@ -1064,7 +1316,7 @@ cdef class SIR_type:
 
         k = flat_prior_mean.shape[0]
         A = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
-                                        contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0)
+                                        contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def minus_logp_red(self, parameters, double [:] x0, np.ndarray obs,
@@ -1099,9 +1351,6 @@ cdef class SIR_type:
 
         cdef double minus_log_p
         cdef Py_ssize_t nClass=int(self.dim/self.M)
-        if np.any(np.sum(np.reshape(x0, (nClass, self.M)), axis=0) > self.fi):
-            raise Exception("the sum over x0 is larger than fi")
-
         fltr = pyross.utils.process_fltr(fltr, Nf-1)
         obs = pyross.utils.process_obs(obs, Nf-1)
         self.set_params(parameters)
@@ -1329,7 +1578,7 @@ cdef class SIR_type:
         model.set_contactMatrix(t, contactMatrix)
         model.rhs(np.multiply(xt, self.N), t)
         dx_det = np.multiply(dt/self.N, model.dxdt)
-        self.compute_tangent_space_variables(xt, t, contactMatrix)
+        self.compute_jacobian_and_b_matrix(xt, t, contactMatrix)
         cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
         return dx_det, cov
 
@@ -1349,8 +1598,7 @@ cdef class SIR_type:
             ti = time_points[i]
             tf = time_points[i+1]
             xi = xm[i]
-            xf = xm[i+1]
-            _, cond_cov = self.estimate_cond_mean_cov(xi, ti, tf, model,
+            xf, cond_cov = self.estimate_cond_mean_cov(xi, ti, tf, model,
                                                     contactMatrix)
             self.obtain_time_evol_op(xi, xf, ti, tf, model, contactMatrix)
             cov = np.add(self.U@cov@self.U.T, cond_cov)
@@ -1363,7 +1611,7 @@ cdef class SIR_type:
         # returns mean and cov for all but first (fixed!) time point
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim))
 
-    cpdef obtain_full_mean_invcov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+    cpdef obtain_full_invcov(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
@@ -1389,7 +1637,7 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
+        return full_cov_inv # returns invcov for all but first (fixed!) time point
 
     cpdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
@@ -1406,7 +1654,8 @@ cdef class SIR_type:
         for i in range(Nf-1):
             t = time_points[i]
             xt = xm[i]
-            self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
+            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix,
+                                                b_matrix=True, jacobian=True)
             cond_cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             if False in np.isfinite(self.B_vec):
                 print(np.array(xt), t, self.B_vec)
@@ -1422,7 +1671,7 @@ cdef class SIR_type:
                     full_cov[i, :, j, :] = temp.T
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
 
-    cpdef obtain_full_mean_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
+    cpdef obtain_full_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
@@ -1436,7 +1685,8 @@ cdef class SIR_type:
         for i in range(Nf-1):
             t = time_points[i]
             xt = xm[i]
-            self.compute_tangent_space_variables(xt, t, contactMatrix, jacobian=True)
+            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix,
+                                                b_matrix=True, jacobian=True)
             cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
@@ -1448,7 +1698,34 @@ cdef class SIR_type:
                 full_cov_inv[i-1][i]=-np.transpose(U)@invcov
                 full_cov_inv[i][i-1]=-temp
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return xm[1:], full_cov_inv # returns mean and cov for all but first (fixed!) time point
+        return full_cov_inv # returns invcov for all but first (fixed!) time point
+
+    cpdef find_fastest_growing_lin_mode(self, double t, contactMatrix):
+        cdef:
+            np.ndarray [DTYPE_t, ndim=2] J
+            np.ndarray [DTYPE_t, ndim=1] x0, mode=np.empty((self.dim), dtype=DTYPE)
+            list indices
+            Py_ssize_t S_index, M=self.M, i, j, n_inf, n, index
+        # assume no infected at the start and compute eig vecs for the infectious species
+        x0 = np.zeros((self.dim), dtype=DTYPE)
+        S_index = self.class_index_dict['S']
+        x0[S_index*M:(S_index+1)*M] = self.fi
+        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+                                                b_matrix=False, jacobian=True)
+        indices = self.infection_indices()
+        n_inf = len(indices)
+        J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
+        eigval, eigvec = sparse.linalg.eigs(J, return_eigenvectors=True, k=1, which='LR')
+        eigvec = np.abs(np.real(eigvec))[:, 0]
+        eigval = np.real(eigval)[0]
+
+        # substitute in infections and recompute fastest growing linear mode
+        for (j, i) in enumerate(indices):
+            x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
+        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+                                                b_matrix=False, jacobian=True)
+        _, eigvec = sparse.linalg.eigs(self.J_mat, return_eigenvectors=True, k=1, which='LR')
+        return np.real(eigvec)[:, 0]
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
@@ -1491,7 +1768,8 @@ cdef class SIR_type:
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         pass # to be implemented in subclasses
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                                    b_matrix=True, jacobian=False):
         pass # to be implemented in subclass
 
 
@@ -1522,7 +1800,7 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified. Only used if det_method is set to 'solve_ivp'.
         """
-        def rhs0(t, xt):
+        def rhs0(double t, double [:] xt):
             model.set_contactMatrix(t, contactMatrix)
             model.rhs(np.multiply(xt, self.N), t)
             return model.dxdt/self.N
@@ -1540,6 +1818,7 @@ cdef class SIR_type:
         elif method=='RK2':
             sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
         else:
+            print(method)
             raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
         return sol
 
@@ -1657,9 +1936,13 @@ cdef class SIR(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 3, M, fi, N, steps, det_method, lyapunov_method)
+        self.class_index_dict = {'S':0, 'Ia':1, 'Is':2}
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SIR(parameters, self.M, self.fi*self.N)
+
+    def infection_indices(self):
+        return [1, 2]
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1667,9 +1950,6 @@ cdef class SIR(SIR_type):
         else:
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2], 'gIs':params[3], 'fsa':self.fsa}
         return parameters
-
-    def get_init_keys_dict(self):
-        return {'S':0, 'Ia':1, 'Is':2}
 
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
@@ -1685,7 +1965,8 @@ cdef class SIR(SIR_type):
         self.noise_correlation(s, Ia, Is, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                                b_matrix=True, jacobian=False):
         cdef:
             double [:] s, Ia, Is
             Py_ssize_t M=self.M
@@ -1695,9 +1976,12 @@ cdef class SIR(SIR_type):
         self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
-        self.noise_correlation(s, Ia, Is, l)
+        if b_matrix:
+            self.noise_correlation(s, Ia, Is, l)
         if jacobian:
             self.jacobian(s, l)
+
+
 
     cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -1800,6 +2084,10 @@ cdef class SEIR(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 4, M, fi, N, steps, det_method, lyapunov_method)
+        self.class_index_dict = {'S':0, 'E':1, 'Ia':2, 'Is':3}
+
+    def infection_indices(self):
+        return [1, 2, 3]
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -1807,7 +2095,6 @@ cdef class SEIR(SIR_type):
 
     def make_det_model(self, parameters):
         return pyross.deterministic.SEIR(parameters, self.M, self.fi*self.N)
-
 
     def make_params_dict(self, params=None):
         if params is None:
@@ -1817,9 +2104,6 @@ cdef class SEIR(SIR_type):
             parameters = {'alpha':params[0], 'beta':params[1], 'gIa':params[2],
                             'gIs':params[3], 'gE': params[4], 'fsa':self.fsa}
         return parameters
-
-    def get_init_keys_dict(self):
-        return {'S':0, 'E':1, 'Ia':2, 'Is':3}
 
 
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
@@ -1837,7 +2121,8 @@ cdef class SEIR(SIR_type):
         self.noise_correlation(s, e, Ia, Is, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                            b_matrix=True, jacobian=False):
         cdef:
             double [:] s, e, Ia, Is
             Py_ssize_t M=self.M
@@ -1848,7 +2133,8 @@ cdef class SEIR(SIR_type):
         self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(Ia, Is, l)
-        self.noise_correlation(s, e, Ia, Is, l)
+        if b_matrix:
+            self.noise_correlation(s, e, Ia, Is, l)
         if jacobian:
             self.jacobian(s, l)
 
@@ -1880,7 +2166,7 @@ cdef class SEIR(SIR_type):
                 J[0, m, 2, n] = -s[m]*beta[m]*CM[m, n]/fi[n]
                 J[0, m, 3, n] = -s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
                 J[1, m, 2, n] = s[m]*beta[m]*CM[m, n]/fi[n]
-                J[2, m, 3, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
+                J[1, m, 3, n] = s[m]*beta[m]*CM[m, n]*fsa[n]/fi[n]
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] s, double [:] e, double [:] Ia, double [:] Is, double [:] l):
@@ -1968,9 +2254,10 @@ cdef class SEAIRQ(SIR_type):
 
     def __init__(self, parameters, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
+        self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
 
-    def get_init_keys_dict(self):
-        return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
+    def infection_indices(self):
+        return [1, 2, 3, 4]
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -2032,7 +2319,8 @@ cdef class SEAIRQ(SIR_type):
         self.noise_correlation(s, e, a, Ia, Is, q, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                        b_matrix=True, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q
             Py_ssize_t M=self.M
@@ -2045,7 +2333,8 @@ cdef class SEAIRQ(SIR_type):
         self.CM = contactMatrix(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
-        self.noise_correlation(s, e, a, Ia, Is, q, l)
+        if b_matrix:
+            self.noise_correlation(s, e, a, Ia, Is, q, l)
         if jacobian:
             self.jacobian(s, l)
 
@@ -2185,10 +2474,10 @@ cdef class SEAIRQ_testing(SIR_type):
     def __init__(self, parameters, testRate, M, fi, N, steps, det_method='LSODA', lyapunov_method='LSODA'):
         super().__init__(parameters, 6, M, fi, N, steps, det_method, lyapunov_method)
         self.testRate=testRate
+        self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
 
-    def get_init_keys_dict(self):
-        return {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
-
+    def infection_indices(self):
+        return (1, 2, 3, 4)
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -2201,9 +2490,9 @@ cdef class SEAIRQ_testing(SIR_type):
     def set_testRate(self, testRate):
         self.testRate=testRate
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, method=None, maxNumSteps=100000):
         model.set_testRate(self.testRate)
-        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
+        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps=maxNumSteps, method=method)
 
     def make_det_model(self, parameters):
         det_model = pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.N)
@@ -2255,7 +2544,8 @@ cdef class SEAIRQ_testing(SIR_type):
         self.compute_dsigdt(sig)
 
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                            b_matrix=True, jacobian=False):
         cdef:
             double [:] s, e, a, Ia, Is, Q, TR
             Py_ssize_t M=self.M
@@ -2269,7 +2559,8 @@ cdef class SEAIRQ_testing(SIR_type):
         TR=self.testRate(t)
         cdef double [:] l=np.zeros((M), dtype=DTYPE)
         self.fill_lambdas(a, Ia, Is, l)
-        self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
+        if b_matrix:
+            self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
         if jacobian:
             self.jacobian(s, e, a, Ia, Is, q, l, TR)
 
@@ -2429,7 +2720,6 @@ cdef class Spp(SIR_type):
         readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
         readonly list param_keys
-        readonly dict class_index_dict
         readonly pyross.deterministic.Spp det_model
 
 
@@ -2444,6 +2734,24 @@ cdef class Spp(SIR_type):
         super().__init__(parameters, self.nClass, M, fi, N, steps, det_method, lyapunov_method)
         self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*N)
 
+    def infection_indices(self):
+        cdef Py_ssize_t a = 100
+        indices = set()
+
+        # Find all the infection terms
+        for term in self.infection_terms:
+            infective_index = term[1]
+            indices.add(infective_index)
+
+        # Find all the terms that turn into infection terms
+        while a > 0:
+            a = 0
+            for term in self.linear_terms:
+                product_index = term[2]
+                if product_index in indices:
+                    indices.add(term[1])
+                    a += 1
+        return list(indices)
 
     def set_params(self, parameters):
         nParams = len(self.param_keys)
@@ -2481,7 +2789,8 @@ cdef class Spp(SIR_type):
         self.noise_correlation(x, l)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                            b_matrix=True, jacobian=False):
         cdef:
             Py_ssize_t nClass=self.nClass, M=self.M
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
@@ -2490,9 +2799,10 @@ cdef class Spp(SIR_type):
         self.CM = contactMatrix(t)
         if self.constant_terms.size > 0:
             fi = x[(nClass-1)*M:]
-        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.fill_lambdas(x, l)
-        self.noise_correlation(x, l)
+        if b_matrix:
+            self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+            self.noise_correlation(x, l)
         if jacobian:
             self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
             self.jacobian(x, l)
@@ -2666,7 +2976,6 @@ cdef class SppQ(SIR_type):
         readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
         readonly np.ndarray parameters
         readonly list param_keys
-        readonly dict class_index_dict
         readonly Py_ssize_t nClassU, nClassUwoN
         readonly pyross.deterministic.SppQ det_model
         readonly object testRate
@@ -2694,6 +3003,12 @@ cdef class SppQ(SIR_type):
             self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
             self.nClassUwoN = self.nClassU
 
+    def infection_indices(self):
+        indices = set()
+        for term in self.infection_terms:
+            infective_index = term[1]
+            indices.add(infective_index)
+        return list(indices)
 
 
     def set_params(self, parameters):
@@ -2710,9 +3025,9 @@ cdef class SppQ(SIR_type):
         self.testRate=testRate
         self.det_model.set_testRate(testRate)
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, model, contactMatrix, method=None, maxNumSteps=100000):
         model.set_testRate(self.testRate)
-        return super().integrate(x0, t1, t2, steps, model, contactMatrix, maxNumSteps)
+        return super().integrate(x0, t1, t2, steps, model, contactMatrix, method, maxNumSteps)
 
     def make_det_model(self, parameters):
         # small hack to make this class work with SIR_type
@@ -2769,7 +3084,8 @@ cdef class SppQ(SIR_type):
         self.noise_correlation(x, l, r, tau0)
         self.compute_dsigdt(sig)
 
-    cdef compute_tangent_space_variables(self, double [:] x, double t, contactMatrix, jacobian=False):
+    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t, contactMatrix,
+                                        b_matrix=True, jacobian=False):
         cdef:
             Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, M=self.M
             Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
@@ -2782,10 +3098,11 @@ cdef class SppQ(SIR_type):
         TR = self.testRate(t)
         if self.constant_terms.size > 0:
             fi = x[(nClassU-1)*M:]
-        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.fill_lambdas(x, l)
         ntestpop, tau0 = self.calculate_test_r(x, r, TR)
-        self.noise_correlation(x, l, r, tau0)
+        if b_matrix:
+            self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
+            self.noise_correlation(x, l, r, tau0)
         if jacobian:
             self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
             self.jacobian(x, l, r, ntestpop, tau0)

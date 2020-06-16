@@ -224,6 +224,9 @@ cdef class SEAIRQ(CommonMethods):
         readonly np.ndarray tS, tE, tA, tIa, tIs
     cpdef rhs(self, rp, tt)
 
+
+
+
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -269,6 +272,8 @@ cdef class Spp(CommonMethods):
     cpdef rhs(self, rp, tt)
 
 
+
+
 @cython.wraparound(False)
 @cython.boundscheck(True)
 @cython.cdivision(False)
@@ -289,3 +294,44 @@ cdef class SppQ(CommonMethods):
 
     cpdef rhs(self, rp, tt)
     cpdef set_testRate(self, testRate)
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEI5R(CommonMethods):
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
+    """
+    Susceptible, Exposed, Infected, Removed (SEIR). The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+    """
+
+    cpdef rhs(self, rp, tt)
+
+
+
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SEAI5R(CommonMethods):
+    cdef:
+        readonly double beta, gE, gA, gIa, gIs, fsa
+    """
+    Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
+    * Ia: asymptomatic
+    * Is: symptomatic
+    * Ih: hospitalized
+    * Ic: ICU
+    * Im: Mortality
+    """
+    cpdef rhs(self, rp, tt)
