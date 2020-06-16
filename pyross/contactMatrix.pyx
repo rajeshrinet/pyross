@@ -721,15 +721,15 @@ def characterise_transient(A, tol=0.001, theta=0, ord=2):
 
     Parameters 
     -----------
-    A: an MxM matrix
-    tol: Used to find a first estimate of the pseudospectrum
+    A    : an MxM matrix
+    tol  : Used to find a first estimate of the pseudospectrum
     theta: normalizing factor found in Townley et al 2007, default 0
-    ord: default 2, order of matrix norm
+    ord  : default 2, order of matrix norm
 
     Returns 
     ---------
-    [spectral abcissa, numerical abcissa, Kreiss constant ,
-              duration of transient, henrici's departure from normalcy']
+    [spectral abcissa, numerical abcissa, Kreiss constant, 
+    duration of transient, henrici's departure from normalcy]
 
     """
     guesses = _first_estimate(A, tol)

@@ -1,5 +1,6 @@
 Contact matrix
 ==================================
+Classes and methods to compute contact matrix of a meta-population. 
 
 Contact Matrix Function
 ----------------------------------------------

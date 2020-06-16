@@ -1,5 +1,7 @@
-Control with NPI 
+Control with NPIs 
 =================================================
+
+Non-pharmaceutical interventions (NPIs) are strategies that mitigate the spread of a disease by suppressing its normal pathways for transmission. These include social distancing, wearing masks, working from home, and isolation of vulnerable populations. In contrast to pharmaceutical interventions, which are slow to develop but effective in the long term, NPIs can be rapidly implemented but are generally too costly to maintain indefinitely. In the modelling framework of PyRoss, we represent NPIs as modifications to the contact matrix.
 
 
 control_integration
