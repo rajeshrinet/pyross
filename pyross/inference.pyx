@@ -2960,11 +2960,13 @@ cdef class Spp(SIR_type):
                 if t1==ti:
                     T = np.eye(self.dim)
                 else:
-                    T = self.obtain_time_evol_op(x0, xd[i], t1, t, model, C) ## for derivs wrt initial conds
+                    self.obtain_time_evol_op(x0, xd[i], t1, t, model, C) ## for derivs wrt initial conds
+                    T=self.U
                 if ti==t:
                     Tn = np.eye(self.dim)
                 else:
-                    Tn = self.obtain_time_evol_op(xi, xd[i], ti, t, model, C) ## for inner product expression
+                    self.obtain_time_evol_op(xi, xd[i], ti, t, model, C) ## for inner product expression
+                    Tn=self.U
                 self.CM = C(t)
                 cm = C(t).ravel()
                 dAdp, _ = dA(param_values, CM_f, fi, xi.ravel())
@@ -3017,7 +3019,8 @@ cdef class Spp(SIR_type):
             if ti==t1:
                 U=np.eye(self.dim)
             else:
-                U = self.obtain_time_evol_op(x0, xi, t1, ti, model, C) ## initial to current time
+                self.obtain_time_evol_op(x0, xi, t1, ti, model, C) ## initial to current time
+                U=self.U
             dtandx0 = np.einsum('ij,ik->ik', U, dAdx)
             dcovdx0 = np.einsum('ji, jkl->ikl', U, dBdx)
             dtan = np.concatenate((dtan, dtandx0), axis=0)
