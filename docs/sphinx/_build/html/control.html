@@ -187,7 +187,7 @@ as a function of the current state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>y0</strong> (<em>np.array</em>) – Inital state of the system.</p></li>
+<li><p><strong>x0</strong> (<em>np.array</em>) – Inital state of the system.</p></li>
 <li><p><strong>events</strong> (<em>list</em>) – List of events that the current state can satisfy to change behaviour
 of the contact matrix.
 contactMatricies</p></li>
@@ -201,7 +201,7 @@ contactMatricies</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>y_eval</strong> (<em>np.array(len(t), len(y0))</em>) – Numerical integration solution.</p></li>
+<li><p><strong>x_eval</strong> (<em>np.array(len(t), len(x0))</em>) – Numerical integration solution.</p></li>
 <li><p><strong>t_eval</strong> (<em>np.array</em>) – Corresponding times at which X is evaluated at.</p></li>
 <li><p><strong>event_out</strong> (<em>list</em>) – List of events that occured during the run.</p></li>
 </ul>

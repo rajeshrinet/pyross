@@ -31,7 +31,7 @@ cdef class control_integration:
     cdef rhs(self, rp, tt):
         return
 
-    def simulate_deterministic(self, y0,
+    def simulate_deterministic(self, x0,
                 events, contactMatrices,
                          Tf, Nf, Ti=0,
                          events_repeat=False,
@@ -42,7 +42,7 @@ cdef class control_integration:
 
         Parameters
         ----------
-        y0: np.array
+        x0: np.array
             Inital state of the system.
         events: list
             List of events that the current state can satisfy to change behaviour
@@ -63,7 +63,7 @@ cdef class control_integration:
 
         Returns
         -------
-        y_eval : np.array(len(t), len(y0))
+        x_eval : np.array(len(t), len(x0))
             Numerical integration solution.
         t_eval : np.array
             Corresponding times at which X is evaluated at.
@@ -77,7 +77,7 @@ cdef class control_integration:
             int M = self.M, i, j, N_events
             #double [:,:] CM = self.CM
             list cur_list, events_out = [], list_of_available_events
-            np.ndarray cur_y0 = y0.copy()
+            np.ndarray cur_x0 = x0.copy()
             int current_protocol_index
 
         from scipy.integrate import solve_ivp
@@ -105,7 +105,7 @@ cdef class control_integration:
 
 
         t_eval = np.linspace(Ti,Tf,endpoint=True,num=Nf)
-        y_eval = np.zeros([len(t_eval),self.nClass*self.M],dtype=float)
+        x_eval = np.zeros([len(t_eval),self.nClass*self.M],dtype=float)
 
         cur_t_f = 0 # final time of current iteration
         cur_t_eval = t_eval # time interval for current iteration
@@ -126,8 +126,8 @@ cdef class control_integration:
                 (cur_list[-1]).terminal = True
             # solve dynamical equation numerically until an event occurs
             sol = solve_ivp(fun=rhs0,
-                          t_span=[cur_t_eval[0], cur_t_eval[-1]],
-                          y0=cur_y0,
+                         t_span=[cur_t_eval[0], cur_t_eval[-1]],
+                         y0=cur_x0,
                          t_eval=cur_t_eval,
                          method='RK23',
                          events=cur_list
@@ -163,14 +163,14 @@ cdef class control_integration:
             if sol.t[-1] == Tf:
                 # if no event has occured, we have just obtained
                 # the rest of the time series and are finished.
-                y_eval[cur_index_i:] = (sol.y).T
+                x_eval[cur_index_i:] = (sol.y).T
                 break
             else:
                 # if an event has occured, then we add the time series
                 # up to the event and prepare an initial condition for
                 # the next iteration
                 cur_index_f = cur_index_i + len(sol.t)
-                y_eval[cur_index_i:cur_index_f] = (sol.y).T
+                x_eval[cur_index_i:cur_index_f] = (sol.y).T
                 #
                 cur_t_f = t_eval[cur_index_i] # current final time
                 cur_index_i = cur_index_f - 1 # initial index for next iteration
@@ -179,12 +179,12 @@ cdef class control_integration:
                                           endpoint=True,
                                           num= len(t_eval[cur_index_i:]))
                 # initial condition for next iteration
-                cur_y0 = np.array( sol.y[:,-1] )
+                cur_x0 = np.array( sol.y[:,-1] )
                 # if desired, terminate once an event has happened
                 if stop_at_event:
-                    return y_eval[:cur_index_f], t_eval[:cur_index_f], events_out
+                    return x_eval[:cur_index_f], t_eval[:cur_index_f], events_out
 
-        return y_eval, t_eval, events_out
+        return x_eval, t_eval, events_out
 
 
 
@@ -297,19 +297,19 @@ cdef class SIR(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
 
         if method.lower()=='deterministic':
-            y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x0 = np.concatenate((S0, Ia0, Is0)) # initial condition
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent,
                                   stop_at_event=stop_at_event)
-            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+            data = {'X':x_eval, 't':t_eval, 'events_occured':events_out,
                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
@@ -458,19 +458,19 @@ cdef class SEkIkIkR(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
 
         if method.lower()=='deterministic':
-            y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent,
                                   stop_at_event=stop_at_event)
-            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+            data = {'X':x_eval, 't':t_eval, 'events_occured':events_out,
                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                       'fsa':self.fsa, 'kI':self.kI, 'kE':self.kE ,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
@@ -710,18 +710,18 @@ cdef class SIRS(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
         if method.lower()=='deterministic':
-            y0 = np.concatenate((S0, Ia0, Is0)) # initial condition
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x0 = np.concatenate((S0, Ia0, Is0)) # initial condition
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent,
                                   stop_at_event=stop_at_event)
-            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+            data = {'X':x_eval, 't':t_eval, 'events_occured':events_out,
                       'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                         'beta':self.beta,'gIa':self.gIa, 'gIs':self.gIs }
             return data
@@ -848,18 +848,18 @@ cdef class SEIR(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
         if method.lower() =='deterministic':
-            y0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x0 = np.concatenate((S0, E0, Ia0, Is0)) # initial condition
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent,
                                   stop_at_event=stop_at_event)
-            data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
+            data={'X':x_eval, 't':t_eval, 'events_occured':events_out,
                 'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,
                 'beta':self.beta,'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE}
             return data
@@ -966,18 +966,18 @@ cdef class SIkR(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
         if method.lower()=='deterministic':
-            y0 = np.concatenate(( S0, I0 )) # initial condition
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x0 = np.concatenate(( S0, I0 )) # initial condition
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent,
                                   stop_at_event=stop_at_event)
-            data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
+            data={'X':x_eval, 't':t_eval, 'events_occured':events_out,
               'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
             return data
         else:
@@ -1109,13 +1109,13 @@ cdef class SEkIkR(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
-        y0 = np.concatenate((S0, E0, I0)) # initial condition
+        x0 = np.concatenate((S0, E0, I0)) # initial condition
 
         if method.lower() =='deterministic':
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
@@ -1124,7 +1124,7 @@ cdef class SEkIkR(control_integration):
         else:
             raise RuntimeError("Stochastic control not yet implemented for SEkIkR model.")
 
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,
+        data={'X':x_eval, 't':t_eval, 'events_occured':events_out,
             'Ni':self.Ni, 'M':self.M, 'beta':self.beta,'gI':self.gI, 'k':self.ki }
         return data
 
@@ -1244,13 +1244,13 @@ cdef class SEAIR(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
-        y0 = np.concatenate((S0, E0, A0, Ia0, Is0)) # initial condition
+        x0 = np.concatenate((S0, E0, A0, Ia0, Is0)) # initial condition
 
         if method.lower() =='deterministic':
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
@@ -1259,7 +1259,7 @@ cdef class SEAIR(control_integration):
         else:
             raise RuntimeError("Stochastic control not yet implemented for SEAIR model.")
 
-        data={'X':y_eval, 't':t_eval, 'events_occured':events_out,'fsa':self.fsa,
+        data={'X':x_eval, 't':t_eval, 'events_occured':events_out,'fsa':self.fsa,
               'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
                 'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA}
         return data
@@ -1401,18 +1401,18 @@ cdef class SEAIRQ(control_integration):
                          int nc=30, double epsilon = 0.03,
                         int tau_update_frequency = 1):
         cdef:
-            np.ndarray y_eval, t_eval, y0
+            np.ndarray x_eval, t_eval, x0
             dict data
 
         if method.lower() == 'deterministic':
-            y0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
-            y_eval, t_eval, events_out = self.simulate_deterministic(y0=y0,
+            x0 = np.concatenate((S0, E0, A0, Ia0, Is0, Q0)) # initial condition
+            x_eval, t_eval, events_out = self.simulate_deterministic(x0=x0,
                                   events=events,contactMatrices=contactMatrices,
                                   Tf=Tf,Nf=Nf,Ti=Ti,
                                   events_repeat=events_repeat,
                                   events_subsequent=events_subsequent,
                                   stop_at_event=stop_at_event)
-            data = {'X':y_eval, 't':t_eval, 'events_occured':events_out,
+            data = {'X':x_eval, 't':t_eval, 'events_occured':events_out,
                     'fsa':self.fsa,
                     'Ni':self.Ni, 'M':self.M,'alpha':self.alpha,'beta':self.beta,
                       'gIa':self.gIa,'gIs':self.gIs,'gE':self.gE,'gA':self.gA,
