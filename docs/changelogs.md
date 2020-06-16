@@ -1,7 +1,7 @@
 # PyRoss changelogs
 
 ## 1.1.7 
-* Remove all I5 classes
+* updates to inference 
 
 ## 1.1.6 
 * New class: SppQ stochastic
@@ -13,7 +13,7 @@
 * Update models.pdf
 
 ## 1.1.3 
-* Removoe 'fh' as parameter 
+* Remove 'fh' as parameter in SEI8R
 
 ## 1.1.2 
 * Update docs
