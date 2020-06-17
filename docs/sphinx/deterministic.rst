@@ -8,7 +8,6 @@ CommonMethods
 .. autoclass:: pyross.deterministic.CommonMethods
     :members:
 
-
 Spp
 --------------------------
 .. autoclass:: pyross.deterministic.Spp
@@ -68,3 +67,4 @@ SEAIRQ_testing
 --------------------------------------
 .. autoclass:: pyross.deterministic.SEAIRQ_testing
     :members:
+

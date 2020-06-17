@@ -12,7 +12,7 @@ import inspect
 import numpy as np
 import scipy as sp
 
-skip = ["Spp", "SppQ", "SEAIRQ_testing", "SIR_type"]
+skip = ["Spp", "SppQ", "SEAIRQ_testing", "SIR_type", "Symbol"]
 
 class DeterministicTest(unittest.TestCase):
     """testing deterministic.pyx."""

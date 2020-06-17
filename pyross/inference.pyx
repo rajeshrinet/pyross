@@ -8,7 +8,8 @@ from scipy.interpolate import make_interp_spline
 from scipy.misc import derivative
 cimport numpy as np
 cimport cython
-import time
+import time, sympy
+from sympy import MutableDenseNDimArray as Array 
 
 try:
     # Optional support for nested sampling.
@@ -16,10 +17,6 @@ try:
 except ImportError:
     nestle = None
 
-try: ## optional support for symbolic differentiation
-    import sympy
-except ImportError:
-    sympy=None
 
 import pyross.deterministic
 cimport pyross.deterministic
@@ -100,13 +97,10 @@ cdef class SIR_type:
         return minus_logp
 
     def symbolic_test(self):
-        if sympy == None:
-            pass
-        else:
-            x  =  sympy.symbols('x')
-            expr = sympy.sin(x)
-            diff = sympy.diff(expr, x)
-            return diff, float(x.subs(x, 2))
+        x  =  sympy.symbols('x')
+        expr = sympy.sin(x)
+        diff = sympy.diff(expr, x)
+        return diff, float(x.subs(x, 2))
 
     def infer_parameters(self, keys, guess, stds, bounds, np.ndarray x,
                         double Tf, Py_ssize_t Nf, contactMatrix,
@@ -521,7 +515,6 @@ cdef class SIR_type:
         fltr = pyross.utils.process_fltr(fltr, Nf)
 
         fltr0 = fltr[0]
-        obs0 = obs0[0]
 
         fltr = fltr[1:]
 
@@ -660,7 +653,6 @@ cdef class SIR_type:
         fltr = pyross.utils.process_fltr(fltr, Nf)
 
         fltr0 = fltr[0]
-        obs0 = obs0[0]
 
         fltr = fltr[1:]
 
@@ -3013,6 +3005,327 @@ cdef class Spp(SIR_type):
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
+    def adj_RHS_mean(self, double t, double [:] lam, double [:] x0, contactMatrix, spline):
+        """RHS function for the adjoint gradient calculation of the time evolution operator."""
+        cdef:
+            Py_ssize_t M=self.M
+            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
+            double [:, :] CM=self.CM
+            double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
+            double [:] fsa=self.fsa, beta=self.beta, fi=self.fi
+        CM = contactMatrix(t)
+        self.CM = contactMatrix(t)
+        x  = spline(t)
+        self.fill_lambdas(x, l)
+        self.jacobian(x, l)
+        return np.dot(lam.T, self.J_mat )
+
+    cdef obtain_time_evol_op_2(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
+        """
+        xf is a redundant input here, added for consistency with the finite difference version 'obtain_time_evol_op'
+        """
+        cdef:
+            Py_ssize_t steps=self.steps
+            double [:,:] U=self.U
+            double [:,:] lam_arr
+        ## Interpolate the dynamics
+        x = self.integrate(x0, t1, t2, steps, model, contactMatrix)
+        tsteps = np.linspace(0, t2-t1, steps)
+        spline = make_interp_spline(tsteps, x)
+        for k, row in enumerate(np.eye(self.dim)):
+            a = solve_ivp(self.adj_RHS_mean, [0,t2-t1], row, t_eval=tsteps, method='RK45', args=(x0,contactMatrix, spline,))
+            self.U[k,:] = a['y'][:,-1]
+        return self.U
+
+    def lambdify_derivative_functions(self, keys):
+        """Create python functions from sympy expressions"""
+        M=self.M
+        nClass=self.nClass
+        parameters=self.parameters
+        p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p only
+        CM = sympy.Matrix( sympy.symarray('CM', (M, M)))
+        fi = sympy.Matrix( sympy.symarray('fi', (1, M)))
+        x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
+        expr_var_list = [p, CM, fi, x]
+        global dA, dB
+        dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
+        dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
+
+    def FIM_sym(self,x0, t1, t2, Nf, model, C, keys=None): 
+        """Does the FIM based off symbolic expressions. In development,"""
+
+        def dmudp(xi, ti, tf, steps, det_model, C):
+            """
+            calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
+            Note that although we can calculate the evolution operator T via adjoint gradient ODES it 
+            is comparable accuracy to finite difference anyway, and far slower.
+            """
+            xd = self.integrate(xi, ti, tf, steps, det_model, C)
+            tsteps = np.linspace(ti, tf, steps)
+            dt=tsteps[1]-tsteps[0]
+            dmudp = 0#np.zeros((3, self.M), dtype='float')
+            for i, t in enumerate(tsteps):
+                if t1==ti:
+                    T = np.eye(self.dim)
+                else:
+                    self.obtain_time_evol_op(x0, xd[i], t1, t, model, C) ## for derivs wrt initial conds
+                    T=self.U
+                if ti==t:
+                    Tn = np.eye(self.dim)
+                else:
+                    self.obtain_time_evol_op(xi, xd[i], ti, t, model, C) ## for inner product expression
+                    Tn=self.U
+                self.CM = C(t)
+                cm = C(t).ravel()
+                dAdp, _ = dA(param_values, CM_f, fi, xi.ravel())
+                dmudp += np.einsum('ij,kj->ki ', Tn, dAdp)*dt ##sum the integral explicitely
+            dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
+            return dmu 
+        M=self.M
+        nClass=self.nClass
+        num_of_infection_terms=self.infection_terms.shape[0]
+        parameters=self.parameters
+        xd = self.integrate(x0, 0, t2-t1, Nf, model, C)
+        time_points = np.linspace(0, t2-t1, Nf)
+        dt = time_points[1]  ## given they are linearly spaced
+        l = np.zeros((num_of_infection_terms,M), dtype=DTYPE)
+        FIM=0
+        if keys == None:
+            keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
+        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here 
+        ## Ready the inputs for these functions
+        param_values = self.parameters.ravel() 
+        fi = self.fi
+        indices = np.triu_indices(self.dim, 1)
+        for k in range(time_points.size-1):
+            print(f"Progress:\t{k/(time_points.size-1)}")
+            xi, xf = xd[k], xd[k+1]
+            ti = time_points[k]
+            tf = ti+dt
+            CM_f = C(ti).ravel() ## for generality - redundant for a constant ContactMatrix
+            self.CM=C(ti)
+            ## yield the required arrays
+            self.fill_lambdas(xi, l)
+            self.noise_correlation(xi, l)
+            Bmat = self.convert_vec_to_mat(self.B_vec)
+            Binv = np.linalg.inv(Bmat)
+            ## yield the derivatives by calling saved functions (faster)
+            dtan, dAdx = dA(param_values, CM_f, fi, xi.ravel())
+            dcov, dBdx = dB(param_values, CM_f, fi, xi.ravel())
+            dtan = np.array(dtan)
+            dAdx = np.array(dAdx)
+            dcov = np.array(dcov)
+            dBdx = np.array(dBdx) 
+            ## Make things true symmetric where necessary
+            for i in range(np.sum(keys)): ## len params
+                dcov_i = dcov[i]
+                dcov_i.T[indices] = dcov_i[indices]
+            for i in range(self.dim): ## len params
+                dBdx_i = dBdx[i]
+                dBdx_i.T[indices] = dBdx_i[indices]
+            ## construct d[..]dx0 and stack
+            if ti==t1:
+                U=np.eye(self.dim)
+            else:
+                self.obtain_time_evol_op(x0, xi, t1, ti, model, C) ## initial to current time
+                U=self.U
+            dtandx0 = np.einsum('ij,ik->ik', U, dAdx)
+            dcovdx0 = np.einsum('ji, jkl->ikl', U, dBdx)
+            dtan = np.concatenate((dtan, dtandx0), axis=0)
+            dcov = np.concatenate((dcov, dcovdx0), axis=0)
+            ## Sum for FIM
+            dmu   =  dmudp(xi.flatten(), ti, tf, Nf, model, C)
+            dtan +=  np.einsum('lj,il->ij',dAdx, dmu) ## missing part by product rule
+            dcov += np.einsum('ijk,li->ljk', dBdx, dmu)
+            FIM  += np.einsum('ia, ak, jk', dtan, Binv, dtan)
+            FIM  += 0.5*np.einsum('ab,ibc,cd,jda', Binv, dcov, Binv, dcov)
+        return FIM
+        
+    def construct_l(self, x):
+        """constructs sympy l. x is a sympy matrix"""
+        M=self.M
+        infection_terms=self.infection_terms
+        num_of_infection_terms=infection_terms.shape[0]
+        CM = sympy.Matrix( sympy.symarray('CM', (M, M)))
+        fi = sympy.Matrix( sympy.symarray('fi', (1, M)))
+        l = sympy.Matrix(np.zeros((num_of_infection_terms,M)))
+        for i in range(num_of_infection_terms):
+            infective_index = infection_terms[i, 1]
+            for m in range(M):
+                for n in range(M):
+                    index = n + M*infective_index
+                    l[i, m] += CM[m,n]*x[index]/fi[n]
+        return l
+        
+    def construct_A_spp(self, x):
+        """construct Spp A. x is a sympy matrix"""
+        M=self.M
+        nClass=self.nClass
+        constant_terms=self.constant_terms
+        linear_terms=self.linear_terms
+        infection_terms=self.infection_terms
+        x=x.reshape(1,self.dim)
+        S_index=self.class_index_dict['S']
+        s = x[:,S_index*M:(S_index+1)*M]
+        parameters=self.parameters
+
+        A=sympy.Matrix(np.zeros((nClass,M) ))
+        l=self.construct_l(x)
+        p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p
+        for i in range(infection_terms.shape[0]):
+            product_index = infection_terms[i, 2]
+            infective_index = infection_terms[i, 1]
+            rate_index = infection_terms[i, 0]
+            rate = p[rate_index,:]
+            for m in range(M):
+                A[S_index, m] -= rate[m]*l[i, m]*s[m]
+                if product_index>-1:
+                    A[product_index, m] += rate[m]*l[i, m]*s[m]
+        for i in range(linear_terms.shape[0]):
+            product_index = linear_terms[i, 2]
+            reagent_index = linear_terms[i, 1]
+            reagent = x[:,reagent_index*M:(reagent_index+1)*M]
+            rate_index = linear_terms[i, 0]
+            rate = p[rate_index,:]
+            for m in range(M):
+                A[reagent_index, m] -= rate[m]*reagent[m]
+                if product_index >-1:
+                    A[product_index, m] += rate[m]*reagent[m]
+        A=A.reshape(1, self.dim)
+        return A
+
+    def construct_J_spp(self, x):
+        """constructs Spp J. x is a sympy matrix"""
+        M=self.M
+        nClass=self.nClass
+        constant_terms=self.constant_terms
+        linear_terms=self.linear_terms
+        infection_terms=self.infection_terms
+        x=x.reshape(1,self.dim)
+        S_index=self.class_index_dict['S']
+        s = x[:,S_index*M:(S_index+1)*M]
+        parameters=self.parameters
+        J = Array(np.zeros((nClass, M, nClass, M)))
+        CM = sympy.Matrix( sympy.symarray('CM', (M, M)))
+        fi = sympy.Matrix( sympy.symarray('fi', (1, M)))
+        l = self.construct_l(x)
+        p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p
+        for i in range(infection_terms.shape[0]):
+            product_index = infection_terms[i, 2]
+            infective_index = infection_terms[i, 1]
+            rate_index = infection_terms[i, 0]
+            rate = p[rate_index,:]
+            for m in range(M):
+                J[S_index, m, S_index, m] -= rate[m]*l[i, m]
+                if product_index>-1:
+                    J[product_index, m, S_index, m] += rate[m]*l[i, m]
+                for n in range(M):
+                    J[S_index, m, infective_index, n] -= s[m]*rate[m]*CM[m, n]/fi[n]
+                    if product_index>-1:
+                        J[product_index, m, infective_index, n] += s[m]*rate[m]*CM[m, n]/fi[n]
+        for i in range(linear_terms.shape[0]):
+            product_index = linear_terms[i, 2]
+            reagent_index = linear_terms[i, 1]
+            rate_index = linear_terms[i, 0]
+            rate = p[rate_index,:]
+            for m in range(M):
+                J[reagent_index, m, reagent_index, m] -= rate[m]
+                if product_index>-1:
+                    J[product_index, m, reagent_index, m] += rate[m]
+        J=J.reshape(self.dim, self.dim)
+        return J
+
+
+    def construct_B_spp(self, x):
+        """constructs Spp B. x is a sympy array"""
+        N=self.N
+        M=self.M
+        nClass=self.nClass
+        constant_terms=self.constant_terms
+        linear_terms=self.linear_terms
+        infection_terms=self.infection_terms
+        parameters=self.parameters
+        x = x.reshape(1, self.dim)
+        S_index=self.class_index_dict['S']
+        s = x[:,S_index*M:(S_index+1)*M]
+        B = Array(np.zeros((nClass, M, nClass, M)))
+        l = self.construct_l(x)
+        p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p
+        if self.constant_terms.size > 0:
+            for i in range(constant_terms.shape[0]):
+                rate_index = constant_terms[i, 0]
+                class_index = constant_terms[i, 1]
+                rate = p[rate_index,:]
+                for m in range(M):
+                    B[class_index, m, class_index, m] += rate[m]/N
+                    B[nClass-1, m, nClass-1, m] += rate[m]/N
+        for i in range(infection_terms.shape[0]):
+            product_index = infection_terms[i, 2]
+            infective_index = infection_terms[i, 1]
+            rate_index = infection_terms[i, 0]
+            rate = p[rate_index,:]
+            for m in range(M):
+                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
+                if product_index>-1:
+                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
+                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
+                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
+        for i in range(linear_terms.shape[0]):
+            product_index = linear_terms[i, 2]
+            reagent_index = linear_terms[i, 1]
+            reagent = x[:,reagent_index*M:(reagent_index+1)*M]
+            rate_index = linear_terms[i, 0]
+            rate = p[rate_index,:]
+            for m in range(M): # only fill in the upper triangular form
+                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
+                if product_index>-1:
+                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
+                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
+                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m] ## make sure the symmetrising method reassigns the Lower traingular elem
+        B=B.reshape(self.dim, self.dim)
+        return B
+
+
+    def dAd(self, p, return_x0_deriv=False, keys=None):
+        """
+        constructs Spp B. param is a string or sympy symbol. Most likely you'll wish to use 'all' string
+        keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+        p is a sympy array which contains epi parameters. nParams*M due to age dependence
+        [dAdp]_ij = dA_j/dp_i
+        """
+        assert (keys is not None), "Error: integer 1-0 array 'keys' was not passed"
+        M=self.M
+        nClass=self.nClass
+        x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
+        no_inferred_params = np.sum(keys)
+        dAdp = Array(np.zeros((no_inferred_params, 1, self.dim)))
+        rows, cols = np.where(keys==1)
+        for k, (r, c) in enumerate(zip(rows, cols)):
+            param = p[r,c]
+            dAdp[k,:,:] = sympy.diff(self.construct_A_spp(x), param)
+        dAdx = sympy.diff(self.construct_A_spp(x), x).reshape(self.dim, 1, self.dim)
+        return dAdp[:,0,:], dAdx[:,0,:]
+
+
+    def dBd(self, p, return_x0_deriv=False, keys=None):
+        """
+        constructs Spp B. param is a string or sympy symbol. Most likely you'll wish to use 'all' string
+        keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+        p is a sympy array which contains epi parameters. nParams*M due to age dependence
+        [dBdp]_ijk = dB_jk/dp_i
+        """
+        assert (keys is not None), "Error: integer 1-0 'keys' was not passed"
+        M=self.M
+        nClass=self.nClass
+        x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
+        no_inferred_params = np.sum(keys)
+        dBdp = Array(np.zeros((no_inferred_params, self.dim, self.dim)))
+        rows, cols = np.where(keys==1)
+        for k, (r, c) in enumerate(zip(rows, cols)):
+            param = p[r,c]
+            dBdp[k,:,:] = sympy.diff(self.construct_B_spp(x), param)
+        dBdx = sympy.diff(self.construct_B_spp(x), x).reshape(self.dim, self.dim, self.dim)
+        return dBdp, dBdx
 
 
 @cython.wraparound(False)

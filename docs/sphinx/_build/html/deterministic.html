@@ -666,6 +666,17 @@ The default value is 100000.</p></li>
 <li><p>Ia: asymptomatic</p></li>
 <li><p>Is: symptomatic</p></li>
 </ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a} = \alpha_{i}\lambda_{i}(t)S_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}= \bar{\alpha_{i}}\lambda_{i}(t)S_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}(t)\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}(t)
+\frac{I_{j}^{s}}{N_{j}}\right),\quad i,j=1,\ldots M\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -769,6 +780,16 @@ The default is 100000.</p></li>
 <dt id="pyross.deterministic.SIkR">
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.deterministic.SIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Infected, Removed (SIkR). Method of k-stages of I</p>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\frac{I_{j}^{n}}{N_{j}},\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -838,6 +859,19 @@ The default is 100000.</p></li>
 <li><p>Ia: asymptomatic</p></li>
 <li><p>Is: symptomatic</p></li>
 </ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a} = \alpha_{i}\gamma_{E}^{i}E_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}= \bar{\alpha_{i}}\gamma_{E}^{i}E_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}(t)\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}(t)
+\frac{I_{j}^{s}}{N_{j}}\right),\quad i,j=1,\ldots M\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -912,6 +946,20 @@ The default is 100000.</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Susceptible, Exposed, Infected, Removed (SEkIkR).
 Method of k-stages of E and I</p>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{1}=\lambda_{i}(t)S_{i}-k_{E}\gamma_{E}E_{i}^{1}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{k}=k_{E}\gamma_{E}E_{i}^{k-1}-k_{E}\gamma_{E}E_{i}^{k}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\frac{I_{j}^{n}}{N_{j}},\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -987,6 +1035,25 @@ Method of k-stages of E, Ia, and Is</p>
 <li><p>Ia: asymptomatic</p></li>
 <li><p>Is: symptomatic</p></li>
 </ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{1}=\lambda_{i}(t)S_{i}-k_{E}\gamma_{E}E_{i}^{1}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{k_{E}}=k_{E}\gamma_{E}E_{i}^{k_{E}-1}-k_{E}\gamma_{E}E_{i}^{k_{E}}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a1}=\alpha_{i}k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I^{a}}I_{i}^{a1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{ak_{I}}=k_{I^{a}}\gamma_{I^{a}}I_{i}^{a(k_{I}-1)}-k_{I}\gamma_{I^{a}}I_{i}^{ak_{I}},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s1}=\bar{\alpha_{i}}k_{E}\gamma_{E}E_{i}^{k_{E}}-k_{I}\gamma_{I^{s}}I_{i}^{a1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{sk_{I}}=k_{I}\gamma_{I^{s}}I_{i}^{s(k_{I}-1)}-k_{I}\gamma_{I^{s}}I_{i}^{sk_{I}},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=k_{I}\gamma_{I^{a}}I_{i}^{ak_{I}}+k_{I}\gamma_{I^{s}}I_{i}^{sk_{I}}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\sum_{n=1}^{k_{I}}\left(C_{ij}^{a}
+\frac{I_{j}^{an}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{sn}}{N_{j}}\right),\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1072,9 +1139,37 @@ The infected class has 8 groups:</p>
 <li><p>Ic: ICU</p></li>
 <li><p>Im: Mortality</p></li>
 </ul>
-<p>Is —&gt; Ih, Is’-&gt; R
-Ih —&gt; Ic, Ih’-&gt; R
-Ic —&gt; Im, Ic’-&gt; R</p>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}+\sigma_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s'}=\bar{h}_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{s'}}I_{i}^{s'}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h}=h_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{h}}I_{i}^{h},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h'}=\bar{c}_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{h'}}I_{i}^{h'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c}=c_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c'}=\bar{m}_{i}\gamma_{I^{c}}I_{i}^{c}-\gamma_{I^{c'}}I_{i}^{c'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{m}=m_{i}\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{N}_{i}=\sigma_{i}-m_{i}\gamma_{I^{c}}I_{i}^{c}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s'}}I_{i}^{s'}+\gamma_{I^{h'}}I_{i}^{h'}+\gamma_{I^{c'}}I_{i}^{c'}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+
++C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}
++C_{ij}^{s}\frac{I_{j}^{s'}}{N_{j}}
+\right),\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1175,6 +1270,21 @@ The default is 100000.</p></li>
 <li><p>E: exposed</p></li>
 <li><p>A: asymptomatic and infectious</p></li>
 </ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+\frac{A_{j}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}\right),\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1259,9 +1369,38 @@ The infected class has 8 groups:</p>
 <li><p>Ic: ICU</p></li>
 <li><p>Im: Mortality</p></li>
 </ul>
-<p>Is —&gt; Ih, Is’-&gt; R
-Ih —&gt; Ic, Ih’-&gt; R
-Ic —&gt; Im, Ic’-&gt; R</p>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}+\sigma_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s'}=\bar{h}_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{s'}}I_{i}^{s'}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h}=h_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{h}}I_{i}^{h},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h'}=\bar{c}_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{h'}}I_{i}^{h'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c}=c_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c'}=\bar{m}_{i}\gamma_{I^{c}}I_{i}^{c}-\gamma_{I^{c'}}I_{i}^{c'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{m}=m_{i}\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{N}_{i}=\sigma_{i}-m_{i}\gamma_{I^{c}}I_{i}^{c}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s'}}I_{i}^{s'}+\gamma_{I^{h'}}I_{i}^{h'}+\gamma_{I^{c'}}I_{i}^{c'}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+\frac{A_{j}}{N_{j}}
++C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}
++C_{ij}^{s}\frac{I_{j}^{s'}}{N_{j}}
+\right),\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1364,6 +1503,23 @@ Infected, Removed, Quarantined (SEAIRQ)</p>
 <li><p>A: asymptomatic and infectious</p></li>
 <li><p>Q: quarantined</p></li>
 </ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-(\gamma_{E}+\tau_{E})A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-(\gamma_{A}+\tau_{A})A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-(\gamma_{I^{a}}+\tau_{I^a})I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-(\gamma_{I^{s}}+\tau_{I^a})I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{Q}_{i}=\tau_{S}S_{i}+\tau_{E}E_{i}+\tau_{A}A_{i}+\tau_{I^{s}}I_{i}^{s}+\tau_{I^{a}}I_{i}^{a}\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+\frac{A_{j}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}\right),\]</div>
 <p>…</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
