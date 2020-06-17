@@ -515,7 +515,6 @@ cdef class SIR_type:
         fltr = pyross.utils.process_fltr(fltr, Nf)
 
         fltr0 = fltr[0]
-        obs0 = obs0[0]
 
         fltr = fltr[1:]
 
@@ -654,7 +653,6 @@ cdef class SIR_type:
         fltr = pyross.utils.process_fltr(fltr, Nf)
 
         fltr0 = fltr[0]
-        obs0 = obs0[0]
 
         fltr = fltr[1:]
 
