@@ -927,6 +927,107 @@ cdef class SIR_type:
         else:
             return np.array(orig_params)
 
+    def _latent_lin_mode_init_to_minimize(self, params, grad=0, param_keys=None,
+                                            is_scale_parameter=None, scaled_guesses=None,
+                                            flat_guess_range=None, flat_param_guess_size=None,
+                                            obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None,
+                                            s=None, scale=None, tangent=None):
+        """Objective function for minimization call in laten_inference."""
+        coeff =  np.copy(params[flat_param_guess_size:])
+
+        # Restore parameters from flattened parameters
+        orig_params = self._unflatten_parameters(params[:flat_param_guess_size], flat_guess_range, is_scale_parameter, scaled_guesses)
+
+        parameters = self.fill_params_dict(param_keys, orig_params)
+        self.set_params(parameters)
+        model = self.make_det_model(parameters)
+
+        x0 = self.lin_mode_inits(coeff, contactMatrix)
+        penalty = self._penalty_from_negative_values(x0)
+        x0[x0<0] = 0.1/self.N # set to be small and positive
+
+        minus_logp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+
+        # add penalty for being negative
+        minus_logp += penalty*Nf
+
+        return minus_logp
+
+    def lin_mode_inits(self, coeff, contactMatrix):
+        cdef double [:] v, x0, fi=self.fi
+        v = self.find_fastest_growing_lin_mode(0, contactMatrix)
+        v = np.multiply(v, coeff)/np.linalg.norm(v, ord=1)
+        x0 = np.zeros((self.dim), dtype=DTYPE)
+        x0[:self.M] = fi
+        return np.add(x0, v)
+
+    def latent_infer_parameters_lin_mode_init(self, param_keys, np.ndarray guess, np.ndarray stds,
+                            np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, contactMatrix, np.ndarray bounds,
+                            tangent=False, infer_scale_parameter=False,
+                            verbose=False, full_output=False, double ftol=1e-5,
+                            global_max_iter=100, local_max_iter=100, global_atol=1,
+                            enable_global=True, enable_local=True, cma_processes=0,
+                            cma_population=16, cma_stds=None):
+        cdef:
+            Py_ssize_t param_dim = len(param_keys)
+
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        obs = pyross.utils.process_obs(obs[1:], Nf-1)
+        fltr = fltr[1:]
+
+        assert len(guess) == param_dim + 1, 'len(guess) must equal to total number of params + 1'
+
+        # Transfer the parameter parts of guess, stds, ... which can contain arrays as entries for age-dependent rates to a flat list
+        flat_param_guess, flat_param_stds, flat_param_bounds, flat_param_guess_range, is_scale_parameter, scaled_param_guesses \
+            = self._flatten_parameters(guess[:param_dim], stds[:param_dim], bounds[:param_dim], infer_scale_parameter)
+
+        # Concatenate the flattend parameter guess with init guess
+        init_guess = guess[param_dim:]
+        init_stds = stds[param_dim:]
+        init_bounds = bounds[param_dim:]
+        flat_guess = np.concatenate([flat_param_guess, init_guess]).astype(DTYPE)
+        flat_stds = np.concatenate([flat_param_stds,init_stds]).astype(DTYPE)
+        flat_bounds = np.concatenate([flat_param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
+
+        if cma_stds is None:
+            # Use prior standard deviations here
+            flat_cma_stds = flat_stds
+        else:
+            flat_cma_stds_params = np.zeros(len(flat_param_guess))
+            cma_stds_init = cma_stds[param_dim:]
+            for i in range(param_dim):
+                flat_cma_stds_params[flat_param_guess_range[i]] = cma_stds[i]
+            flat_cma_stds = np.concatenate([flat_cma_stds_params, cma_stds_init])
+
+        minimize_args = {'param_keys':param_keys,
+                        'is_scale_parameter':is_scale_parameter,
+                        'scaled_guesses':scaled_param_guesses, 'flat_guess_range':flat_param_guess_range,
+                        'flat_param_guess_size':len(flat_param_guess),
+                         'obs':obs, 'fltr':fltr, 'Tf':Tf, 'Nf':Nf, 'contactMatrix':contactMatrix,
+                         's':s, 'scale':scale, 'tangent':tangent}
+
+        res = minimization(self._latent_lin_mode_init_to_minimize, flat_guess, flat_bounds, ftol=ftol,
+                           global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
+                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
+                           cma_population=cma_population, cma_stds=flat_cma_stds, verbose=verbose, args_dict=minimize_args)
+
+        estimates = res[0]
+
+        # Get the parameters (in their original structure) from the flattened parameter vector.
+        flat_param_estimates = estimates[:len(flat_param_guess)]
+        orig_params = self._unflatten_parameters(flat_param_estimates, flat_param_guess_range, is_scale_parameter,
+                                                 scaled_param_guesses)
+        orig_params = [*orig_params, *estimates[len(flat_param_guess):]]
+
+        if full_output:
+            return np.array(orig_params), res[1]
+        else:
+            return np.array(orig_params)
+
 
     def _nested_sampling_loglike_latent(self, params, param_keys=None, init_fltr=None,
                                         is_scale_parameter=None, scaled_param_guesses=None,
@@ -1190,7 +1291,8 @@ cdef class SIR_type:
             logp for MAP estimates
 
         """
-        fltr = pyross.utils.process_fltr(fltr[1:], Nf-1)
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        fltr = fltr[1:]
         obs = pyross.utils.process_obs(obs[1:], Nf-1)
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
@@ -1492,7 +1594,7 @@ cdef class SIR_type:
     cdef double obtain_log_p_for_traj_matrix_fltr(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, Py_ssize_t Nf, model, contactMatrix, tangent=False):
         cdef:
-            Py_ssize_t reduced_dim=fltr.shape[0]*fltr.shape[1]
+            Py_ssize_t reduced_dim=obs_flattened.shape[0]
             double [:, :] xm
             double [:] xm_red, dev
             np.ndarray[DTYPE_t, ndim=2] cov_red, full_cov
@@ -1535,6 +1637,7 @@ cdef class SIR_type:
         invcov_x, ldet = pyross.utils.solve_symmetric_close_to_singular(cov, x)
         log_cond_p = - np.dot(x, invcov_x)*(self.N/2) - (self.dim/2)*log(2*PI)
         log_cond_p -= (ldet - self.dim*log(self.N))/2
+        log_cond_p -= self.dim*np.log(self.N)
         return log_cond_p
 
     cdef estimate_cond_mean_cov(self, double [:] x0, double t1, double t2, model, contactMatrix):
@@ -1702,7 +1805,7 @@ cdef class SIR_type:
     cpdef find_fastest_growing_lin_mode(self, double t, contactMatrix):
         cdef:
             np.ndarray [DTYPE_t, ndim=2] J
-            np.ndarray [DTYPE_t, ndim=1] x0, mode=np.empty((self.dim), dtype=DTYPE)
+            np.ndarray [DTYPE_t, ndim=1] x0, v, mode=np.empty((self.dim), dtype=DTYPE)
             list indices
             Py_ssize_t S_index, M=self.M, i, j, n_inf, n, index
         # assume no infected at the start and compute eig vecs for the infectious species
@@ -1724,7 +1827,14 @@ cdef class SIR_type:
         self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
                                                 b_matrix=False, jacobian=True)
         _, eigvec = sparse.linalg.eigs(self.J_mat, return_eigenvectors=True, k=1, which='LR')
-        return np.real(eigvec)[:, 0]
+        v = np.real(eigvec)[:, 0]
+
+        if v[S_index*M] > 0:
+            return -v
+        else:
+            return v
+
+
 
     cdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         cdef:
