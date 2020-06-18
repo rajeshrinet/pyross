@@ -2989,7 +2989,7 @@ cdef class SppQ(stochastic_integration):
         
         if constant_terms.size > 0:
             for i in range(M):
-                Ni[i] = xt[(nClass-1)*M + i]  # update Ni
+                Ni[i] = xt[(nClassU-1)*M + i]  # update Ni
         
         # Compute lambda
         for i in range(infection_terms.shape[0]):
