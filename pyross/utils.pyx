@@ -7,6 +7,7 @@ from libc.math cimport sqrt, pow, log, sin, cos, atan2, sqrt
 from cython.parallel import prange
 cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
+from scipy.sparse.linalg.eigen.arpack import eigs, ArpackNoConvergence
 import matplotlib.pyplot as plt
 
 
@@ -305,6 +306,20 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
 
         x = eigvecs @ (np.diag(eigvals) @ (eigvecs.T @ b))
         return x, log_det
+
+def largest_real_eig(np.ndarray A):
+    try:
+        eigval, eigvec = eigs(A, return_eigenvectors=True, k=1, which='LR')
+        eigvec = np.real(eigvec[:, 0])
+        eigval = np.real(eigval)[0]
+    except ArpackNoConvergence:
+        w, v = np.linalg.eig(A)
+        max_index = np.argmax(np.real(w))
+        eigval = np.real(w[max_index])
+        eigvec = np.real(eigvec[:, max_index])
+    eigval_sign = (eigval > 0)
+    return eigval_sign, eigvec
+
 
 
 def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
@@ -627,7 +642,7 @@ class GPR:
         self.calcKernels()
         self.calcPrior()
         self.calcMuSigma()
-        self.plotResults() 
+        self.plotResults()
 
 
 def getDiagonalCM(country, M=16):
@@ -637,7 +652,7 @@ def getDiagonalCM(country, M=16):
     else:
         CH, CW, CS, CO = pyross.contactMatrix.getCM(country)
     CM=CH+CW+CS+CO
-    
+
     x = np.zeros(M)
     for i in range(M):
         x[i] = 1*CM[i,i]

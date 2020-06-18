@@ -9,7 +9,7 @@ from scipy.misc import derivative
 cimport numpy as np
 cimport cython
 import time, sympy
-from sympy import MutableDenseNDimArray as Array 
+from sympy import MutableDenseNDimArray as Array
 
 try:
     # Optional support for nested sampling.
@@ -925,7 +925,7 @@ cdef class SIR_type:
                                             obs=None, fltr=None, Tf=None, Nf=None, contactMatrix=None,
                                             s=None, scale=None, tangent=None):
         """Objective function for minimization call in laten_inference."""
-        coeff =  np.copy(params[flat_param_guess_size:])
+        coeff =  params[flat_param_guess_size]
 
         # Restore parameters from flattened parameters
         orig_params = self._unflatten_parameters(params[:flat_param_guess_size], flat_guess_range, is_scale_parameter, scaled_guesses)
@@ -1020,6 +1020,39 @@ cdef class SIR_type:
         else:
             return np.array(orig_params)
 
+    def hessian_lin_mode(self, param_keys, maps, np.ndarray prior_mean, np.ndarray prior_stds,
+                            np.ndarray obs, np.ndarray fltr,
+                            double Tf, Py_ssize_t Nf, contactMatrix,
+                            tangent=False, infer_scale_parameter=False,
+                            eps=1e-3, fd_method='central'):
+        cdef:
+            Py_ssize_t param_dim = len(param_keys)
+
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        obs = pyross.utils.process_obs(obs[1:], Nf-1)
+        fltr = fltr[1:]
+
+        bounds = np.zeros((len(maps), 2)) # This does not matter here
+        flat_maps, _, _, flat_maps_range, is_scale_parameter, scaled_maps \
+            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
+        flat_prior_mean, flat_prior_stds, _, _, _, _ \
+            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+
+        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
+
+        def minuslogP(y):
+            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
+            coeff =  y_unflat[param_dim]
+            x0 = self.lin_mode_inits(coeff, contactMatrix)
+            parameters = self.fill_params_dict(param_keys, y_unflat)
+            self.set_params(parameters)
+            model = self.make_det_model(parameters)
+            minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
+            minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
+            return minuslogp
+
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
+        return hess
 
     def _nested_sampling_loglike_latent(self, params, param_keys=None, init_fltr=None,
                                         is_scale_parameter=None, scaled_param_guesses=None,
@@ -1809,21 +1842,20 @@ cdef class SIR_type:
         indices = self.infection_indices()
         n_inf = len(indices)
         J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
-        eigval, eigvec = sparse.linalg.eigs(J, return_eigenvectors=True, k=1, which='LR')
-        eigvec = np.abs(np.real(eigvec))[:, 0]
-        eigval = np.real(eigval)[0]
-
-        # substitute in infections and recompute fastest growing linear mode
-        for (j, i) in enumerate(indices):
-            x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
-        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
-                                                b_matrix=False, jacobian=True)
-        _, eigvec = sparse.linalg.eigs(self.J_mat, return_eigenvectors=True, k=1, which='LR')
-        v = np.real(eigvec)[:, 0]
-
-        if v[S_index*M] > 0:
-            return -v
+        sign, eigvec = pyross.utils.largest_real_eig(J)
+        if not sign: # if eigval not positive, just return the zero state
+            return x0
         else:
+            eigvec = np.abs(eigvec)
+
+            # substitute in infections and recompute fastest growing linear mode
+            for (j, i) in enumerate(indices):
+                x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
+            self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+                                                    b_matrix=False, jacobian=True)
+            _, v = pyross.utils.largest_real_eig(self.J_mat)
+            if v[S_index*M] > 0:
+                v = - v
             return v
 
 
@@ -3051,13 +3083,13 @@ cdef class Spp(SIR_type):
         dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
         dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
 
-    def FIM_sym(self,x0, t1, t2, Nf, model, C, keys=None): 
+    def FIM_sym(self,x0, t1, t2, Nf, model, C, keys=None):
         """Does the FIM based off symbolic expressions. In development,"""
 
         def dmudp(xi, ti, tf, steps, det_model, C):
             """
             calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
-            Note that although we can calculate the evolution operator T via adjoint gradient ODES it 
+            Note that although we can calculate the evolution operator T via adjoint gradient ODES it
             is comparable accuracy to finite difference anyway, and far slower.
             """
             xd = self.integrate(xi, ti, tf, steps, det_model, C)
@@ -3080,7 +3112,7 @@ cdef class Spp(SIR_type):
                 dAdp, _ = dA(param_values, CM_f, fi, xi.ravel())
                 dmudp += np.einsum('ij,kj->ki ', Tn, dAdp)*dt ##sum the integral explicitely
             dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
-            return dmu 
+            return dmu
         M=self.M
         nClass=self.nClass
         num_of_infection_terms=self.infection_terms.shape[0]
@@ -3092,9 +3124,9 @@ cdef class Spp(SIR_type):
         FIM=0
         if keys == None:
             keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
-        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here 
+        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         ## Ready the inputs for these functions
-        param_values = self.parameters.ravel() 
+        param_values = self.parameters.ravel()
         fi = self.fi
         indices = np.triu_indices(self.dim, 1)
         for k in range(time_points.size-1):
@@ -3115,7 +3147,7 @@ cdef class Spp(SIR_type):
             dtan = np.array(dtan)
             dAdx = np.array(dAdx)
             dcov = np.array(dcov)
-            dBdx = np.array(dBdx) 
+            dBdx = np.array(dBdx)
             ## Make things true symmetric where necessary
             for i in range(np.sum(keys)): ## len params
                 dcov_i = dcov[i]
@@ -3140,7 +3172,7 @@ cdef class Spp(SIR_type):
             FIM  += np.einsum('ia, ak, jk', dtan, Binv, dtan)
             FIM  += 0.5*np.einsum('ab,ibc,cd,jda', Binv, dcov, Binv, dcov)
         return FIM
-        
+
     def construct_l(self, x):
         """constructs sympy l. x is a sympy matrix"""
         M=self.M
@@ -3156,7 +3188,7 @@ cdef class Spp(SIR_type):
                     index = n + M*infective_index
                     l[i, m] += CM[m,n]*x[index]/fi[n]
         return l
-        
+
     def construct_A_spp(self, x):
         """construct Spp A. x is a sympy matrix"""
         M=self.M
