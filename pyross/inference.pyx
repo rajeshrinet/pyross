@@ -2870,6 +2870,7 @@ cdef class Spp(SIR_type):
     def infection_indices(self):
         cdef Py_ssize_t a = 100
         indices = set()
+        linear_terms_indices = list(range(self.linear_terms.shape[0]))
 
         # Find all the infection terms
         for term in self.infection_terms:
@@ -2877,13 +2878,16 @@ cdef class Spp(SIR_type):
             indices.add(infective_index)
 
         # Find all the terms that turn into infection terms
+        a = 100
         while a > 0:
             a = 0
-            for term in self.linear_terms:
-                product_index = term[2]
+            temp = linear_terms_indices.copy()
+            for i in linear_terms_indices:
+                product_index = self.linear_terms[i, 2]
                 if product_index in indices:
-                    indices.add(term[1])
-                    a += 1
+                    indices.add(self.linear_terms[i, 1])
+                    temp.pop(i)
+            linear_terms_indices = temp
         return list(indices)
 
     def set_params(self, parameters):
