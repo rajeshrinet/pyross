@@ -1718,7 +1718,8 @@ cdef class SIR_type:
             double [:, :] cond_cov, cov, temp
             double [:, :, :, :] full_cov
             double ti, tf
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix,
+                            method='LSODA', maxNumSteps=self.steps*Nf)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -1747,7 +1748,8 @@ cdef class SIR_type:
             double [:, :] cov
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double ti, tf
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix,
+                            method='LSODA', maxNumSteps=self.steps*Nf)
         full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
         for i in range(Nf-1):
             ti = time_points[i]
@@ -1775,7 +1777,8 @@ cdef class SIR_type:
             double [:, :] cov, cond_cov, U, J_dt, temp
             double [:, :, :, :] full_cov
             double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix,
+                                method='LSODA', maxNumSteps=self.steps*Nf)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -1807,7 +1810,8 @@ cdef class SIR_type:
             double [:, :] cov, U, J_dt, J_mat=self.J_mat
             np.ndarray[DTYPE_t, ndim=2] invcov, temp
             double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix, method='LSODA')
+        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix,
+                                method='LSODA', maxNumSteps=self.steps*Nf)
         full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
         for i in range(Nf-1):
             t = time_points[i]
