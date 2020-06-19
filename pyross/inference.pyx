@@ -1043,10 +1043,10 @@ cdef class SIR_type:
         def minuslogP(y):
             y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
             coeff =  y_unflat[param_dim]
-            x0 = self.lin_mode_inits(coeff, contactMatrix)
             parameters = self.fill_params_dict(param_keys, y_unflat)
             self.set_params(parameters)
             model = self.make_det_model(parameters)
+            x0 = self.lin_mode_inits(coeff, contactMatrix)
             minuslogp = self.obtain_log_p_for_traj_matrix_fltr(x0, obs, fltr, Tf, Nf, model, contactMatrix, tangent)
             minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
             return minuslogp
