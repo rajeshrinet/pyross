@@ -767,12 +767,18 @@ cdef class SIR_type:
         minus_logp += penalty*Nf
 
         return minus_logp
+    
+    cdef np.ndarray _get_r_from_x(self, np.ndarray x):
+        # this function will be overridden in case of extra (non-additive) compartments
+        cdef:
+            np.ndarray r
+        r = self.fi - np.sum(x.reshape((int(self.dim/self.M), self.M)), axis=0)
 
     cdef double _penalty_from_negative_values(self, np.ndarray x0):
         cdef:
             double eps=0.1/self.N, dev
-            np.ndarray R_init, R_dev, x0_dev
-        R_init = self.fi - np.sum(x0.reshape((int(self.dim/self.M), self.M)), axis=0)
+            np.ndarray R_init
+        R_init = self._get_r_from_x(x0)
         dev = - (np.sum(R_init[R_init<0]) + np.sum(x0[x0<0]))
         return (dev/eps)**2 + (dev/eps)**8
 
@@ -2914,6 +2920,16 @@ cdef class Spp(SIR_type):
         param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
         return param_dict
 
+    cdef np.ndarray _get_r_from_x(self, np.ndarray x):
+        cdef:
+            np.ndarray r
+            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
+        if self.constant_terms.size > 0:
+            r = xrs[-1,:] - np.sum(xrs[:-1,:], axis=0)
+        else:
+            r = self.fi - np.sum(xrs, axis=0)
+        return r
+    
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, fi=self.fi
@@ -3518,6 +3534,29 @@ cdef class SppQ(SIR_type):
     def make_params_dict(self, params=None):
         param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
         return param_dict
+    
+    cdef np.ndarray _get_r_from_x(self, np.ndarray x):
+        cdef:
+            np.ndarray r
+            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)    
+        r = self.fi - xrs[-1,:] - np.sum(xrs[:self.nClassUwoN,:], axis=0) # subtract total quarantined and all non-quarantined classes
+        return r
+    
+    cdef np.ndarray _get_rq_from_x(self, np.ndarray x):
+        cdef:
+            np.ndarray r
+            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)    
+        r = xrs[-1,:] - np.sum(xrs[self.nClassU:-1,:], axis=0) # subtract all quarantined classes
+        return r
+    
+    cdef double _penalty_from_negative_values(self, np.ndarray x0):
+        cdef:
+            double eps=0.1/self.N, dev
+            np.ndarray R_init, RQ_init
+        R_init = self._get_r_from_x(x0)
+        RQ_init = self._get_rq_from_x(x0)
+        dev = - (np.sum(R_init[R_init<0]) + np.sum(RQ_init[RQ_init<0]) + np.sum(x0[x0<0]))
+        return (dev/eps)**2 + (dev/eps)**8
 
     cdef calculate_test_r(self, double [:] x, double [:] r, double TR):
         cdef:
@@ -3529,11 +3568,8 @@ cdef class SppQ(SIR_type):
             double [:, :] parameters=self.parameters
             Py_ssize_t m, i
 
-         # Compute non-quarantined recovered
-        for m in range(M):
-            r[m] = fi[m] - x[(nClass-1)*M+m] # subtract total quarantined
-            for i in range(nClassUwoN):
-                r[m] -= x[i*M+m] # subtract non-quarantined class
+        # Compute non-quarantined recovered
+        r = self._get_r_from_x(np.array(x))
         # Compute normalisation of testing rates
         for m in range(M):
             for i in range(nClassUwoN):
