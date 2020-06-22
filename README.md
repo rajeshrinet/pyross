@@ -3,7 +3,7 @@
 ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg) 
 [![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
-[![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi)
+[![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi/pyross)
 [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)
 ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) 
 ![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) 
