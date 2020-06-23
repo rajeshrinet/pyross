@@ -3784,12 +3784,15 @@ cdef class SppQ(SIR_type):
                 term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m] * x[m+M*i]
                 B[i, m, i, m] += term
                 B[i+nClassU, m, i+nClassU, m] += term
-                B[nClass-1, m, nClassU-1, m] += term
+                B[nClass-1, m, nClass-1, m] += term
                 B[i, m, i+nClassU, m] -= term
+                B[i+nClassU, m, i, m] -= term
                 B[i, m, nClass-1, m] -= term
+                B[nClass-1, m, i, m] -= term
                 B[i+nClassU, m, nClass-1, m] += term
+                B[nClass-1, m, i+nClassU, m] += term
             term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m] * r[m]
-            B[nClass-1, m, nClassU-1, m] += term
-
+            B[nClass-1, m, nClass-1, m] += term
+            
 
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
