@@ -773,6 +773,7 @@ cdef class SIR_type:
         cdef:
             np.ndarray r
         r = self.fi - np.sum(x.reshape((int(self.dim/self.M), self.M)), axis=0)
+        return r
 
     cdef double _penalty_from_negative_values(self, np.ndarray x0):
         cdef:
