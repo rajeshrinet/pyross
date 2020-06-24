@@ -514,9 +514,9 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
         sub_dict = prior_dict['independent']
         try:
             fltrs[1] = sub_dict['fltr']
-            guess += sub_dict['mean']
-            stds += sub_dict['std']
-            bounds += sub_dict['bounds']
+            guess.extend(sub_dict['mean'])
+            stds.extend(sub_dict['std'])
+            bounds.extend(sub_dict['bounds'])
         except KeyError:
             raise Exception('Sub dict of "independent" must have'
                             ' "mean", "std", "bounds" and "fltr" as keys')
@@ -528,12 +528,12 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
         count += np.sum(fltrs[1])
 
     # make sure that there are some priors
-    if not guess:
+    if np.sum(flags) == 0:
         raise Exception('Prior for inits must have at least one of "independent"'
                         ' and "coeff" as keys')
     # check for overlapping guesses
     if flags[0] and flags[1]:
-        assert np.sum(np.logical_and(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
+        assert np.sum(np.logical_or(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
     # check that the total number of guesses is correct
     assert count == dim - obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
 

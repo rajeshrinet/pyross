@@ -1577,8 +1577,6 @@ cdef class SIR_type:
             xt = xm[i]
             self.compute_jacobian_and_b_matrix(xt, t, b_matrix=True, jacobian=True)
             cond_cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-            if False in np.isfinite(self.B_vec):
-                print(np.array(xt), t, self.B_vec)
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
             cov = np.dot(np.dot(U, cov), U.T)
