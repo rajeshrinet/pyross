@@ -32,3 +32,14 @@ nbtest:
 	@echo testing example notebooks...
 	@echo test $(path)
 	cd tests && python notebook_test.py --path $(path) --recursive $(recursive)
+
+
+pypitest:
+	@echo testing pystokes...
+	python setup.py sdist bdist_wheel
+	python -m twine upload --repository testpypi dist/*
+
+pypi:
+	@echo testing pystokes...
+	python setup.py sdist bdist_wheel	
+	python -m twine upload dist/*
