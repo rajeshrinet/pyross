@@ -53,22 +53,11 @@ Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wi
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
-PyRoss requires the following software
 
-- Python 2.6+ or Python 3.4+
-- [Cython](http://docs.cython.org/en/latest/index.html) |  [Matplotlib](https://matplotlib.org) | [NumPy](http://www.numpy.org) |   [SciPy](https://www.scipy.org/)  | [cma](https://github.com/CMA-ES/pycma) |  [NLopt](https://anaconda.org/conda-forge/nlopt) |  data files ([Pandas](https://pandas.pydata.org/), [xlrd](https://xlrd.readthedocs.io/en/latest/)) | [SymPy](https://www.sympy.org/en/index.html)
-- Optional:  integrators ([OdesPy](https://github.com/rajeshrinet/odespy)) |  parallelizing inference ([pathos](https://anaconda.org/conda-forge/pathos)) | nested sampling ([nestle](https://github.com/kbarbary/nestle))
+### Via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html)
 
+Install PyStokes and its dependencies in a `pyross` [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml):
 
-Clone (or download) the repository and use a terminal to install PyRoss (above [requirements](https://github.com/rajeshrinet/pyross/blob/master/requirements.txt) need to be satisfied)
-```bash
->> git clone https://github.com/rajeshrinet/pyross.git
->> cd pyross
->> python setup.py install
-```
-
-
-Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/macos.html) to install PyRoss and its dependencies in a pyross [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml)
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
 >> cd pyross
@@ -77,13 +66,24 @@ Alternatively, use [anaconda](https://docs.conda.io/projects/continuumio-conda/e
 >> make
 ```
 
-### Pip
-Install the latest [PyPI](https://pypi.org/project/pyross/) version
+### Via pip
 
-```
-pip install pyross
+Install the latest [PyPI](https://pypi.org/project/pyross) version
+
+```bash
+>> pip install pyross
 ```
 
+### From a checkout of this repository
+
+Install PyStokes and required dependencies using
+ 
+```bash
+>> git clone https://github.com/rajeshrinet/pyross.git
+>> cd pyross
+>> pip install -r requirements.txt
+>> python setup.py install
+```
 
 
 #### Testing

@@ -1,7 +1,10 @@
 # PyRoss changelogs
 
+## 1.2.0
+* updates to inference using fastest growing linear mode
+
 ## 1.1.7 
-* updates to inference 
+* updates to inference code
 
 ## 1.1.6 
 * New class: SppQ stochastic
