@@ -151,7 +151,7 @@ cdef class SIR_type:
                                  flat_guess_range=None, x=None, Tf=None,
                                  s=None, scale=None, tangent=None):
         # Compute the log-likelihood for the given parameters.
-        params_unflat = self._unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
+        params_unflat = pyross.utils.unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
         parameters = self.fill_params_dict(keys, params_unflat)
         logP = -self.obtain_minus_log_p(parameters, x, Tf, tangent=tangent)
         logP += np.sum(lognorm.logpdf(params, s, scale=scale))
@@ -463,7 +463,7 @@ cdef class SIR_type:
             return derivative(wraps, point[var], dx=dx)
 
         def _mean(y):
-            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
             inits = np.copy(y_unflat[param_dim:])
             x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
@@ -476,7 +476,7 @@ cdef class SIR_type:
             return xm_red
 
         def _cov(y):
-            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
             inits = np.copy(y_unflat[param_dim:])
             x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
@@ -492,7 +492,7 @@ cdef class SIR_type:
             return cov_red
 
         def _invcov(y):
-            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
             inits = np.copy(y_unflat[param_dim:])
             x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
@@ -594,7 +594,7 @@ cdef class SIR_type:
             return derivative(wraps, point[var], dx=dx)
 
         def _mean(y):
-            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter,
+            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
                                                   scaled_maps)
             inits = np.copy(y_unflat[param_dim:])
             x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
@@ -783,7 +783,7 @@ cdef class SIR_type:
         inits =  np.copy(params[flat_param_guess_size:])
 
         # Restore parameters from flattened parameters
-        params_unflat = self._unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
+        params_unflat = pyross.utils.unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
                                                     scaled_param_guesses)
 
         parameters = self.fill_params_dict(param_keys, params_unflat)
@@ -939,7 +939,7 @@ cdef class SIR_type:
 
         unflattened_samples = []
         for sample in result.samples:
-            sample_unflat = self._unflatten_parameters(sample[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
+            sample_unflat = pyross.utils.unflatten_parameters(sample[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
                                                         scaled_param_guesses)
             sample_unflat = [*sample_unflat, *sample[flat_param_guess_size:]]
             unflattened_samples.append(np.array(sample))
@@ -1111,7 +1111,7 @@ cdef class SIR_type:
         s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
 
         def minuslogP(y):
-            y_unflat = self._unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
+            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
             inits =  np.copy(y_unflat[param_dim:])
             x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
             parameters = self.fill_params_dict(param_keys, y_unflat)
