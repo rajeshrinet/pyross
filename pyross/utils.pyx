@@ -394,7 +394,7 @@ cpdef make_fltr(fltr_list, n_list):
     fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]
     return np.array(fltr)
 
-cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
+def process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     if fltr.ndim == 2:
         return np.array([fltr]*Nf)
     elif fltr.shape[0] == Nf:
@@ -402,7 +402,7 @@ cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     else:
         raise Exception("fltr must be a 2D array or an array of 2D arrays")
 
-cpdef process_obs(np.ndarray obs, Py_ssize_t Nf):
+def process_obs(np.ndarray obs, Py_ssize_t Nf):
     if obs.shape[0] != Nf:
         raise Exception("Wrong length of obs")
     if obs.ndim == 2:
@@ -412,6 +412,12 @@ cpdef process_obs(np.ndarray obs, Py_ssize_t Nf):
     else:
         raise Exception("Obs must be a 2D array or an array of 1D arrays")
 
+def process_latent_data(np.ndarray fltr, np.ndarray obs):
+    cdef Py_ssize_t Nf=obs.shape[0]
+    fltr = process_fltr(fltr, Nf)
+    obs0 = obs[0]
+    obs = process_obs(obs[1:], Nf-1)
+    return fltr, obs, obs0
 
 def parse_param_prior_dict(prior_dict, M):
     flat_guess = []
@@ -488,7 +494,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     stds = []
     bounds = []
     flags = [False, False]
-    fltrs = [None, None]
+    fltrs = np.zeros((2, dim), dtype='bool')
     count = 0
     if 'lin_mode_coeff' in prior_dict.keys():
         sub_dict = prior_dict['lin_mode_coeff']
@@ -529,7 +535,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     if flags[0] and flags[1]:
         assert np.sum(np.logical_and(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
     # check that the total number of guesses is correct
-    assert count == dim-obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
+    assert count == dim - obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
 
     return np.array(guess), np.array(stds), np.array(bounds), \
            flags, fltrs
