@@ -56,7 +56,7 @@ You can take PyRoss for a spin **without installation**: [![Binder](https://mybi
 
 ### Via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html)
 
-Install PyStokes and its dependencies in a `pyross` [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml):
+Install PyRoss and its dependencies in a `pyross` [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml):
 
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
@@ -76,7 +76,7 @@ Install the latest [PyPI](https://pypi.org/project/pyross) version
 
 ### From a checkout of this repository
 
-Install PyStokes and required dependencies using
+Install PyRoss and required dependencies using
  
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
