@@ -24,7 +24,7 @@ with open('requirements.txt', 'r') as rm:
 
 setup(
     name='pyross',
-    version='1.1.8',
+    version='1.2.0',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',

@@ -1,2 +1,6 @@
 include pyross/*pyx
 include pyross/*pxd
+include LICENSE
+include requirements.txt
+include README.md
+
