@@ -412,6 +412,128 @@ cpdef process_obs(np.ndarray obs, Py_ssize_t Nf):
     else:
         raise Exception("Obs must be a 2D array or an array of 1D arrays")
 
+
+def parse_param_prior_dict(prior_dict, M):
+    flat_guess = []
+    flat_stds = []
+    flat_bounds = []
+    flat_guess_range = []
+    key_list = []
+    scaled_guesses = []
+    is_scale_parameter = []
+
+    count = 0
+    for key in prior_dict:
+        key_list.append(key)
+        sub_dict = prior_dict[key]
+        try:
+            mean = sub_dict['mean']
+        except KeyError:
+            raise Exception('Sub-dict under {} must have "mean" as a key'.format(key))
+        if np.size(mean) == 1:
+            flat_guess.append(mean)
+            try:
+                flat_stds.append(sub_dict['std'])
+                flat_bounds.append(sub_dict['bounds'])
+            except KeyError:
+                raise Exception('Sub-dict under {} must have "std" and "bounds"'
+                                ' as keys'.format(key))
+            flat_guess_range.append(count)
+            is_scale_parameter.append(False)
+            count += 1
+        else:
+            infer_scale = False
+            if 'infer_scale' in sub_dict.keys():
+                infer_scale = sub_dict['infer_scale']
+            if infer_scale:
+                flat_guess.append(1.0)
+                try:
+                    flat_stds.append(sub_dict['scale_factor_std'])
+                    flat_bounds.append(sub_dict['scale_factor_bounds'])
+                except KeyError:
+                    raise Exception('Sub-dict under {} must have "scale_factor_std"'
+                                    'and "scale_factor_bounds" as keys because'
+                                    'infer_scale" is True'.format(key))
+                scaled_guesses.append(mean)
+                flat_guess_range.append(count)
+                is_scale_parameter.append(True)
+                count += 1
+            else:
+                flat_guess += mean
+                try:
+                    flat_stds += sub_dict['std']
+                    flat_bounds += sub_dict['bounds']
+                except KeyError:
+                    raise Exception('Sub-dict under {} must have "std" and "bounds"'
+                                    ' as keys'.format(key))
+                flat_guess_range.append(list(range(count, count+M)))
+                count += M
+    return key_list, np.array(flat_guess), np.array(flat_stds), \
+           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
+
+def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses):
+    # Restore parameters from flattened parameters
+    orig_params = []
+    k=0
+    for j in range(len(flat_guess_range)):
+        if is_scale_parameter[j]:
+            orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
+            k += 1
+        else:
+            orig_params.append(params[flat_guess_range[j]])
+    return orig_params
+
+def parse_init_prior_dict(prior_dict, dim, obs_dim):
+    guess = []
+    stds = []
+    bounds = []
+    flags = [False, False]
+    fltrs = [None, None]
+    count = 0
+    if 'lin_mode_coeff' in prior_dict.keys():
+        sub_dict = prior_dict['lin_mode_coeff']
+        try:
+            guess.append(sub_dict['mean'])
+            stds.append(sub_dict['std'])
+            bounds.append(sub_dict['bounds'])
+            fltrs[0] = sub_dict['fltr']
+        except KeyError:
+            raise Exception('Sub dict of "lin_mode_coeff" must have'
+                            ' "mean", "std", "bounds" and "fltr" as keys')
+        assert len(fltrs[0]) == dim
+        flags[0] = True
+        count += np.sum(fltrs[0])
+
+    if 'independent' in prior_dict.keys():
+        sub_dict = prior_dict['independent']
+        try:
+            fltrs[1] = sub_dict['fltr']
+            guess += sub_dict['mean']
+            stds += sub_dict['std']
+            bounds += sub_dict['bounds']
+        except KeyError:
+            raise Exception('Sub dict of "independent" must have'
+                            ' "mean", "std", "bounds" and "fltr" as keys')
+        assert len(fltrs[1]) == dim
+        assert np.sum(fltrs[1]) == len(sub_dict['mean'])
+        assert len(sub_dict['std']) == len(sub_dict['mean'])
+        assert len(sub_dict['bounds']) == len(sub_dict['mean'])
+        flags[1] = True
+        count += np.sum(fltrs[1])
+
+    # make sure that there are some priors
+    if not guess:
+        raise Exception('Prior for inits must have at least one of "independent"'
+                        ' and "coeff" as keys')
+    # check for overlapping guesses
+    if flags[0] and flags[1]:
+        assert np.sum(np.logical_and(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
+    # check that the total number of guesses is correct
+    assert count == dim-obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
+
+    return np.array(guess), np.array(stds), np.array(bounds), \
+           flags, fltrs
+
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
         double lat1=coord1[0], lon1=coord1[1], lat2=coord2[0], lon2=coord2[1]
