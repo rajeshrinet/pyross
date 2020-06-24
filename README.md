@@ -1,4 +1,4 @@
-## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples)
+## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder)
 
 ![Installation](https://github.com/rajeshrinet/pyross/workflows/Installation/badge.svg) 
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg) 
@@ -51,7 +51,7 @@ and [Günther Turk](https://github.com/phi6GTurk).
 Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw)  for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 
 ## Installation
-You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=examples) loads.
+You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
 PyRoss requires the following software
 

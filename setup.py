@@ -1,9 +1,7 @@
 import numpy
 import os, sys
-#import setuptools
-from distutils.core import setup
+from setuptools import setup, Extension
 from Cython.Build import cythonize
-from distutils.extension import Extension
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
 
@@ -18,6 +16,10 @@ else:
     extension = Extension('pyross/*', ['pyross/*.pyx'],
         include_dirs=[numpy.get_include()],
     )
+
+
+with open('requirements.txt', 'r') as rm:
+    reqs = [l.strip() for l in rm]
 
 
 setup(
@@ -37,7 +39,6 @@ setup(
         ),
     libraries=[],
     packages=['pyross'],
-    #install_requires=['cython','numpy','scipy','cma','pandas',
-    #                  'pathos','nlopt','xlrd','sympy'],
+    install_requires=reqs,
     package_data={'pyross': ['*.pxd']},
 )
