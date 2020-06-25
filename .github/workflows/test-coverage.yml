@@ -23,7 +23,7 @@ jobs:
         run: |
           conda activate pyross
           make
-          pytest tests/shortTests.py --cov=./ --cov-report=xml 
+          pytest tests/quick_test.py --cov=./ --cov-report=xml 
       - uses: codecov/codecov-action@v1.0.2
         with:
           token: ${{secrets.CODECOV_TOKEN}} #required
