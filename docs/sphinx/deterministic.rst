@@ -3,11 +3,6 @@ Deterministic simulations
 
 Deterministic simulations with compartment models and age structure.
 
-CommonMethods
-----------------------------------------
-.. autoclass:: pyross.deterministic.CommonMethods
-    :members:
-
 Spp
 --------------------------
 .. autoclass:: pyross.deterministic.Spp
@@ -66,5 +61,10 @@ SEAIRQ
 SEAIRQ_testing
 --------------------------------------
 .. autoclass:: pyross.deterministic.SEAIRQ_testing
+    :members:
+
+CommonMethods
+----------------------------------------
+.. autoclass:: pyross.deterministic.CommonMethods
     :members:
 

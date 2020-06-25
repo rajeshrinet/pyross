@@ -21,18 +21,20 @@ else:
 with open('requirements.txt', 'r') as rm:
     reqs = [l.strip() for l in rm]
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 
 setup(
     name='pyross',
-    version='1.2.0',
+    version='1.2.1',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
     description='Infectious disease models in Python: inference, prediction and NPI',
-    long_description='PyRoss is a numerical library that offers an integrated platform for \
-                      inference, prediction and non-pharmaceutical interventions in \
-                      age- and contact-structured epidemiological compartment models.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     platforms='works on LINUX and macOS',
     ext_modules=cythonize([ extension ],
         compiler_directives={'language_level': sys.version_info[0]},
@@ -41,4 +43,11 @@ setup(
     packages=['pyross'],
     install_requires=reqs,
     package_data={'pyross': ['*.pxd']},
+    include_package_data=True,
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        ],
 )
