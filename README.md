@@ -4,14 +4,15 @@
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg) 
 [![Documentation Status](https://readthedocs.org/projects/pyross/badge/?version=latest)](https://pyross.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi/pyross)
+[![Python Version](https://img.shields.io/pypi/pyversions/pyross)](https://pypi.org/project/pyross)
 [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)
+![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) 
-![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) 
 
 
 [About](#about) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
-![Imagel](examples/banner.jpg)
+![Imagel](https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/banner.jpg)
 
 
 ## About
