@@ -1944,27 +1944,28 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified. Only used if det_method is set to 'solve_ivp'.
         """
+        
         def rhs0(double t, double [:] xt):
             model.set_contactMatrix(t, contactMatrix)
-            model.rhs(np.multiply(xt, self.N), t)
-            return model.dxdt/self.N
+            model.rhs(xt, t)
+            return model.dxdt
 
         if method is None:
             method = self.det_method
         if method=='LSODA':
             time_points = np.linspace(t1, t2, steps)
-            sol = solve_ivp(rhs0, [t1,t2], x0, method='LSODA', t_eval=time_points, max_step=maxNumSteps).y.T
+            sol = solve_ivp(rhs0, [t1,t2], np.multiply(x0, self.N), method='LSODA', t_eval=time_points, max_step=maxNumSteps).y.T
         elif method=='RK45':
             time_points = np.linspace(t1, t2, steps)
-            sol = solve_ivp(rhs0, [t1,t2], x0, method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
+            sol = solve_ivp(rhs0, [t1,t2], np.multiply(x0, self.N), method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
         elif method=='euler':
-            sol = pyross.utils.forward_euler_integration(rhs0, x0, t1, t2, steps)
+            sol = pyross.utils.forward_euler_integration(rhs0, np.multiply(x0, self.N), t1, t2, steps)
         elif method=='RK2':
-            sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
+            sol = pyross.utils.RK2_integration(rhs0, np.multiply(x0, self.N), t1, t2, steps)
         else:
             print(method)
             raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
-        return sol
+        return sol/self.N
 
     def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
         # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
