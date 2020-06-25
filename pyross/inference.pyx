@@ -146,19 +146,23 @@ cdef class SIR_type:
         y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
         return lognorm.ppf(y, s, scale=scale)
 
-    def _nested_sampling_loglike(self, params, keys=None, is_scale_parameter=None,
-                                 scaled_guesses=None,
-                                 flat_guess_range=None, x=None, Tf=None,
-                                 s=None, scale=None, tangent=None):
-        # Compute the log-likelihood for the given parameters.
-        params_unflat = pyross.utils.unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses)
-        parameters = self.fill_params_dict(keys, params_unflat)
-        logP = -self.obtain_minus_log_p(parameters, x, Tf, tangent=tangent)
-        logP += np.sum(lognorm.logpdf(params, s, scale=scale))
-        return logP
+    def _nested_sampling_loglike(self, params, keys=None,
+                               is_scale_parameter=None, scaled_guesses=None,
+                               flat_guess_range=None, x=None, Tf=None,
+                               s=None, scale=None, tangent=None):
+        orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
+                                             is_scale_parameter, scaled_guesses)
+        parameters = self.fill_params_dict(keys, orig_params)
+        self.set_params(parameters)
+        self.set_det_model(parameters)
+        if tangent:
+            minus_logp = self._obtain_logp_for_traj_tangent(x, Tf)
+        else:
+            minus_logp = self._obtain_logp_for_traj(x, Tf)
+        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+        return -minus_logp
 
-    def nested_sampling_inference(self, keys, guess, stds, np.ndarray x, double Tf, contactMatrix,
-                                  bounds=None, tangent=False, infer_scale_parameter=False, verbose=False,
+    def nested_sampling_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False,
                                   queue_size=1, max_workers=None, npoints=100, method='single', max_iter=1000,
                                   dlogz=None, decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
@@ -228,32 +232,24 @@ cdef class SIR_type:
 
         if nestle is None:
             raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
         self.contactMatrix = contactMatrix
 
-        enable_bounds = True
-        if bounds is None:
-            enable_bounds = False
-            bounds = np.zeros((len(guess), 2))
-
-        flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = self._flatten_parameters(guess, stds, bounds, infer_scale_parameter)
-        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
-
-        k = len(flat_guess)
+        k = len(guess)
         # We sample the prior by inverse transform sampling from the unite cube. To implement bounds (if supplied)
         # we shrink the unit cube according the the provided bounds in each dimension.
         ppf_bounds = np.zeros((k, 2))
-        if enable_bounds:
-            ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
-            ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
-            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
-        else:
-            ppf_bounds[:, 1] = 1.0
+        ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
+        ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
+        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
 
         prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
-        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter, 'scaled_guesses':scaled_guesses,
-                        'flat_guess_range':flat_guess_range, 'x':x, 'Tf':Tf,
-                        's':s, 'scale':scale, 'tangent':tangent}
+        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
+                       'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
+                       'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
 
         result = nested_sampling(self._nested_sampling_loglike, self._nested_sampling_prior_transform, k, queue_size,
                                  max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
@@ -261,13 +257,25 @@ cdef class SIR_type:
 
         log_evidence = result.logz
 
-        unflattened_samples = []
-        for sample in result.samples:
-            sample_unflat = pyross.utils.unflatten_parameters(sample, flat_guess_range, is_scale_parameter, scaled_guesses)
-            unflattened_samples.append(sample)
-        weighted_samples = (unflattened_samples, result.weights)
+        output_samples = []
+        for i in range(len(result.samples)):
+            sample = result.samples[i]
+            weight = result.weights[i]
 
-        return log_evidence, weighted_samples
+            orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
+                                             is_scale_parameter, scaled_guesses)
+            output_dict = {
+                'map_dict':self.fill_params_dict(keys, orig_sample),
+                'flat_map':sample, 'weight':weight, 'keys': keys,
+                'is_scale_parameter':is_scale_parameter,
+                'flat_guess_range':flat_guess_range,
+                'scaled_guesses':scaled_guesses,
+                's':s, 'scale':scale
+            }
+            output_samples.append(output_dict)
+
+
+        return log_evidence, output_samples
 
 
     def _infer_control_to_minimize(self, params, grad=0, keys=None, bounds=None, x=None, Tf=None, generator=None,
@@ -774,34 +782,34 @@ cdef class SIR_type:
         }
         return output_dict
 
-    def _nested_sampling_loglike_latent(self, params, param_keys=None, init_fltr=None,
-                                        is_scale_parameter=None, scaled_param_guesses=None,
-                                        flat_param_guess_range=None, flat_param_guess_size=None,
-                                        obs=None, fltr=None, Tf=None,
-                                        s=None, scale=None, obs0=None, fltr0=None, tangent=None):
-        # Todo: replace this by latent_infer_parameters minimisation function.
-        inits =  np.copy(params[flat_param_guess_size:])
+    def _nested_sampling_loglike_latent(self, params, param_keys=None,
+                                        param_guess_range=None, is_scale_parameter=None,
+                                        scaled_param_guesses=None, param_length=None,
+                                        obs=None, fltr=None, Tf=None, obs0=None,
+                                        init_flags=None, init_fltrs=None,
+                                        s=None, scale=None, tangent=None):
+        inits =  np.copy(params[param_length:])
 
         # Restore parameters from flattened parameters
-        params_unflat = pyross.utils.unflatten_parameters(params[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
-                                                    scaled_param_guesses)
+        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
+                          param_guess_range, is_scale_parameter, scaled_param_guesses)
 
-        parameters = self.fill_params_dict(param_keys, params_unflat)
+        parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
         self.set_det_model(parameters)
 
-        x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
+        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
 
-        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr, Tf, tangent)
+        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
         return -minus_logp
 
-    def nested_sampling_latent_inference(self, param_keys, np.ndarray init_fltr, np.ndarray guess, np.ndarray stds,
-                                         np.ndarray obs, np.ndarray fltr, double Tf, Py_ssize_t Nf, contactMatrix,
-                                         bounds=None, np.ndarray obs0=None, np.ndarray fltr0=None, tangent=False,
-                                         infer_scale_parameter=False, verbose=False, queue_size=1, max_workers=None,
-                                         npoints=100, method='single', max_iter=1000, dlogz=None, decline_factor=None):
+
+    def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors, 
+                                         init_priors,tangent=False, infer_scale_parameter=False, verbose=False, queue_size=1, 
+                                         max_workers=None, npoints=100, method='single', max_iter=1000, dlogz=None, 
+                                         decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         with latent variables using nested sampling as implemented in the `nestle` Python package.
 
@@ -881,55 +889,40 @@ cdef class SIR_type:
         if nestle is None:
             raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
 
-        param_dim = len(param_keys)
         self.contactMatrix = contactMatrix
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
-        enable_bounds = True
-        if bounds is None:
-            enable_bounds = False
-            bounds = np.zeros((len(guess), 2))
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
-        fltr = pyross.utils.process_fltr(fltr, Nf)
-
-        if obs0 is None or fltr0 is None:
-            # Use the same filter and observation for initial condition as for the rest of the trajectory, unless specified otherwise
-            obs0=obs[0]
-            fltr0=fltr[0]
-        obs = pyross.utils.process_obs(obs[1:], Nf-1)
-        fltr = fltr[1:]
-
-        assert int(np.sum(init_fltr)) == self.dim - fltr0.shape[0]
-        assert len(guess) == param_dim + int(np.sum(init_fltr)), 'len(guess) must equal to total number of params + inits to be inferred'
-
-        # Transfer the parameter parts of guess, stds, ... which can contain arrays as entries for age-dependent rates to a flat list
-        flat_param_guess, flat_param_stds, flat_param_bounds, flat_param_guess_range, is_scale_parameter, scaled_param_guesses \
-            = self._flatten_parameters(guess[:param_dim], stds[:param_dim], bounds[:param_dim], infer_scale_parameter)
-        flat_param_guess_size = len(flat_param_guess)
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
-        init_guess = guess[param_dim:]
-        init_stds = stds[param_dim:]
-        init_bounds = bounds[param_dim:]
-        flat_guess = np.concatenate([flat_param_guess, init_guess]).astype(DTYPE)
-        flat_stds = np.concatenate([flat_param_stds,init_stds]).astype(DTYPE)
-        flat_bounds = np.concatenate([flat_param_bounds, init_bounds], axis=0).astype(DTYPE)
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(flat_guess, flat_stds)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
-        k = len(flat_guess)
+        k = len(guess)
         ppf_bounds = np.zeros((k, 2))
-        if enable_bounds:
-            ppf_bounds[:,0] = lognorm.cdf(flat_bounds[:,0], s, scale=scale)
-            ppf_bounds[:,1] = lognorm.cdf(flat_bounds[:,1], s, scale=scale)
-            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
-        else:
-            ppf_bounds[:,1] = 1.0
+        ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
+        ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
+        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
 
         prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
-        loglike_args = {'param_keys':param_keys, 'init_fltr':init_fltr, 'is_scale_parameter':is_scale_parameter,
-                        'scaled_param_guesses':scaled_param_guesses, 'flat_param_guess_range':flat_param_guess_range,
-                        'flat_param_guess_size':len(flat_param_guess), 'obs':obs, 'fltr':fltr, 'Tf':Tf,
-                        's':s, 'scale':scale, 'obs0':obs0, 'fltr0':fltr0, 'tangent':tangent}
+        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
+                        'is_scale_parameter':is_scale_parameter,
+                        'scaled_param_guesses':scaled_param_guesses,
+                        'param_length':param_length,
+                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
+                        's':s, 'scale':scale, 'tangent':tangent}
 
         result = nested_sampling(self._nested_sampling_loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
                                  max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
@@ -937,15 +930,33 @@ cdef class SIR_type:
 
         log_evidence = result.logz
 
-        unflattened_samples = []
-        for sample in result.samples:
-            sample_unflat = pyross.utils.unflatten_parameters(sample[:flat_param_guess_size], flat_param_guess_range, is_scale_parameter,
-                                                        scaled_param_guesses)
-            sample_unflat = [*sample_unflat, *sample[flat_param_guess_size:]]
-            unflattened_samples.append(np.array(sample))
-        weighted_samples = (unflattened_samples, result.weights)
+        output_samples = []
+        for i in range(len(result.samples)):
+            sample = result.samples[i]
+            weight = result.weights[i]
+            param_estimates = sample[:param_length]
+            orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                            param_guess_range,
+                                                            is_scale_parameter,
+                                                            scaled_param_guesses)
 
-        return log_evidence, weighted_samples
+            init_estimates = sample[param_length:]
+            sample_params_dict = self.fill_params_dict(keys, orig_params)
+            self.set_params(sample_params_dict)
+            self.set_det_model(sample_params_dict)
+            map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
+                                        obs0, fltr[0])
+            output_dict = {
+                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
+                'flat_map':sample, 'weight':weight,
+                'is_scale_parameter':is_scale_parameter,
+                'flat_param_guess_range':param_guess_range,
+                'scaled_param_guesses':scaled_param_guesses,
+                'init_flags': init_flags, 'init_fltrs': init_fltrs
+            }
+            output_samples.append(output_dict)
+
+        return log_evidence, output_samples
 
 
     def _latent_infer_control_to_minimize(self, params, grad = 0, keys=None,
