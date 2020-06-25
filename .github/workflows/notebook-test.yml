@@ -1,6 +1,6 @@
 name: notebooks
 
-on: push
+on: [push, pull_request]
 #on:
 #    schedule:
 #      # 4am daily

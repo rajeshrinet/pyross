@@ -11,6 +11,8 @@ dependencies:
   - nlopt
   - pathos
   - pip
+  - pytest 
+  - pytest-cov
   - pandas
   - sympy
   - ipython
