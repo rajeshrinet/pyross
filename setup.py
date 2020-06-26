@@ -4,6 +4,10 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
+from Cython.Compiler.Options import get_directive_defaults; 
+directive_defaults = get_directive_defaults() 
+directive_defaults['linetrace'] = True
+directive_defaults['binding'] = True
 
 
 if 'darwin'==(sys.platform).lower():
@@ -38,6 +42,7 @@ setup(
     platforms='works on LINUX and macOS',
     ext_modules=cythonize([ extension ],
         compiler_directives={'language_level': sys.version_info[0]},
+        define_macros=[('CYTHON_TRACE', '1')],
         ),
     libraries=[],
     packages=['pyross'],
