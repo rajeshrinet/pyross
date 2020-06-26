@@ -4,10 +4,6 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
-#from Cython.Compiler.Options import get_directive_defaults
-#directive_defaults = get_directive_defaults() 
-#directive_defaults['linetrace'] = True
-#directive_defaults['binding'] = True
 
 
 if 'darwin'==(sys.platform).lower():
@@ -36,13 +32,14 @@ setup(
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
-    description='Infectious disease models in Python: inference, prediction and NPI',
+    description='PyRoss is a numerical library that offers an integrated platform \
+                for inference, prediction and non-pharmaceutical interventions in \
+                age- and contact-structured epidemiological compartment models.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     platforms='works on LINUX and macOS',
     ext_modules=cythonize([ extension ],
-        compiler_directives={'language_level': sys.version_info[0]},
-        #define_macros=[('CYTHON_TRACE', '1')],
+        compiler_directives={'language_level': "3"},
         ),
     libraries=[],
     packages=['pyross'],
