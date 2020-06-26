@@ -1954,7 +1954,7 @@ cdef class SIR_type:
             method = self.det_method
         if method=='LSODA':
             time_points = np.linspace(t1, t2, steps)
-            sol = solve_ivp(rhs0, [t1,t2], np.multiply(x0, self.N), method='LSODA', t_eval=time_points, max_step=maxNumSteps).y.T
+            sol = solve_ivp(rhs0, [t1,t2], np.multiply(x0, self.N), method='LSODA', t_eval=time_points, max_step=maxNumSteps, rtol=1e-4).y.T
         elif method=='RK45':
             time_points = np.linspace(t1, t2, steps)
             sol = solve_ivp(rhs0, [t1,t2], np.multiply(x0, self.N), method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
