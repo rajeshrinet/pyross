@@ -46,4 +46,4 @@ pypi:
 
 cycov:
 	python setup.py build_ext --force --inplace --define CYTHON_TRACE
-	pytest tests/shortTests.py  --cov=./ --cov-report=xml
+	pytest tests/quick_test.py --cov=./ --cov-report=xml
