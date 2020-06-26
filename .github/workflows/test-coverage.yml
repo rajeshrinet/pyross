@@ -21,7 +21,8 @@ jobs:
       - name: make-pyross-cov
         shell: bash -l {0}
         run: |
-          conda activate pyross
+          conda activate pyross 
+          make
           make cycov 
       - uses: codecov/codecov-action@v1.0.2
         with:
