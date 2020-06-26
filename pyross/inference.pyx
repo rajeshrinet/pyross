@@ -106,7 +106,7 @@ cdef class SIR_type:
         return diff, float(x.subs(x, 2))
 
     def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
-                        tangent=False, verbose=False,
+                        control=False, tangent=False, verbose=False,
                         enable_global=True, global_max_iter=100, global_atol=1,
                         enable_local=True, local_max_iter=200, ftol=1e-6,
                         cma_processes=0, cma_population=16):
@@ -278,10 +278,15 @@ cdef class SIR_type:
         return log_evidence, output_samples
 
 
-    def _infer_control_to_minimize(self, params, grad=0, keys=None, bounds=None, x=None, Tf=None, generator=None,
-                                   intervention_fun=None, tangent=None, s=None, scale=None):
+    def _infer_control_to_minimize(self, params, grad=0, keys=None,
+                                   x=None, Tf=None, generator=None,
+                                   intervention_fun=None, tangent=None,
+                                   is_scale_parameter=None, flat_guess_range=None,
+                                   scaled_guesses=None, s=None, scale=None):
         """Objective function for minimization call in infer_control."""
-        kwargs = {k:params[i] for (i, k) in enumerate(keys)}
+        orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
+                                             is_scale_parameter, scaled_guesses)
+        kwargs = {k:orig_params[i] for (i, k) in enumerate(keys)}
         if intervention_fun is None:
             self.contactMatrix=generator.constant_contactMatrix(**kwargs)
         else:
@@ -297,8 +302,9 @@ cdef class SIR_type:
     def infer_control(self, x, Tf, generator, prior_dict,
                       intervention_fun=None, tangent=False,
                       verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_atol=1., enable_global=True,
-                      enable_local=True, cma_processes=0, cma_population=16, cma_stds=None):
+                      global_max_iter=100, local_max_iter=100, global_atol=1.,
+                      enable_global=True, enable_local=True,
+                      cma_processes=0, cma_population=16):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown. The lockdown is modelled by scaling the contact matrices for contact at work, school, and other
@@ -307,22 +313,15 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        guess: numpy.array
-            Prior expectation (and initial guess) for the control parameter values
-        stds: numpy.array
-            Standard deviations for the log normal prior of the control parameters
         x: 2d numpy.array
             Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
             Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
         generator: pyross.contactMatrix
             A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
             parameters.
-        bounds: 2d numpy.array
-            Bounds for the parameters (number of parameters x 2).
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        prior_dict: dict
+            Priors for intervention parameters
         intervention_fun: callable, optional
             The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
             The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
@@ -348,27 +347,40 @@ cdef class SIR_type:
             Number of parallel processes used for global optimisation.
         cma_population: int, optional
             The number of samples used in each step of the CMA algorithm.
-        cma_stds: int, optional
-            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
 
         Returns
         -------
-        res: numpy.array
-            MAP estimate of the control parameters
+        output_dict: dict
+            Dictionary of MAP estimates.
         """
-        keys, guess, stds, bounds, _, _, _ = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        keys, guess, stds, bounds, \
+        flat_guess_range, is_scale_parameter, scaled_guesses  \
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-        if cma_stds is None:
-            cma_stds = stds
-
-        minimize_args = {'keys':keys, 'bounds':bounds, 'x':x, 'Tf':Tf, 'generator':generator, 's':s, 'scale':scale,
+        cma_stds = np.minimum(stds, (bounds[:, 1] - bounds[:, 0])/3)
+        minimize_args = {'keys':keys, 'x':x, 'Tf':Tf,
+                         'flat_guess_range':flat_guess_range,
+                         'is_scale_parameter':is_scale_parameter,
+                         'scaled_guesses': scaled_guesses,
+                         'generator':generator, 's':s, 'scale':scale,
                           'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
 
-        return res[0]
+        orig_params = pyross.utils.unflatten_parameters(res[0], flat_guess_range,
+                                             is_scale_parameter, scaled_guesses)
+        map_dict = {k:orig_params[i] for (i, k) in enumerate(keys)}
+        output_dict = {
+            'map_dict': map_dict,
+            'flat_map': res[0], '-logp':res[1], 'keys': keys,
+            'is_scale_parameter':is_scale_parameter,
+            'flat_guess_range':flat_guess_range,
+            'scaled_guesses':scaled_guesses,
+            's':s, 'scale':scale
+        }
+        return output_dict
 
 
     def compute_hessian(self, x, Tf, contactMatrix, map_dict, tangent=False,
@@ -775,10 +787,11 @@ cdef class SIR_type:
         output_dict = {
             'map_params_dict':map_params_dict, 'map_x0':map_x0,
             'flat_map':estimates, '-logp':res[1],
-            'is_scale_parameter':is_scale_parameter,
-            'flat_param_guess_range':param_guess_range,
+            'param_keys': keys, 'param_guess_range': param_guess_range,
+            'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
             'scaled_param_guesses':scaled_param_guesses,
-            'init_flags': init_flags, 'init_fltrs': init_fltrs
+            'init_flags': init_flags, 'init_fltrs': init_fltrs,
+            's':s, 'scale': scale
         }
         return output_dict
 
@@ -806,9 +819,9 @@ cdef class SIR_type:
         return -minus_logp
 
 
-    def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors, 
-                                         init_priors,tangent=False, infer_scale_parameter=False, verbose=False, queue_size=1, 
-                                         max_workers=None, npoints=100, method='single', max_iter=1000, dlogz=None, 
+    def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
+                                         init_priors,tangent=False, infer_scale_parameter=False, verbose=False, queue_size=1,
+                                         max_workers=None, npoints=100, method='single', max_iter=1000, dlogz=None,
                                          decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         with latent variables using nested sampling as implemented in the `nestle` Python package.
@@ -959,27 +972,38 @@ cdef class SIR_type:
         return log_evidence, output_samples
 
 
-    def _latent_infer_control_to_minimize(self, params, grad = 0, keys=None,
-                                          generator=None, x0=None,
-                                          obs=None, fltr=None, Tf=None,
-                                          intervention_fun=None, tangent=None,
-                                          s=None, scale=None):
+    def _latent_infer_control_to_minimize(self, params, grad=0, generator=None,
+                                            intervention_fun=None, param_keys=None,
+                                            param_guess_range=None, is_scale_parameter=None,
+                                            scaled_param_guesses=None, param_length=None,
+                                            obs=None, fltr=None, Tf=None, obs0=None,
+                                            init_flags=None, init_fltrs=None,
+                                            s=None, scale=None, tangent=None):
         """Objective function for minimization call in latent_infer_control."""
-        kwargs = {k:params[i] for (i, k) in enumerate(keys)}
+        inits = params[param_length:].copy()
+        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
+                                                        param_guess_range,
+                                                        is_scale_parameter,
+                                                         scaled_param_guesses)
+        kwargs = {k:orig_params[i] for (i, k) in enumerate(param_keys)}
+        x0 = self._construct_inits(inits, init_flags, init_fltrs,
+                                    obs0, fltr[0])
+        penalty = self._penalty_from_negative_values(x0)
+        x0[x0<0] = 0.1/self.Omega # set to be small and positive
         if intervention_fun is None:
             self.contactMatrix = generator.constant_contactMatrix(**kwargs)
         else:
             self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
+
         minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr, Tf, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
-    def latent_infer_control(self, keys, np.ndarray guess, np.ndarray stds, np.ndarray x0, np.ndarray obs, np.ndarray fltr,
-                            double Tf, generator, np.ndarray bounds,
+    def latent_infer_control(self, obs, fltr, Tf, generator, param_priors, init_priors,
                             intervention_fun=None, tangent=False,
-                            verbose=False, double ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_atol=1., enable_global=True, enable_local=True,
-                            cma_processes=0, cma_population=16, cma_stds=None, full_output=False):
+                            verbose=False, ftol=1e-5, global_max_iter=100,
+                            local_max_iter=100, global_atol=1., enable_global=True,
+                            enable_local=True, cma_processes=0, cma_population=16):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown
@@ -988,14 +1012,6 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        keys: list
-            A list of keys for the control parameters to be inferred.
-        guess: numpy.array
-            Prior expectation (and initial guess) for the control parameter values.
-        stds: numpy.array
-            Standard deviations for the log normal prior of the control parameters
-        x0: numpy.array
-            Initial conditions.
         obs:
             Observed trajectory (number of data points x (age groups * observed model classes)).
         fltr: boolean sequence or array
@@ -1003,17 +1019,17 @@ cdef class SIR_type:
             e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]
         Tf: float
             Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
         generator: pyross.contactMatrix
             A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
             parameters.
-        bounds: 2d numpy.array
-            Bounds for the parameters (number of parameters x 2).
-            Note that the upper bound must be smaller than the absolute physical upper bound minus epsilon
+        param_priors: dict
+            A dictionary for param priors. See `infer_parameters` for further explanations.
+        init_priors: dict
+            A dictionary for priors for initial conditions. See `latent_infer_parameters` for further explanations.
         intervention_fun: callable, optional
             The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
-            The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
+            The function must return (aW, aS, aO), where aW, aS, aO are (2, M) arrays.
+            If not set, assume constant intervention in time and (aW, aS, aO) are constant arrays, and infer the constants.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
@@ -1034,105 +1050,117 @@ cdef class SIR_type:
             Number of parallel processes used for global optimisation.
         cma_population: int, optional
             The number of samples used in each step of the CMA algorithm.
-        cma_stds: int, optional
-            The standard deviation used in cma global optimisation. If not specified, `cma_stds` is set to `stds`.
-        full_output: bool, optional
-            Set to True to return full minimization output
 
         Returns
         -------
-        params: numpy.array
-            MAP estimate of control parameters
-        y_result: float (returned if full_output is True)
-            logp for MAP estimates
+        output_dict: dict
+            A dictionary containing the following keys for users:
 
+            map_params_dict: dict
+                dictionary for MAP estimates for control parameters
+            map_x0: np.array
+                MAP estimates for the initial conditions
+            flat_map: np.array
+                Flattened MAP estimates inc control parameters and inits.
+            -logp: float
+                Value of -logp at MAP.
         """
-        cdef Py_ssize_t Nf=obs.shape[0]
-        fltr = pyross.utils.process_fltr(fltr, Nf)
-        fltr = fltr[1:]
-        obs = pyross.utils.process_obs(obs[1:], Nf-1)
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
-        if cma_stds is None:
-            # Use prior standard deviations here
-            cma_stds = stds
+        minimize_args = {'generator':generator, 'intervention_fun':intervention_fun,
+                       'param_keys':keys, 'param_guess_range':param_guess_range,
+                       'is_scale_parameter':is_scale_parameter,
+                       'scaled_param_guesses':scaled_param_guesses,
+                       'param_length':param_length,
+                       'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
+                       'init_flags':init_flags, 'init_fltrs': init_fltrs,
+                       's':s, 'scale':scale, 'tangent':tangent}
+        res = minimization(self._latent_minus_logp, guess, bounds, ftol=ftol,
+                          global_max_iter=global_max_iter,
+                          local_max_iter=local_max_iter, global_atol=global_atol,
+                          enable_global=enable_global, enable_local=enable_local,
+                          cma_processes=cma_processes,
+                          cma_population=cma_population, cma_stds=cma_stds,
+                          verbose=verbose, args_dict=minimize_args)
+        estimates = res[0]
 
-        minimize_args = {'keys':keys, 'generator':generator, 'x0':x0, 'obs':obs, 'fltr':fltr, 'Tf':Tf,
-                         's':s, 'scale':scale, 'intervention_fun':intervention_fun, 'tangent': tangent}
-        res = minimization(self._latent_infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
-                           local_max_iter=local_max_iter, global_atol=global_atol,
-                           enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
-        params = res[0]
+        # Get the parameters (in their original structure) from the flattened parameter vector.
+        param_estimates = estimates[:param_length]
+        orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                      param_guess_range,
+                                                      is_scale_parameter,
+                                                      scaled_param_guesses)
+        init_estimates = estimates[param_length:]
+        map_params_dict = {k:orig_params[i] for (i, k) in enumerate(keys)}
+        map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
+                                    obs0, fltr[0])
+        output_dict = {
+            'map_params_dict':map_params_dict, 'map_x0':map_x0,
+            'flat_map':estimates, '-logp':res[1],
+            'param_keys': keys, 'param_guess_range': param_guess_range,
+            'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
+            'scaled_param_guesses':scaled_param_guesses,
+            'init_flags': init_flags, 'init_fltrs': init_fltrs,
+            's':s, 'scale': scale
+        }
+        return output_dict
 
-        if full_output == True:
-            return res
-        else:
-            return params
 
 
-    def compute_hessian_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, contactMatrix,
-                               tangent=False, infer_scale_parameter=False, eps=1.e-3, fd_method="central"):
+    def compute_hessian_latent(self, obs, fltr, Tf, contactMatrix, map_dict,
+                               tangent=False, eps=1.e-3, fd_method="central"):
         '''Computes the Hessian over the parameters and initial conditions.
 
         Parameters
         ----------
-        maps: numpy.array
-            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
-        obs: numpy.array
-            The observed data with the initial datapoint
-        fltr: boolean sequence or array
-            True for observed and False for unobserved.
-            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
+        x: 2d numpy.array
+           Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
-            Total time of the trajectory
-        Nf: int
-            Total number of data points along the trajectory
+           Total time of the trajectory
         contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
+           A function that takes time (t) as an argument and returns the contactMatrix
+        map_dict: dict
+           Dictionary returned by infer_parameters
         eps: float or numpy.array, optional
-            Step size in the calculation of the Hessian.
-        obs0: numpy.array, optional
-            Observed initial condition, if more detailed than obs[0]
-        fltr0: 2d numpy.array, optional
-            Matrix filter for obs0
+           The step size of the Hessian calculation, default=1e-3
         fd_method: str, optional
-            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
+           The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
         Returns
         -------
         hess: numpy.array
             The Hessian over (flat) parameters and initial conditions.
         '''
-        cdef Py_ssize_t Nf=obs.shape[0]
-        param_dim = len(param_keys)
-        fltr = pyross.utils.process_fltr(fltr, Nf)
         self.contactMatrix = contactMatrix
-        obs0=obs[0]
-        fltr0=fltr[0]
-        obs = pyross.utils.process_obs(obs[1:], Nf-1)
-        fltr = fltr[1:]
-
-        bounds = np.zeros((len(maps), 2)) # This does not matter here
-        flat_maps, _, _, flat_maps_range, is_scale_parameter, scaled_maps \
-            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-        flat_prior_mean, flat_prior_stds, _, _, _, _ \
-            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
-
-        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
-
-        def minuslogP(y):
-            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter, scaled_maps)
-            inits =  np.copy(y_unflat[param_dim:])
-            x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-            parameters = self.fill_params_dict(param_keys, y_unflat)
-            self.set_params(parameters)
-            self.set_det_model(parameters)
-            minuslogp = self._obtain_logp_for_lat_traj(x0, obs, fltr, Tf, tangent)
-            minuslogp -= np.sum(lognorm.logpdf(y, s, scale=scale))
-            return minuslogp
-
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogP, eps, method=fd_method)
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        flat_maps = map_dict['flat_map']
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs', 's', 'scale', ]:
+            kwargs[key] = map_dict[key]
+        def minuslogp(y):
+            return self._latent_minus_logp(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
+                                           tangent=tangent, **kwargs)
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
         return hess
 
     # def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
