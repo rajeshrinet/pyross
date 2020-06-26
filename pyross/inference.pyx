@@ -995,7 +995,7 @@ cdef class SIR_type:
         else:
             self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
 
-        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr, Tf, tangent=tangent)
+        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
 
@@ -1093,7 +1093,8 @@ cdef class SIR_type:
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
                        's':s, 'scale':scale, 'tangent':tangent}
-        res = minimization(self._latent_minus_logp, guess, bounds, ftol=ftol,
+        res = minimization(self._latent_infer_control_to_minimize,
+                          guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
                           local_max_iter=local_max_iter, global_atol=global_atol,
                           enable_global=enable_global, enable_local=enable_local,
