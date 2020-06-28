@@ -8,6 +8,7 @@ from cython.parallel import prange
 cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
 from scipy.sparse.linalg.eigen.arpack import eigs, ArpackNoConvergence
+from scipy.misc import derivative
 import matplotlib.pyplot as plt
 
 
@@ -388,6 +389,13 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
         return hessian
 
     raise Exception("Finite-difference method must be 'forward' or 'central'.")
+    
+def partial_derivative(func, var, point, dx, *func_args):
+    args = point[:]
+    def wraps(x, *wraps_args):
+        args[var] = x
+        return func(args, *wraps_args)
+    return derivative(wraps, point[var], dx=dx, args=func_args)
 
 cpdef make_fltr(fltr_list, n_list):
     fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]

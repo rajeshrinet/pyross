@@ -5,7 +5,7 @@ from scipy.optimize import minimize, approx_fprime
 from scipy.stats import lognorm
 import numpy as np
 from scipy.interpolate import make_interp_spline
-from scipy.misc import derivative
+from scipy.linalg import eig
 cimport numpy as np
 cimport cython
 import time, sympy
@@ -419,233 +419,179 @@ cdef class SIR_type:
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
         return hess
 
-    def FIM(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
-            contactMatrix, dx=None, tangent=False, infer_scale_parameter=False):
+    def sensitivity(self, FIM):
+        '''
+        Computes the normalized sensitivity measure as defined in https://doi.org/10.1073/pnas.1015814108.
+        ----------
+        FIM: 2d numpy.array
+            The Fisher Information Matrix
+        Returns
+        ----------
+        T_j: numpy.array
+            Normalized sensitivity measure for parameters to be estimated. A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest. 
+        '''
+        evals, evecs = eig(FIM)
+        if np.any(np.real(evals))<0.:
+            raise Exception('Negative eigenvalue - FIM is not positive definite. Check for appropriate step size dx in FIM computation.')
+        L = np.diag(np.real(evals))
+        S_ij = np.sqrt(L)@evecs
+        S2_ij = S_ij**2
+        S2_j = np.sum(S2_ij, axis=0)
+        S2_norm = np.sum(S2_j)
+        T_j = np.divide(S2_j,S2_norm)
+        return T_j
+
+    def FIM(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False,
+            eps=None):
         '''
         Computes the Fisher Information Matrix (FIM) of the stochastic model.
         Parameters
         ----------
-        param_keys: list
-            A list of parameters to be inferred.
-        init_fltr: boolean array
-            True for initial conditions to be inferred.
-            Shape = (nClass*M)
-            Total number of True = total no. of variables - total no. of observed
-        maps: numpy.array
-            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
-        obs0: numpy.array
-            The observed initial data
-        fltr: boolean sequence or array
-            True for observed and False for unobserved.
-            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
-        Tf: float
-            Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
-        contactMatrix: callable
-            A function that takes time (t) as an argument and returns the contactMatrix
-        dx: float, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
-            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
-        tangent: bool, optional
-            Set to True to use tangent space inference. Default is false.
-        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
-            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
-            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
-            age-dependent parameter individually
+        
         Returns
         -------
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        param_dim = len(param_keys)
-        fltr = pyross.utils.process_fltr(fltr, Nf)
         self.contactMatrix = contactMatrix
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        flat_maps = map_dict['flat_map']
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs']:
+            kwargs[key] = map_dict[key]
+        
+        def mean(y):
+            return self._mean(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
+                              **kwargs)
+        
+        def covariance(y):
+            return self._cov(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
+                             tangent=tangent, **kwargs)
+        
+        cov = covariance(flat_maps)
+        if eps == None:
+            eps = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
 
-        fltr0 = fltr[0]
-
-        fltr = fltr[1:]
-
-        bounds = np.zeros((len(maps), 2)) # This does not matter here
-        prior_stds = np.zeros((len(maps))) # This does not matter here
-
-        flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
-            =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-
-        full_fltr = sparse.block_diag(fltr)
-
-        def partial_derivative(func, var, point, dx):
-            args = point[:]
-            def wraps(x):
-                args[var] = x
-                return func(args)
-            return derivative(wraps, point[var], dx=dx)
-
-        def _mean(y):
-            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
-                                                  scaled_maps)
-            inits = np.copy(y_unflat[param_dim:])
-            x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-            parameters = self.fill_params_dict(param_keys, y_unflat)
-            self.set_params(parameters)
-            self.set_det_model(parameters)
-            xm = self.integrate(x0,0,Tf,Nf,method='LSODA')
-            xm = np.ravel(xm[1:])
-            xm_red = full_fltr@xm
-            return xm_red
-
-        def _cov(y):
-            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
-                                                  scaled_maps)
-            inits = np.copy(y_unflat[param_dim:])
-            x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-            parameters = self.fill_params_dict(param_keys, y_unflat)
-            self.set_params(parameters)
-            self.set_det_model(parameters)
-            if tangent:
-                xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf,
-                                                                       Nf)
-            else:
-                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf)
-            cov_red = full_fltr@full_cov@np.transpose(full_fltr)
-            return cov_red
-
-        def _invcov(y):
-            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
-                                                  scaled_maps)
-            inits = np.copy(y_unflat[param_dim:])
-            x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-            parameters = self.fill_params_dict(param_keys, y_unflat)
-            self.set_params(parameters)
-            self.set_det_model(parameters)
-            if tangent:
-                full_invcov = self.obtain_full_invcov_tangent_space(x0, Tf, Nf)
-            else:
-                cov = _cov(y)
-                full_invcov = np.linalg.inv(cov)
-                #full_invcov = self.obtain_full_invcov(x0, Tf, Nf)
-            invcov_red = full_fltr@full_invcov@np.transpose(full_fltr)
-            return invcov_red
-
-        cov = _cov(flat_maps)
-        if dx == None:
-            dx = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
-
-        invcov = _invcov(flat_maps)
+        invcov = np.linalg.inv(cov)
 
         dim = len(flat_maps)
         FIM = np.zeros((dim,dim))
 
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
-            dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
-            dmu_j = partial_derivative(_mean, var=j, point=flat_maps, dx=dx)
-            dcov_i = partial_derivative(_cov, var=i, point=flat_maps, dx=dx)
-            dcov_j = partial_derivative(_cov, var=j, point=flat_maps, dx=dx)
+            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps)
+            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps)
+            dcov_i = pyross.utils.partial_derivative(covariance, var=i, point=flat_maps, dx=eps)
+            dcov_j = pyross.utils.partial_derivative(covariance, var=j, point=flat_maps, dx=eps)
             t1 = dmu_i@cov@dmu_j
             t2 = np.multiply(0.5,np.trace(invcov@dcov_i@invcov@dcov_j))
             FIM[i,j] = t1 + t2
         i_lower = np.tril_indices(dim,-1)
         FIM[i_lower] = FIM.T[i_lower]
         return FIM
-
-    def FIM_det(self, param_keys, init_fltr, maps, obs0, fltr, Tf, Nf,
-               contactMatrix, measurement_error=1e-2, dx=None,
-                infer_scale_parameter=False):
+    
+    def FIM_det(self, obs, fltr, Tf, contactMatrix, map_dict,
+                eps=None, measurement_error=1.):
         '''
         Computes the Fisher Information Matrix (FIM) of the deterministic model.
         Parameters
         ----------
-        param_keys: list
-            A list of parameters to be inferred.
-        init_fltr: boolean array
-            True for initial conditions to be inferred.
-            Shape = (nClass*M)
-            Total number of True = total no. of variables - total no. of observed
-        maps: numpy.array
-            MAP parameter and initial condition estimate (computed for example with SIR_type.latent_inference).
-        obs0: numpy.array
-            The observed initial data
-        fltr: boolean sequence or array
-            True for observed and False for unobserved.
-            e.g. if only `Is` is known for SIR with one age group, fltr = [False, False, True]
-        Tf: float
-            Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
-        contactMatrix: callable
-            A function that takes time (t) as an argument and returns the contactMatrix
-        measurement_error: float, optional
-            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
-        dx: float, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
-            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
-        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
-            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
-            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
-            age-dependent parameter individually
+        
         Returns
         -------
         FIM_det: 2d numpy.array
             The Fisher Information Matrix
         '''
-        param_dim = len(param_keys)
-        fltr = pyross.utils.process_fltr(fltr, Nf)
         self.contactMatrix = contactMatrix
-
-        fltr0 = fltr[0]
-        fltr = fltr[1:]
-
-        bounds = np.zeros((len(maps), 2)) # This does not matter here
-        prior_stds = np.zeros((len(maps))) # This does not matter here
-
-        flat_maps, _,_, flat_maps_range, is_scale_parameter, scaled_maps \
-            =self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-
-        full_fltr = sparse.block_diag(fltr)
-
-        def partial_derivative(func, var, point, dx):
-            args = point[:]
-            def wraps(x):
-                args[var] = x
-                return func(args)
-            return derivative(wraps, point[var], dx=dx)
-
-        def _mean(y):
-            y_unflat = pyross.utils.unflatten_parameters(y, flat_maps_range, is_scale_parameter,
-                                                  scaled_maps)
-            inits = np.copy(y_unflat[param_dim:])
-            x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-            parameters = self.fill_params_dict(param_keys, y_unflat)
-            self.set_params(parameters)
-            self.set_det_model(parameters)
-            xm = self.integrate(x0,0,Tf,Nf,method='LSODA')
-            xm = np.ravel(xm[1:])
-            xm_red = full_fltr@xm
-            return xm_red
-
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        flat_maps = map_dict['flat_map']
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs']:
+            kwargs[key] = map_dict[key]
+        
+        def mean(y):
+            return self._mean(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
+                              **kwargs)
+        
+        fltr_ = fltr[1:]
         sigma_sq = measurement_error*measurement_error
-        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(Nf-1)))
+        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(fltr_.shape[0])))
         cov = np.diag(cov_diag)
+        full_fltr = sparse.block_diag(fltr_)
         cov_red = full_fltr@cov@np.transpose(full_fltr)
 
-        if dx == None:
-            dx = np.sqrt(np.spacing(np.amin(np.abs(_mean(flat_maps)))))
+        if eps == None:
+            eps = np.sqrt(np.spacing(np.amin(np.abs(mean(flat_maps)))))
 
         dim = len(flat_maps)
         FIM_det = np.zeros((dim,dim))
 
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
-            dmu_i = partial_derivative(_mean, var=i, point=flat_maps, dx=dx)
-            dmu_j = partial_derivative(_mean, var=j, point=flat_maps, dx=dx)
+            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps)
+            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps)
             FIM_det[i,j] = dmu_i@cov_red@dmu_j
         i_lower = np.tril_indices(dim,-1)
         FIM_det[i_lower] = FIM_det.T[i_lower]
         return FIM_det
+    
+    def _mean(self, params, grad=0, param_keys=None,
+                            param_guess_range=None, is_scale_parameter=None,
+                            scaled_param_guesses=None, param_length=None,
+                            obs=None, fltr=None, Tf=None, obs0=None,
+                            init_flags=None, init_fltrs=None):
+        """Objective function for differentiation call in FIM."""
+        inits =  np.copy(params[param_length:])
 
+        # Restore parameters from flattened parameters
+        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
+                          param_guess_range, is_scale_parameter, scaled_param_guesses)
+
+        parameters = self.fill_params_dict(param_keys, orig_params)
+        self.set_params(parameters)
+        self.set_det_model(parameters)
+        fltr_ = fltr[1:]
+        Nf=fltr_.shape[0]+1
+        full_fltr = sparse.block_diag(fltr_)
+
+        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
+        xm = self.integrate(x0, 0, Tf, Nf, method='LSODA')
+        xm_red = full_fltr@(np.ravel(xm[1:]))
+        return xm_red
+    
+    def _cov(self, params, grad=0, param_keys=None,
+                            param_guess_range=None, is_scale_parameter=None,
+                            scaled_param_guesses=None, param_length=None,
+                            obs=None, fltr=None, Tf=None, obs0=None,
+                            init_flags=None, init_fltrs=None, tangent=None):
+        """Objective function for differentiation call in FIM."""
+        inits =  np.copy(params[param_length:])
+
+        # Restore parameters from flattened parameters
+        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
+                          param_guess_range, is_scale_parameter, scaled_param_guesses)
+
+        parameters = self.fill_params_dict(param_keys, orig_params)
+        self.set_params(parameters)
+        self.set_det_model(parameters)
+
+        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
+        fltr_ = fltr[1:]
+        Nf=fltr_.shape[0]+1
+        full_fltr = sparse.block_diag(fltr_)
+        
+        if tangent:
+            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf)
+        else:
+            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf)
+        
+        cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+        return cov_red
+        
     # def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
     #                tangent=False, infer_scale_parameter=False, fd_method="central"):
     #     hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,eps,
