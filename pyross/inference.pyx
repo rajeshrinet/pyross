@@ -447,7 +447,24 @@ cdef class SIR_type:
         Computes the Fisher Information Matrix (FIM) of the stochastic model.
         Parameters
         ----------
-        
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
+        Tf: float
+           Total time of the trajectory
+        contactMatrix: callable
+           A function that takes time (t) as an argument and returns the contactMatrix
+        map_dict: dict
+           Dictionary returned by infer_parameters
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        eps: float or numpy.array, optional
+           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
+            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
         Returns
         -------
         FIM: 2d numpy.array
@@ -498,7 +515,23 @@ cdef class SIR_type:
         Computes the Fisher Information Matrix (FIM) of the deterministic model.
         Parameters
         ----------
-        
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
+        Tf: float
+           Total time of the trajectory
+        contactMatrix: callable
+           A function that takes time (t) as an argument and returns the contactMatrix
+        map_dict: dict
+           Dictionary returned by infer_parameters
+        eps: float or numpy.array, optional
+           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry in the mean is chosen. Decreasing the step size too small can result in round-off error.
+        measurement_error: float, optional
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1.
         Returns
         -------
         FIM_det: 2d numpy.array
@@ -544,7 +577,7 @@ cdef class SIR_type:
                             scaled_param_guesses=None, param_length=None,
                             obs=None, fltr=None, Tf=None, obs0=None,
                             init_flags=None, init_fltrs=None):
-        """Objective function for differentiation call in FIM."""
+        """Objective function for differentiation call in FIM and FIM_det."""
         inits =  np.copy(params[param_length:])
 
         # Restore parameters from flattened parameters
