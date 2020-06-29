@@ -511,7 +511,7 @@ cdef class SIR_type:
             FIM[i,j] = t1 + t2
         i_lower = np.tril_indices(dim,-1)
         FIM[i_lower] = FIM.T[i_lower]
-        return FIM, mean(flat_maps), cov
+        return FIM
     
     def FIM_det(self, obs, fltr, Tf, contactMatrix, map_dict,
                 eps=None, measurement_error=1.):
