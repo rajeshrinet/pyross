@@ -532,10 +532,10 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
-            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
-
+            Step size for numerical differentiation of the process mean and its
+            full covariance matrix with respect to the parameters.
+            If not specified, the array of square roots of the machine epsilon of the MAP estimates is used.
+            Decreasing the step size too small can result in round-off error.
         Returns
         -------
         FIM: 2d numpy.array
@@ -559,8 +559,13 @@ cdef class SIR_type:
                              tangent=tangent, **kwargs)
 
         cov = covariance(flat_maps)
+
         if eps == None:
-            eps = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
+            eps = np.sqrt(np.spacing(flat_maps))
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_maps))
+
+        print('eps-vector used for differentiation: ', eps)
 
         invcov = np.linalg.inv(cov)
 
@@ -569,11 +574,11 @@ cdef class SIR_type:
 
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
-            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps)
-            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps)
-            dcov_i = pyross.utils.partial_derivative(covariance, var=i, point=flat_maps, dx=eps)
-            dcov_j = pyross.utils.partial_derivative(covariance, var=j, point=flat_maps, dx=eps)
-            t1 = dmu_i@cov@dmu_j
+            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps[i])
+            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps[j])
+            dcov_i = pyross.utils.partial_derivative(covariance, var=i, point=flat_maps, dx=eps[i])
+            dcov_j = pyross.utils.partial_derivative(covariance, var=j, point=flat_maps, dx=eps[j])
+            t1 = dmu_i@invcov@dmu_j
             t2 = np.multiply(0.5,np.trace(invcov@dcov_i@invcov@dcov_j))
             FIM[i,j] = t1 + t2
         i_lower = np.tril_indices(dim,-1)
@@ -581,7 +586,7 @@ cdef class SIR_type:
         return FIM
 
     def FIM_det(self, obs, fltr, Tf, contactMatrix, map_dict,
-                eps=None, measurement_error=1.):
+                eps=None, measurement_error=1e-2):
         '''
         Computes the Fisher Information Matrix (FIM) of the deterministic model.
 
@@ -601,10 +606,9 @@ cdef class SIR_type:
            Dictionary returned by infer_parameters
         eps: float or numpy.array, optional
            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry in the mean is chosen. Decreasing the step size too small can result in round-off error.
+            to the parameters. If not specified, the array of square roots of the machine epsilon of the MAP estimates is used. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
-            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1.
-
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         Returns
         -------
         FIM_det: 2d numpy.array
@@ -629,18 +633,23 @@ cdef class SIR_type:
         cov = np.diag(cov_diag)
         full_fltr = sparse.block_diag(fltr_)
         cov_red = full_fltr@cov@np.transpose(full_fltr)
+        invcov = np.linalg.inv(cov_red)
 
         if eps == None:
-            eps = np.sqrt(np.spacing(np.amin(np.abs(mean(flat_maps)))))
+            eps = np.sqrt(np.spacing(flat_maps))
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_maps))
+
+        print('eps-vector used for differentiation: ', eps)
 
         dim = len(flat_maps)
         FIM_det = np.zeros((dim,dim))
 
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
-            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps)
-            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps)
-            FIM_det[i,j] = dmu_i@cov_red@dmu_j
+            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps[i])
+            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps[j])
+            FIM_det[i,j] = dmu_i@invcov@dmu_j
         i_lower = np.tril_indices(dim,-1)
         FIM_det[i_lower] = FIM_det.T[i_lower]
         return FIM_det
