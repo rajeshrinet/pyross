@@ -1965,7 +1965,7 @@ cdef class SIR_type:
         else:
             print(method)
             raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
-        return sol/self.N
+        return np.array(sol)/self.N
 
     def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
         # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
