@@ -432,7 +432,7 @@ cdef class SIR_type:
         '''
         evals, evecs = eig(FIM)
         if np.any(np.real(evals))<0.:
-            raise Exception('Negative eigenvalue - FIM is not positive definite. Check for appropriate step size dx in FIM computation.')
+            raise Exception('Negative eigenvalue - FIM is not positive definite. Check for appropriate step size eps in FIM computation.')
         L = np.diag(np.real(evals))
         S_ij = np.sqrt(L)@evecs
         S2_ij = S_ij**2
