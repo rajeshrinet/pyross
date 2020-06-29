@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
 
   build-and-test:
-    name: install and test
+    name: install and test on windows
     runs-on: windows-latest
 
     steps:

@@ -36,7 +36,7 @@ setup(
     long_description_content_type='text/markdown',
     platforms='works on LINUX and macOS',
     ext_modules=cythonize([ extension ],
-        compiler_directives={'language_level': "3"},
+        compiler_directives={'language_level': sys.version_info[0]},
         ),
     libraries=[],
     packages=['pyross'],
