@@ -816,6 +816,20 @@ def getCM(country='India', sheet=1):
     return CH, CW, CS, CO
 
 
+def China():
+    uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
+    uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
+    uS = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_school_1.xlsx'
+    uO = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'
+
+    import pandas as pd
+    CH = np.array(pd.read_excel(uH,  sheet_name='China'))
+    CW = np.array(pd.read_excel(uW,  sheet_name='China'))
+    CS = np.array(pd.read_excel(uS,  sheet_name='China'))
+    CO = np.array(pd.read_excel(uO,  sheet_name='China'))
+    return CH, CW, CS, CO 
+
+
 def Denmark():
     uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
     uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
