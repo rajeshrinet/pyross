@@ -872,6 +872,21 @@ def India():
     CO = np.array(pd.read_excel(uO,  sheet_name='India'))
     return CH, CW, CS, CO
 
+ 
+def Italy():
+    uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
+    uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
+    uS = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_school_1.xlsx'
+    uO = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_other_locations_1.xlsx'
+
+    import pandas as pd
+    CH = np.array(pd.read_excel(uH,  sheet_name='Italy'))
+    CW = np.array(pd.read_excel(uW,  sheet_name='Italy'))
+    CS = np.array(pd.read_excel(uS,  sheet_name='Italy'))
+    CO = np.array(pd.read_excel(uO,  sheet_name='Italy'))
+    return CH, CW, CS, CO
+
+
 
 def UK():
     CH=np.array([[4.78812800e-01, 5.51854140e-01, 3.34323605e-01, 1.32361228e-01,

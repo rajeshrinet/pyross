@@ -24,7 +24,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pyross',
-    version='1.2.1',
+    version='1.2.2',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
@@ -46,6 +46,8 @@ setup(
     include_package_data=True,
     classifiers=[
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         ],
