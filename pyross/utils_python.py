@@ -51,7 +51,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     cma_processes: int
         Number of processes used in the CMA algorithm. By default, the number of CPU cores is used.
     cma_population: int
-        The number of samples used in each step of the CMA algorithm. Should ideally be factor of `cma_threads`.
+        The number of samples used in each step of the CMA algorithm. Should ideally be factor of `cma_processes`.
     cma_stds: numpy.array
         Initial standard deviation of the spread of the population for each parameter in the CMA algorithm. Ideally,
         one should have the optimum within 3*sigma of the guessed initial value. If not specified, these values are
