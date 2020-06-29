@@ -1,4 +1,4 @@
-## PyRoss: inference, forecasting, and optimal control of epidemiological models in Python
+## PyRoss: inference, forecasting, and optimised control of epidemiological models in Python
 
 ![Build](https://github.com/rajeshrinet/pyross/workflows/build/badge.svg) 
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/notebooks/badge.svg) 
