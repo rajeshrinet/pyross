@@ -18,9 +18,6 @@ else:
     )
 
 
-with open('requirements.txt', 'r') as rm:
-    reqs = [l.strip() for l in rm]
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -43,12 +40,12 @@ setup(
         ),
     libraries=[],
     packages=['pyross'],
-    install_requires=reqs,
+    install_requires=['cython','numpy','scipy','cma','pandas',
+                    'pathos','nlopt','xlrd','sympy','nestle'],
     package_data={'pyross': ['*.pxd']},
     include_package_data=True,
     classifiers=[
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         ],

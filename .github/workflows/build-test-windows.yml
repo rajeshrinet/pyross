@@ -1,0 +1,27 @@
+name: build-windows
+
+on: [push, pull_request]
+
+jobs:
+
+  build-and-test:
+    name: install and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+    
+      - name: Setup Miniconda
+        uses: goanpeca/setup-miniconda@v1.2.0
+        with:
+         activate-environment: pyross
+         environment-file: environment.yml
+      - name: make-pyross
+        shell: bash -l {0}
+        run: |
+          conda activate pyross
+          make
+      - name: test-pyross
+        shell: bash -l {0}
+        run: |
+          make test

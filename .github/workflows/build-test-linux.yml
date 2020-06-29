@@ -1,7 +1,5 @@
-name: build
+name: build-linux
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on: [push, pull_request]
 
 jobs:
@@ -18,7 +16,6 @@ jobs:
         with:
          activate-environment: pyross
          environment-file: environment.yml
-         # auto-activate-base: true
       - name: make-pyross
         shell: bash -l {0}
         run: |
