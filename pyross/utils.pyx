@@ -792,3 +792,45 @@ def getDiagonalCM(country, M=16):
     for i in range(M):
         x[i] = 1*CM[i,i]
     return x
+
+def resample(weighted_samples, N):
+    # Given a set of weighted samples, produce a set of unweighted samples
+    # approximating the same distribution. We implement residual resampling
+    # here, see https://doi.org/10.1109/ISPA.2005.195385 for context.
+
+    weights = np.array([w['weight'] for w in weighted_samples])
+    weights /= np.sum(weights)
+
+    # Deterministic part
+    selected_samples = np.array([int(w*N) for w in weights])
+    # Random part
+    selected_samples += np.random.multinomial(N - sum(selected_samples), weights, size=1)[0,:]
+
+    sample_list = []
+    for i in range(len(selected_samples)):
+        for j in range(selected_samples[i]):
+            sample_list.append(weighted_samples[i])
+
+    return sample_list
+
+
+def posterior_mean(weighted_samples):
+    # Compute the posterior mean of a set of weighted samples of the posterior
+    # (e.g. computed by nested sampling).
+    weights = np.array([w['weight'] for w in weighted_samples])
+    weights /= np.sum(weights)
+
+    sample = weighted_samples[0].copy()
+    sample['weight'] = 1.0
+    # Set the average parameters
+    for key in sample['map_params_dict'].keys():
+        vals = [w['map_params_dict'][key] for w in weighted_samples]
+        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+        sample['map_params_dict'][key] = avg
+    
+    for key in ['map_x0', 'flat_map']:
+        vals = [w[key] for w in weighted_samples]
+        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+        sample[key] = avg
+
+    return sample
