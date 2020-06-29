@@ -29,9 +29,8 @@ setup(
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
-    description='PyRoss is a numerical library that offers an integrated platform \
-                for inference, prediction and non-pharmaceutical interventions in \
-                age- and contact-structured epidemiological compartment models.',
+    description='PyRoss is a numerical library for inference, forecasting,\
+                and optimal control of epidemiological models in Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
     platforms='works on LINUX and macOS',

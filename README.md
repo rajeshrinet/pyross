@@ -1,4 +1,4 @@
-## PyRoss: Infectious disease models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder)
+## PyRoss: inference, forecasting, and optimal control of epidemiological models in Python
 
 ![Build](https://github.com/rajeshrinet/pyross/workflows/build/badge.svg) 
 ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/notebooks/badge.svg) 
@@ -8,6 +8,7 @@
 [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)
 ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder)
 
 
 [About](#about) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
