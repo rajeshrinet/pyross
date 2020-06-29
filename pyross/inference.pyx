@@ -2786,7 +2786,8 @@ cdef class Spp(SIR_type):
         readonly pyross.deterministic.Spp det_model
 
 
-    def __init__(self, model_spec, parameters, M, fi, Omega, steps, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
+                                    det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
@@ -3365,7 +3366,8 @@ cdef class SppQ(SIR_type):
         readonly object testRate
 
 
-    def __init__(self, model_spec, parameters, testRate, M, fi, Omega, steps, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
+                                    det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
