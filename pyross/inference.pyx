@@ -483,6 +483,96 @@ cdef class SIR_type:
             return self._infer_params_minus_logp(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
         return hess
+    
+    def robustness(self, FIM, FIM_det, map_dict, param_pos_1, param_pos_2, 
+                   range_1, range_2, resolution_1, resolution_2=None):
+        '''
+        Robustness analysis in a two-dimensional slice of the parameter space, revealing neutral spaces as in https://doi.org/10.1073/pnas.1015814108.
+
+        Parameters
+        ----------
+        FIM: 2d numpy.array
+            Fisher Information matrix of a stochastic model
+        FIM_det: 2d numpy.array
+            Fisher information matrix of the corresponding deterministic model
+        map_dict: dict
+            Dictionary returned by infer_parameters
+        param_pos_1: int
+            Position of 'parameter 1' in map_dict['flat_map'] for x-axis
+        param_pos_2: int
+            Position of 'parameter 2' in map_dict['flat_map'] for y-axis
+        range_1: float
+            Symmetric interval around parameter 1 for which robustness will be analysed. Absolute interval: 'parameter 1' +/- range_1
+        range_2: float
+            Symmetric interval around parameter 2 for which robustness will be analysed. Absolute interval: 'parameter 2' +/- range_2
+        resolution_1: int
+            Resolution of the meshgrid in x direction. 
+        resolution_2: int
+            Resolution of the meshgrid in y direction. Default is resolution_2=resolution_1. 
+        Returns
+        -------
+        ff: 2d numpy.array
+            shape=resolution_1 x resolution_2, meshgrid for x-axis
+        ss: 2d numpy.array
+            shape=resolution_1 x resolution_2, meshgrid for y-axis
+        Z_sto: 2d numpy.array
+            shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the stochastic model
+        Z_det: 2d numpy.array
+            shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the deterministic model
+        -------
+        
+        
+        Example
+        -------
+        from matplotlib import pyplot as plt
+        from matplotlib import cm
+        
+        # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively. 
+        ff, ss, Z_sto, Z_det = robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
+        cmap = plt.cm.PuBu_r
+        levels=11
+        colors='black'
+        
+        
+        c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
+        plt.contour(ff, ss, Z_sto, colors='black', levels=levels, linewidths=0.25)
+        plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
+        plt.plot(map_dict['flat_map'][0], map_dict['flat_map'][1], 'o',
+                    color="#A60628", markersize=6) # the MAP estimate
+        plt.colorbar(c)
+        plt.xlabel(r'$\alpha$ scale', fontsize=20, labelpad=10)
+        plt.ylabel(r'$\beta$', fontsize=20, labelpad=10)
+        plt.show()
+        -------
+        '''
+        flat_maps = map_dict['flat_map']
+        if resolution_2 == None:
+            resolution_2 = resolution_1
+        def bilinear(param_1, param_2, det=True):
+            maps_temp = np.copy(flat_maps)
+            maps_temp[param_pos_1] += param_1
+            maps_temp[param_pos_2] += param_2
+            dev = maps_temp - flat_maps
+            if det:
+                return -dev@FIM_det@dev
+            else:
+                return -dev@FIM@dev 
+        param_1_range = np.linspace(-range_1, range_1, resolution_1)
+        param_2_range = np.linspace(-range_2, range_2, resolution_2)
+        ff, ss = np.meshgrid(flat_maps[param_pos_1] + param_1_range,
+                            flat_maps[param_pos_2] + param_2_range)
+        Z_sto = np.zeros((len(param_1_range), len(param_2_range)))
+        Z_det = np.zeros((len(param_1_range), len(param_2_range)))
+        i_k = 0
+        for i in param_1_range:
+            j_k = 0
+            for j in param_2_range:
+                Z_det[i_k,j_k] = bilinear(i,j,det=True)
+                Z_sto[i_k,j_k] = bilinear(i,j,det=False)
+                j_k += 1
+            i_k += 1
+        return ff, ss, Z_sto, Z_det
+        
 
     def sensitivity(self, FIM):
         '''
