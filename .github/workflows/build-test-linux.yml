@@ -5,12 +5,11 @@ on: [push, pull_request]
 jobs:
 
   build-and-test:
-    name: install and test on Linux
-    runs-on: ubuntu-latest (${{ python.version }})
+    name: install and test
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["2.7", "3.7"]
-
+        python-version: [2.7, 3.7]
     steps:
       - uses: actions/checkout@v2
     
@@ -29,3 +28,4 @@ jobs:
         shell: bash -l {0}
         run: |
           make test
+
