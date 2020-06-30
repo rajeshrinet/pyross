@@ -631,25 +631,33 @@ cdef class SIR_type:
     #                                    tangent, infer_scale_parameter, fd_method=fd_method)
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
-    def log_G_evidence(self, keys, maps, prior_mean, prior_stds, x, Tf, contactMatrix, eps=1.e-3,
-                       tangent=False, infer_scale_parameter=False, fd_method="central"):
-        """Compute the evidence using a Laplace approximation at the MAP estimate."""
-        cdef double logP_MAPs
-        cdef Py_ssize_t k
-        self.contactMatrix = contactMatrix
-        bounds = np.zeros((len(maps), 2)) # Create dummy bounds to pass to flatten function.
-        flat_maps, _, _, _, _, _ \
-            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-        flat_prior_mean, flat_prior_stds, _, _, _, _ \
-            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
+    def log_G_evidence(self, x, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3, 
+                       fd_method="central"):
+        """Compute the evidence using a Laplace approximation at the MAP estimate.
+        
+        Parameters
+        ----------
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        map_dict: dict
+            MAP estimate returned by infer_parameters
+        eps: float or numpy.array, optional
+            The step size of the Hessian calculation, default=1e-3
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
-        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
-        parameters = self.fill_params_dict(keys, maps)
-        logP_MAPs = -self.obtain_minus_log_p(parameters, x, Tf)
-        logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
-        k = flat_prior_mean.shape[0]
-        A = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf, contactMatrix,eps, tangent,
-                                 infer_scale_parameter, fd_method=fd_method)
+        Returns
+        -------
+        log_evidence: float
+            The log-evidence computed via Laplace approximation at the MAP estimate."""
+        logP_MAPs = -map_dict['-logp']
+        A = self.compute_hessian(x, Tf, contactMatrix, map_dict, tangent, eps, fd_method)
+        k = A.shape[0]
+
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, contactMatrix, tangent=False):
@@ -1150,33 +1158,33 @@ cdef class SIR_type:
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
-    def log_G_evidence_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, contactMatrix,
-                              tangent=False, infer_scale_parameter=False, eps=1.e-3, fd_method="central"):
-        """Compute the evidence using a Laplace approximation at the MAP estimate."""
-        cdef double logP_MAPs
-        cdef Py_ssize_t k, Nf=obs.shape[0]
+    def log_G_evidence_latent(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3, 
+                              fd_method="central"):
+        """Compute the evidence using a Laplace approximation at the MAP estimate.
+        
+        Parameters
+        ----------
+        x: 2d numpy.array
+           Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+           Total time of the trajectory
+        contactMatrix: callable
+           A function that takes time (t) as an argument and returns the contactMatrix
+        map_dict: dict
+           MAP estimate returned by infer_parameters
+        eps: float or numpy.array, optional
+           The step size of the Hessian calculation, default=1e-3
+        fd_method: str, optional
+           The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
-        param_dim = len(param_keys)
-        fltr = pyross.utils.process_fltr(fltr, Nf)
-        obs0=obs[0]
-        fltr0=fltr[0]
+        Returns
+        -------
+        log_evidence: float
+            The log-evidence computed via Laplace approximation at the MAP estimate."""
+        logP_MAPs = -map_dict['-logp']
+        A = self.compute_hessian_latent(obs, fltr, Tf, contactMatrix, map_dict, tangent, eps, fd_method)
+        k = A.shape[0]
 
-        bounds = np.zeros((len(maps), 2))  # Create dummy bounds to pass to flatten function.
-        flat_maps, _, _, _, _, _ \
-            = self._flatten_parameters(maps, prior_stds, bounds, infer_scale_parameter)
-        flat_prior_mean, flat_prior_stds, _, _, _, _ \
-            = self._flatten_parameters(prior_mean, prior_stds, bounds, infer_scale_parameter)
-
-        s, scale = pyross.utils.make_log_norm_dist(flat_prior_mean, flat_prior_stds)
-        inits =  np.copy(maps[param_dim:])
-        x0 = self._fill_initial_conditions(inits, obs0, init_fltr, fltr0)
-        parameters = self.fill_params_dict(param_keys, maps)
-        logP_MAPs = -self.minus_logp_red(parameters, x0, obs[1:], fltr[1:], Tf, contactMatrix)
-        logP_MAPs += np.sum(lognorm.logpdf(flat_maps, s, scale=scale))
-
-        k = flat_prior_mean.shape[0]
-        A = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf,
-                                        contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
     def minus_logp_red(self, parameters, double [:] x0, np.ndarray obs,
