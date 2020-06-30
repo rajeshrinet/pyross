@@ -106,10 +106,78 @@ cdef class SIR_type:
         return diff, float(x.subs(x, 2))
 
     def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
-                        control=False, tangent=False, verbose=False,
+                        tangent=False, verbose=False,
                         enable_global=True, global_max_iter=100, global_atol=1,
                         enable_local=True, local_max_iter=200, ftol=1e-6,
                         cma_processes=0, cma_population=16):
+        """Infers the MAP estimates for epidemiological parameters
+
+        Parameters
+        ----------
+        x:  np.array
+            The full trajectory.
+        Tf: float
+            The total time of the trajectory.
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        prior_dict: dict
+            A dictionary containing priors. See examples.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimization algorithm.
+            Default is False.
+        enable_global: bool, optional
+            Set to True to perform global optimization. Default is True.
+        enable_local: bool, optional
+            Set to True to perform local optimization. Default is True.
+        global_max_iter: int, optional
+            The maximum number of iterations for the global algorithm.
+        global_atol: float, optional
+            Absolute tolerance of global optimization. Default is 1.
+        cma_processes: int, optional
+            Number of parallel processes used in the CMA algorithm.
+            Default is to use all cores on the computer.
+        cma_population: int, optional
+            he number of samples used in each step of the CMA algorithm.
+            Should ideally be factor of `cma_processes`.
+        local_max_iter: int, optional
+            The maximum number of iterations for the local algorithm.
+        ftol: float, optional
+            The relative tolerance in -logp value for the local optimization.
+
+        Returns
+        -------
+        output: dict
+            Contains the following keys for users:
+
+            map_dict: dict
+                A dictionary for MAPs. Keys are the names of the parameters and
+                the corresponding values are its MAP estimates.
+            -logp: float
+                The value of -logp at MAP.
+
+        Examples
+        --------
+        An example of prior_dict to set priors for alpha and beta, where alpha
+        is age dependent and we want to infer its scale parameters rather than
+        each component individually. The prior distribution is assumed to be
+        log-normal with the specified mean and standard deviation.
+
+        >>> prior_dict = {
+                'alpha':{
+                    'mean': [0.5, 0.2],
+                    'infer_scale': True,
+                    'scale_factor_std': 1,
+                    'scale_factor_bounds': [0.1, 10]
+                },
+                'beta':{
+                    'mean': 0.02,
+                    'std': 0.1,
+                    'bounds': [1e-4, 1]
+                }
+            }
+        """
         # Read in the priors
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
@@ -176,31 +244,17 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        keys: list
-            A list of names for parameters to be inferred
-        guess: numpy.array or list
-            Prior expectation (and initial guess) for the parameter values. Age-dependent
-            rates can be inferred by supplying a guess that is an array instead a single float.
-        stds: numpy.array
-            Standard deviations for the log normal prior of the parameters
         x: 2d numpy.array
             Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
             Total time of the trajectory
-        Nf: float
-            Number of data points along the trajectory
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
-        bounds: np.array(len(guess), 2), optional
-            Bound the prior within the values specified by this. This can be used to avoid sampling the posterior
-            in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
-            a bias to the result, therefore one must make sure that the blocked regions are negligible.
+        prior_dict: dict
+            A dictionary for the priors for the parameters.
+            See `infer_parameters` for examples.
         tangent: bool, optional
             Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
-        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
-            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
-            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
-            age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
         queue_size: int
@@ -308,8 +362,8 @@ cdef class SIR_type:
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown. The lockdown is modelled by scaling the contact matrices for contact at work, school, and other
-        (but not home) uniformly in all age groups. This function infers the scaling parameters assuming that full data
-        on all classes is available (with latent variables, use SIR_type.latent_infer_control).
+        (but not home). This function infers the scaling parameters (can be age dependent) assuming that full data
+        on all classes is available (with latent variables, use `latent_infer_control`).
 
         Parameters
         ----------
@@ -321,10 +375,16 @@ cdef class SIR_type:
             A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
             parameters.
         prior_dict: dict
-            Priors for intervention parameters
+            Priors for intervention parameters.
+            Same format as the prior_dict for epidemiological parameters in
+            `infer_parameters` function.
         intervention_fun: callable, optional
-            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
-            The function must return (aW, aS, aO). If not set, assume intervention that's constant in time and infer (aW, aS, aO).
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
@@ -351,7 +411,12 @@ cdef class SIR_type:
         Returns
         -------
         output_dict: dict
-            Dictionary of MAP estimates.
+            Dictionary of MAP estimates, containing the following keys for users:
+
+            map_dict: dict
+                Dictionary for MAP estimates of the control parameters.
+            -logp: float
+                Value of -logp at MAP.
         """
         keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
@@ -397,7 +462,7 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that takes time (t) as an argument and returns the contactMatrix
         map_dict: dict
-            Dictionary returned by infer_parameters
+            Dictionary returned by infer_parameters.
         eps: float or numpy.array, optional
             The step size of the Hessian calculation, default=1e-3
         fd_method: str, optional
@@ -422,14 +487,18 @@ cdef class SIR_type:
     def sensitivity(self, FIM):
         '''
         Computes the normalized sensitivity measure as defined in https://doi.org/10.1073/pnas.1015814108.
+
+        Parameters
         ----------
         FIM: 2d numpy.array
             The Fisher Information Matrix
+
         Returns
-        ----------
+        -------
         T_j: numpy.array
-            Normalized sensitivity measure for parameters to be estimated. A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest. 
+            Normalized sensitivity measure for parameters to be estimated. A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest.
         '''
+
         evals, evecs = eig(FIM)
         if np.any(np.real(evals))<0.:
             raise Exception('Negative eigenvalue - FIM is not positive definite. Check for appropriate step size eps in FIM computation.')
@@ -445,6 +514,7 @@ cdef class SIR_type:
             eps=None):
         '''
         Computes the Fisher Information Matrix (FIM) of the stochastic model.
+
         Parameters
         ----------
         obs: 2d numpy.array
@@ -462,9 +532,10 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry on the
-            diagonal of the covariance matrix is chosen. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its
+            full covariance matrix with respect to the parameters.
+            If not specified, the array of square roots of the machine epsilon of the MAP estimates is used.
+            Decreasing the step size too small can result in round-off error.
         Returns
         -------
         FIM: 2d numpy.array
@@ -478,18 +549,23 @@ cdef class SIR_type:
                     'scaled_param_guesses', 'param_length', 'init_flags',
                     'init_fltrs']:
             kwargs[key] = map_dict[key]
-        
+
         def mean(y):
             return self._mean(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
                               **kwargs)
-        
+
         def covariance(y):
             return self._cov(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
                              tangent=tangent, **kwargs)
-        
+
         cov = covariance(flat_maps)
+
         if eps == None:
-            eps = np.sqrt(np.spacing(np.amin(np.abs(np.diagonal(cov)))))
+            eps = np.sqrt(np.spacing(flat_maps))
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_maps))
+
+        print('eps-vector used for differentiation: ', eps)
 
         invcov = np.linalg.inv(cov)
 
@@ -498,21 +574,22 @@ cdef class SIR_type:
 
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
-            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps)
-            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps)
-            dcov_i = pyross.utils.partial_derivative(covariance, var=i, point=flat_maps, dx=eps)
-            dcov_j = pyross.utils.partial_derivative(covariance, var=j, point=flat_maps, dx=eps)
-            t1 = dmu_i@cov@dmu_j
+            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps[i])
+            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps[j])
+            dcov_i = pyross.utils.partial_derivative(covariance, var=i, point=flat_maps, dx=eps[i])
+            dcov_j = pyross.utils.partial_derivative(covariance, var=j, point=flat_maps, dx=eps[j])
+            t1 = dmu_i@invcov@dmu_j
             t2 = np.multiply(0.5,np.trace(invcov@dcov_i@invcov@dcov_j))
             FIM[i,j] = t1 + t2
         i_lower = np.tril_indices(dim,-1)
         FIM[i_lower] = FIM.T[i_lower]
         return FIM
-    
+
     def FIM_det(self, obs, fltr, Tf, contactMatrix, map_dict,
-                eps=None, measurement_error=1.):
+                eps=None, measurement_error=1e-2):
         '''
         Computes the Fisher Information Matrix (FIM) of the deterministic model.
+
         Parameters
         ----------
         obs: 2d numpy.array
@@ -529,9 +606,9 @@ cdef class SIR_type:
            Dictionary returned by infer_parameters
         eps: float or numpy.array, optional
            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the square root of the machine epsilon for the smallest entry in the mean is chosen. Decreasing the step size too small can result in round-off error.
+            to the parameters. If not specified, the array of square roots of the machine epsilon of the MAP estimates is used. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
-            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1.
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         Returns
         -------
         FIM_det: 2d numpy.array
@@ -545,33 +622,38 @@ cdef class SIR_type:
                     'scaled_param_guesses', 'param_length', 'init_flags',
                     'init_fltrs']:
             kwargs[key] = map_dict[key]
-        
+
         def mean(y):
             return self._mean(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
                               **kwargs)
-        
+
         fltr_ = fltr[1:]
         sigma_sq = measurement_error*measurement_error
         cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(fltr_.shape[0])))
         cov = np.diag(cov_diag)
         full_fltr = sparse.block_diag(fltr_)
         cov_red = full_fltr@cov@np.transpose(full_fltr)
+        invcov = np.linalg.inv(cov_red)
 
         if eps == None:
-            eps = np.sqrt(np.spacing(np.amin(np.abs(mean(flat_maps)))))
+            eps = np.sqrt(np.spacing(flat_maps))
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_maps))
+
+        print('eps-vector used for differentiation: ', eps)
 
         dim = len(flat_maps)
         FIM_det = np.zeros((dim,dim))
 
         rows,cols = np.triu_indices(dim)
         for i,j in zip(rows,cols):
-            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps)
-            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps)
-            FIM_det[i,j] = dmu_i@cov_red@dmu_j
+            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps[i])
+            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps[j])
+            FIM_det[i,j] = dmu_i@invcov@dmu_j
         i_lower = np.tril_indices(dim,-1)
         FIM_det[i_lower] = FIM_det.T[i_lower]
         return FIM_det
-    
+
     def _mean(self, params, grad=0, param_keys=None,
                             param_guess_range=None, is_scale_parameter=None,
                             scaled_param_guesses=None, param_length=None,
@@ -595,7 +677,7 @@ cdef class SIR_type:
         xm = self.integrate(x0, 0, Tf, Nf, method='LSODA')
         xm_red = full_fltr@(np.ravel(xm[1:]))
         return xm_red
-    
+
     def _cov(self, params, grad=0, param_keys=None,
                             param_guess_range=None, is_scale_parameter=None,
                             scaled_param_guesses=None, param_length=None,
@@ -616,15 +698,15 @@ cdef class SIR_type:
         fltr_ = fltr[1:]
         Nf=fltr_.shape[0]+1
         full_fltr = sparse.block_diag(fltr_)
-        
+
         if tangent:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf)
         else:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf)
-        
+
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
         return cov_red
-        
+
     # def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
     #                tangent=False, infer_scale_parameter=False, fd_method="central"):
     #     hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,eps,
@@ -660,15 +742,37 @@ cdef class SIR_type:
 
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
-    def obtain_minus_log_p(self, parameters, double [:, :] x, double Tf, contactMatrix, tangent=False):
-        cdef double minus_log_p
+    def obtain_minus_log_p(self, parameters, np.ndarray x, double Tf, contactMatrix, tangent=False):
+        '''Computes -logp of a full trajectory
+        Parameters
+        ----------
+        parameters: dict
+            A dictionary for the model parameters.
+        x: np.array
+            The full trajectory.
+        Tf: float
+            The time duration of the trajectory.
+        contactMatrix: callable
+            A function that takes time (t) as an argument and returns the contactMatrix
+        tangent: bool, optional
+            Set to True to use tangent space inference.
+
+        Returns
+        -------
+        minus_logp: float
+            Value of -logp
+        '''
+
+        cdef:
+            double minus_log_p
+            double [:, :] x_memview=x.astype('float')
         self.set_params(parameters)
         self.set_det_model(parameters)
         self.contactMatrix = contactMatrix
         if tangent:
-            minus_logp = self._obtain_logp_for_traj_tangent(x, Tf)
+            minus_logp = self._obtain_logp_for_traj_tangent(x_memview, Tf)
         else:
-            minus_logp = self._obtain_logp_for_traj(x, Tf)
+            minus_logp = self._obtain_logp_for_traj(x_memview, Tf)
         return minus_logp
 
     def _latent_minus_logp(self, params, grad=0, param_keys=None,
@@ -718,6 +822,122 @@ cdef class SIR_type:
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
+
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            The total time of the trajectory.
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        param_priors: dict
+            A dictionary that specifies priors for parameters.
+            See `infer_parameters` for examples.
+        init_priors: dict
+            A dictionary that specifies priors for initial conditions.
+            See below for examples.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the optimization algorithm.
+            Default is False.
+        enable_global: bool, optional
+            Set to True to perform global optimization. Default is True.
+        enable_local: bool, optional
+            Set to True to perform local optimization. Default is True.
+        global_max_iter: int, optional
+            The maximum number of iterations for the global algorithm.
+        global_atol: float, optional
+            Absolute tolerance of global optimization. Default is 1.
+        cma_processes: int, optional
+            Number of parallel processes used in the CMA algorithm.
+            Default is to use all cores on the computer.
+        cma_population: int, optional
+            he number of samples used in each step of the CMA algorithm.
+            Should ideally be factor of `cma_processes`.
+        local_max_iter: int, optional
+            The maximum number of iterations for the local algorithm.
+        ftol: float, optional
+            The relative tolerance in -logp value for the local optimization.
+
+        Returns
+        -------
+        output: dict
+            Contains the following keys for users:
+
+            map_params_dict: dict
+                A dictionary for the MAP estimates for parameter values.
+                The keys are the names of the parameters.
+            map_x0: np.array
+                The MAP estimate for the initial conditions.
+            -logp: float
+                The value of -logp at MAP.
+
+        Examples
+        --------
+        Here we list three examples, one for inferring all initial conditions
+        along the fastest growing linear mode, one for inferring the initial
+        conditions individually and a mixed one.
+
+        First, suppose we only observe Is out of (S, Ia, Is) and we wish to
+        infer all compartmental values of S and Ia independently. For two age
+        groups with population [2500, 7500],
+
+        >>> init_priors = {
+                'independent':{
+                    'fltr': [True, True, True, True, False, False],
+                    'mean': [2400, 7400, 50, 50],
+                    'std': [200, 200, 200, 200],
+                    'bounds': [[2000, 2500], [7000, 7500], [0, 400], [0, 400]]
+                }
+            }
+
+        In the 'fltr' entry, we need a boolean array indicating which components
+        of the full x0 = [S0[0], S0[1], Ia0[0], Ia0[1], Is0[0], Ia0[1]] array we are inferring.
+        By setting fltr = [True, True, True, True, False, False], the inference algorithm
+        will know that we are inferring all components of S0 and Ia0 but not Is0.
+        Similar to inference for parameter values, we also assume a log-normal
+        distribution for the priors for the initial conditions.
+
+        Next, if we are happy to assume that all our initial conditions lie
+        along the fastest growing linear mode and we will only infer the
+        coefficient of the mode, the init_priors dict would be,
+
+        >>> init_priors = {
+                'lin_mode_coeff':{
+                    'fltr': [True, True, True, True, False, False],
+                    'mean': 100,
+                    'std': 100,
+                    'bounds': [1, 1000]
+                }
+            }
+
+        Note that the 'fltr' entry is still the same as before because we still
+        only want to infer S and Ia, and the initial conditions for Is is fixed
+        by the observation.
+
+        Finally, if we want to do a mixture of both (useful when some compartments
+        have aligned with the fastest growing mode but others haven't), we need
+        to set the init_priors to be,
+
+        >>> init_priors = {
+                'lin_mode_coeff': {
+                    'fltr': [True, True, False, False, False, False],
+                    'mean': 100,
+                    'std': 100,
+                    'bounds': [1, 1000]
+                },
+                'independent':{
+                    'fltr': [False, False, True, True, False, False],
+                    'mean': [50, 50],
+                    'std': [200, 200],
+                    'bounds': [0, 400], [0, 400]
+                }
+            }
         """
 
         self.contactMatrix = contactMatrix
@@ -807,7 +1027,7 @@ cdef class SIR_type:
 
 
     def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
-                                         init_priors,tangent=False, infer_scale_parameter=False, verbose=False, queue_size=1,
+                                         init_priors,tangent=False, verbose=False, queue_size=1,
                                          max_workers=None, npoints=100, method='single', max_iter=1000, dlogz=None,
                                          decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
@@ -819,18 +1039,6 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        param_keys: list
-            A list of parameters to be inferred.
-        init_fltr: boolean array
-            True for initial conditions to be inferred.
-            Shape = (nClass*M)
-            Total number of True = total no. of variables - total no. of observed
-        guess: numpy.array or list
-            Prior expectation for the parameter values listed, and prior for initial conditions.
-            Expect of length len(param_keys)+ (total no. of variables - total no. of observed).
-            Age-dependent rates can be inferred by supplying a guess that is an array instead a single float.
-        stds: numpy.array
-            Standard deviations for the log normal prior.
         obs: 2d numpy.array
             The observed trajectories with reduced number of variables
             (number of data points, (age groups * observed model classes))
@@ -839,24 +1047,16 @@ cdef class SIR_type:
             such that obs_{ti} = fltr_{ij} * X_{tj}
         Tf: float
             Total time of the trajectory
-        Nf: int
-            Total number of data points along the trajectory
         contactMatrix: callable
             A function that returns the contact matrix at time t (input).
-        bounds: np.array(len(guess), 2), optional
-            Bound the prior within the values specified by this array. This can be used to avoid sampling the posterior
-            in regions where the solution is numerically unstable (e.g. parameters close to 0). Any bound introduces
-            a bias to the result, therefore one must make sure that the blocked regions are negligible.
-        obs0: numpy.array, optional
-            Observed initial condition, if more detailed than obs[0]
-        fltr0: 2d numpy.array, optional
-            Matrix filter for obs0
+        param_priors: dict
+            A dictionary for priors for the model parameters.
+            See `infer_parameters` for further explanations.
+        init_priors: dict
+            A dictionary for priors for the initial conditions.
+            See `latent_infer_parameters` for further explanations.
         tangent: bool, optional
             Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
-        infer_scale_parameter: bool or list of bools (size: number of age-dependenly specified parameters)
-            Decide if age-dependent parameters are supposed to be inferred separately (default) or if a scale parameter
-            for the guess should be inferred. This can be set either globally for all age-dependent parameters or for each
-            age-dependent parameter individually
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
         queue_size: int
@@ -1014,9 +1214,12 @@ cdef class SIR_type:
         init_priors: dict
             A dictionary for priors for initial conditions. See `latent_infer_parameters` for further explanations.
         intervention_fun: callable, optional
-            The calling signature is `intervention_func(t, **kwargs)`, where t is time and kwargs are other keyword arguments for the function.
-            The function must return (aW, aS, aO), where aW, aS, aO are (2, M) arrays.
-            If not set, assume constant intervention in time and (aW, aS, aO) are constant arrays, and infer the constants.
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is false.
         verbose: bool, optional
@@ -1047,8 +1250,6 @@ cdef class SIR_type:
                 dictionary for MAP estimates for control parameters
             map_x0: np.array
                 MAP estimates for the initial conditions
-            flat_map: np.array
-                Flattened MAP estimates inc control parameters and inits.
             -logp: float
                 Value of -logp at MAP.
         """
@@ -1120,15 +1321,15 @@ cdef class SIR_type:
         Parameters
         ----------
         x: 2d numpy.array
-           Observed trajectory (number of data points x (age groups * model classes))
+           Observed trajectory (number of data points x (age groups * model classes)).
         Tf: float
-           Total time of the trajectory
+           Total time of the trajectory.
         contactMatrix: callable
-           A function that takes time (t) as an argument and returns the contactMatrix
+           A function that takes time (t) as an argument and returns the contactMatrix.
         map_dict: dict
-           Dictionary returned by infer_parameters
+           Dictionary returned by `latent_infer_parameters`.
         eps: float or numpy.array, optional
-           The step size of the Hessian calculation, default=1e-3
+           The step size of the Hessian calculation, default=1e-3.
         fd_method: str, optional
            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
 
@@ -1187,7 +1388,7 @@ cdef class SIR_type:
 
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
 
-    def minus_logp_red(self, parameters, double [:] x0, np.ndarray obs,
+    def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
                             np.ndarray fltr, double Tf, contactMatrix, tangent=False):
         '''Computes -logp for a latent trajectory
 
@@ -1705,12 +1906,6 @@ cdef class SIR_type:
             Final time of integrator
         steps: int
             Number of time steps for numerical integrator evaluation.
-        model: pyross model
-            Model to integrate (pyross.deterministic.SIR etc)
-        contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
         maxNumSteps:
             The maximum number of steps taken by the integrator.
 
@@ -2599,7 +2794,8 @@ cdef class Spp(SIR_type):
         readonly pyross.deterministic.Spp det_model
 
 
-    def __init__(self, model_spec, parameters, M, fi, Omega, steps, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
+                                    det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
@@ -3178,7 +3374,8 @@ cdef class SppQ(SIR_type):
         readonly object testRate
 
 
-    def __init__(self, model_spec, parameters, testRate, M, fi, Omega, steps, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
+                                    det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
