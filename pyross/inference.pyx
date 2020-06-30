@@ -572,7 +572,6 @@ cdef class SIR_type:
                 j_k += 1
             i_k += 1
         return ff, ss, Z_sto, Z_det
-        
 
     def sensitivity(self, FIM):
         '''
@@ -1848,35 +1847,6 @@ cdef class SIR_type:
         # returns mean and cov for all but first (fixed!) time point
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim))
 
-    cpdef obtain_full_invcov(self, double [:] x0, double Tf, Py_ssize_t Nf):
-        cdef:
-            Py_ssize_t dim=self.dim, i
-            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
-            double [:] time_points=np.linspace(0, Tf, Nf)
-            double [:] xi, xf
-            double [:, :] cov
-            np.ndarray[DTYPE_t, ndim=2] invcov, temp
-            double ti, tf
-        xm = self.integrate(x0, 0, Tf, Nf,
-                            method='LSODA', maxNumSteps=self.steps*Nf)
-        full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
-        for i in range(Nf-1):
-            ti = time_points[i]
-            tf = time_points[i+1]
-            xi = xm[i]
-            xf = xm[i+1]
-            _, cov = self._estimate_cond_mean_cov(xi, ti, tf)
-            self._obtain_time_evol_op(xi, xf, ti, tf)
-            invcov=np.linalg.inv(cov)
-            full_cov_inv[i][i]=invcov
-            if i>0:
-                temp = invcov@self.U
-                full_cov_inv[i-1][i-1] += np.transpose(self.U)@temp
-                full_cov_inv[i-1][i]=-np.transpose(self.U)@invcov
-                full_cov_inv[i][i-1]=-temp
-        full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return full_cov_inv # returns invcov for all but first (fixed!) time point
-
     cpdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf):
         cdef:
             Py_ssize_t dim=self.dim, i
@@ -1906,36 +1876,6 @@ cdef class SIR_type:
                     full_cov[j, :, i, :] = temp
                     full_cov[i, :, j, :] = temp.T
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
-
-    cpdef obtain_full_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf):
-        cdef:
-            Py_ssize_t dim=self.dim, i
-            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
-            double [:] time_points=np.linspace(0, Tf, Nf)
-            double [:] xt, B_vec=self.B_vec
-            double [:, :] cov, U, J_dt, J_mat=self.J_mat
-            np.ndarray[DTYPE_t, ndim=2] invcov, temp
-            double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf,
-                                method='LSODA', maxNumSteps=self.steps*Nf)
-        full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
-        for i in range(Nf-1):
-            t = time_points[i]
-            xt = xm[i]
-            self.compute_jacobian_and_b_matrix(xt, t,
-                                                b_matrix=True, jacobian=True)
-            cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-            J_dt = np.multiply(dt, self.J_mat)
-            U = np.add(np.identity(dim), J_dt)
-            invcov=np.linalg.inv(cov)
-            full_cov_inv[i][i]=invcov
-            if i>0:
-                temp = invcov@U
-                full_cov_inv[i-1][i-1] += np.transpose(U)@temp
-                full_cov_inv[i-1][i]=-np.transpose(U)@invcov
-                full_cov_inv[i][i-1]=-temp
-        full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return full_cov_inv # returns invcov for all but first (fixed!) time point
 
     cdef _obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2):
         cdef:
