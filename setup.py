@@ -29,11 +29,11 @@ setup(
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
-    description='PyRoss is a numerical library for inference, forecasting,\
+    description='PyRoss is a numerical library for inference, forecasts,\
                 and optimal control of epidemiological models in Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    platforms='works on LINUX and macOS',
+    platforms='tested on macOS, windows, and LINUX',
     ext_modules=cythonize([ extension ],
         compiler_directives={'language_level': sys.version_info[0]},
         ),
