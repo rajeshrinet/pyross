@@ -1,4 +1,4 @@
-## PyRoss: inference, forecasting, and optimised control of epidemiological models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder)
+## PyRoss: inference, forecasting, and optimised control for epidemiological models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder)
 
 
 ![Build](https://github.com/rajeshrinet/pyross/workflows/build/badge.svg) 
