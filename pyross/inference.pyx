@@ -528,7 +528,7 @@ cdef class SIR_type:
         from matplotlib import cm
         
         # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively. 
-        ff, ss, Z_sto, Z_det = robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
+        ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
         cmap = plt.cm.PuBu_r
         levels=11
         colors='black'
