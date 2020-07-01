@@ -156,6 +156,7 @@ cdef class ContactMatrixFunction:
         --------
         An example for an custom temporal intervetion that
         allows for some anticipation and reaction time
+        
         >>> def fun(t, M, width=1, loc=0) # using keyword arguments for parameters of the intervention
                 a = (1-np.tanh((t-loc)/width))/2
                 a_full = np.full((2, M), a)
@@ -875,7 +876,7 @@ def China():
     CW = np.array(pd.read_excel(uW,  sheet_name='China'))
     CS = np.array(pd.read_excel(uS,  sheet_name='China'))
     CO = np.array(pd.read_excel(uO,  sheet_name='China'))
-    return CH, CW, CS, CO 
+    return CH, CW, CS, CO
 
 
 def Denmark():
@@ -934,7 +935,7 @@ def India():
     CO = np.array(pd.read_excel(uO,  sheet_name='India'))
     return CH, CW, CS, CO
 
- 
+
 def Italy():
     uH = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_home_1.xlsx'
     uW = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/contact_matrices_152_countries/MUestimates_work_1.xlsx'
@@ -1274,4 +1275,3 @@ def UK():
         1.98027155e-01, 4.06778809e-01, 3.52954451e-01, 1.98892238e-04,
         4.66582938e-01, 3.38156572e-04, 1.92071526e-01, 4.67710373e-01]])
     return CH, CW, CS, CO
-
