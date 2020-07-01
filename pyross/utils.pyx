@@ -389,7 +389,7 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
         return hessian
 
     raise Exception("Finite-difference method must be 'forward' or 'central'.")
-    
+
 def partial_derivative(func, var, point, dx, *func_args):
     args = point[:]
     def wraps(x, *wraps_args):
@@ -472,13 +472,17 @@ def parse_param_prior_dict(prior_dict, M):
                 is_scale_parameter.append(True)
                 count += 1
             else:
+                assert len(mean) == M, 'length of mean must be either 1 or M'
                 flat_guess += mean
                 try:
+                    assert len(sub_dict['std']) == M
+                    assert len(sub_dict['bounds']) == M
                     flat_stds += sub_dict['std']
                     flat_bounds += sub_dict['bounds']
                 except KeyError:
                     raise Exception('Sub-dict under {} must have "std" and "bounds"'
                                     ' as keys'.format(key))
+                is_scale_parameter += [False]*M
                 flat_guess_range.append(list(range(count, count+M)))
                 count += M
     return key_list, np.array(flat_guess), np.array(flat_stds), \
@@ -827,7 +831,7 @@ def posterior_mean(weighted_samples):
         vals = [w['map_params_dict'][key] for w in weighted_samples]
         avg = sum([weights[i] * vals[i] for i in range(len(vals))])
         sample['map_params_dict'][key] = avg
-    
+
     for key in ['map_x0', 'flat_map']:
         vals = [w[key] for w in weighted_samples]
         avg = sum([weights[i] * vals[i] for i in range(len(vals))])
