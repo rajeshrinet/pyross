@@ -1025,7 +1025,19 @@ def UK(source='premEtAl'):
         CW = np.genfromtxt(uW)
         CS = np.genfromtxt(uS)
         CO = np.genfromtxt(uO) 
-    else:
-        raise Exception("Please use source=='premEtAl' or source=='fumanelliEtAl' ")
+    
+    elif source=='klepacEtAl':
+        u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/cm/'
+        uH = u1 + 'ukh.txt'
+        uW = u1 + 'ukw.txt'
+        uS = u1 + 'uks.txt'
+        uO = u1 + 'uko.txt' 
+    
+        CH = np.genfromtxt(uH)
+        CW = np.genfromtxt(uW)
+        CS = np.genfromtxt(uS)
+        CO = np.genfromtxt(uO) 
 
+    else:
+        raise Exception("Please use 'premEtAl' or 'fumanelliEtAl' or 'klepacEtAl' ")
     return CH, CW, CS, CO
