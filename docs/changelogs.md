@@ -1,5 +1,9 @@
 # PyRoss changelogs
 
+## 1.2.3
+* new inference interface for users using 
+
+
 ## 1.2.0
 * updates to inference using fastest growing linear mode
 
