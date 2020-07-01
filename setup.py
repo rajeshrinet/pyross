@@ -24,7 +24,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pyross',
-    version='1.2.2',
+    version='1.2.3',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
