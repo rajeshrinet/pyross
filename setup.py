@@ -18,37 +18,35 @@ else:
     )
 
 
-with open('requirements.txt', 'r') as rm:
-    reqs = [l.strip() for l in rm]
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
 setup(
     name='pyross',
-    version='1.2.1',
+    version='1.2.3',
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
-    description='PyRoss is a numerical library that offers an integrated platform \
-                for inference, prediction and non-pharmaceutical interventions in \
-                age- and contact-structured epidemiological compartment models.',
+    description='PyRoss is a numerical library for inference, forecasts,\
+                and optimal control of epidemiological models in Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    platforms='works on LINUX and macOS',
+    platforms='tested on macOS, windows, and LINUX',
     ext_modules=cythonize([ extension ],
-        compiler_directives={'language_level': "3"},
+        compiler_directives={'language_level': sys.version_info[0]},
         ),
     libraries=[],
     packages=['pyross'],
-    install_requires=reqs,
+    install_requires=['cython','numpy','scipy','cma','pandas',
+                    'pathos','nlopt','xlrd','sympy','nestle'],
     package_data={'pyross': ['*.pxd']},
     include_package_data=True,
     classifiers=[
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         ],

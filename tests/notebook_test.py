@@ -30,7 +30,6 @@ def run_notebook_tests(path, recursive=False):
                    os.path.join(cwd, 'inference/ex-evidence.ipynb'),
                    os.path.join(cwd, 'inference/ex06_inference_latent_SEIR.ipynb'),
                    os.path.join(cwd, 'inference/ex13_calibration_latent_SIR.ipynb'),
-                   os.path.join(cwd, 'inference/ex_SEAIRQ_testing.ipynb'),
                    os.path.join(cwd, 'inference/ex-fastest-growing-mode-inference.ipynb'),
                    os.path.join(cwd, 'stochastic/ex05-SEAIRQ.ipynb'),
                    os.path.join(cwd, 'stochastic/ex03-SIkR.ipynb'),

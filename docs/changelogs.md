@@ -1,5 +1,9 @@
 # PyRoss changelogs
 
+## 1.2.3
+* new inference interface - see https://github.com/rajeshrinet/pyross/pull/33
+
+
 ## 1.2.0
 * updates to inference using fastest growing linear mode
 

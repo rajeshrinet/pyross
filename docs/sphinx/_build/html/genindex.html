@@ -166,6 +166,7 @@
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  
@@ -247,14 +248,12 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="inference.html#pyross.inference.SIR_type.fill_initial_conditions">fill_initial_conditions() (pyross.inference.SIR_type method)</a>
-</li>
       <li><a href="inference.html#pyross.inference.SIR_type.fill_params_dict">fill_params_dict() (pyross.inference.SIR_type method)</a>
+</li>
+      <li><a href="inference.html#pyross.inference.SIR_type.FIM">FIM() (pyross.inference.SIR_type method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="inference.html#pyross.inference.SIR_type.FIM">FIM() (pyross.inference.SIR_type method)</a>
-</li>
       <li><a href="inference.html#pyross.inference.SIR_type.FIM_det">FIM_det() (pyross.inference.SIR_type method)</a>
 </li>
       <li><a href="inference.html#pyross.inference.Spp.FIM_sym">FIM_sym() (pyross.inference.Spp method)</a>
@@ -265,10 +264,14 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="contactMatrix.html#pyross.contactMatrix.getCM">getCM() (pyross.contactMatrix method)</a>
+      <li><a href="contactMatrix.html#pyross.contactMatrix.ContactMatrixFunction.get_individual_contactMatrices">get_individual_contactMatrices() (pyross.contactMatrix.ContactMatrixFunction method)</a>
+</li>
+      <li><a href="inference.html#pyross.inference.SIR_type.get_mean_inits">get_mean_inits() (pyross.inference.SIR_type method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="contactMatrix.html#pyross.contactMatrix.getCM">getCM() (pyross.contactMatrix method)</a>
+</li>
       <li><a href="utils.html#pyross.utils.getPopulation">getPopulation() (pyross.utils method)</a>
 </li>
   </ul></td>
@@ -381,12 +384,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="inference.html#pyross.inference.SIR_type.make_det_model">make_det_model() (pyross.inference.SIR_type method)</a>
-</li>
       <li><a href="inference.html#pyross.inference.SIR_type.minus_logp_red">minus_logp_red() (pyross.inference.SIR_type method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="deterministic.html#pyross.deterministic.Spp.model_class_data">model_class_data() (pyross.deterministic.Spp method)</a>
 
       <ul>
@@ -410,6 +409,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="inference.html#pyross.inference.SIR_type.obtain_minus_log_p">obtain_minus_log_p() (pyross.inference.SIR_type method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -421,6 +428,10 @@
         <li><a href="stochastic.html#pyross.stochastic.stochastic_integration.R">(pyross.stochastic.stochastic_integration method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="inference.html#pyross.inference.SIR_type.robustness">robustness() (pyross.inference.SIR_type method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -491,7 +502,13 @@
         <li><a href="deterministic.html#pyross.deterministic.SEkIkR">(class in pyross.deterministic)</a>
 </li>
       </ul></li>
+      <li><a href="inference.html#pyross.inference.SIR_type.sensitivity">sensitivity() (pyross.inference.SIR_type method)</a>
+</li>
+      <li><a href="inference.html#pyross.inference.SIR_type.set_contact_matrix">set_contact_matrix() (pyross.inference.SIR_type method)</a>
+</li>
       <li><a href="inference.html#pyross.inference.SIR_type.set_det_method">set_det_method() (pyross.inference.SIR_type method)</a>
+</li>
+      <li><a href="inference.html#pyross.inference.SIR_type.set_det_model">set_det_model() (pyross.inference.SIR_type method)</a>
 </li>
       <li><a href="inference.html#pyross.inference.SIR_type.set_lyapunov_method">set_lyapunov_method() (pyross.inference.SIR_type method)</a>
 </li>
@@ -606,7 +623,11 @@
 </li>
       </ul></li>
       <li><a href="deterministic.html#pyross.deterministic.SppQ">SppQ (class in pyross.deterministic)</a>, <a href="stochastic.html#pyross.deterministic.SppQ">[1]</a>
+
+      <ul>
+        <li><a href="inference.html#pyross.inference.SppQ">(class in pyross.inference)</a>
 </li>
+      </ul></li>
       <li><a href="stochastic.html#pyross.stochastic.stochastic_integration">stochastic_integration (class in pyross.stochastic)</a>
 </li>
       <li><a href="deterministic.html#pyross.deterministic.CommonMethods.Sx">Sx() (pyross.deterministic.CommonMethods method)</a>
