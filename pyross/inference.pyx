@@ -483,8 +483,8 @@ cdef class SIR_type:
             return self._infer_params_minus_logp(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
         return hess
-    
-    def robustness(self, FIM, FIM_det, map_dict, param_pos_1, param_pos_2, 
+
+    def robustness(self, FIM, FIM_det, map_dict, param_pos_1, param_pos_2,
                    range_1, range_2, resolution_1, resolution_2=None):
         '''
         Robustness analysis in a two-dimensional slice of the parameter space, revealing neutral spaces as in https://doi.org/10.1073/pnas.1015814108.
@@ -506,9 +506,9 @@ cdef class SIR_type:
         range_2: float
             Symmetric interval around parameter 2 for which robustness will be analysed. Absolute interval: 'parameter 2' +/- range_2
         resolution_1: int
-            Resolution of the meshgrid in x direction. 
+            Resolution of the meshgrid in x direction.
         resolution_2: int
-            Resolution of the meshgrid in y direction. Default is resolution_2=resolution_1. 
+            Resolution of the meshgrid in y direction. Default is resolution_2=resolution_1.
         Returns
         -------
         ff: 2d numpy.array
@@ -520,20 +520,20 @@ cdef class SIR_type:
         Z_det: 2d numpy.array
             shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the deterministic model
         -------
-        
-        
+
+
         Example
         -------
         from matplotlib import pyplot as plt
         from matplotlib import cm
-        
-        # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively. 
+
+        # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively.
         ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
         cmap = plt.cm.PuBu_r
         levels=11
         colors='black'
-        
-        
+
+
         c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
         plt.contour(ff, ss, Z_sto, colors='black', levels=levels, linewidths=0.25)
         plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
@@ -556,7 +556,7 @@ cdef class SIR_type:
             if det:
                 return -dev@FIM_det@dev
             else:
-                return -dev@FIM@dev 
+                return -dev@FIM@dev
         param_1_range = np.linspace(-range_1, range_1, resolution_1)
         param_2_range = np.linspace(-range_2, range_2, resolution_2)
         ff, ss = np.meshgrid(flat_maps[param_pos_1] + param_1_range,
@@ -802,10 +802,10 @@ cdef class SIR_type:
     #                                    tangent, infer_scale_parameter, fd_method=fd_method)
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
-    def log_G_evidence(self, x, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3, 
+    def log_G_evidence(self, x, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3,
                        fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate.
-        
+
         Parameters
         ----------
         x: 2d numpy.array
@@ -892,7 +892,7 @@ cdef class SIR_type:
         minus_logp += penalty*fltr.shape[0]
 
         return minus_logp
-    
+
     cdef np.ndarray _get_r_from_x(self, np.ndarray x):
         # this function will be overridden in case of extra (non-additive) compartments
         cdef:
@@ -1455,10 +1455,10 @@ cdef class SIR_type:
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
-    def log_G_evidence_latent(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3, 
+    def log_G_evidence_latent(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3,
                               fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate.
-        
+
         Parameters
         ----------
         x: 2d numpy.array
@@ -1951,11 +1951,11 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified. Only used if det_method is set to 'solve_ivp'.
         """
-        
+
         def rhs0(double t, double [:] xt):
-            model.set_contactMatrix(t, contactMatrix)
-            model.rhs(xt, t)
-            return model.dxdt
+            self.det_model.set_contactMatrix(t, self.contactMatrix)
+            self.det_model.rhs(xt, t)
+            return self.det_model.dxdt
 
         if method is None:
             method = self.det_method
@@ -1972,7 +1972,7 @@ cdef class SIR_type:
         else:
             print(method)
             raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
-        return np.array(sol)/self.N
+        return np.divide(sol, self.N)
 
     def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
         # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
@@ -2894,7 +2894,7 @@ cdef class Spp(SIR_type):
         else:
             r = self.fi - np.sum(xrs, axis=0)
         return r
-    
+
     cdef lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, fi=self.fi
@@ -3495,21 +3495,21 @@ cdef class SppQ(SIR_type):
     def make_params_dict(self):
         param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
         return param_dict
-    
+
     cdef np.ndarray _get_r_from_x(self, np.ndarray x):
         cdef:
             np.ndarray r
-            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)    
+            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
         r = self.fi - xrs[-1,:] - np.sum(xrs[:self.nClassUwoN,:], axis=0) # subtract total quarantined and all non-quarantined classes
         return r
-    
+
     cdef np.ndarray _get_rq_from_x(self, np.ndarray x):
         cdef:
             np.ndarray r
-            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)    
+            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
         r = xrs[-1,:] - np.sum(xrs[self.nClassU:-1,:], axis=0) # subtract all quarantined classes
         return r
-    
+
     cdef double _penalty_from_negative_values(self, np.ndarray x0):
         cdef:
             double eps=0.1/self.N, dev
@@ -3753,6 +3753,6 @@ cdef class SppQ(SIR_type):
                 B[nClass-1, m, i+nClassU, m] += term
             term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m] * r[m]
             B[nClass-1, m, nClass-1, m] += term
-            
+
 
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
