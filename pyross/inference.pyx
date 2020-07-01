@@ -902,7 +902,7 @@ cdef class SIR_type:
 
     cdef double _penalty_from_negative_values(self, np.ndarray x0):
         cdef:
-            double eps=0.1/self.N, dev
+            double eps=0.1/self.Omega, dev
             np.ndarray R_init
         R_init = self._get_r_from_x(x0)
         dev = - (np.sum(R_init[R_init<0]) + np.sum(x0[x0<0]))
@@ -3514,7 +3514,7 @@ cdef class SppQ(SIR_type):
 
     cdef double _penalty_from_negative_values(self, np.ndarray x0):
         cdef:
-            double eps=0.1/self.N, dev
+            double eps=0.1/self.Omega, dev
             np.ndarray R_init, RQ_init
         R_init = self._get_r_from_x(x0)
         RQ_init = self._get_rq_from_x(x0)
