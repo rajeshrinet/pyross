@@ -1,0 +1,245 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utils &mdash; PyRoss 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Forecasting" href="forecast.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyRoss
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRoss</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="utils">
+<h1>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h1>
+<p>Miscellaneous classes and methods used in PyRoss which do not fit elsewhere.</p>
+<dl class="py method">
+<dt id="pyross.utils.getPopulation">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">getPopulation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.utils.getPopulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes coutry name and number, M, of age-groups as argument
+Returns population structured in M age-groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country</strong> (<em>string</em>) – Default is ‘India’</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Deafault is 16 age-groups</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.utils.hessian_finite_difference">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">hessian_finite_difference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.utils.hessian_finite_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward finite-difference computation of the Hessian of a function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>(</em><em>dims=1</em><em>)</em><em>, </em><em>optional</em>) – Position at which the hessian is to be computed.</p></li>
+<li><p><strong>function</strong> (<em>function</em><em>(</em><em>numpy.array</em><em>)</em>) – Function of interest.</p></li>
+<li><p><strong>pos</strong> – Step size used for FD computation (can be parameter dependant).</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Different options for the FD computation: “forward” or “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>hess</strong> – Hessian of function at pos.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array(dims=2)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="forecast.html" class="btn btn-neutral float-left" title="Forecasting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

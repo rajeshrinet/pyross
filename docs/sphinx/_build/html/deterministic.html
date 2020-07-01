@@ -1,0 +1,1752 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deterministic simulations &mdash; PyRoss 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Stochastic simulations" href="stochastic.html" />
+    <link rel="prev" title="PyRoss API" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyRoss
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deterministic simulations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#spp">Spp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sppq">SppQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikr">SEkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikikr">SEkIkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sei8r">SEI8R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seair">SEAIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seai8r">SEAI8R</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq-testing">SEAIRQ_testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#commonmethods">CommonMethods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRoss</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Deterministic simulations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/deterministic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deterministic-simulations">
+<h1>Deterministic simulations<a class="headerlink" href="#deterministic-simulations" title="Permalink to this headline">¶</a></h1>
+<p>Deterministic simulations with compartment models and age structure.</p>
+<div class="section" id="spp">
+<h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.Spp">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.deterministic.Spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic user-defined epidemic model.</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
+<span class="go">        &quot;S&quot; : {</span>
+<span class="go">            &quot;constant&quot;  : [ [&quot;k&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;I&quot; : {</span>
+<span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;beta&#39;: 0.1,</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;k&#39;: 1,</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pyross.deterministic.Spp.model_class_data">
+<code class="sig-name descname">model_class_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.model_class_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – The object returned by <cite>simulate</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>The population of class <cite>model_class_key</cite> as a time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.Spp.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.Spp.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em><em> or </em><em>dict</em>) – Initial conditions. If it is an array it should have length
+M*(model_dimension-1), where x0[i + j*M] should be the initial
+value of model class i of age group j. The removed R class
+must be left out. If it is a dict then
+it should have a key corresponding to each model class,
+with a 1D array containing the initial condition for each
+age group as value. One of the classes may be left out,
+in which case its initial values will be inferred from the
+others.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sppq">
+<h2>SppQ<a class="headerlink" href="#sppq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SppQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SppQ</code><a class="headerlink" href="#pyross.deterministic.SppQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic user-defined epidemic model with quarantine.
+…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – Contains the values for the parameters given in the model specification.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx,
+random testing (without false positives/negatives), and quarantine</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
+<span class="go">        &quot;S&quot; : {</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;I&quot; : {</span>
+<span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;test_pos&quot;  : [ &quot;p_falsepos&quot;, &quot;p_truepos&quot;, &quot;p_falsepos&quot;] ,</span>
+<span class="go">        &quot;test_freq&quot; : [ &quot;tf&quot;, &quot;tf&quot;, &quot;tf&quot;]</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;beta&#39;: 0.1,</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;p_falsepos&#39;: 0</span>
+<span class="go">        &#39;p_truepos&#39;: 1</span>
+<span class="go">        &#39;tf&#39;: 1</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pyross.deterministic.SppQ.model_class_data">
+<code class="sig-name descname">model_class_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SppQ.model_class_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – The object returned by <cite>simulate</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>The population of class <cite>model_class_key</cite> as a time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.SppQ.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SppQ.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em><em> or </em><em>dict</em>) – Initial conditions. If it is an array it should have length
+M*(model_dimension-1), where x0[i + j*M] should be the initial
+value of model class i of age group j. The removed R class
+must be left out. If it is a dict then
+it should have a key corresponding to each model class,
+with a 1D array containing the initial condition for each
+age group as value. One of the classes may be left out,
+in which case its initial values will be inferred from the
+others.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>testRate</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The total number of PCR tests performed per day</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default value is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.deterministic.SIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a} = \alpha_{i}\lambda_{i}(t)S_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}= \bar{\alpha_{i}}\lambda_{i}(t)S_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}(t)\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}(t)
+\frac{I_{j}^{s}}{N_{j}}\right),\quad i,j=1,\ldots M\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>An example of the SIR class</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="mi">1</span>                   <span class="c1"># SIR model with no age structure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ni</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>    <span class="c1"># only one age group</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Ni</span><span class="p">)</span>          <span class="c1"># total population</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">beta</span>  <span class="o">=</span> <span class="mf">0.2</span>             <span class="c1"># Infection rate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gIa</span>   <span class="o">=</span> <span class="mf">0.1</span>             <span class="c1"># Removal rate of asymptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gIs</span>   <span class="o">=</span> <span class="mf">0.1</span>             <span class="c1"># Removal rate of symptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">0</span>               <span class="c1"># Fraction of asymptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fsa</span>   <span class="o">=</span> <span class="mi">1</span>               <span class="c1"># self-isolation of symtomatic infectives</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ia0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>     <span class="c1"># Intial asymptomatic infectives</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Is0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>     <span class="c1"># Initial symptomatic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">R0</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>     <span class="c1"># No removed individuals initially</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S0</span>  <span class="o">=</span> <span class="n">N</span><span class="o">-</span><span class="p">(</span><span class="n">Ia0</span><span class="o">+</span><span class="n">Is0</span><span class="o">+</span><span class="n">R0</span><span class="p">)</span>    <span class="c1"># S + Ia + Is + R = N</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># there is no contact structure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">contactMatrix</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># duration of simulation and data file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Tf</span> <span class="o">=</span> <span class="mi">160</span><span class="p">;</span>  <span class="n">Nt</span><span class="o">=</span><span class="mi">160</span><span class="p">;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># instantiate model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="n">alpha</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">:</span><span class="n">beta</span><span class="p">,</span> <span class="s1">&#39;gIa&#39;</span><span class="p">:</span><span class="n">gIa</span><span class="p">,</span> <span class="s1">&#39;gIs&#39;</span><span class="p">:</span><span class="n">gIs</span><span class="p">,</span><span class="s1">&#39;fsa&#39;</span><span class="p">:</span><span class="n">fsa</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pyross</span><span class="o">.</span><span class="n">deterministic</span><span class="o">.</span><span class="n">SIR</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Ni</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># simulate model using two possible ways</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">S0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">,</span> <span class="n">contactMatrix</span><span class="p">,</span> <span class="n">Tf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">S0</span><span class="p">,</span> <span class="n">Ia0</span><span class="p">,</span> <span class="n">Is0</span><span class="p">)),</span> <span class="n">contactMatrix</span><span class="p">,</span> <span class="n">Tf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pyross.deterministic.SIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sikr">
+<h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.deterministic.SIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIkR). Method of k-stages of I</p>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\frac{I_{j}^{n}}{N_{j}},\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gI: float</dt><dd><p>Rate of removal from infectives.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of infection.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>I0</strong> (<em>np.array</em>) – Initial number of  infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.deterministic.SEIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a} = \alpha_{i}\gamma_{E}^{i}E_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}= \bar{\alpha_{i}}\gamma_{E}^{i}E_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}(t)\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{s}(t)
+\frac{I_{j}^{s}}{N_{j}}\right),\quad i,j=1,\ldots M\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gE: float, np.array (M,)</dt><dd><p>Rate of removal from exposed individuals.</p>
+</dd>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposed.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sekikr">
+<h2>SEkIkR<a class="headerlink" href="#sekikr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEkIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEkIkR).
+Method of k-stages of E and I</p>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{1}=\lambda_{i}(t)S_{i}-k_{E}\gamma_{E}E_{i}^{1}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{k}=k_{E}\gamma_{E}E_{i}^{k-1}-k_{E}\gamma_{E}E_{i}^{k}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\frac{I_{j}^{n}}{N_{j}},\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gI: float</dt><dd><p>Rate of removal from infected individuals.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Rate of removal from exposed individuals.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of infectives.</p>
+</dd>
+<dt>kE: int</dt><dd><p>number of stages of exposed.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEkIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>I0</strong> (<em>np.array</em>) – Initial number of  infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sekikikr">
+<h2>SEkIkIkR<a class="headerlink" href="#sekikikr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEkIkIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEkIkIkR</code><a class="headerlink" href="#pyross.deterministic.SEkIkIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEkIkR).
+Method of k-stages of E, Ia, and Is</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{1}=\lambda_{i}(t)S_{i}-k_{E}\gamma_{E}E_{i}^{1}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}^{k_{E}}=k_{E}\gamma_{E}E_{i}^{k_{E}-1}-k_{E}\gamma_{E}E_{i}^{k_{E}}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a1}=\alpha_{i}k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I^{a}}I_{i}^{a1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{ak_{I}}=k_{I^{a}}\gamma_{I^{a}}I_{i}^{a(k_{I}-1)}-k_{I}\gamma_{I^{a}}I_{i}^{ak_{I}},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s1}=\bar{\alpha_{i}}k_{E}\gamma_{E}E_{i}^{k_{E}}-k_{I}\gamma_{I^{s}}I_{i}^{a1},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{sk_{I}}=k_{I}\gamma_{I^{s}}I_{i}^{s(k_{I}-1)}-k_{I}\gamma_{I^{s}}I_{i}^{sk_{I}},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=k_{I}\gamma_{I^{a}}I_{i}^{ak_{I}}+k_{I}\gamma_{I^{s}}I_{i}^{sk_{I}}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\sum_{n=1}^{k_{I}}\left(C_{ij}^{a}
+\frac{I_{j}^{an}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{sn}}{N_{j}}\right),\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic infected individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic infected individuals.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Rate of removal from exposed individuals.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of asymptomatic infectives.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of symptomatic infectives.</p>
+</dd>
+<dt>kE: int</dt><dd><p>number of stages of exposed.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEkIkIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sei8r">
+<h2>SEI8R<a class="headerlink" href="#sei8r" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEI8R">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEI8R</code><a class="headerlink" href="#pyross.deterministic.SEI8R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEI8R)
+The infected class has 8 groups:</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>Ih: hospitalized</p></li>
+<li><p>Ic: ICU</p></li>
+<li><p>Im: Mortality</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}+\sigma_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s'}=\bar{h}_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{s'}}I_{i}^{s'}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h}=h_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{h}}I_{i}^{h},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h'}=\bar{c}_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{h'}}I_{i}^{h'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c}=c_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c'}=\bar{m}_{i}\gamma_{I^{c}}I_{i}^{c}-\gamma_{I^{c'}}I_{i}^{c'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{m}=m_{i}\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{N}_{i}=\sigma_{i}-m_{i}\gamma_{I^{c}}I_{i}^{c}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s'}}I_{i}^{s'}+\gamma_{I^{h'}}I_{i}^{h'}+\gamma_{I^{c'}}I_{i}^{c'}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+
++C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}
++C_{ij}^{s}\frac{I_{j}^{s'}}{N_{j}}
+\right),\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Rate of removal from exposeds individuals.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gIsp: float</dt><dd><p>Rate of removal from symptomatic individuals towards buffer.</p>
+</dd>
+<dt>gIh: float</dt><dd><p>Rate of removal for hospitalised individuals.</p>
+</dd>
+<dt>gIhp: float</dt><dd><p>Rate of removal from hospitalised individuals towards buffer.</p>
+</dd>
+<dt>gIc: float</dt><dd><p>Rate of removal for idividuals in intensive care.</p>
+</dd>
+<dt>gIcp: float</dt><dd><p>Rate of removal from ICU individuals towards buffer.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>sa: float, np.array (M,)</dt><dd><p>Daily arrival of new susceptables.</p>
+</dd>
+<dt>hh: float, np.array (M,)</dt><dd><p>Fraction hospitalised from Is</p>
+</dd>
+<dt>cc: float, np.array (M,)</dt><dd><p>Fraction sent to intensive care from hospitalised.</p>
+</dd>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEI8R.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEI8R.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>Ih0</strong> (<em>np.array</em>) – Initial number of hospitalized infectives.</p></li>
+<li><p><strong>Ic0</strong> (<em>np.array</em>) – Initial number of ICU infectives.</p></li>
+<li><p><strong>Im0</strong> (<em>np.array</em>) – Initial number of mortality.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seair">
+<h2>SEAIR<a class="headerlink" href="#seair" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEAIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIR</code><a class="headerlink" href="#pyross.deterministic.SEAIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+\frac{A_{j}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}\right),\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Rate of removal from exposeds individuals.</p>
+</dd>
+<dt>gA: float</dt><dd><p>Rate of removal from activated individuals.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEAIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>A0</strong> (<em>np.array</em>) – Initial number of activateds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seai8r">
+<h2>SEAI8R<a class="headerlink" href="#seai8r" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEAI8R">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAI8R</code><a class="headerlink" href="#pyross.deterministic.SEAI8R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Activated, Infected, Removed (SEAI8R)
+The infected class has 8 groups:</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>Ih: hospitalized</p></li>
+<li><p>Ic: ICU</p></li>
+<li><p>Im: Mortality</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}+\sigma_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-\gamma_{E}E_{i},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-\gamma_{A}A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-\gamma_{I^{a}}I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-\gamma_{I^{s}}I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s'}=\bar{h}_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{s'}}I_{i}^{s'}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h}=h_{i}\gamma_{I^{s}}I_{i}^{s}-\gamma_{I^{h}}I_{i}^{h},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{h'}=\bar{c}_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{h'}}I_{i}^{h'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c}=c_{i}\gamma_{I^{h}}I_{i}^{h}-\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{c'}=\bar{m}_{i}\gamma_{I^{c}}I_{i}^{c}-\gamma_{I^{c'}}I_{i}^{c'},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{m}=m_{i}\gamma_{I^{c}}I_{i}^{c},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{N}_{i}=\sigma_{i}-m_{i}\gamma_{I^{c}}I_{i}^{c}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s'}}I_{i}^{s'}+\gamma_{I^{h'}}I_{i}^{h'}+\gamma_{I^{c'}}I_{i}^{c'}.\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+\frac{A_{j}}{N_{j}}
++C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}
++C_{ij}^{s}\frac{I_{j}^{s'}}{N_{j}}
+\right),\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Rate of removal from exposeds individuals.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gIsp: float</dt><dd><p>Rate of removal from symptomatic individuals towards buffer.</p>
+</dd>
+<dt>gIh: float</dt><dd><p>Rate of removal for hospitalised individuals.</p>
+</dd>
+<dt>gIhp: float</dt><dd><p>Rate of removal from hospitalised individuals towards buffer.</p>
+</dd>
+<dt>gIc: float</dt><dd><p>Rate of removal for idividuals in intensive care.</p>
+</dd>
+<dt>gIcp: float</dt><dd><p>Rate of removal from ICU individuals towards buffer.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>sa: float, np.array (M,)</dt><dd><p>Daily arrival of new susceptables.</p>
+</dd>
+<dt>hh: float, np.array (M,)</dt><dd><p>Fraction hospitalised from Is</p>
+</dd>
+<dt>cc: float, np.array (M,)</dt><dd><p>Fraction sent to intensive care from hospitalised.</p>
+</dd>
+<dt>mm: float, np.array (M,)</dt><dd><p>mortality rate in intensive care</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEAI8R.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAI8R.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>Ih0</strong> (<em>np.array</em>) – Initial number of hospitalized infectives.</p></li>
+<li><p><strong>Ic0</strong> (<em>np.array</em>) – Initial number of ICU infectives.</p></li>
+<li><p><strong>Im0</strong> (<em>np.array</em>) – Initial number of mortality.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEAIRQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected,
+Infected, Removed, Quarantined (SEAIRQ)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+<li><p>Q: quarantined</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\dot{S_{i}}=-\lambda_{i}(t)S_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{E}_{i}=\lambda_{i}(t)S_{i}-(\gamma_{E}+\tau_{E})A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{A}_{i}=\gamma_{E}E_{i}-(\gamma_{A}+\tau_{A})A_{i}\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{a}=\alpha_{i}\gamma_{A}A_{i}-(\gamma_{I^{a}}+\tau_{I^a})I_{i}^{a},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{I}_{i}^{s}=\bar{\alpha_{i}}\gamma_{A}A_{i}-(\gamma_{I^{s}}+\tau_{I^a})I_{i}^{s},\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{R}_{i}=\gamma_{I^{a}}I_{i}^{a}+\gamma_{I^{s}}I_{i}^{s}.\]</div>
+<div class="math notranslate nohighlight">
+\[\dot{Q}_{i}=\tau_{S}S_{i}+\tau_{E}E_{i}+\tau_{A}A_{i}+\tau_{I^{s}}I_{i}^{s}+\tau_{I^{a}}I_{i}^{a}\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{i}(t)=\beta\sum_{j=1}^{M}\left(C_{ij}^{a}\frac{I_{j}^{a}}{N_{j}}+C_{ij}^{a}
+\frac{A_{j}}{N_{j}}+C_{ij}^{s}\frac{I_{j}^{s}}{N_{j}}\right),\]</div>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gE: float, np.array (M,)</dt><dd><p>Rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA: float, np.array (M,)</dt><dd><p>Rate of removal from activated individuals.</p>
+</dd>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>tE: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of exposeds</p>
+</dd>
+<dt>tA: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of activateds</p>
+</dd>
+<dt>tIa: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+</dd>
+<dt>tIs: float, np.array (M,)</dt><dd><p>testing rate and contact tracing of symptomatics</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEAIRQ.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>A0</strong> (<em>np.array</em>) – Initial number of activateds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>Q0</strong> (<em>np.array</em>) – Initial number of quarantineds.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>data</strong> – contains the following keys:</p>
+<ul class="simple">
+<li><p>X : output path from integrator</p></li>
+<li><p>t : time points evaluated at,</p></li>
+<li><p>’param’: input param to integrator.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seairq-testing">
+<h2>SEAIRQ_testing<a class="headerlink" href="#seairq-testing" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.SEAIRQ_testing">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">SEAIRQ_testing</code><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+<li><p>Q: quarantined</p></li>
+</ul>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float, np.array (M,)</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float, np.array (M,)</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float, np.array (M,)</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gE: float, np.array (M,)</dt><dd><p>Rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA: float, np.array (M,)</dt><dd><p>Rate of removal from activated individuals.</p>
+</dd>
+<dt>fsa: float, np.array (M,)</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>ars: float, np.array (M,)</dt><dd><p>Fraction of population admissible for random and symptomatic tests</p>
+</dd>
+<dt>kapE: float, np.array (M,)</dt><dd><p>Fraction of positive tests for exposed individuals</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.deterministic.SEAIRQ_testing.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.SEAIRQ_testing.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.
+Internally calls the method ‘simulator’ of CommonMethods</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>A0</strong> (<em>np.array</em>) – Initial number of activateds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>Q0</strong> (<em>np.array</em>) – Initial number of quarantineds.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>testRate</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – Rate at which symptomatic and random individuals get tested</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>data</strong> – contains the following keys:</p>
+<ul class="simple">
+<li><p>X : output path from integrator</p></li>
+<li><p>t : time points evaluated at,</p></li>
+<li><p>’param’: input param to integrator.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="commonmethods">
+<h2>CommonMethods<a class="headerlink" href="#commonmethods" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.deterministic.CommonMethods">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.deterministic.</code><code class="sig-name descname">CommonMethods</code><a class="headerlink" href="#pyross.deterministic.CommonMethods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parent class used for all classes listed below.
+It includes:
+a) Integrators used by various deterministic models listed below.
+b) Method to get time series of S, etc by passing a dict of data.
+c) Method to set the contactMatrix array, CM</p>
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.A">
+<code class="sig-name descname">A</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.A" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>A</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Activated population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>E</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.I">
+<code class="sig-name descname">I</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.I" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ia</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ia</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Asymptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ic">
+<code class="sig-name descname">Ic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ic</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ICU hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Icp">
+<code class="sig-name descname">Icp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Icp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Icp</strong> – and recovered) population time series</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(intermediate stage between ICU</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ih">
+<code class="sig-name descname">Ih</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ih" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ic</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hospitalized population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Ihp">
+<code class="sig-name descname">Ihp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Ihp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ihp</strong> – and recovered) population time series</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(intermediate stage between symptomatics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Im">
+<code class="sig-name descname">Im</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Im" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ic</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>mortality time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Is</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Isp">
+<code class="sig-name descname">Isp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Isp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Isp</strong> – and recovered) population time series</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(intermediate stage between symptomatics</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>R</strong> (<em>Removed population time series</em>)</p></li>
+<li><p><strong>For SEAI8R</strong> (<em>R=N(t)-(S+E+Ia+Is+Is’+Ih+Ih’+Ic+Ic’)</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>S</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.Sx">
+<code class="sig-name descname">Sx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.Sx" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Data dict</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Generic compartment Sx</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.deterministic.CommonMethods.simulator">
+<code class="sig-name descname">simulator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.deterministic.CommonMethods.simulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulates a compartment model given initial conditions,
+choice of integrator and other parameters.
+Returns the time series data and parameters in a dict.</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state vector (number of compartment values).
+An array of size M*(model_dimension-1),
+where x0[i+j*M] should be the initial
+value of model class i of age group j.
+The removed R class must be left out.
+If Ni is dynamical, then the last M points store Ni.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>integrator</strong> (<em>TYPE</em><em>, </em><em>optional</em>) – Integrator to use either from scipy.integrate or odespy.
+The default is ‘odeint’.</p></li>
+<li><p><strong>maxNumSteps</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum number of steps the integrator can take.
+The default is 100000.</p></li>
+<li><p><strong>**kwargs</strong> (<em>kwargs for integrator</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong> –  X: output path from integrator,  t : time points evaluated at,
+‘param’: input param to integrator.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="stochastic.html" class="btn btn-neutral float-right" title="Stochastic simulations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="PyRoss API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

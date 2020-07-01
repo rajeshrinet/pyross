@@ -18,12 +18,14 @@ ctypedef np.float_t DTYPE_t
 cdef class ContactMatrixFunction:
     """Generates a time dependent contact matrix
 
-    For prefactors aW1, aW2, aS1, aS2, aO1, aO2 that multiply the contact matrices CW, CS, CO,
+    For prefactors :math:`a_{W1}, a_{W2}, a_{S1}, a_{S2}, a_{O1}, a_{O2}`
+    that multiply the contact matrices CW, CS, and CO.
     the final contact matrix is computed as
 
     .. math::
-        CM_{ij} = CH_{ij} + aW1_i CW_{ij} aW2_j + aS1_i CW_{ij} aS2_j \
-                  + aO1_i CO_{ij} aO2_j
+        CM_{ij} = CH_{ij} + (a_{W1})_i CW_{ij} (a_{W2})_j
+                    + (a_{S1})_i CW_{ij} (a_{S2})_j
+                    + (a_{O1})_i CO_{ij} (a_{O2})_j
 
     For all the intervention functions, if a prefactor is passed as scalar,
     it is set to be an M (=no. of metapopulation groups) dimensional vector
@@ -59,6 +61,9 @@ cdef class ContactMatrixFunction:
         return C
 
     cpdef get_individual_contactMatrices(self):
+        '''
+        Returns the internal CH, CW, CS and CO 
+        '''
         return self.CH, self.CW, self.CS, self.CO
 
     def constant_contactMatrix(self, aW=1, aS=1, aO=1,
@@ -143,7 +148,7 @@ cdef class ContactMatrixFunction:
             The calling signature is `intervention_func(t, **kwargs)`,
             where t is time and kwargs are other keyword arguments for the function.
             The function must return (aW, aS, aO),
-            where aW, aS and aO must be of shape (2,) or (2, M)
+            where aW, aS and aO must be of shape (2, M)
         kwargs: dict
             Keyword arguments for the function.
 
@@ -156,11 +161,12 @@ cdef class ContactMatrixFunction:
         --------
         An example for an custom temporal intervetion that
         allows for some anticipation and reaction time
-        
+
         >>> def fun(t, M, width=1, loc=0) # using keyword arguments for parameters of the intervention
-                a = (1-np.tanh((t-loc)/width))/2
-                a_full = np.full((2, M), a)
-                return a_full, a_full, a_full
+        >>>     a = (1-np.tanh((t-loc)/width))/2
+        >>>     a_full = np.full((2, M), a)
+        >>>     return a_full, a_full, a_full
+        >>>
         >>> contactMatrix = generator.intervention_custom_temporal(fun, width=5, loc=10)
         '''
 

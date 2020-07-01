@@ -1,0 +1,1446 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Bayesian inference &mdash; PyRoss 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Control with NPIs" href="control.html" />
+    <link rel="prev" title="Hybrid simulations" href="hybrid.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyRoss
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Bayesian inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sir-type">SIR_type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spp">Spp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sppq">SppQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRoss</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Bayesian inference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/inference.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bayesian-inference">
+<h1>Bayesian inference<a class="headerlink" href="#bayesian-inference" title="Permalink to this headline">¶</a></h1>
+<p>Inference for age structured compartment models using the diffusion approximation (via the van Kampen expansion).
+See our <a class="reference external" href="https://arxiv.org/abs/2005.09625">preprint</a> for more details on the method.</p>
+<p>There are two ways to do inference: manifold method (sec 3.3 in the report) and tangent space method (sec 3.4 in the report).
+In various degrees of <cite>less robust but fast</cite> to <cite>more robust but slow</cite>:</p>
+<ul class="simple">
+<li><p>tangent space method.</p></li>
+<li><p>manifold method with few internal steps and fast integration method (<cite>det_method</cite> = <cite>RK2</cite>, <cite>lyapunov_method</cite> = <cite>euler</cite>).</p></li>
+<li><p>manifold method with large number of internel steps and robust integration method (<cite>solve_ivp</cite> from scipy library).</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Methods for full data</p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>infer_parameters</p></td>
+<td><p>Infers epidemiological parameters given all information.</p></td>
+</tr>
+<tr class="row-odd"><td><p>infer_control</p></td>
+<td><p>Infers control parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p>obtain_minus_log_p</p></td>
+<td><p>Computes -log(p) of a fully observed trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p>compute_hessian</p></td>
+<td><p>Computes the Hessian of -log(p).</p></td>
+</tr>
+<tr class="row-even"><td><p>nested_sampling_inference</p></td>
+<td><p>Compute the log-evidence and weighted samples.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Methods for partial data</p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>latent_infer_parameters</p></td>
+<td><p>Infers parameters and initial conditions.</p></td>
+</tr>
+<tr class="row-odd"><td><p>latent_infer_control</p></td>
+<td><p>Infers control parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p>minus_logp_red</p></td>
+<td><p>Computes -log(p) of a partially observed trajectory.</p></td>
+</tr>
+<tr class="row-odd"><td><p>compute_hessian_latent</p></td>
+<td><p>Computes the Hessian of -log(p).</p></td>
+</tr>
+<tr class="row-even"><td><p>nested_sampling_latent_inference</p></td>
+<td><p>Compute the log-evidence and weighted samples.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 74%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Sensitivity analysis</p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FIM</p></td>
+<td><p>Computes the Fisher Information Matrix of the stochastic model.</p></td>
+</tr>
+<tr class="row-odd"><td><p>FIM_det</p></td>
+<td><p>Computes the Fisher Information Matrix of the deterministic model.</p></td>
+</tr>
+<tr class="row-even"><td><p>sensitivity</p></td>
+<td><p>Computes the normalized sensitivity measure</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Helper function</p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>integrate</p></td>
+<td><p>A wrapper around ‘simulate’ in pyross.deterministic.</p></td>
+</tr>
+<tr class="row-odd"><td><p>set_params</p></td>
+<td><p>Sets parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p>set_det_method</p></td>
+<td><p>Sets the integration method of the deterministic equation</p></td>
+</tr>
+<tr class="row-odd"><td><p>set_lyapunov_method</p></td>
+<td><p>Sets the integration method of the Lyapunov equation</p></td>
+</tr>
+<tr class="row-even"><td><p>set_det_model</p></td>
+<td><p>Sets the internal deterministic model</p></td>
+</tr>
+<tr class="row-odd"><td><p>set_contact_matrix</p></td>
+<td><p>Sets the contact matrix</p></td>
+</tr>
+<tr class="row-even"><td><p>fill_params_dict</p></td>
+<td><p>Fills and returns a parameter dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p>get_mean_inits</p></td>
+<td><p>Constructs full initial conditions from the prior dict</p></td>
+</tr>
+</tbody>
+</table>
+<p>The functions are documented under the parent class <cite>SIR_type</cite>.</p>
+<div class="section" id="sir-type">
+<h2>SIR_type<a class="headerlink" href="#sir-type" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.inference.SIR_type">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR_type</code><a class="headerlink" href="#pyross.inference.SIR_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parent class for inference for all SIR-type classes listed below</p>
+<p>All subclasses use the same functions to perform inference, which are documented below.</p>
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.FIM">
+<code class="sig-name descname">FIM</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.FIM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Fisher Information Matrix (FIM) of the stochastic model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>2d numpy.array</em>) – The observed trajectories with reduced number of variables
+(number of data points, (age groups * observed model classes))</p></li>
+<li><p><strong>fltr</strong> (<em>2d numpy.array</em>) – A matrix of shape (no. observed variables, no. total variables),
+such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – Dictionary returned by infer_parameters</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is False.</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – Step size for numerical differentiation of the process mean and its
+full covariance matrix with respect to the parameters.
+If not specified, the array of square roots of the machine epsilon of the MAP estimates is used.
+Decreasing the step size too small can result in round-off error.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>FIM</strong> – The Fisher Information Matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.FIM_det">
+<code class="sig-name descname">FIM_det</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.FIM_det" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Fisher Information Matrix (FIM) of the deterministic model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>2d numpy.array</em>) – The observed trajectories with reduced number of variables
+(number of data points, (age groups * observed model classes))</p></li>
+<li><p><strong>fltr</strong> (<em>2d numpy.array</em>) – A matrix of shape (no. observed variables, no. total variables),
+such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – Dictionary returned by infer_parameters</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>Step size for numerical differentiation of the process mean and its full covariance matrix with respect</dt><dd><p>to the parameters. If not specified, the array of square roots of the machine epsilon of the MAP estimates is used. Decreasing the step size too small can result in round-off error.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>measurement_error</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>FIM_det</strong> – The Fisher Information Matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.compute_hessian">
+<code class="sig-name descname">compute_hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Hessian of the MAP estimate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes))</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – Dictionary returned by infer_parameters.</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3</p></li>
+<li><p><strong>fd_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of finite-difference scheme used to compute the hessian, supports “forward” and “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>hess</strong> – The Hessian</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>2d numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.compute_hessian_latent">
+<code class="sig-name descname">compute_hessian_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.compute_hessian_latent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Hessian over the parameters and initial conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes)).</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix.</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – Dictionary returned by <cite>latent_infer_parameters</cite>.</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3.</p></li>
+<li><p><strong>fd_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of finite-difference scheme used to compute the hessian, supports “forward” and “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>hess</strong> – The Hessian over (flat) parameters and initial conditions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.fill_params_dict">
+<code class="sig-name descname">fill_params_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.fill_params_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a full dictionary for epidemiological parameters with some changed values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> (<em>list of String</em>) – A list of names of parameters to be changed.</p></li>
+<li><p><strong>params</strong> (<em>numpy.array of list</em>) – An array of the same size as keys for the updated value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>full_parameters</strong> – A dictionary of epidemiological parameters.
+For parameter names specified in <cite>keys</cite>, set the values to be the ones in <cite>params</cite>;
+for the others, use the values stored in the class.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.get_mean_inits">
+<code class="sig-name descname">get_mean_inits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.get_mean_inits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct full initial conditions from the prior dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_priors</strong> (<em>dict</em>) – A dictionary for priors for initial conditions.
+Same as the <cite>init_priors</cite> passed to <cite>latent_infer_parameters</cite>.
+In this function, only takes the mean.</p></li>
+<li><p><strong>obs0</strong> (<em>numpy.array</em>) – Observed initial conditions.</p></li>
+<li><p><strong>fltr0</strong> (<em>numpy.array</em>) – Filter for the observed initial conditons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>x0</strong> – Full initial conditions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.infer_control">
+<code class="sig-name descname">infer_control</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.infer_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
+lockdown. The lockdown is modelled by scaling the contact matrices for contact at work, school, and other
+(but not home). This function infers the scaling parameters (can be age dependent) assuming that full data
+on all classes is available (with latent variables, use <cite>latent_infer_control</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes))</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>generator</strong> (<em>pyross.contactMatrix</em>) – A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+parameters.</p></li>
+<li><p><strong>prior_dict</strong> (<em>dict</em>) – Priors for intervention parameters.
+Same format as the prior_dict for epidemiological parameters in
+<cite>infer_parameters</cite> function.</p></li>
+<li><p><strong>intervention_fun</strong> (<em>callable</em><em>, </em><em>optional</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>,
+where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+The contact matrices are then rescaled as <span class="math notranslate nohighlight">\(aW[0]_i CW_{ij} aW[1]_j\)</span> etc.
+If not set, assume intervention that’s constant in time.
+See <cite>contactMatrix.constant_contactMatrix</cite> for details on the keyword parameters.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
+<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>eps</strong> (<em>double</em>) – Disallow paramters closer than <cite>eps</cite> to the boundary (to avoid numerical instabilities).</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em>) – The absolute tolerance for global optimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>output_dict</strong> – Dictionary of MAP estimates, containing the following keys for users:</p>
+<dl class="simple">
+<dt>map_dict: dict</dt><dd><p>Dictionary for MAP estimates of the control parameters.</p>
+</dd>
+<dt>-logp: float</dt><dd><p>Value of -logp at MAP.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.infer_parameters">
+<code class="sig-name descname">infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.infer_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Infers the MAP estimates for epidemiological parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.array</em>) – The full trajectory.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – The total time of the trajectory.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>prior_dict</strong> (<em>dict</em>) – A dictionary containing priors. See examples.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is False.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimization algorithm.
+Default is False.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to perform global optimization. Default is True.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to perform local optimization. Default is True.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of iterations for the global algorithm.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em><em>, </em><em>optional</em>) – Absolute tolerance of global optimization. Default is 1.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used in the CMA algorithm.
+Default is to use all cores on the computer.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – he number of samples used in each step of the CMA algorithm.
+Should ideally be factor of <cite>cma_processes</cite>.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of iterations for the local algorithm.</p></li>
+<li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – The relative tolerance in -logp value for the local optimization.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>output</strong> – Contains the following keys for users:</p>
+<dl class="simple">
+<dt>map_dict: dict</dt><dd><p>A dictionary for MAPs. Keys are the names of the parameters and
+the corresponding values are its MAP estimates.</p>
+</dd>
+<dt>-logp: float</dt><dd><p>The value of -logp at MAP.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>An example of prior_dict to set priors for alpha and beta, where alpha
+is age dependent and we want to infer its scale parameters rather than
+each component individually. The prior distribution is assumed to be
+log-normal with the specified mean and standard deviation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">prior_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;alpha&#39;:{</span>
+<span class="go">            &#39;mean&#39;: [0.5, 0.2],</span>
+<span class="go">            &#39;infer_scale&#39;: True,</span>
+<span class="go">            &#39;scale_factor_std&#39;: 1,</span>
+<span class="go">            &#39;scale_factor_bounds&#39;: [0.1, 10]</span>
+<span class="go">        },</span>
+<span class="go">        &#39;beta&#39;:{</span>
+<span class="go">            &#39;mean&#39;: 0.02,</span>
+<span class="go">            &#39;std&#39;: 0.1,</span>
+<span class="go">            &#39;bounds&#39;: [1e-4, 1]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.integrate">
+<code class="sig-name descname">integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>An light weight integrate method similar to <cite>simulate</cite> in pyross.deterministic</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em>) – Initial state of the given model</p></li>
+<li><p><strong>t1</strong> (<em>float</em>) – Initial time of integrator</p></li>
+<li><p><strong>t2</strong> (<em>float</em>) – Final time of integrator</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – Number of time steps for numerical integrator evaluation.</p></li>
+<li><p><strong>maxNumSteps</strong> – The maximum number of steps taken by the integrator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>sol</strong> – The state of the system evaulated at the time point specified. Only used if det_method is set to ‘solve_ivp’.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.latent_infer_control">
+<code class="sig-name descname">latent_infer_control</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_infer_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
+lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown
+is modelled by scaling the contact matrices for contact at work, school, and other (but not home) uniformly in
+all age groups. This function infers the scaling parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> – Observed trajectory (number of data points x (age groups * observed model classes)).</p></li>
+<li><p><strong>fltr</strong> (<em>boolean sequence</em><em> or </em><em>array</em>) – True for observed and False for unobserved classes.
+e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>generator</strong> (<em>pyross.contactMatrix</em>) – A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+parameters.</p></li>
+<li><p><strong>param_priors</strong> (<em>dict</em>) – A dictionary for param priors. See <cite>infer_parameters</cite> for further explanations.</p></li>
+<li><p><strong>init_priors</strong> (<em>dict</em>) – A dictionary for priors for initial conditions. See <cite>latent_infer_parameters</cite> for further explanations.</p></li>
+<li><p><strong>intervention_fun</strong> (<em>callable</em><em>, </em><em>optional</em>) – The calling signature is <cite>intervention_func(t, **kwargs)</cite>,
+where t is time and kwargs are other keyword arguments for the function.
+The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+The contact matrices are then rescaled as <span class="math notranslate nohighlight">\(aW[0]_i CW_{ij} aW[1]_j\)</span> etc.
+If not set, assume intervention that’s constant in time.
+See <cite>contactMatrix.constant_contactMatrix</cite> for details on the keyword parameters.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is false.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimizer.</p></li>
+<li><p><strong>ftol</strong> (<em>double</em>) – Relative tolerance of logp</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of global optimisations performed.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of local optimisation performed.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em>) – The absolute tolerance for global minimisation.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable global optimisation.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to enable local optimisation.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used for global optimisation.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of samples used in each step of the CMA algorithm.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>output_dict</strong> – A dictionary containing the following keys for users:</p>
+<dl class="simple">
+<dt>map_params_dict: dict</dt><dd><p>dictionary for MAP estimates for control parameters</p>
+</dd>
+<dt>map_x0: np.array</dt><dd><p>MAP estimates for the initial conditions</p>
+</dd>
+<dt>-logp: float</dt><dd><p>Value of -logp at MAP.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.latent_infer_parameters">
+<code class="sig-name descname">latent_infer_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.latent_infer_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
+when the classes are only partially observed. Unobserved classes are treated as latent variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>np.array</em>) – The partially observed trajectory.</p></li>
+<li><p><strong>fltr</strong> (<em>2d np.array</em>) – The filter for the observation such that
+<span class="math notranslate nohighlight">\(F_{ij} x_j (t) = obs_i(t)\)</span></p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – The total time of the trajectory.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>param_priors</strong> (<em>dict</em>) – A dictionary that specifies priors for parameters.
+See <cite>infer_parameters</cite> for examples.</p></li>
+<li><p><strong>init_priors</strong> (<em>dict</em>) – A dictionary that specifies priors for initial conditions.
+See below for examples.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to use tangent space inference. Default is False.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the optimization algorithm.
+Default is False.</p></li>
+<li><p><strong>enable_global</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to perform global optimization. Default is True.</p></li>
+<li><p><strong>enable_local</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to perform local optimization. Default is True.</p></li>
+<li><p><strong>global_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of iterations for the global algorithm.</p></li>
+<li><p><strong>global_atol</strong> (<em>float</em><em>, </em><em>optional</em>) – Absolute tolerance of global optimization. Default is 1.</p></li>
+<li><p><strong>cma_processes</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of parallel processes used in the CMA algorithm.
+Default is to use all cores on the computer.</p></li>
+<li><p><strong>cma_population</strong> (<em>int</em><em>, </em><em>optional</em>) – he number of samples used in each step of the CMA algorithm.
+Should ideally be factor of <cite>cma_processes</cite>.</p></li>
+<li><p><strong>local_max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of iterations for the local algorithm.</p></li>
+<li><p><strong>ftol</strong> (<em>float</em><em>, </em><em>optional</em>) – The relative tolerance in -logp value for the local optimization.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>output</strong> – Contains the following keys for users:</p>
+<dl class="simple">
+<dt>map_params_dict: dict</dt><dd><p>A dictionary for the MAP estimates for parameter values.
+The keys are the names of the parameters.</p>
+</dd>
+<dt>map_x0: np.array</dt><dd><p>The MAP estimate for the initial conditions.</p>
+</dd>
+<dt>-logp: float</dt><dd><p>The value of -logp at MAP.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Here we list three examples, one for inferring all initial conditions
+along the fastest growing linear mode, one for inferring the initial
+conditions individually and a mixed one.</p>
+<p>First, suppose we only observe Is out of (S, Ia, Is) and we wish to
+infer all compartmental values of S and Ia independently. For two age
+groups with population [2500, 7500],</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">init_priors</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;independent&#39;:{</span>
+<span class="go">            &#39;fltr&#39;: [True, True, True, True, False, False],</span>
+<span class="go">            &#39;mean&#39;: [2400, 7400, 50, 50],</span>
+<span class="go">            &#39;std&#39;: [200, 200, 200, 200],</span>
+<span class="go">            &#39;bounds&#39;: [[2000, 2500], [7000, 7500], [0, 400], [0, 400]]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<p>In the ‘fltr’ entry, we need a boolean array indicating which components
+of the full x0 = [S0[0], S0[1], Ia0[0], Ia0[1], Is0[0], Ia0[1]] array we are inferring.
+By setting fltr = [True, True, True, True, False, False], the inference algorithm
+will know that we are inferring all components of S0 and Ia0 but not Is0.
+Similar to inference for parameter values, we also assume a log-normal
+distribution for the priors for the initial conditions.</p>
+<p>Next, if we are happy to assume that all our initial conditions lie
+along the fastest growing linear mode and we will only infer the
+coefficient of the mode, the init_priors dict would be,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">init_priors</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;lin_mode_coeff&#39;:{</span>
+<span class="go">            &#39;fltr&#39;: [True, True, True, True, False, False],</span>
+<span class="go">            &#39;mean&#39;: 100,</span>
+<span class="go">            &#39;std&#39;: 100,</span>
+<span class="go">            &#39;bounds&#39;: [1, 1000]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<p>Note that the ‘fltr’ entry is still the same as before because we still
+only want to infer S and Ia, and the initial conditions for Is is fixed
+by the observation.</p>
+<p>Finally, if we want to do a mixture of both (useful when some compartments
+have aligned with the fastest growing mode but others haven’t), we need
+to set the init_priors to be,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">init_priors</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;lin_mode_coeff&#39;: {</span>
+<span class="go">            &#39;fltr&#39;: [True, True, False, False, False, False],</span>
+<span class="go">            &#39;mean&#39;: 100,</span>
+<span class="go">            &#39;std&#39;: 100,</span>
+<span class="go">            &#39;bounds&#39;: [1, 1000]</span>
+<span class="go">        },</span>
+<span class="go">        &#39;independent&#39;:{</span>
+<span class="go">            &#39;fltr&#39;: [False, False, True, True, False, False],</span>
+<span class="go">            &#39;mean&#39;: [50, 50],</span>
+<span class="go">            &#39;std&#39;: [200, 200],</span>
+<span class="go">            &#39;bounds&#39;: [0, 400], [0, 400]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.log_G_evidence">
+<code class="sig-name descname">log_G_evidence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.log_G_evidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the evidence using a Laplace approximation at the MAP estimate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes))</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – MAP estimate returned by infer_parameters</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3</p></li>
+<li><p><strong>fd_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of finite-difference scheme used to compute the hessian, supports “forward” and “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>log_evidence</strong> – The log-evidence computed via Laplace approximation at the MAP estimate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.log_G_evidence_latent">
+<code class="sig-name descname">log_G_evidence_latent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.log_G_evidence_latent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the evidence using a Laplace approximation at the MAP estimate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes))</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that takes time (t) as an argument and returns the contactMatrix</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – MAP estimate returned by infer_parameters</p></li>
+<li><p><strong>eps</strong> (<em>float</em><em> or </em><em>numpy.array</em><em>, </em><em>optional</em>) – The step size of the Hessian calculation, default=1e-3</p></li>
+<li><p><strong>fd_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of finite-difference scheme used to compute the hessian, supports “forward” and “central”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>log_evidence</strong> – The log-evidence computed via Laplace approximation at the MAP estimate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.minus_logp_red">
+<code class="sig-name descname">minus_logp_red</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.minus_logp_red" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes -logp for a latent trajectory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – A dictionary of parameter values, same as the ones required for initialisation.</p></li>
+<li><p><strong>x0</strong> (<em>numpy.array</em>) – Initial conditions</p></li>
+<li><p><strong>obs</strong> (<em>numpy.array</em>) – The observed trajectory without the initial datapoint</p></li>
+<li><p><strong>fltr</strong> (<em>boolean sequence</em><em> or </em><em>array</em>) – True for observed and False for unobserved.
+e.g. if only Is is known for SIR with one age group, fltr = [False, False, True]</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – The total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>minus_logp</strong> – -log(p) for the observed trajectory with the given parameters and initial conditions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.nested_sampling_inference">
+<code class="sig-name descname">nested_sampling_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.nested_sampling_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+using nested sampling as implemented in the <cite>nestle</cite> Python package. This function assumes that full data on
+all classes is available.</p>
+<p>This function provides a computational alterantive to <cite>log_G_evidence</cite> and <cite>infer_parameters</cite>. It does not use
+the Laplace approximation to compute the evidence and, in addition,  returns a set of representative samples that can
+be used to compute a posterior mean estimate (insted of the MAP estimate). This approach approach is much more resource
+intensive and typically only viable for small models or tangent space inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2d numpy.array</em>) – Observed trajectory (number of data points x (age groups * model classes))</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>prior_dict</strong> (<em>dict</em>) – A dictionary for the priors for the parameters.
+See <cite>infer_parameters</cite> for examples.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the nested sampling procedure.</p></li>
+<li><p><strong>queue_size</strong> (<em>int</em>) – Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+is computed in parallel (if queue_size &gt; 1).</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – The maximal number of processes used to compute samples.</p></li>
+<li><p><strong>npoints</strong> (<em>int</em>) – Argument of <cite>nestle.sample</cite>. The number of active points used in the nested sampling algorithm. The higher the
+number the more accurate and expensive is the evidence computation.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Nested sampling method used int <cite>nestle.sample</cite>, see their documentation. Default is <cite>single</cite>, for multimodel posteriors,
+use <cite>multi</cite>.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Maximum number of iterations of the nested sampling algorithm.</p></li>
+<li><p><strong>dlogz</strong> (<em>float</em><em>, </em><em>optional</em>) – Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with <cite>decline_factor</cite>.</p></li>
+<li><p><strong>decline_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
+<cite>decline_factor * nsamples</cite> consecutive samples. This option is mutually exclusive with <cite>dlogz</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>log_evidence</em> – The nested sampling estimate of the log-evidence.</p></li>
+<li><p><em>(samples, weights)</em> – A set of weighted samples approximating the posterios distribution.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.nested_sampling_latent_inference">
+<code class="sig-name descname">nested_sampling_latent_inference</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.nested_sampling_latent_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+with latent variables using nested sampling as implemented in the <cite>nestle</cite> Python package.</p>
+<p>This function provides a computational alterantive to <cite>latent_infer_parameters</cite>. It computes an estimate of the evidence and,
+in addition, returns a set of representative samples that can be used to compute a posterior mean estimate (insted of the MAP
+estimate). This approach approach is much more resource intensive and typically only viable for small models or tangent space inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> (<em>2d numpy.array</em>) – The observed trajectories with reduced number of variables
+(number of data points, (age groups * observed model classes))</p></li>
+<li><p><strong>fltr</strong> (<em>2d numpy.array</em>) – A matrix of shape (no. observed variables, no. total variables),
+such that obs_{ti} = fltr_{ij} * X_{tj}</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Total time of the trajectory</p></li>
+<li><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix at time t (input).</p></li>
+<li><p><strong>param_priors</strong> (<em>dict</em>) – A dictionary for priors for the model parameters.
+See <cite>infer_parameters</cite> for further explanations.</p></li>
+<li><p><strong>init_priors</strong> (<em>dict</em>) – A dictionary for priors for the initial conditions.
+See <cite>latent_infer_parameters</cite> for further explanations.</p></li>
+<li><p><strong>tangent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Set to True to see intermediate outputs from the nested sampling procedure.</p></li>
+<li><p><strong>queue_size</strong> (<em>int</em>) – Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
+is computed in parallel (if queue_size &gt; 1).</p></li>
+<li><p><strong>max_workers</strong> (<em>int</em>) – The maximal number of processes used to compute samples.</p></li>
+<li><p><strong>npoints</strong> (<em>int</em>) – Argument of <cite>nestle.sample</cite>. The number of active points used in the nested sampling algorithm. The higher the
+number the more accurate and expensive is the evidence computation.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Nested sampling method used int <cite>nestle.sample</cite>, see their documentation. Default is <cite>single</cite>, for multimodel posteriors,
+use <cite>multi</cite>.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em>) – Maximum number of iterations of the nested sampling algorithm.</p></li>
+<li><p><strong>dlogz</strong> (<em>float</em><em>, </em><em>optional</em>) – Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with <cite>decline_factor</cite>.</p></li>
+<li><p><strong>decline_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
+<cite>decline_factor * nsamples</cite> consecutive samples. This option is mutually exclusive with <cite>dlogz</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>log_evidence</em> – The nested sampling estimate of the log-evidence.</p></li>
+<li><p><em>(samples, weights)</em> – A set of weighted samples approximating the posterios distribution.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.obtain_minus_log_p">
+<code class="sig-name descname">obtain_minus_log_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.obtain_minus_log_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes -logp of a full trajectory
+:param parameters: A dictionary for the model parameters.
+:type parameters: dict
+:param x: The full trajectory.
+:type x: np.array
+:param Tf: The time duration of the trajectory.
+:type Tf: float
+:param contactMatrix: A function that takes time (t) as an argument and returns the contactMatrix
+:type contactMatrix: callable
+:param tangent: Set to True to use tangent space inference.
+:type tangent: bool, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>minus_logp</strong> – Value of -logp</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.robustness">
+<code class="sig-name descname">robustness</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.robustness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Robustness analysis in a two-dimensional slice of the parameter space, revealing neutral spaces as in <a class="reference external" href="https://doi.org/10.1073/pnas.1015814108">https://doi.org/10.1073/pnas.1015814108</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FIM</strong> (<em>2d numpy.array</em>) – Fisher Information matrix of a stochastic model</p></li>
+<li><p><strong>FIM_det</strong> (<em>2d numpy.array</em>) – Fisher information matrix of the corresponding deterministic model</p></li>
+<li><p><strong>map_dict</strong> (<em>dict</em>) – Dictionary returned by infer_parameters</p></li>
+<li><p><strong>param_pos_1</strong> (<em>int</em>) – Position of ‘parameter 1’ in map_dict[‘flat_map’] for x-axis</p></li>
+<li><p><strong>param_pos_2</strong> (<em>int</em>) – Position of ‘parameter 2’ in map_dict[‘flat_map’] for y-axis</p></li>
+<li><p><strong>range_1</strong> (<em>float</em>) – Symmetric interval around parameter 1 for which robustness will be analysed. Absolute interval: ‘parameter 1’ +/- range_1</p></li>
+<li><p><strong>range_2</strong> (<em>float</em>) – Symmetric interval around parameter 2 for which robustness will be analysed. Absolute interval: ‘parameter 2’ +/- range_2</p></li>
+<li><p><strong>resolution_1</strong> (<em>int</em>) – Resolution of the meshgrid in x direction.</p></li>
+<li><p><strong>resolution_2</strong> (<em>int</em>) – Resolution of the meshgrid in y direction. Default is resolution_2=resolution_1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>ff</strong> (<em>2d numpy.array</em>) – shape=resolution_1 x resolution_2, meshgrid for x-axis</p></li>
+<li><p><strong>ss</strong> (<em>2d numpy.array</em>) – shape=resolution_1 x resolution_2, meshgrid for y-axis</p></li>
+<li><p><strong>Z_sto</strong> (<em>2d numpy.array</em>) – shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the stochastic model</p></li>
+<li><p><strong>Z_det</strong> (<em>2d numpy.array</em>) – shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the deterministic model</p></li>
+<li><p><em>——-</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>from matplotlib import pyplot as plt
+from matplotlib import cm</p>
+<p># positions 0 and 1 of map_dict[‘flat_map’] correspond to a scale parameter for alpha, and beta, respectively.
+ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
+cmap = plt.cm.PuBu_r
+levels=11
+colors=’black’</p>
+<p>c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
+plt.contour(ff, ss, Z_sto, colors=’black’, levels=levels, linewidths=0.25)
+plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
+plt.plot(map_dict[‘flat_map’][0], map_dict[‘flat_map’][1], ‘o’,</p>
+<blockquote>
+<div><p>color=”#A60628”, markersize=6) # the MAP estimate</p>
+</div></blockquote>
+<p>plt.colorbar(c)
+plt.xlabel(r’$lpha$ scale’, fontsize=20, labelpad=10)
+plt.ylabel(r’$eta$’, fontsize=20, labelpad=10)
+plt.show()
+——-</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.sensitivity">
+<code class="sig-name descname">sensitivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.sensitivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the normalized sensitivity measure as defined in <a class="reference external" href="https://doi.org/10.1073/pnas.1015814108">https://doi.org/10.1073/pnas.1015814108</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>FIM</strong> (<em>2d numpy.array</em>) – The Fisher Information Matrix</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>T_j</strong> – Normalized sensitivity measure for parameters to be estimated. A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.set_contact_matrix">
+<code class="sig-name descname">set_contact_matrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_contact_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the internal contact matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contactMatrix</strong> (<em>callable</em>) – A function that returns the contact matrix given time, with call
+signature contactMatrix(t).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.set_det_method">
+<code class="sig-name descname">set_det_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_det_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.set_det_model">
+<code class="sig-name descname">set_det_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_det_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the internal deterministic model with given epidemiological parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> (<em>dict</em>) – A dictionary of parameter values, same as the ones required for initialisation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.set_lyapunov_method">
+<code class="sig-name descname">set_lyapunov_method</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_lyapunov_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the method used for deterministic integration for the SIR_type model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>det_method</strong> (<em>str</em>) – The name of the integration method. Choose between ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.SIR_type.set_params">
+<code class="sig-name descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.SIR_type.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets epidemiological parameters used for evaluating -log(p)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> (<em>dict</em>) – A dictionary containing all epidemiological parameters.
+Same keys as the one used to initialise the class.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Can use <cite>fill_params_dict</cite> to generate the full dictionary if only a few parameters are changed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="spp">
+<h2>Spp<a class="headerlink" href="#spp" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.inference.Spp">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">Spp</code><a class="headerlink" href="#pyross.inference.Spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>User-defined epidemic model.</p>
+<p>To initialise the Spp model,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – A dictionary containing the model parameters.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups.</p></li>
+<li><p><strong>fi</strong> (<em>np.array</em><em>(</em><em>M</em><em>) or </em><em>list</em>) – Fraction of each age group.</p></li>
+<li><p><strong>Omega</strong> (<em>int</em>) – Total population.</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+</ul>
+</dd>
+</dl>
+<p>See <cite>SIR_type</cite> for a table of all the methods</p>
+<p class="rubric">Examples</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
+<span class="go">        &quot;S&quot; : {</span>
+<span class="go">            &quot;constant&quot;  : [ [&quot;k&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;I&quot; : {</span>
+<span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;beta&#39;: 0.1,</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;k&#39;: 1,</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="pyross.inference.Spp.FIM_sym">
+<code class="sig-name descname">FIM_sym</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.FIM_sym" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the FIM based off symbolic expressions. In development,</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.adj_RHS_mean">
+<code class="sig-name descname">adj_RHS_mean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.adj_RHS_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>RHS function for the adjoint gradient calculation of the time evolution operator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_A_spp">
+<code class="sig-name descname">construct_A_spp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_A_spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>construct Spp A. x is a sympy matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_B_spp">
+<code class="sig-name descname">construct_B_spp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_B_spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp B. x is a sympy array</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_J_spp">
+<code class="sig-name descname">construct_J_spp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_J_spp" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp J. x is a sympy matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.construct_l">
+<code class="sig-name descname">construct_l</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.construct_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs sympy l. x is a sympy matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.dAd">
+<code class="sig-name descname">dAd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.dAd" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp B. param is a string or sympy symbol. Most likely you’ll wish to use ‘all’ string
+keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+p is a sympy array which contains epi parameters. nParams*M due to age dependence
+[dAdp]_ij = dA_j/dp_i</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.dBd">
+<code class="sig-name descname">dBd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.dBd" title="Permalink to this definition">¶</a></dt>
+<dd><p>constructs Spp B. param is a string or sympy symbol. Most likely you’ll wish to use ‘all’ string
+keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+p is a sympy array which contains epi parameters. nParams*M due to age dependence
+[dBdp]_ijk = dB_jk/dp_i</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.inference.Spp.lambdify_derivative_functions">
+<code class="sig-name descname">lambdify_derivative_functions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.inference.Spp.lambdify_derivative_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create python functions from sympy expressions</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sppq">
+<h2>SppQ<a class="headerlink" href="#sppq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.inference.SppQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SppQ</code><a class="headerlink" href="#pyross.inference.SppQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>User-defined epidemic model with quarantine stage.</p>
+<p>To initialise the SppQ model,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>dict</em>) – A dictionary specifying the model. See <cite>Examples</cite>.</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – A dictionary containing the model parameters.
+All parameters can be float if not age-dependent, and np.array(M,) if age-dependent</p></li>
+<li><p><strong>testRate</strong> (<em>python function</em>) – number of tests per day and age group</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups.</p></li>
+<li><p><strong>fi</strong> (<em>np.array</em><em>(</em><em>M</em><em>) or </em><em>list</em>) – Fraction of each age group.</p></li>
+<li><p><strong>Omega</strong> (<em>int</em>) – Total population.</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+</ul>
+</dd>
+</dl>
+<p>See <cite>SIR_type</cite> for a table of all the methods</p>
+<p class="rubric">Examples</p>
+<p>An example of model_spec and parameters for SIR class with a constant influx,
+random testing (without false positives/negatives), and quarantine</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model_spec</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &quot;classes&quot; : [&quot;S&quot;, &quot;I&quot;],</span>
+<span class="go">        &quot;S&quot; : {</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;-beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;I&quot; : {</span>
+<span class="go">            &quot;linear&quot;    : [ [&quot;I&quot;, &quot;-gamma&quot;] ],</span>
+<span class="go">            &quot;infection&quot; : [ [&quot;I&quot;, &quot;beta&quot;] ]</span>
+<span class="go">        },</span>
+<span class="go">        &quot;test_pos&quot;  : [ &quot;p_falsepos&quot;, &quot;p_truepos&quot;, &quot;p_falsepos&quot;] ,</span>
+<span class="go">        &quot;test_freq&quot; : [ &quot;tf&quot;, &quot;tf&quot;, &quot;tf&quot;]</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;beta&#39;: 0.1,</span>
+<span class="go">        &#39;gamma&#39;: 0.1,</span>
+<span class="go">        &#39;p_falsepos&#39;: 0</span>
+<span class="go">        &#39;p_truepos&#39;: 1</span>
+<span class="go">        &#39;tf&#39;: 1</span>
+<span class="go">    }</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.inference.SIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.inference.SIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<p>To initialise the SIR class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float</dt><dd><p>Ratio of asymptomatic carriers</p>
+</dd>
+<dt>beta: float</dt><dd><p>Infection rate upon contact</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Recovery rate for asymptomatic</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Recovery rate for symptomatic</p>
+</dd>
+<dt>fsa: float</dt><dd><p>The fraction of symptomatic people who are self-isolating</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Number of people in each age group divided by Omega.</p></li>
+<li><p><strong>Omega</strong> (<em>float</em><em>, </em><em>optional</em>) – System size parameter, e.g. total population. Default to 1.</p></li>
+<li><p><strong>steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal and the default value is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.inference.SEIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.inference.SEIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+</ul>
+<p>To initialise the SEIR class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float or np.array(M)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>Fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of age groups</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Number of people in each compartment divided by Omega</p></li>
+<li><p><strong>Omega</strong> (<em>float</em><em>, </em><em>optional</em>) – System size, e.g. total population. Default is 1.</p></li>
+<li><p><strong>steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal and default is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.inference.SEAIRQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.inference.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.inference.SEAIRQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)</p>
+<ul class="simple">
+<li><p>Ia: asymptomatic</p></li>
+<li><p>Is: symptomatic</p></li>
+<li><p>E: exposed</p></li>
+<li><p>A: asymptomatic and infectious</p></li>
+<li><p>Q: quarantined</p></li>
+</ul>
+<p>To initialise the SEAIRQ class,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains the following keys:</p>
+<dl class="simple">
+<dt>alpha: float or np.array(M)</dt><dd><p>Fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>tE: float</dt><dd><p>testing rate and contact tracing of exposeds</p>
+</dd>
+<dt>tA: float</dt><dd><p>testing rate and contact tracing of activateds</p>
+</dd>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+</dd>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments</p></li>
+<li><p><strong>fi</strong> (<em>float numpy.array</em>) – Number of people in each compartment divided by Omega.</p></li>
+<li><p><strong>Omega</strong> (<em>float</em><em>, </em><em>optional</em>) – System size, e.g. total population. Default is 1.</p></li>
+<li><p><strong>steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of internal integration steps performed between the observed points (not used in tangent space inference).
+The minimal and default is 4, as required by the cubic spline fit used for interpolation.
+For robustness, set steps to be large, det_method=’LSODA’, lyapunov_method=’LSODA’.
+For speed, set steps to be 4, det_method=’RK2’, lyapunov_method=’euler’.
+For a combination of the two, choose something in between.</p></li>
+<li><p><strong>det_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for deterministic integration.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+<li><p><strong>lyapunov_method</strong> (<em>str</em><em>, </em><em>optional</em>) – The integration method used for the integration of the Lyapunov equation for the covariance.
+Choose one of ‘LSODA’, ‘RK45’, ‘RK2’ and ‘euler’. Default is ‘LSODA’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="control.html" class="btn btn-neutral float-right" title="Control with NPIs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="hybrid.html" class="btn btn-neutral float-left" title="Hybrid simulations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

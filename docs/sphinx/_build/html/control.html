@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Control with NPIs &mdash; PyRoss 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contact matrix" href="contactMatrix.html" />
+    <link rel="prev" title="Bayesian inference" href="inference.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyRoss
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Control with NPIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#control-integration">control_integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikikr">SEkIkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sirs">SIRS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sikr">SIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sekikr">SEkIkR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seair">SEAIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forecast.html">Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRoss</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Control with NPIs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/control.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="control-with-npis">
+<h1>Control with NPIs<a class="headerlink" href="#control-with-npis" title="Permalink to this headline">¶</a></h1>
+<p>Non-pharmaceutical interventions (NPIs) are strategies that mitigate the spread of a disease by suppressing its normal pathways for transmission. These include social distancing, wearing masks, working from home, and isolation of vulnerable populations. In contrast to pharmaceutical interventions, which are slow to develop but effective in the long term, NPIs can be rapidly implemented but are generally too costly to maintain indefinitely. In the modelling framework of PyRoss, we represent NPIs as modifications to the contact matrix.</p>
+<div class="section" id="control-integration">
+<h2>control_integration<a class="headerlink" href="#control-integration" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.control_integration">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">control_integration</code><a class="headerlink" href="#pyross.control.control_integration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrator class to implement control through changing the contact matrix
+as a function of the current state.</p>
+<dl class="py method">
+<dt>
+<code class="sig-name descname">simulate_deteministic : Performs a deterministic simulation.</code></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyross.control.control_integration.simulate_deterministic">
+<code class="sig-name descname">simulate_deterministic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.control_integration.simulate_deterministic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs detemrinistic numerical integration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>np.array</em>) – Inital state of the system.</p></li>
+<li><p><strong>events</strong> (<em>list</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix.
+contactMatricies</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – End time for integrator.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate at.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time for integrator. The default is 0.</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>x_eval</strong> (<em>np.array(len(t), len(x0))</em>) – Numerical integration solution.</p></li>
+<li><p><strong>t_eval</strong> (<em>np.array</em>) – Corresponding times at which X is evaluated at.</p></li>
+<li><p><strong>event_out</strong> (<em>list</em>) – List of events that occured during the run.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.control.SIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIR)
+Ia: asymptomatic
+Is: symptomatic</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sekikikr">
+<h2>SEkIkIkR<a class="headerlink" href="#sekikikr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SEkIkIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEkIkIkR</code><a class="headerlink" href="#pyross.control.SEkIkIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+method of k-stages of Ia, Is, E
+See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic infected individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic infected individuals.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of asymptomatic infectives.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of symptomatic infectives.</p>
+</dd>
+<dt>kE: int</dt><dd><p>number of stages of exposed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SEkIkIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyross.control.SEkIkIkR.E">
+<code class="sig-name descname">E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.E" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>E</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Exposed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.control.SEkIkIkR.Ia">
+<code class="sig-name descname">Ia</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.Ia" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Is</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.control.SEkIkIkR.Is">
+<code class="sig-name descname">Is</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.Is" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Is</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>symptomatics population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.control.SEkIkIkR.R">
+<code class="sig-name descname">R</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.R" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>R</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Removed population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyross.control.SEkIkIkR.S">
+<code class="sig-name descname">S</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkIkR.S" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>data files</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>S</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Susceptible population time series</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sirs">
+<h2>SIRS<a class="headerlink" href="#sirs" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SIRS">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIRS</code><a class="headerlink" href="#pyross.control.SIRS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed, Susceptible (SIRS)
+Ia: asymptomatic
+Is: symptomatic
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>ep<span class="classifier">float</span></dt><dd><p>fraction of removed who become susceptable again</p>
+</dd>
+<dt>sa<span class="classifier">float, np.array (M,)</span></dt><dd><p>daily arrival of new susceptables</p>
+</dd>
+<dt>iaa: float, np.array (M,)</dt><dd><p>daily arrival of new asymptomatics</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SIRS.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIRS.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SEIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.control.SEIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+Ia: asymptomatic
+Is: symptomatic
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float, np.array (M,)</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SEIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sikr">
+<h2>SIkR<a class="headerlink" href="#sikr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SIkR</code><a class="headerlink" href="#pyross.control.SIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIkR)
+method of k-stages of I
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gI: float</dt><dd><p>rate of removal from infectives.</p>
+</dd>
+<dt>kI: int</dt><dd><p>number of stages of infection.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>(</em><em>kI + 1</em><em>)</em><em>*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SIkR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sekikr">
+<h2>SEkIkR<a class="headerlink" href="#sekikr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SEkIkR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEkIkR</code><a class="headerlink" href="#pyross.control.SEkIkR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIkR)
+method of k-stages of I
+See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gI: float</dt><dd><p>rate of removal from infected individuals.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+<dt>ki: int</dt><dd><p>number of stages of infectives.</p>
+</dd>
+<dt>ke: int</dt><dd><p>number of stages of exposed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>(</em><em>kI = kE +1</em><em>)</em><em>*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SEkIkR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEkIkR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seair">
+<h2>SEAIR<a class="headerlink" href="#seair" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SEAIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAIR</code><a class="headerlink" href="#pyross.control.SEAIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
+Ia: asymptomatic
+Is: symptomatic
+A: Asymptomatic and infectious
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposeds individuals.</p>
+</dd>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>5*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SEAIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.control.SEAIRQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.control.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.control.SEAIRQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Asymptomatic and infected, Infected, Removed, Quarantined (SEAIRQ)
+Ia: asymptomatic
+Is: symptomatic
+A: Asymptomatic and infectious</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>gE: float</dt><dd><p>rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA: float</dt><dd><p>rate of removal from activated individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
+</dd>
+<dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
+</dd>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+</dd>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>6*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.control.SEAIRQ.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.control.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="contactMatrix.html" class="btn btn-neutral float-right" title="Contact matrix" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="inference.html" class="btn btn-neutral float-left" title="Bayesian inference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

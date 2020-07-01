@@ -1,0 +1,896 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Forecasting &mdash; PyRoss 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utils" href="utils.html" />
+    <link rel="prev" title="Contact matrix" href="contactMatrix.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PyRoss
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deterministic.html">Deterministic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stochastic.html">Stochastic simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hybrid.html">Hybrid simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference.html">Bayesian inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="control.html">Control with NPIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contactMatrix.html">Contact matrix</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Forecasting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sir">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sir-latent">SIR_latent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir">SEIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seir-latent">SEIR_latent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq">SEAIRQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#seairq-latent">SEAIRQ_latent</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PyRoss</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Forecasting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/forecast.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="forecasting">
+<h1>Forecasting<a class="headerlink" href="#forecasting" title="Permalink to this headline">¶</a></h1>
+<p>Forecasting with the inferred parameters, error bars and, if there are latent variables, inferred initial conditions.</p>
+<div class="section" id="sir">
+<h2>SIR<a class="headerlink" href="#sir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.forecast.SIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SIR</code><a class="headerlink" href="#pyross.forecast.SIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIR)
+Ia: asymptomatic
+Is: symptomatic</p>
+<p>…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.forecast.SIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id0">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em><em>, </em><em>optional</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j
+The default is None.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em><em>, </em><em>optional</em>) – Final time of integrator. The default is 100.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em><em>, </em><em>optional</em>) – Number of time points to evaluate.The default is 101,</p></li>
+<li><p><strong>Ns</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples of parameters to take. The default is 1000.</p></li>
+<li><p><strong>nc</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>np.float64</em><em>, </em><em>optional</em>) – Acceptable error in leap. The default is 0.03.</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Verbosity of output. The default is False.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Pyross integrator to use. The default is “deterministic”.</p></li>
+<li><p><strong>events</strong> (<em>list of python functions</em><em>, </em><em>optional</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix. Event occurs when the value of the function
+changes sign. Event.direction determines which direction triggers
+the event, takign values {+1,-1}.
+The default is [].</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs
+The default is [].</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>out_dict</strong> –</p>
+<dl>
+<dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
+</dd>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
+</dd>
+<dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
+</dd>
+<dt>X_std<span class="classifier">list</span></dt><dd><p>Standard devation of trajectories of X at each time point.</p>
+</dd>
+</dl>
+<p>&lt;init params&gt; : Initial parameters passed at object instantiation.
+sample_parameters : list of parameters sampled to make trajectories.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sir-latent">
+<h2>SIR_latent<a class="headerlink" href="#sir-latent" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.forecast.SIR_latent">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SIR_latent</code><a class="headerlink" href="#pyross.forecast.SIR_latent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Infected, Removed (SIR)
+Ia: asymptomatic
+Is: symptomatic</p>
+<p>Latent inference class to be used when observed data is incomplete.
+…</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>cov: np.array( )</dt><dd><p>Covariance matrix for all the estimated parameters.</p>
+</dd>
+<dt>S0: np.array(M,)</dt><dd><p>Estimate initial number of susceptables.</p>
+</dd>
+<dt>Ia0: np.array(M,)</dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
+</dd>
+<dt>Is0: np.array(M,)</dt><dd><p>Estimate initial number of symptomatic infectives.</p>
+</dd>
+<dt>cov_init<span class="classifier">np.array((3*M, 3*M)) :</span></dt><dd><p>Covariance matrix for the initial state.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>3*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.forecast.SIR_latent.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SIR_latent.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id1">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em><em>, </em><em>optional</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j
+The default is None.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em>) – Final time of integrator.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em>) – Number of time points to evaluate.</p></li>
+<li><p><strong>Ns</strong> (<em>int</em>) – Number of samples of parameters to take.</p></li>
+<li><p><strong>nc</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>np.float64</em><em>, </em><em>optional</em>) – Acceptable error in leap. The default is 0.03.</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – TODO</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Verbosity of output. The default is False.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Pyross integrator to use. The default is “deterministic”.</p></li>
+<li><p><strong>events</strong> (<em>list of python functions</em><em>, </em><em>optional</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix. Event occurs when the value of the function
+changes sign. Event.direction determines which direction triggers
+the event, takign values {+1,-1}.
+The default is [].</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs
+The default is [].</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>out_dict</strong> –</p>
+<dl>
+<dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
+</dd>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
+</dd>
+<dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
+</dd>
+<dt>X_std<span class="classifier">list</span></dt><dd><p>Standard devation of trajectories of X at each time point.</p>
+</dd>
+</dl>
+<p>&lt;init params&gt; : Initial parameters passed at object instantiation.
+sample_parameters : list of parameters sampled to make trajectories.
+sample_inits : List of initial state vectors tried.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seir">
+<h2>SEIR<a class="headerlink" href="#seir" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.forecast.SEIR">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEIR</code><a class="headerlink" href="#pyross.forecast.SEIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+Ia: asymptomatic
+Is: symptomatic
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+</dd>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.forecast.SEIR.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEIR.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id2">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of exposed.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em><em>(</em><em>M</em><em>,</em><em>)</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em><em>, </em><em>optional</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j
+The default is None.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em><em>, </em><em>optional</em>) – Final time of integrator. The default is 100.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em><em>, </em><em>optional</em>) – Number of time points to evaluate.The default is 101,</p></li>
+<li><p><strong>Ns</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples of parameters to take. The default is 1000.</p></li>
+<li><p><strong>nc</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>np.float64</em><em>, </em><em>optional</em>) – Acceptable error in leap. The default is 0.03.</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Verbosity of output. The default is False.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Pyross integrator to use. The default is “deterministic”.</p></li>
+<li><p><strong>events</strong> (<em>list of python functions</em><em>, </em><em>optional</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix. Event occurs when the value of the function
+changes sign. Event.direction determines which direction triggers
+the event, takign values {+1,-1}.
+The default is [].</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs
+The default is [].</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>out_dict</strong> –</p>
+<dl>
+<dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
+</dd>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
+</dd>
+<dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
+</dd>
+<dt>X_std<span class="classifier">list</span></dt><dd><p>Standard devation of trajectories of X at each time point.</p>
+</dd>
+</dl>
+<p>&lt;init params&gt; : Initial parameters passed at object instantiation.
+sample_parameters : list of parameters sampled to make trajectories.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seir-latent">
+<h2>SEIR_latent<a class="headerlink" href="#seir-latent" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.forecast.SEIR_latent">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEIR_latent</code><a class="headerlink" href="#pyross.forecast.SEIR_latent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+Ia: asymptomatic
+Is: symptomatic</p>
+<p>Latent inference class to be used when observed data is incomplete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+</dd>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
+</dd>
+<dt>S0: np.array(M,)</dt><dd><p>Estimate initial number of susceptables.</p>
+</dd>
+<dt>E0: np.array(M,)</dt><dd><p>Estimate initial number of exposed.</p>
+</dd>
+<dt>Ia0: np.array(M,)</dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
+</dd>
+<dt>Is0: np.array(M,)</dt><dd><p>Estimate initial number of symptomatic infectives.</p>
+</dd>
+<dt>cov_init<span class="classifier">np.array((3*M, 3*M)) :</span></dt><dd><p>Covariance matrix for the initial state.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.forecast.SEIR_latent.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEIR_latent.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id3">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em><em>, </em><em>optional</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j
+The default is None.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em><em>, </em><em>optional</em>) – Final time of integrator. The default is 100.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em><em>, </em><em>optional</em>) – Number of time points to evaluate.The default is 101,</p></li>
+<li><p><strong>Ns</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples of parameters to take. The default is 1000.</p></li>
+<li><p><strong>nc</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>np.float64</em><em>, </em><em>optional</em>) – Acceptable error in leap. The default is 0.03.</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Verbosity of output. The default is False.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Pyross integrator to use. The default is “deterministic”.</p></li>
+<li><p><strong>events</strong> (<em>list of python functions</em><em>, </em><em>optional</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix. Event occurs when the value of the function
+changes sign. Event.direction determines which direction triggers
+the event, takign values {+1,-1}.
+The default is [].</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs
+The default is [].</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>out_dict</strong> –</p>
+<dl>
+<dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
+</dd>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
+</dd>
+<dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
+</dd>
+<dt>X_std<span class="classifier">list</span></dt><dd><p>Standard devation of trajectories of X at each time point.</p>
+</dd>
+</dl>
+<p>&lt;init params&gt; : Initial parameters passed at object instantiation.
+sample_parameters : list of parameters sampled to make trajectories.
+sample_inits : List of initial state vectors tried.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seairq">
+<h2>SEAIRQ<a class="headerlink" href="#seairq" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.forecast.SEAIRQ">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEAIRQ</code><a class="headerlink" href="#pyross.forecast.SEAIRQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+Ia: asymptomatic
+Is: symptomatic
+A: Asymptomatic and infectious
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA: float</dt><dd><p>Estimated mean value of rate of removal from activated individuals.</p>
+</dd>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
+</dd>
+<dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
+</dd>
+<dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
+</dd>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+</dd>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.forecast.SEAIRQ.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEAIRQ.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id4">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S0</strong> (<em>np.array</em>) – Initial number of susceptables.</p></li>
+<li><p><strong>E0</strong> (<em>np.array</em>) – Initial number of exposeds.</p></li>
+<li><p><strong>A0</strong> (<em>np.array</em>) – Initial number of activateds.</p></li>
+<li><p><strong>Ia0</strong> (<em>np.array</em>) – Initial number of asymptomatic infectives.</p></li>
+<li><p><strong>Is0</strong> (<em>np.array</em>) – Initial number of symptomatic infectives.</p></li>
+<li><p><strong>Q0</strong> (<em>np.array</em>) – Initial number of quarantineds.</p></li>
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em><em>, </em><em>optional</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j
+The default is None.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em><em>, </em><em>optional</em>) – Final time of integrator. The default is 100.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em><em>, </em><em>optional</em>) – Number of time points to evaluate.The default is 101,</p></li>
+<li><p><strong>Ns</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples of parameters to take. The default is 1000.</p></li>
+<li><p><strong>nc</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>np.float64</em><em>, </em><em>optional</em>) – Acceptable error in leap. The default is 0.03.</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Verbosity of output. The default is False.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Pyross integrator to use. The default is “deterministic”.</p></li>
+<li><p><strong>events</strong> (<em>list of python functions</em><em>, </em><em>optional</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix. Event occurs when the value of the function
+changes sign. Event.direction determines which direction triggers
+the event, takign values {+1,-1}.
+The default is [].</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs
+The default is [].</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>out_dict</strong> –</p>
+<dl>
+<dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
+</dd>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
+</dd>
+<dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
+</dd>
+<dt>X_std<span class="classifier">list</span></dt><dd><p>Standard devation of trajectories of X at each time point.</p>
+</dd>
+</dl>
+<p>&lt;init params&gt; : Initial parameters passed at object instantiation.
+sample_parameters : list of parameters sampled to make trajectories.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="seairq-latent">
+<h2>SEAIRQ_latent<a class="headerlink" href="#seairq-latent" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyross.forecast.SEAIRQ_latent">
+<em class="property">class </em><code class="sig-prename descclassname">pyross.forecast.</code><code class="sig-name descname">SEAIRQ_latent</code><a class="headerlink" href="#pyross.forecast.SEAIRQ_latent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Susceptible, Exposed, Infected, Removed (SEIR)
+Ia: asymptomatic
+Is: symptomatic
+A: Asymptomatic and infectious</p>
+<p>Latent inference class to be used when observed data is incomplete.
+:param parameters:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Contains the following keys:</dt><dd><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate mean value of fraction of infected who are asymptomatic.</p>
+</dd>
+<dt>beta: float</dt><dd><p>Estimate mean value of rate of spread of infection.</p>
+</dd>
+<dt>gIa: float</dt><dd><p>Estimate mean value of rate of removal from asymptomatic individuals.</p>
+</dd>
+<dt>gIs: float</dt><dd><p>Estimate mean value of rate of removal from symptomatic individuals.</p>
+</dd>
+<dt>fsa: float</dt><dd><p>fraction by which symptomatic individuals self isolate.</p>
+</dd>
+<dt>gE: float</dt><dd><p>Estimated mean value of rate of removal from exposed individuals.</p>
+</dd>
+<dt>gA: float</dt><dd><p>Estimated mean value of rate of removal from activated individuals.</p>
+</dd>
+<dt>cov: np.array( )</dt><dd><p>covariance matrix for all the estimated parameters.</p>
+</dd>
+<dt>tE<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of exposeds</p>
+</dd>
+<dt>tA<span class="classifier">float</span></dt><dd><p>testing rate and contact tracing of activateds</p>
+</dd>
+<dt>tIa: float</dt><dd><p>testing rate and contact tracing of asymptomatics</p>
+</dd>
+<dt>tIs: float</dt><dd><p>testing rate and contact tracing of symptomatics</p>
+</dd>
+<dt>S0: np.array(M,)</dt><dd><p>Estimate initial number of susceptables.</p>
+</dd>
+<dt>E0: np.array(M,)</dt><dd><p>Estimate initial number of exposed.</p>
+</dd>
+<dt>A0: np.array(M,)</dt><dd><p>Estimate initial number of activated.</p>
+</dd>
+<dt>Ia0: np.array(M,)</dt><dd><p>Estimate initial number of asymptomatic infectives.</p>
+</dd>
+<dt>Is0: np.array(M,)</dt><dd><p>Estimate initial number of symptomatic infectives.</p>
+</dd>
+<dt>Q0: np.array(M,)</dt><dd><p>Estimate initial number of quarantined.</p>
+</dd>
+<dt>cov_init<span class="classifier">np.array((3*M, 3*M)) :</span></dt><dd><p>Covariance matrix for the initial state.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>int</em>) – Number of compartments of individual for each class.
+I.e len(contactMatrix)</p></li>
+<li><p><strong>Ni</strong> (<em>np.array</em><em>(</em><em>4*M</em><em>, </em><em>)</em>) – Initial number in each compartment and class</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pyross.forecast.SEAIRQ_latent.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyross.forecast.SEAIRQ_latent.simulate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="id5">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contactMatrix</strong> (<em>python function</em><em>(</em><em>t</em><em>)</em><em>, </em><em>optional</em>) – The social contact matrix C_{ij} denotes the
+average number of contacts made per day by an
+individual in class i with an individual in class j
+The default is None.</p></li>
+<li><p><strong>Tf</strong> (<em>float</em><em>, </em><em>optional</em>) – Final time of integrator. The default is 100.</p></li>
+<li><p><strong>Nf</strong> (<em>Int</em><em>, </em><em>optional</em>) – Number of time points to evaluate.The default is 101,</p></li>
+<li><p><strong>Ns</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples of parameters to take. The default is 1000.</p></li>
+<li><p><strong>nc</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>np.float64</em><em>, </em><em>optional</em>) – Acceptable error in leap. The default is 0.03.</p></li>
+<li><p><strong>tau_update_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Verbosity of output. The default is False.</p></li>
+<li><p><strong>Ti</strong> (<em>float</em><em>, </em><em>optional</em>) – Start time of integrator. The default is 0.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Pyross integrator to use. The default is “deterministic”.</p></li>
+<li><p><strong>events</strong> (<em>list of python functions</em><em>, </em><em>optional</em>) – List of events that the current state can satisfy to change behaviour
+of the contact matrix. Event occurs when the value of the function
+changes sign. Event.direction determines which direction triggers
+the event, takign values {+1,-1}.
+The default is [].</p></li>
+<li><p><strong>contactMatricies</strong> (<em>list of python functions</em>) – New contact matrix after the corresponding event occurs
+The default is [].</p></li>
+<li><p><strong>events_repeat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Wheither events is periodic in time. The default is false.</p></li>
+<li><p><strong>events_subsequent</strong> (<em>bool</em><em>, </em><em>optional</em>) – TODO</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>out_dict</strong> –</p>
+<dl>
+<dt>Dictionary containing the following keys:</dt><dd><dl class="simple">
+<dt>X: list</dt><dd><p>List of resultant trajectories</p>
+</dd>
+<dt>t: list</dt><dd><p>List of times at which X is evaluated.</p>
+</dd>
+<dt>X_mean<span class="classifier">list</span></dt><dd><p>Mean trajectory of X</p>
+</dd>
+<dt>X_std<span class="classifier">list</span></dt><dd><p>Standard devation of trajectories of X at each time point.</p>
+</dd>
+</dl>
+<p>&lt;init params&gt; : Initial parameters passed at object instantiation.
+sample_parameters : list of parameters sampled to make trajectories.
+sample_inits : List of initial state vectors tried.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="contactMatrix.html" class="btn btn-neutral float-left" title="Contact matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Ronojoy Adhikari, Austen Bolitho, Fernando Caballero, Michael Cates, Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert Jack, Julian Kappler, Lukas Kikuchi, Irene Li, Joseph Peterson, Patrick Pietzonka, Benjamin Remez, Paul Rohrbach, Rajesh Singh, and Günther Turk
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
