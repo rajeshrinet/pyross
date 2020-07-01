@@ -1899,8 +1899,8 @@ cdef class SIR_type:
         for i in range(Nf-1):
             t = time_points[i]
             xt = xm[i]
-            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix,
-                                                b_matrix=True, jacobian=True)
+            #self.compute_jacobian_and_b_matrix(xt, t, contactMatrix, b_matrix=True, jacobian=True)
+            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix, jacobian=True)
             cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
@@ -1914,39 +1914,39 @@ cdef class SIR_type:
         full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
         return full_cov_inv # returns invcov for all but first (fixed!) time point
 
-    cpdef find_fastest_growing_lin_mode(self, double t, contactMatrix):
-        cdef:
-            np.ndarray [DTYPE_t, ndim=2] J
-            np.ndarray [DTYPE_t, ndim=1] x0, v, mode=np.empty((self.dim), dtype=DTYPE)
-            list indices
-            Py_ssize_t S_index, M=self.M, i, j, n_inf, n, index
-        # assume no infected at the start and compute eig vecs for the infectious species
-        x0 = np.zeros((self.dim), dtype=DTYPE)
-        S_index = self.class_index_dict['S']
-        x0[S_index*M:(S_index+1)*M] = self.fi
-        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
-                                                b_matrix=False, jacobian=True)
-        indices = self.infection_indices()
-        n_inf = len(indices)
-        J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
-        sign, eigvec = pyross.utils.largest_real_eig(J)
-        if not sign: # if eigval not positive, just return the zero state
-            return x0
-        else:
-            eigvec = np.abs(eigvec)
+    #cpdef find_fastest_growing_lin_mode(self, double t, contactMatrix):
+    #    cdef:
+    #        np.ndarray [DTYPE_t, ndim=2] J
+    #        np.ndarray [DTYPE_t, ndim=1] x0, v, mode=np.empty((self.dim), dtype=DTYPE)
+    #        list indices
+    #        Py_ssize_t S_index, M=self.M, i, j, n_inf, n, index
+    #    # assume no infected at the start and compute eig vecs for the infectious species
+    #    x0 = np.zeros((self.dim), dtype=DTYPE)
+    #    S_index = self.class_index_dict['S']
+    #    x0[S_index*M:(S_index+1)*M] = self.fi
+    #    self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+    #                                            b_matrix=False, jacobian=True)
+    #    indices = self.infection_indices()
+    #    n_inf = len(indices)
+    #    J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
+    #    sign, eigvec = pyross.utils.largest_real_eig(J)
+    #    if not sign: # if eigval not positive, just return the zero state
+    #        return x0
+    #    else:
+    #        eigvec = np.abs(eigvec)
 
-            # substitute in infections and recompute fastest growing linear mode
-            for (j, i) in enumerate(indices):
-                x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
-            self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
-                                                    b_matrix=False, jacobian=True)
-            _, v = pyross.utils.largest_real_eig(self.J_mat)
-            if v[S_index*M] > 0:
-                v = - v
-            return v
+    #        # substitute in infections and recompute fastest growing linear mode
+    #        for (j, i) in enumerate(indices):
+    #            x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
+    #        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
+    #                                                b_matrix=False, jacobian=True)
+    #        _, v = pyross.utils.largest_real_eig(self.J_mat)
+    #        if v[S_index*M] > 0:
+    #            v = - v
+    #        return v
 
 
-    cpdef obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
+    cpdef _obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2):
         cdef:
             double [:, :] U=self.U
             double epsilon=1./self.Omega
@@ -1956,7 +1956,7 @@ cdef class SIR_type:
         else:
             for i in range(self.dim):
                 x0[i] += epsilon
-                pos = self.integrate(x0, t1, t2, steps, model, contactMatrix)[steps-1]
+                pos = self.integrate(x0, t1, t2, steps)[steps-1]
                 for j in range(self.dim):
                     U[j, i] = (pos[j]-xf[j])/(epsilon)
                 x0[i] -= epsilon
@@ -3107,8 +3107,7 @@ cdef class Spp(SIR_type):
         self.jacobian(x, l)
         return -np.dot(self.J_mat.T, lam )
 
-    cpdef obtain_time_evol_op_2(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
-
+    cpdef _obtain_time_evol_op_2(self, double [:] x0, double [:] xf, double t1, double t2):
         """
         xf is a redundant input here, added for consistency with the finite difference version '_obtain_time_evol_op'
         """
@@ -3119,11 +3118,11 @@ cdef class Spp(SIR_type):
         if t1==t2:
             self.U = np.eye(self.dim)
         else:
-            x = self.integrate(x0, t1, t2, steps, model, contactMatrix)
+            x = self.integrate(x0, t1, t2, steps)
             tsteps = np.linspace(t1, t2, steps)
             spline = make_interp_spline(tsteps, x)
             for k, row in enumerate(np.eye(self.dim)):
-                a = solve_ivp(self.adj_RHS_mean, [t2,t1], row, t_eval=np.array([t1]), method='DOP853', args=(x0,contactMatrix, spline,))
+                a = solve_ivp(self.adj_RHS_mean, [t2,t1], row, t_eval=np.array([t1]), method='DOP853', args=(x0, spline,))
                 self.U[k,:] = a.y.T[0]
         return self.U
 
@@ -3150,7 +3149,7 @@ cdef class Spp(SIR_type):
 
         def integrand(t, dummy, k, tf, xf, det_model, C, spline):
             xt = spline(t)
-            Tn=self.obtain_time_evol_op_2(x0, xf, t, tf, det_model, C) ## for inner product expression
+            Tn=self._obtain_time_evol_op_2(x0, xf, t, tf) ## for inner product expression
             dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
             dAdp = np.array(dAdp)
             res=np.einsum('ij,kj->ki', Tn, dAdp) ##sum the integral explicitely
@@ -3166,11 +3165,11 @@ cdef class Spp(SIR_type):
         #self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         self.CM = C(0)
         CM_f = C(0).ravel()
-        xd = self.integrate(x0, t1, tf, steps, det_model, C)
+        xd = self.integrate(x0, t1, tf, steps)
         tsteps=np.linspace(t1,tf,steps)
         spline = make_interp_spline(tsteps, xd) 
         xf = spline(tf)
-        T=self.obtain_time_evol_op_2(x0, xf, t1, tf, det_model, C)
+        T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
 
         dmudp = np.zeros((tsteps.size, no_inferred_params, self.dim), dtype=DTYPE)
         for k in range(self.dim):
