@@ -3079,7 +3079,7 @@ cdef class Spp(SIR_type):
         self.fill_lambdas(x, l)
         self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
         self.jacobian(x, l)
-        return np.dot(lam.T, self.J_mat )
+        return -np.dot(self.J_mat.T, lam )
 
     cpdef obtain_time_evol_op_2(self, double [:] x0, double [:] xf, double t1, double t2, model, contactMatrix):
         """
@@ -3088,7 +3088,6 @@ cdef class Spp(SIR_type):
         cdef:
             Py_ssize_t steps=self.steps
             double [:,:] U=self.U
-            double [:,:] lam_arr
         ## Interpolate the dynamics
         if t1==t2:
             self.U = np.eye(self.dim)
@@ -3097,8 +3096,8 @@ cdef class Spp(SIR_type):
             tsteps = np.linspace(t1, t2, steps)
             spline = make_interp_spline(tsteps, x)
             for k, row in enumerate(np.eye(self.dim)):
-                a = solve_ivp(self.adj_RHS_mean, [t1,t2], row, t_eval=np.array([t2]), method='RK45', args=(x0,contactMatrix, spline,))
-                self.U[k,:] = a.y[0]
+                a = solve_ivp(self.adj_RHS_mean, [t2,t1], row, t_eval=np.array([t1]), method='DOP853', args=(x0,contactMatrix, spline,))
+                self.U[k,:] = a.y.T[0]
         return self.U
 
     def lambdify_derivative_functions(self, keys):
@@ -3115,17 +3114,27 @@ cdef class Spp(SIR_type):
         dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
         dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
 
-    def dmudp(self, x0, xi, t1, ti, tf, t2, steps, det_model, C, full_output=False):
+    def dmudp(self, x0, t1, tf, steps, det_model, C, full_output=False):
         """
         calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
         Note that although we can calculate the evolution operator T via adjoint gradient ODES it
         is comparable accuracy to finite difference anyway, and far slower.
         """
+
+        def integrand(t, dummy, k, tf, xf, det_model, C, spline):
+            xt = spline(t)
+            Tn=self.obtain_time_evol_op_2(x0, xf, t, tf, det_model, C) ## for inner product expression
+            dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
+            dAdp = np.array(dAdp)
+            res=np.einsum('ij,kj->ki', Tn, dAdp) ##sum the integral explicitely
+            return res[:,k]
+
         fi=self.fi
         parameters=self.parameters
         param_values = self.parameters.ravel()
         
         keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
+        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
         #self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         self.CM = C(0)
@@ -3135,39 +3144,11 @@ cdef class Spp(SIR_type):
         spline = make_interp_spline(tsteps, xd) 
         xf = spline(tf)
         T=self.obtain_time_evol_op_2(x0, xf, t1, tf, det_model, C)
-        #T=self.U
-        #dmudp = 0#np.zeros((3, self.M), dtype='float')
 
-        def integrand(t, dummy, k, tf, xf, det_model, C, spline):
-            #self.obtain_time_evol_op(x0, xd[i], t1, t, det_model, C)
-            #T=self.U
-            xt = spline(t)
-            Tn=self.obtain_time_evol_op_2(xi, xf, t, tf, det_model, C) ## for inner product expression
-            #Tn=self.U
-            dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
-            res=np.einsum('ij,kj->ki', Tn, dAdp) ##sum the integral explicitely
-            return res[:,k]
-        
         dmudp = np.zeros((tsteps.size, no_inferred_params, self.dim), dtype=DTYPE)
         for k in range(self.dim):
-            #print(t1, tf, ti<tsteps[0], tf>tsteps[steps-1], tsteps)
-            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='RK45', t_eval=tsteps, first_step=(tf-t1)/steps, max_step=steps, args=(k, tf, xf, det_model, C, spline,))
+            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='BDF', t_eval=tsteps, first_step=(tf-t1)/steps, max_step=steps, args=(k, tf, xf, det_model, C, spline,))
             dmudp[:,:,k] = res.y.T 
-        #for i, t in enumerate(tsteps):
-        #    #if t1==ti:
-        #    #    T = np.eye(self.dim)
-        #    #else:
-        #    self.obtain_time_evol_op(x0, xd[i], t1, t, det_model, C) ## for derivs wrt initial conds
-        #    T=self.U
-        #    #if ti==t:
-        #    #    Tn = np.eye(self.dim)
-        #    #else:
-        #    self.obtain_time_evol_op(xi, xd[i], ti, t, det_model, C) ## for inner product expression
-        #    Tn=self.U
-        #    self.CM = C(t)
-        #    CM_f = C(t).ravel()
-        #    dAdp, _ = dA(param_values, CM_f, fi, xi.ravel())
-        #    dmudp += np.einsum('ij,kj->ki ', Tn, dAdp)*dt ##sum the integral explicitely
         if full_output==False:
             dmu  = np.concatenate((dmudp[steps-1,:,:], np.transpose(T)), axis=0)
             return dmu
@@ -3194,7 +3175,7 @@ cdef class Spp(SIR_type):
         fi = self.fi
         indices = np.triu_indices(self.dim, 1)
         for k in range(time_points.size-1):
-            print(f"Progress new changes:\t{k/(time_points.size-1)}")
+            print(f"Progress :\t{k/(time_points.size-1)}")
             xi, xf = xd[k], xd[k+1]
             ti = time_points[k]
             tf = ti+dt
@@ -3227,7 +3208,7 @@ cdef class Spp(SIR_type):
             dtan = np.concatenate((dtan, dtandx0), axis=0)
             dcov = np.concatenate((dcov, dcovdx0), axis=0)
             ## Sum for FIM
-            dmu   =  self.dmudp(x0.flatten(), xi.flatten(), t1, ti, tf, t2, Nf, model, C)
+            dmu   =  self.dmudp(x0.flatten(), t1, tf, Nf, model, C)
             dtan +=  np.einsum('lj,il->ij',dAdx, dmu) ## missing part by product rule
             dcov += np.einsum('ijk,li->ljk', dBdx, dmu)
             FIM  += np.einsum('ia, ak, jk', dtan, Binv, dtan)
