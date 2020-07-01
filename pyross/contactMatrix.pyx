@@ -18,6 +18,17 @@ ctypedef np.float_t DTYPE_t
 cdef class ContactMatrixFunction:
     """Generates a time dependent contact matrix
 
+    For prefactors aW1, aW2, aS1, aS2, aO1, aO2 that multiply the contact matrices CW, CS, CO,
+    the final contact matrix is computed as
+
+    .. math::
+        CM_{ij} = CH_{ij} + aW1_i CW_{ij} aW2_j + aS1_i CW_{ij} aS2_j \
+                  + aO1_i CO_{ij} aO2_j
+
+    For all the intervention functions, if a prefactor is passed as scalar,
+    it is set to be an M (=no. of metapopulation groups) dimensional vector
+    with all entries equal to the scalar.
+
     Parameters
     ----------
     CH: 2d np.array
@@ -32,40 +43,53 @@ cdef class ContactMatrixFunction:
 
     cdef:
         np.ndarray CH, CW, CS, CO
-        double aW, aS, aO
-        Protocol protocol
+        readonly Protocol protocol
+        Py_ssize_t M
 
     def __init__(self, CH, CW, CS, CO):
         self.CH, self.CW, self.CS, self.CO = CH, CW, CS, CO
+        self.M = CH.shape[0]
 
     def contactMatrix(self, t, **kwargs):
         cdef np.ndarray[DTYPE_t, ndim=2] C
         aW, aS, aO = self.protocol(t, **kwargs)
-        C = self.CH + aW*self.CW + aS*self.CS + aO*self.CO
+        C = self.CH + np.einsum('i,ij,j->ij', aW[0], self.CW, aW[1]) \
+                    + np.einsum('i,ij,j->ij', aS[0], self.CS, aS[1]) \
+                    + np.einsum('i,ij,j->ij', aO[0], self.CO, aO[1])
         return C
 
     cpdef get_individual_contactMatrices(self):
         return self.CH, self.CW, self.CS, self.CO
 
-    def constant_contactMatrix(self, aW=1, aS=1, aO=1):
+    def constant_contactMatrix(self, aW=1, aS=1, aO=1,
+                                     aW2=None, aS2=None, aO2=None):
         '''Constant contact matrix
 
         Parameters
         ----------
-        aW: float, optional
-            Scale factor for work contacts.
-        aS: float, optional
-            Scale factor for school contacts.
-        aO: float, optional
-            Scale factor for other contacts.
+        aW: float or array of size M, optional
+            Fraction of work contact per receiver of infection. Default is 1.
+        aS: float or array of size M, optional
+            Fraction of school contact per receiver of infection. Default is 1.
+        aO: float or array of size M, optional
+            Fraction of other contact per receiver of infection. Default is 1.
+        aW2: float or array of size M or None, optional
+            Fraction of work contact per giver of infection. If set to None,
+            aW2 = aW.
+        aS2: float or array of size M or None, optional
+            Fraction of school contact per giver of infection. If set to None,
+            aS2 = aS.
+        aO2: float or array of size M or None, optional
+            Fraction of other contact per giver of infection. If set to None,
+            aO2 = aO.
+
 
         Returns
         -------
         contactMatrix: callable
             A function that takes t as an argument and outputs the contact matrix
         '''
-
-        self.protocol=ConstantProtocol(aW, aS, aO)
+        self.protocol=ConstantProtocol(self.M, aW, aS, aO, aW2, aS2, aO2)
         return self.contactMatrix
 
     def interventions_temporal(self,times,interventions):
@@ -76,7 +100,7 @@ cdef class ContactMatrixFunction:
         time: np.array
             Ordered array with temporal boundaries between the different interventions.
         interventions: np.array
-            Ordered matrix with prefactors of CW, CS, CO matrices
+            Ordered matrix with prefactors aW, aS, aO such that aW1=aW2=aW
             during the different time intervals.
             Note that len(interventions) = len(times) + 1
 
@@ -86,7 +110,7 @@ cdef class ContactMatrixFunction:
             A function that takes t as an argument and outputs the contact matrix
         '''
 
-        self.protocol = TemporalProtocol(np.array(times), np.array(interventions))
+        self.protocol = TemporalProtocol(self.M, np.array(times), np.array(interventions))
         return self.contactMatrix
 
     def interventions_threshold(self,thresholds,interventions):
@@ -97,7 +121,7 @@ cdef class ContactMatrixFunction:
         threshold: np.array
             Ordered array with temporal boundaries between the different interventions.
         interventions: np.array
-            Array of shape [K+1,3] with prefactors during different phases of intervention
+            Array of shape [K+1,3, ..] with prefactors during different phases of intervention
             The current state of the intervention is defined by
             the largest integer "index" such that state[j] >= thresholds[index,j] for all j.
 
@@ -107,7 +131,7 @@ cdef class ContactMatrixFunction:
             A function that takes t as an argument and outputs the contact matrix
         '''
 
-        self.protocol = ThresholdProtocol(np.array(thresholds), np.array(interventions))
+        self.protocol = ThresholdProtocol(self.M, np.array(thresholds), np.array(interventions))
         return self.contactMatrix
 
     def intervention_custom_temporal(self, intervention_func, **kwargs):
@@ -118,7 +142,8 @@ cdef class ContactMatrixFunction:
         intervention_func: callable
             The calling signature is `intervention_func(t, **kwargs)`,
             where t is time and kwargs are other keyword arguments for the function.
-            The function must return (aW, aS, aO).
+            The function must return (aW, aS, aO),
+            where aW, aS and aO must be of shape (2,) or (2, M)
         kwargs: dict
             Keyword arguments for the function.
 
@@ -131,14 +156,14 @@ cdef class ContactMatrixFunction:
         --------
         An example for an custom temporal intervetion that
         allows for some anticipation and reaction time
-
-        >>> def fun(t, width=1, loc=0) # using keyword arguments for parameters of the intervention
+        >>> def fun(t, M, width=1, loc=0) # using keyword arguments for parameters of the intervention
                 a = (1-np.tanh((t-loc)/width))/2
-                return a, a, a
+                a_full = np.full((2, M), a)
+                return a_full, a_full, a_full
         >>> contactMatrix = generator.intervention_custom_temporal(fun, width=5, loc=10)
         '''
 
-        self.protocol = CustomTemporalProtocol(intervention_func, **kwargs)
+        self.protocol = CustomTemporalProtocol(self.M, intervention_func, **kwargs)
         return self.contactMatrix
 
 
@@ -154,23 +179,41 @@ cdef class Protocol:
 
 cdef class ConstantProtocol(Protocol):
     cdef:
-        double aW, aS, aO
+        np.ndarray aW, aS, aO
+        Py_ssize_t M
 
-    def __init__(self, aW=1, aS=1, aO=1):
-        self.aW = aW
-        self.aS = aS
-        self.aO = aO
+    def __init__(self, M, aW=1, aS=1, aO=1, aW2=None, aS2=None, aO2=None):
+        self.M = M
+        self.aW = self._process_interventions(aW, aW2, 'aW')
+        self.aS = self._process_interventions(aS, aS2, 'aS')
+        self.aO = self._process_interventions(aO, aO2, 'aO')
+
+    def _process_interventions(self, a1, a2, name):
+        a = np.empty((2, self.M), dtype=DTYPE)
+        if a2 is None:
+            a2 = a1
+        a[0] = pyross.utils.age_dep_rates(a1, self.M, name)
+        a[1] = pyross.utils.age_dep_rates(a2, self.M, name)
+        return a
 
     def __call__(self, double t):
         return self.aW, self.aS, self.aO
 
 cdef class TemporalProtocol(Protocol):
     cdef:
-        np.ndarray times, interventions
+        readonly np.ndarray times, interventions
 
-    def __init__(self, np.ndarray times, np.ndarray interventions):
+    def __init__(self, Py_ssize_t M, np.ndarray times, np.ndarray interventions):
+        cdef Py_ssize_t i, j
         self.times = times
-        self.interventions = interventions
+        self.interventions = np.empty((interventions.shape[0], 3, 2, M))
+        keys = ['aW', 'aS', 'aO']
+        for i in range(interventions.shape[0]):
+            for j in range(3):
+                a = interventions[i, j]
+                k = keys[j]
+                a_full = pyross.utils.age_dep_rates(a, M, k)
+                self.interventions[i, j] = np.tile(a_full, (2, 1))
 
     def __call__(self, double t):
         cdef:
@@ -184,15 +227,20 @@ cdef class TemporalProtocol(Protocol):
 
 
 
-
 cdef class ThresholdProtocol(Protocol):
     cdef:
-        np.ndarray thresholds, interventions
+        readonly np.ndarray thresholds, interventions
 
-    def __init__(self, np.ndarray thresholds, np.ndarray interventions):
+    def __init__(self, M, np.ndarray thresholds, np.ndarray interventions):
         self.thresholds = thresholds
-        self.interventions = interventions
-
+        self.interventions = np.empty((interventions.shape[0], 3, 2, M))
+        keys = ['aW', 'aS', 'aO']
+        for i in range(interventions.shape[0]):
+            for j in range(3):
+                a = interventions[i, j]
+                k = keys[j]
+                a_full = pyross.utils.age_dep_rates(a, M, k)
+                self.interventions[i, j] = np.tile(a_full, (2, 1))
     def __call__(self, double t, S=None, Ia=None, Is=None):
         cdef:
             np.ndarray[DTYPE_t, ndim=1] state
@@ -207,19 +255,19 @@ cdef class ThresholdProtocol(Protocol):
         return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
 
 
-
-
 cdef class CustomTemporalProtocol(Protocol):
     cdef:
         object intervention_func
         dict kwargs
+        Py_ssize_t M
 
-    def __init__(self, intervention_func, **kwargs):
+    def __init__(self, M, intervention_func, **kwargs):
         self.intervention_func = intervention_func
         self.kwargs = kwargs
+        self.M = M
 
     def __call__(self, double t):
-        return self.intervention_func(t, **self.kwargs)
+        return self.intervention_func(t, self.M, **self.kwargs)
 
 
 
@@ -719,16 +767,16 @@ def characterise_transient(A, tol=0.001, theta=0, ord=2):
     the Kreiss constant (minimum bound of transient)
     and time of transient growth
 
-    Parameters 
+    Parameters
     -----------
     A    : an MxM matrix
     tol  : Used to find a first estimate of the pseudospectrum
     theta: normalizing factor found in Townley et al 2007, default 0
     ord  : default 2, order of matrix norm
 
-    Returns 
+    Returns
     ---------
-    [spectral abcissa, numerical abcissa, Kreiss constant, 
+    [spectral abcissa, numerical abcissa, Kreiss constant,
     duration of transient, henrici's departure from normalcy]
 
     """
@@ -765,30 +813,30 @@ data from above
 def getCM(country='India', sheet=1):
     """
     Method to compute contact matrices of a given country
-    
-    The data is read from sheets at: 
+
+    The data is read from sheets at:
 
     https://github.com/rajeshrinet/pyross/tree/master/examples/data/contact_matrices_152_countries
 
     Parameters
     ----------
-    country: string 
+    country: string
         Default is India
-    sheet: int 
+    sheet: int
         Default is 1
         sheet takes value 1 and 2
 
     Returns
     ----------
-    four np.arrays: CH, CW, CS, CO of the given country 
+    four np.arrays: CH, CW, CS, CO of the given country
 
-    CH - home, 
+    CH - home,
 
-    CW - work, 
+    CW - work,
 
-    CS - school, 
+    CS - school,
 
-    CO - other locations 
+    CO - other locations
 
     """
 

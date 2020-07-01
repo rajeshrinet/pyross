@@ -8,6 +8,7 @@ from cython.parallel import prange
 cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
 from scipy.sparse.linalg.eigen.arpack import eigs, ArpackNoConvergence
+from scipy.misc import derivative
 import matplotlib.pyplot as plt
 
 
@@ -169,7 +170,6 @@ def make_log_norm_dist(means, stds):
     scale = means_sq/np.sqrt(means_sq+var)
     s = np.sqrt(np.log(1+var/means_sq))
     return s, scale
-
 
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
@@ -389,12 +389,19 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
         return hessian
 
     raise Exception("Finite-difference method must be 'forward' or 'central'.")
+    
+def partial_derivative(func, var, point, dx, *func_args):
+    args = point[:]
+    def wraps(x, *wraps_args):
+        args[var] = x
+        return func(args, *wraps_args)
+    return derivative(wraps, point[var], dx=dx, args=func_args)
 
 cpdef make_fltr(fltr_list, n_list):
     fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]
     return np.array(fltr)
 
-cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
+def process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     if fltr.ndim == 2:
         return np.array([fltr]*Nf)
     elif fltr.shape[0] == Nf:
@@ -402,7 +409,7 @@ cpdef process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     else:
         raise Exception("fltr must be a 2D array or an array of 2D arrays")
 
-cpdef process_obs(np.ndarray obs, Py_ssize_t Nf):
+def process_obs(np.ndarray obs, Py_ssize_t Nf):
     if obs.shape[0] != Nf:
         raise Exception("Wrong length of obs")
     if obs.ndim == 2:
@@ -411,6 +418,134 @@ cpdef process_obs(np.ndarray obs, Py_ssize_t Nf):
         return np.concatenate(obs)
     else:
         raise Exception("Obs must be a 2D array or an array of 1D arrays")
+
+def process_latent_data(np.ndarray fltr, np.ndarray obs):
+    cdef Py_ssize_t Nf=obs.shape[0]
+    fltr = process_fltr(fltr, Nf)
+    obs0 = obs[0]
+    obs = process_obs(obs[1:], Nf-1)
+    return fltr, obs, obs0
+
+def parse_param_prior_dict(prior_dict, M):
+    flat_guess = []
+    flat_stds = []
+    flat_bounds = []
+    flat_guess_range = []
+    key_list = []
+    scaled_guesses = []
+    is_scale_parameter = []
+
+    count = 0
+    for key in prior_dict:
+        key_list.append(key)
+        sub_dict = prior_dict[key]
+        try:
+            mean = sub_dict['mean']
+        except KeyError:
+            raise Exception('Sub-dict under {} must have "mean" as a key'.format(key))
+        if np.size(mean) == 1:
+            flat_guess.append(mean)
+            try:
+                flat_stds.append(sub_dict['std'])
+                flat_bounds.append(sub_dict['bounds'])
+            except KeyError:
+                raise Exception('Sub-dict under {} must have "std" and "bounds"'
+                                ' as keys'.format(key))
+            flat_guess_range.append(count)
+            is_scale_parameter.append(False)
+            count += 1
+        else:
+            infer_scale = False
+            if 'infer_scale' in sub_dict.keys():
+                infer_scale = sub_dict['infer_scale']
+            if infer_scale:
+                flat_guess.append(1.0)
+                try:
+                    flat_stds.append(sub_dict['scale_factor_std'])
+                    flat_bounds.append(sub_dict['scale_factor_bounds'])
+                except KeyError:
+                    raise Exception('Sub-dict under {} must have "scale_factor_std"'
+                                    'and "scale_factor_bounds" as keys because'
+                                    'infer_scale" is True'.format(key))
+                scaled_guesses.append(mean)
+                flat_guess_range.append(count)
+                is_scale_parameter.append(True)
+                count += 1
+            else:
+                flat_guess += mean
+                try:
+                    flat_stds += sub_dict['std']
+                    flat_bounds += sub_dict['bounds']
+                except KeyError:
+                    raise Exception('Sub-dict under {} must have "std" and "bounds"'
+                                    ' as keys'.format(key))
+                flat_guess_range.append(list(range(count, count+M)))
+                count += M
+    return key_list, np.array(flat_guess), np.array(flat_stds), \
+           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
+
+def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses):
+    # Restore parameters from flattened parameters
+    orig_params = []
+    k=0
+    for j in range(len(flat_guess_range)):
+        if is_scale_parameter[j]:
+            orig_params.append(np.array([params[flat_guess_range[j]]*val for val in scaled_guesses[k]]))
+            k += 1
+        else:
+            orig_params.append(params[flat_guess_range[j]])
+    return orig_params
+
+def parse_init_prior_dict(prior_dict, dim, obs_dim):
+    guess = []
+    stds = []
+    bounds = []
+    flags = [False, False]
+    fltrs = np.zeros((2, dim), dtype='bool')
+    count = 0
+    if 'lin_mode_coeff' in prior_dict.keys():
+        sub_dict = prior_dict['lin_mode_coeff']
+        try:
+            guess.append(sub_dict['mean'])
+            stds.append(sub_dict['std'])
+            bounds.append(sub_dict['bounds'])
+            fltrs[0] = sub_dict['fltr']
+        except KeyError:
+            raise Exception('Sub dict of "lin_mode_coeff" must have'
+                            ' "mean", "std", "bounds" and "fltr" as keys')
+        assert len(fltrs[0]) == dim
+        flags[0] = True
+        count += np.sum(fltrs[0])
+
+    if 'independent' in prior_dict.keys():
+        sub_dict = prior_dict['independent']
+        try:
+            fltrs[1] = sub_dict['fltr']
+            guess.extend(sub_dict['mean'])
+            stds.extend(sub_dict['std'])
+            bounds.extend(sub_dict['bounds'])
+        except KeyError:
+            raise Exception('Sub dict of "independent" must have'
+                            ' "mean", "std", "bounds" and "fltr" as keys')
+        assert len(fltrs[1]) == dim
+        assert np.sum(fltrs[1]) == len(sub_dict['mean'])
+        assert len(sub_dict['std']) == len(sub_dict['mean'])
+        assert len(sub_dict['bounds']) == len(sub_dict['mean'])
+        flags[1] = True
+        count += np.sum(fltrs[1])
+
+    # make sure that there are some priors
+    if np.sum(flags) == 0:
+        raise Exception('Prior for inits must have at least one of "independent"'
+                        ' and "coeff" as keys')
+    # check for overlapping guesses
+    if flags[0] and flags[1]:
+        assert np.sum(np.logical_or(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
+    # check that the total number of guesses is correct
+    assert count == dim - obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
+
+    return np.array(guess), np.array(stds), np.array(bounds), \
+           flags, fltrs
 
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
@@ -657,3 +792,45 @@ def getDiagonalCM(country, M=16):
     for i in range(M):
         x[i] = 1*CM[i,i]
     return x
+
+def resample(weighted_samples, N):
+    # Given a set of weighted samples, produce a set of unweighted samples
+    # approximating the same distribution. We implement residual resampling
+    # here, see https://doi.org/10.1109/ISPA.2005.195385 for context.
+
+    weights = np.array([w['weight'] for w in weighted_samples])
+    weights /= np.sum(weights)
+
+    # Deterministic part
+    selected_samples = np.array([int(w*N) for w in weights])
+    # Random part
+    selected_samples += np.random.multinomial(N - sum(selected_samples), weights, size=1)[0,:]
+
+    sample_list = []
+    for i in range(len(selected_samples)):
+        for j in range(selected_samples[i]):
+            sample_list.append(weighted_samples[i])
+
+    return sample_list
+
+
+def posterior_mean(weighted_samples):
+    # Compute the posterior mean of a set of weighted samples of the posterior
+    # (e.g. computed by nested sampling).
+    weights = np.array([w['weight'] for w in weighted_samples])
+    weights /= np.sum(weights)
+
+    sample = weighted_samples[0].copy()
+    sample['weight'] = 1.0
+    # Set the average parameters
+    for key in sample['map_params_dict'].keys():
+        vals = [w['map_params_dict'][key] for w in weighted_samples]
+        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+        sample['map_params_dict'][key] = avg
+    
+    for key in ['map_x0', 'flat_map']:
+        vals = [w[key] for w in weighted_samples]
+        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+        sample[key] = avg
+
+    return sample
