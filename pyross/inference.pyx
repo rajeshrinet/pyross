@@ -524,13 +524,13 @@ cdef class SIR_type:
         -------
         >>> from matplotlib import pyplot as plt
         >>> from matplotlib import cm
-        >>> 
+        >>>
         >>> # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively.
         >>> ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
         >>> cmap = plt.cm.PuBu_r
         >>> levels=11
         >>> colors='black'
-        >>> 
+        >>>
         >>> c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
         >>> plt.contour(ff, ss, Z_sto, colors='black', levels=levels, linewidths=0.25)
         >>> plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
@@ -1611,8 +1611,7 @@ cdef class SIR_type:
         parameters: dict
             A dictionary of parameter values, same as the ones required for initialisation.
         '''
-
-        pass # to be implemented in subclass
+        raise NotImplementedError("Please Implement set_det_model in subclass")
 
     def set_contact_matrix(self, contactMatrix):
         '''
@@ -1627,7 +1626,7 @@ cdef class SIR_type:
         self.contactMatrix = contactMatrix
 
     def make_params_dict(self):
-        pass # to be implemented in subclass
+        raise NotImplementedError("Please Implement make_params_dict in subclass")
 
     def fill_params_dict(self, keys, params):
         '''Returns a full dictionary for epidemiological parameters with some changed values
@@ -1880,68 +1879,6 @@ cdef class SIR_type:
                     full_cov[i, :, j, :] = temp.T
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
 
-    cpdef obtain_full_invcov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, model, contactMatrix):
-        cdef:
-            Py_ssize_t dim=self.dim, i
-            double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
-            double [:] time_points=np.linspace(0, Tf, Nf)
-            double [:] xt, B_vec=self.B_vec
-            double [:, :] cov, U, J_dt, J_mat=self.J_mat
-            np.ndarray[DTYPE_t, ndim=2] invcov, temp
-            double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf, model, contactMatrix,
-                                method='LSODA', maxNumSteps=self.steps*Nf)
-        full_cov_inv=[[None]*(Nf-1) for i in range(Nf-1)]
-        for i in range(Nf-1):
-            t = time_points[i]
-            xt = xm[i]
-            #self.compute_jacobian_and_b_matrix(xt, t, contactMatrix, b_matrix=True, jacobian=True)
-            self.compute_jacobian_and_b_matrix(xt, t, contactMatrix, jacobian=True)
-            cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-            J_dt = np.multiply(dt, self.J_mat)
-            U = np.add(np.identity(dim), J_dt)
-            invcov=np.linalg.inv(cov)
-            full_cov_inv[i][i]=invcov
-            if i>0:
-                temp = invcov@U
-                full_cov_inv[i-1][i-1] += np.transpose(U)@temp
-                full_cov_inv[i-1][i]=-np.transpose(U)@invcov
-                full_cov_inv[i][i-1]=-temp
-        full_cov_inv=sparse.bmat(full_cov_inv, format='csc').todense()
-        return full_cov_inv # returns invcov for all but first (fixed!) time point
-
-    #cpdef find_fastest_growing_lin_mode(self, double t, contactMatrix):
-    #    cdef:
-    #        np.ndarray [DTYPE_t, ndim=2] J
-    #        np.ndarray [DTYPE_t, ndim=1] x0, v, mode=np.empty((self.dim), dtype=DTYPE)
-    #        list indices
-    #        Py_ssize_t S_index, M=self.M, i, j, n_inf, n, index
-    #    # assume no infected at the start and compute eig vecs for the infectious species
-    #    x0 = np.zeros((self.dim), dtype=DTYPE)
-    #    S_index = self.class_index_dict['S']
-    #    x0[S_index*M:(S_index+1)*M] = self.fi
-    #    self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
-    #                                            b_matrix=False, jacobian=True)
-    #    indices = self.infection_indices()
-    #    n_inf = len(indices)
-    #    J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
-    #    sign, eigvec = pyross.utils.largest_real_eig(J)
-    #    if not sign: # if eigval not positive, just return the zero state
-    #        return x0
-    #    else:
-    #        eigvec = np.abs(eigvec)
-
-    #        # substitute in infections and recompute fastest growing linear mode
-    #        for (j, i) in enumerate(indices):
-    #            x0[i*M:(i+1)*M] = eigvec[j*M:(j+1)*M]
-    #        self.compute_jacobian_and_b_matrix(x0, t, contactMatrix,
-    #                                                b_matrix=False, jacobian=True)
-    #        _, v = pyross.utils.largest_real_eig(self.J_mat)
-    #        if v[S_index*M] > 0:
-    #            v = - v
-    #        return v
-
-
     cpdef _obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2):
         cdef:
             double [:, :] U=self.U
@@ -1984,11 +1921,11 @@ cdef class SIR_type:
         return cov_mat
 
     cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        pass # to be implemented in subclasses
+        raise NotImplementedError("Please Implement _lyapunov_fun in subclass")
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                              b_matrix=True, jacobian=False):
-        pass # to be implemented in subclass
+        raise NotImplementedError("Please Implement compute_jacobian_and_b_matrix in subclass")
 
 
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, method=None, maxNumSteps=100000):
@@ -2958,7 +2895,7 @@ cdef class Spp(SIR_type):
             r = self.fi - np.sum(xrs, axis=0)
         return r
 
-    cdef lyapunov_fun(self, double t, double [:] sig, spline):
+    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
         cdef:
             double [:] x, fi=self.fi
             Py_ssize_t nClass=self.nClass, M=self.M
@@ -3154,7 +3091,7 @@ cdef class Spp(SIR_type):
         fi=self.fi
         parameters=self.parameters
         param_values = self.parameters.ravel()
-        
+
         keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
         self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
@@ -3163,14 +3100,14 @@ cdef class Spp(SIR_type):
         CM_f = C(0).ravel()
         xd = self.integrate(x0, t1, tf, steps)
         tsteps=np.linspace(t1,tf,steps)
-        spline = make_interp_spline(tsteps, xd) 
+        spline = make_interp_spline(tsteps, xd)
         xf = spline(tf)
         T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
 
         dmudp = np.zeros((tsteps.size, no_inferred_params, self.dim), dtype=DTYPE)
         for k in range(self.dim):
             res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='BDF', t_eval=tsteps, first_step=(tf-t1)/steps, max_step=steps, args=(k, tf, xf, det_model, C, spline,))
-            dmudp[:,:,k] = res.y.T 
+            dmudp[:,:,k] = res.y.T
         if full_output==False:
             dmu  = np.concatenate((dmudp[steps-1,:,:], np.transpose(T)), axis=0)
             return dmu
