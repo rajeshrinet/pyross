@@ -3114,6 +3114,7 @@ cdef class Spp(SIR_type):
         for k in range(self.dim):
             res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='BDF', t_eval=tsteps, first_step=(tf-t1)/steps, max_step=steps, args=(k, tf, xf, spline,))
             dmudp[:,:,k] = res.y.T
+
         if full_output==False:
             dmu  = np.concatenate((dmudp[steps-1,:,:], np.transpose(T)), axis=0)
             return dmu
@@ -3129,8 +3130,7 @@ cdef class Spp(SIR_type):
         keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
         self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
-        CM_f = C(0).ravel()
-        self.set_contact_matrix(C)
+        CM_f = self.CM.ravel()
         xd = self.integrate(x0, t1, tf, steps)
         time_points=np.linspace(t1,tf,steps)
         dt = time_points[1]-time_points[0]
