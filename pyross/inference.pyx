@@ -3088,13 +3088,13 @@ cdef class Spp(SIR_type):
         is comparable accuracy to finite difference anyway, and far slower.
         """
 
-        def integrand(t, dummy, k, tf, xf, spline): ## can be optimized by outputting full res
+        def integrand(t, dummy, n, tf, xf, spline): ## can be optimized by outputting full res
             xt = spline(t)
             Tn=self._obtain_time_evol_op_2(xt, xf, t, tf) ## for inner product expression
             dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
             dAdp = np.array(dAdp)
-            res=np.einsum('ij,kj->ki', Tn, dAdp)
-            return res[:,k]
+            res=np.einsum('ik,jk->ji', Tn, dAdp)
+            return res[:,n]
 
         fi=self.fi
         parameters=self.parameters
@@ -3108,15 +3108,15 @@ cdef class Spp(SIR_type):
         tsteps=np.linspace(t1,tf,steps)
         spline = make_interp_spline(tsteps, xd)
         xf = spline(tf)
-        T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
 
-        dmudp = np.zeros((tsteps.size, no_inferred_params, self.dim), dtype=DTYPE)
+        dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
         for k in range(self.dim):
-            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='BDF', t_eval=tsteps, first_step=(tf-t1)/steps, max_step=steps, args=(k, tf, xf, spline,))
-            dmudp[:,:,k] = res.y.T
+            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='BDF', t_eval=np.array([tf]),max_step=steps, args=(k, tf, xf, spline,))
+            dmudp[:,k] = res.y[0]
 
         if full_output==False:
-            dmu  = np.concatenate((dmudp[steps-1,:,:], np.transpose(T)), axis=0)
+            T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
+            dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
             return dmu
         else:
             return dmudp, xd
