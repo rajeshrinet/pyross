@@ -18,6 +18,17 @@ try:
 except ImportError:
     nestle = None
 
+try:
+    # Optional support for nested sampling.
+    import emcee
+except ImportError:
+    emcee = None
+
+try:
+    # Optional support for multiprocessing in the minimization function.
+    import pathos.multiprocessing as pathos_mp
+except ImportError:
+    pathos_mp = None
 
 import pyross.deterministic
 cimport pyross.deterministic
@@ -331,6 +342,94 @@ cdef class SIR_type:
 
 
         return log_evidence, output_samples
+
+
+    def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None, 
+                       walker_pos=None, nsamples=1000, nprocesses=0):
+        if emcee is None:
+            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if pathos_mp is None:
+            raise Exception("The Python package `pathos` is needed for multiprocessing.")
+
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        self.contactMatrix = contactMatrix
+
+        ndim = len(guess)
+        if nwalkers is None:
+            nwalkers = 2*ndim
+
+        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
+                'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
+                'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
+        if walker_pos is None:
+             # If not specified, sample initial positions of walkers from prior.
+            p0 = lognorm.rvs(s, scale=scale, size=(nwalkers, ndim))
+        else:
+            p0 = walker_pos
+
+        if sampler is None:
+            # Start a new MCMC chain.
+            if nprocesses > 1:
+                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike, kwargs=loglike_args,
+                                                pool=mcmc_pool)
+            else:
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike, kwargs=loglike_args)
+
+            sampler.run_mcmc(p0, nsamples, progress=verbose)
+        else:
+            # Continue running an existing MCMC chain.
+            if nprocesses > 1:
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+            elif sampler.pool is not None:
+                sampler.pool = None
+
+            sampler.run_mcmc(None, nsamples, progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def mcmc_inference_process_result(self, sampler, prior_dict, burn_in=0, subsample=1):
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        output_samples = []
+
+        samples = sampler.get_chain(flat=True)
+        samples = samples[burn_in::subsample, :]
+        nr_samples = samples.shape[0]
+        for i in range(nr_samples):
+            sample = samples[i,:]
+            weight = 1.0 / nr_samples
+
+            orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
+                                             is_scale_parameter, scaled_guesses)
+            output_dict = {
+                'map_dict':self.fill_params_dict(keys, orig_sample),
+                'flat_map':sample, 'weight':weight, 'keys': keys,
+                'is_scale_parameter':is_scale_parameter,
+                'flat_guess_range':flat_guess_range,
+                'scaled_guesses':scaled_guesses,
+                's':s, 'scale':scale
+            }
+            output_samples.append(output_dict)
+
+        return output_samples
 
 
     def _infer_control_to_minimize(self, params, grad=0, keys=None,
@@ -1116,6 +1215,9 @@ cdef class SIR_type:
         minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
 
+        if np.isnan(minus_logp):
+            return -np.inf
+
         return -minus_logp
 
 
@@ -1250,6 +1352,142 @@ cdef class SIR_type:
             output_samples.append(output_dict)
 
         return log_evidence, output_samples
+
+
+    def mcmc_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
+                              init_priors,tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None, 
+                              nsamples=1000, nprocesses=0):
+        if emcee is None:
+            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if pathos_mp is None:
+            raise Exception("The Python package `pathos` is needed for multiprocessing.")
+
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        ndim = len(guess)
+
+        if nwalkers is None:
+            nwalkers = 2*ndim
+
+        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
+                        'is_scale_parameter':is_scale_parameter,
+                        'scaled_param_guesses':scaled_param_guesses,
+                        'param_length':param_length,
+                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
+                        's':s, 'scale':scale, 'tangent':tangent}
+
+        if walker_pos is None:
+             # If not specified, sample initial positions of walkers from prior.
+            p0 = lognorm.rvs(s, scale=scale, size=(nwalkers, ndim))
+        else:
+            p0 = walker_pos
+
+        if sampler is None:
+            # Start a new MCMC chain.
+            if nprocesses > 1:
+                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike_latent,
+                                                kwargs=loglike_args, pool=mcmc_pool)
+            else:
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike_latent, 
+                                                kwargs=loglike_args)
+
+            sampler.run_mcmc(p0, nsamples, progress=verbose)
+        else:
+            # Continue running an existing MCMC chain.
+            if nprocesses > 1:
+                # Restart the pool we closed at the end of the previous run.
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+            elif sampler.pool is not None:
+                # If the user decided to not have multiprocessing in a subsequent run, we need
+                # to reset the pool in the emcee.EnsembleSampler.
+                sampler.pool = None
+
+            sampler.run_mcmc(None, nsamples, progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors, burn_in=0, subsample=1):
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        output_samples = []
+        samples = sampler.get_chain(flat=True)
+        samples = samples[burn_in::subsample, :]
+        nr_samples = samples.shape[0]
+        for i in range(nr_samples):
+            sample = samples[i,:]
+            weight = 1.0 / nr_samples
+            param_estimates = sample[:param_length]
+            orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                            param_guess_range,
+                                                            is_scale_parameter,
+                                                            scaled_param_guesses)
+
+            init_estimates = sample[param_length:]
+            sample_params_dict = self.fill_params_dict(keys, orig_params)
+            self.set_params(sample_params_dict)
+            self.set_det_model(sample_params_dict)
+            map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
+                                        obs0, fltr[0])
+            output_dict = {
+                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
+                'flat_map':sample, 'weight':weight,
+                'is_scale_parameter':is_scale_parameter,
+                'flat_param_guess_range':param_guess_range,
+                'scaled_param_guesses':scaled_param_guesses,
+                'init_flags': init_flags, 'init_fltrs': init_fltrs
+            }
+            output_samples.append(output_dict)
+
+        return output_samples
 
 
     def _latent_infer_control_to_minimize(self, params, grad=0, generator=None,
