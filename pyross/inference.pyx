@@ -244,7 +244,8 @@ cdef class SIR_type:
 
     def nested_sampling_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False,
                                   queue_size=1, max_workers=None, npoints=100, method='single', max_iter=1000,
-                                  dlogz=None, decline_factor=None):
+                                  dlogz=None, decline_factor=None,
+                                 return_full=False):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
         all classes is available.
@@ -339,9 +340,11 @@ cdef class SIR_type:
                 's':s, 'scale':scale
             }
             output_samples.append(output_dict)
-
-
-        return log_evidence, output_samples
+            
+        if return_full:
+            return result
+        else:
+            return log_evidence, output_samples
 
 
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None, 
