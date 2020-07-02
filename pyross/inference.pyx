@@ -520,31 +520,27 @@ cdef class SIR_type:
             shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the stochastic model
         Z_det: 2d numpy.array
             shape=resolution_1 x resolution_2, expected quadratic coefficient in the Taylor expansion of the likelihood of the deterministic model
+
+        Examples
         -------
-
-
-        Example
-        -------
-        from matplotlib import pyplot as plt
-        from matplotlib import cm
-
-        # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively.
-        ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
-        cmap = plt.cm.PuBu_r
-        levels=11
-        colors='black'
-
-
-        c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
-        plt.contour(ff, ss, Z_sto, colors='black', levels=levels, linewidths=0.25)
-        plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
-        plt.plot(map_dict['flat_map'][0], map_dict['flat_map'][1], 'o',
+        >>> from matplotlib import pyplot as plt
+        >>> from matplotlib import cm
+        >>> 
+        >>> # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively.
+        >>> ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
+        >>> cmap = plt.cm.PuBu_r
+        >>> levels=11
+        >>> colors='black'
+        >>> 
+        >>> c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
+        >>> plt.contour(ff, ss, Z_sto, colors='black', levels=levels, linewidths=0.25)
+        >>> plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
+        >>> plt.plot(map_dict['flat_map'][0], map_dict['flat_map'][1], 'o',
                     color="#A60628", markersize=6) # the MAP estimate
-        plt.colorbar(c)
-        plt.xlabel(r'$\alpha$ scale', fontsize=20, labelpad=10)
-        plt.ylabel(r'$\beta$', fontsize=20, labelpad=10)
-        plt.show()
-        -------
+        >>> plt.colorbar(c)
+        >>> plt.xlabel(r'$\alpha$ scale', fontsize=20, labelpad=10)
+        >>> plt.ylabel(r'$\beta$', fontsize=20, labelpad=10)
+        >>> plt.show()
         '''
         flat_maps = map_dict['flat_map']
         if resolution_2 == None:
