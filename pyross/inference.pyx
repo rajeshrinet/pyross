@@ -3166,6 +3166,7 @@ cdef class Spp(SIR_type):
         keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
         self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
+        CM_f=self.CM.ravel()
         xd = self.integrate(x0, t1, tf, steps)
         tsteps=np.linspace(t1,tf,steps)
         spline = make_interp_spline(tsteps, xd) 
