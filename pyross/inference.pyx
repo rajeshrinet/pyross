@@ -3145,10 +3145,10 @@ cdef class Spp(SIR_type):
         dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
         dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
         dJ = sympy.lambdify(expr_var_list, self.dJd(p, keys=keys))
-        dinvcov = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
+        #dinvcov = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
 
 
-    def dmudp(self, x0, t1, tf, steps, det_model, C, full_output=False):
+    def dmudp(self, x0, t1, tf, steps, C, full_output=False):
         """
         calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
         Note that although we can calculate the evolution operator T via adjoint gradient ODES it
@@ -3170,9 +3170,6 @@ cdef class Spp(SIR_type):
         keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
         self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
-        self.CM = C(0)
-        CM_f = C(0).ravel()
-        self.set_contact_matrix(C)
         xd = self.integrate(x0, t1, tf, steps)
         tsteps=np.linspace(t1,tf,steps)
         spline = make_interp_spline(tsteps, xd) 
@@ -3198,29 +3195,20 @@ cdef class Spp(SIR_type):
         keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
         self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
-        #self.CM = C(0)
         CM_f = C(0).ravel()
         self.set_contact_matrix(C)
         xd = self.integrate(x0, t1, tf, steps)
         time_points=np.linspace(t1,tf,steps)
-        #spline = make_interp_spline(tsteps, xd) 
-        #xf = spline(tf)
-        #T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
+        dt = time_points[1]-time_points[0]
         Nf = steps
         full_cov_inv=[[[None]*(Nf-1) for i in range(Nf-1)] for j in range(no_inferred_params)]
-        #c = np.empty((1,6,6))
 
-        #(ddiagdp, doffdiagdp), _, _ = dinvcov(param_values, CM_f, fi, xi, xf)
-
-        print(np.array(full_cov_inv).shape)
         for i, ti in enumerate(time_points[:steps-1]):
-            tf = time_points[i]+1 # make general
+            tf = time_points[i]+dt # make general
             xi = xd[i]
             xf = xd[i+1]
 
             (ddiagdp, doffdiagdp), _ , _ = dinvcov(param_values, CM_f, fi, xi, xf)
-            #diag, off_diag = np.array(invcov[0]), np.array(invcov[1])
-            #print(diag.shape, off_diag.shape)
             for k in range(no_inferred_params): ## num params
                 full_cov_inv[k][i][i]   = ddiagdp[k]
                 if i<Nf-2:
@@ -3231,10 +3219,8 @@ cdef class Spp(SIR_type):
         ## Make block mat into full mat. np.sparse.bmat doesn't handle slices very well hence the workaround
         for k in range(no_inferred_params):
             f=sparse.bmat(full_cov_inv[k], format='csc').todense().copy()
-            print(k, f.shape, full_cov_inv_mat.shape)
             f = np.array(f).reshape((1,)+f.shape)
             full_cov_inv_mat = np.concatenate((full_cov_inv_mat, f), axis=0)
-        print(full_cov_inv_mat[1:].shape)
         return full_cov_inv_mat[1:]
 
 
@@ -3248,18 +3234,18 @@ cdef class Spp(SIR_type):
         parameters=self.parameters
         xd = self.integrate(x0, 0, t2-t1, Nf)
         time_points = np.linspace(0, t2-t1, Nf)
-        dt = time_points[1]  ## given they are linearly spaced
+        dt = time_points[1]  
         l = np.zeros((num_of_infection_terms,M), dtype=DTYPE)
         FIM=0
         if keys == None:
             keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
-        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
+        self.lambdify_derivative_functions(keys) 
         ## Ready the inputs for these functions
         param_values = self.parameters.ravel()
         fi = self.fi
         indices = np.triu_indices(self.dim, 1)
         for k in range(time_points.size-1):
-            print(f"Progress :\t{k/(time_points.size-1)}")
+            #print(f"Progress :\t{k/(time_points.size-1)}")
             xi, xf = xd[k], xd[k+1]
             ti = time_points[k]
             tf = ti+dt
@@ -3285,7 +3271,7 @@ cdef class Spp(SIR_type):
                 dBdx_i = dBdx[i]
                 dBdx_i.T[indices] = dBdx_i[indices]
             ## construct d[..]dx0 and stack
-            self.obtain_time_evol_op(x0, xi, t1, ti, model, C) ## initial to current time
+            self._obtain_time_evol_op(x0, xi, t1, ti) ## initial to current time
             U=self.U
 
             dtandx0 = np.einsum('ij,ik->ik', U, dAdx)
@@ -3444,10 +3430,9 @@ cdef class Spp(SIR_type):
         J=J.reshape(self.dim, self.dim)
         return J
 
-    def construct_fullcov_elem(self, xi, xf):
+    def construct_fullcov_elem(self, xi, xf, dt=1):
         """Creates a sympy version of full cov. Takes symbol and symbolic matrices"""
 
-        dt=1 ## change
         xi = xi.reshape(1,self.dim)
         xf = xf.reshape(1,self.dim)
 
@@ -3496,12 +3481,13 @@ cdef class Spp(SIR_type):
         nClass=self.nClass
         x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
         no_inferred_params = np.sum(keys)
+        A=self.construct_A_spp(x)
         dAdp = Array(np.zeros((no_inferred_params, 1, self.dim)))
         rows, cols = np.where(keys==1)
         for k, (r, c) in enumerate(zip(rows, cols)):
             param = p[r,c]
-            dAdp[k,:,:] = sympy.diff(self.construct_A_spp(x), param)
-        dAdx = sympy.diff(self.construct_A_spp(x), x).reshape(self.dim, 1, self.dim)
+            dAdp[k,:,:] = sympy.diff(A, param)
+        dAdx = sympy.diff(A, x).reshape(self.dim, 1, self.dim)
         return dAdp[:,0,:], dAdx[:,0,:]
 
 
@@ -3517,12 +3503,13 @@ cdef class Spp(SIR_type):
         nClass=self.nClass
         x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
         no_inferred_params = np.sum(keys)
+        B=self.construct_B_spp(x)
         dBdp = Array(np.zeros((no_inferred_params, self.dim, self.dim)))
         rows, cols = np.where(keys==1)
         for k, (r, c) in enumerate(zip(rows, cols)):
             param = p[r,c]
-            dBdp[k,:,:] = sympy.diff(self.construct_B_spp(x), param)
-        dBdx = sympy.diff(self.construct_B_spp(x), x).reshape(self.dim, self.dim, self.dim)
+            dBdp[k,:,:] = sympy.diff(B, param)
+        dBdx = sympy.diff(B, x).reshape(self.dim, self.dim, self.dim)
         return dBdp, dBdx
 
     def dJd(self, p, return_x0_deriv=False, keys=None):
@@ -3537,12 +3524,13 @@ cdef class Spp(SIR_type):
         nClass=self.nClass
         x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
         no_inferred_params = np.sum(keys)
+        J=self.construct_J_spp(x)
         dJdp = Array(np.zeros((no_inferred_params, self.dim, self.dim)))
         rows, cols = np.where(keys==1)
         for k, (r, c) in enumerate(zip(rows, cols)):
             param = p[r,c]
-            dJdp[k,:,:] = sympy.diff(self.construct_J_spp(x), param)
-        dJdx = sympy.diff(self.construct_J_spp(x), x).reshape(self.dim, self.dim, self.dim)
+            dJdp[k,:,:] = sympy.diff(J, param)
+        dJdx = sympy.diff(J, x).reshape(self.dim, self.dim, self.dim)
         return dJdp, dJdx
 
 @cython.wraparound(False)
