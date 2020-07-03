@@ -221,15 +221,13 @@ cdef class SIR_type:
         }
         return output_dict
 
-    def _nested_sampling_prior_transform(self, x, s=None, scale=None, ppf_bounds=None):
-        # Tranform a sample x ~ Unif([0,1]^d) to a sample of the prior using inverse tranform sampling.
-        y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
-        return lognorm.ppf(y, s, scale=scale)
+    def _loglike(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
+                 flat_guess_range=None, x=None, Tf=None, s=None, scale=None, tangent=None):
+        if bounds is not None:
+            # Check that params is within bounds. If not, return -np.inf.
+            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
+                return -np.Inf
 
-    def _nested_sampling_loglike(self, params, keys=None,
-                               is_scale_parameter=None, scaled_guesses=None,
-                               flat_guess_range=None, x=None, Tf=None,
-                               s=None, scale=None, tangent=None):
         orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
                                              is_scale_parameter, scaled_guesses)
         parameters = self.fill_params_dict(keys, orig_params)
@@ -240,12 +238,20 @@ cdef class SIR_type:
         else:
             minus_logp = self._obtain_logp_for_traj(x, Tf)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+
+        if np.isnan(minus_logp):
+            return -np.inf
+
         return -minus_logp
+
+    def _nested_sampling_prior_transform(self, x, s=None, scale=None, ppf_bounds=None):
+        # Tranform a sample x ~ Unif([0,1]^d) to a sample of the prior using inverse tranform sampling.
+        y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
+        return lognorm.ppf(y, s, scale=scale)
 
     def nested_sampling_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False,
                                   queue_size=1, max_workers=None, npoints=100, method='single', max_iter=1000,
-                                  dlogz=None, decline_factor=None,
-                                 return_full=False):
+                                  dlogz=None, decline_factor=None):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
         all classes is available.
@@ -291,10 +297,12 @@ cdef class SIR_type:
 
         Returns
         -------
-        log_evidence:
-            The nested sampling estimate of the log-evidence.
-        (samples, weights):
-            A set of weighted samples approximating the posterios distribution.
+        result:
+            The result of the nested sampling algorithm as returned by `nestle.nested_sampling`. The approximated evidence can
+            be accessed by `result.logz`.
+        samples: dict
+            A set of weighted samples approximating the posterios distribution. Use `pyross.utils.posterior_mean` to compute
+            the posterior mean and `pyross.utils.resample` to sample from the weighted set.
         '''
 
         if nestle is None:
@@ -318,11 +326,9 @@ cdef class SIR_type:
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                        'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
 
-        result = nested_sampling(self._nested_sampling_loglike, self._nested_sampling_prior_transform, k, queue_size,
+        result = nested_sampling(self._loglike, self._nested_sampling_prior_transform, k, queue_size,
                                  max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
                                  prior_transform_args)
-
-        log_evidence = result.logz
 
         output_samples = []
         for i in range(len(result.samples)):
@@ -341,10 +347,7 @@ cdef class SIR_type:
             }
             output_samples.append(output_dict)
             
-        if return_full:
-            return result
-        else:
-            return log_evidence, output_samples
+        return result, output_samples
 
 
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None, 
@@ -359,7 +362,7 @@ cdef class SIR_type:
             else:
                 nprocesses = 1
 
-        if pathos_mp is None:
+        if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
@@ -371,7 +374,7 @@ cdef class SIR_type:
         if nwalkers is None:
             nwalkers = 2*ndim
 
-        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
+        loglike_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
                 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                 'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
         if walker_pos is None:
@@ -384,10 +387,10 @@ cdef class SIR_type:
             # Start a new MCMC chain.
             if nprocesses > 1:
                 mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike, kwargs=loglike_args,
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike, kwargs=loglike_args,
                                                 pool=mcmc_pool)
             else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike, kwargs=loglike_args)
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike, kwargs=loglike_args)
 
             sampler.run_mcmc(p0, nsamples, progress=verbose)
         else:
@@ -1197,12 +1200,15 @@ cdef class SIR_type:
         }
         return output_dict
 
-    def _nested_sampling_loglike_latent(self, params, param_keys=None,
-                                        param_guess_range=None, is_scale_parameter=None,
-                                        scaled_param_guesses=None, param_length=None,
-                                        obs=None, fltr=None, Tf=None, obs0=None,
-                                        init_flags=None, init_fltrs=None,
-                                        s=None, scale=None, tangent=None):
+
+    def _loglike_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
+                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None, 
+                        obs0=None, init_flags=None, init_fltrs=None, s=None, scale=None, tangent=None):
+        if bounds is not None:
+            # Check that params is within bounds. If not, return -np.inf.
+            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
+                return -np.Inf
+
         inits =  np.copy(params[param_length:])
 
         # Restore parameters from flattened parameters
@@ -1222,7 +1228,6 @@ cdef class SIR_type:
             return -np.inf
 
         return -minus_logp
-
 
     def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
                                          init_priors,tangent=False, verbose=False, queue_size=1,
@@ -1278,10 +1283,12 @@ cdef class SIR_type:
 
         Returns
         -------
-        log_evidence:
-            The nested sampling estimate of the log-evidence.
-        (samples, weights):
-            A set of weighted samples approximating the posterios distribution.
+        result:
+            The result of the nested sampling algorithm as returned by `nestle.nested_sampling`. The approximated log-evidence
+            can be accessed by `result.logz`.
+        samples: dict
+            A set of weighted samples approximating the posterior distribution. Use `pyross.utils.posterior_mean` to compute
+            the posterior mean and `pyross.utils.resample` to sample from the weighted set.
         '''
 
         if nestle is None:
@@ -1315,18 +1322,13 @@ cdef class SIR_type:
 
         prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
         loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter,
-                        'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length,
-                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                        's':s, 'scale':scale, 'tangent':tangent}
+                        'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
+                        'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale, 'tangent':tangent}
 
-        result = nested_sampling(self._nested_sampling_loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
+        result = nested_sampling(self._loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
                                  max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
                                  prior_transform_args)
-
-        log_evidence = result.logz
 
         output_samples = []
         for i in range(len(result.samples)):
@@ -1354,7 +1356,7 @@ cdef class SIR_type:
             }
             output_samples.append(output_dict)
 
-        return log_evidence, output_samples
+        return result, output_samples
 
 
     def mcmc_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
@@ -1370,7 +1372,7 @@ cdef class SIR_type:
             else:
                 nprocesses = 1
 
-        if pathos_mp is None:
+        if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
@@ -1397,13 +1399,11 @@ cdef class SIR_type:
         if nwalkers is None:
             nwalkers = 2*ndim
 
-        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter,
-                        'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length,
-                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                        's':s, 'scale':scale, 'tangent':tangent}
+        loglike_args = {'bounds':bounds, 'param_keys':keys, 'param_guess_range':param_guess_range,
+                        'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
+                        'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale, 
+                        'tangent':tangent}
 
         if walker_pos is None:
              # If not specified, sample initial positions of walkers from prior.
@@ -1415,10 +1415,10 @@ cdef class SIR_type:
             # Start a new MCMC chain.
             if nprocesses > 1:
                 mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike_latent,
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent,
                                                 kwargs=loglike_args, pool=mcmc_pool)
             else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._nested_sampling_loglike_latent, 
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent, 
                                                 kwargs=loglike_args)
 
             sampler.run_mcmc(p0, nsamples, progress=verbose)
