@@ -10,7 +10,8 @@ cimport numpy as np
 cimport cython
 import time, sympy
 from sympy import MutableDenseNDimArray as Array
-from sympy import Inverse
+from sympy import Inverse, tensorcontraction, tensorproduct, permutedims
+import dill
 
 try:
     # Optional support for nested sampling.
@@ -3302,24 +3303,50 @@ cdef class Spp(SIR_type):
         return self.U
 
     def lambdify_derivative_functions(self, keys):
-        """Create python functions from sympy expressions"""
-        M=self.M
-        nClass=self.nClass
-        parameters=self.parameters
-        p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p only
-        CM = sympy.Matrix( sympy.symarray('CM', (M, M)))
-        fi = sympy.Matrix( sympy.symarray('fi', (1, M)))
-        x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
-        xi=sympy.Matrix( sympy.symarray('xi', (nClass,  M)))
-        xf=sympy.Matrix( sympy.symarray('xf', (nClass,  M)))
-        expr_var_list = [p, CM, fi, x]
-        expr_var_list_ext = [p, CM, fi, xi, xf]
+        """Create python functions from sympy expressions. Hashes the (in general quite long) model spec for a unique ID"""
+        try:
+            dA, dB, dJ
+            return
+        except NameError:
+            print("Looking for saved functions...\n")
 
-        global dA, dB, dJ, dinvcov ## instead of saving for now
-        dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
-        dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
-        dJ = sympy.lambdify(expr_var_list, self.dJd(p, keys=keys))
-        #dinvcov = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
+        try:
+            global dA, dB, dJ
+            dill.settings['recurse']=True
+            with open("dA.bin", "rb") as file_dA:
+                dA = dill.load(file_dA)
+            with open("dB.bin", "rb") as file_dB:
+                dB = dill.load(file_dB)
+            with open("dJ.bin", "rb") as file_dJ:
+                dJ = dill.load(file_dJ)
+            print("Loaded.\n")
+        except FileNotFoundError:
+            print("None found. Creating python functions from sympy expressions...\n")
+            M=self.M
+            nClass=self.nClass
+            parameters=self.parameters
+            p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p only
+            CM = sympy.Matrix( sympy.symarray('CM', (M, M)))
+            Binv_i = sympy.Matrix( sympy.symarray('Binv_1', (self.dim, self.dim)))
+            Binv_f = sympy.Matrix( sympy.symarray('Binv_f', (self.dim, self.dim)))
+            fi = sympy.Matrix( sympy.symarray('fi', (1, M)))
+            x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
+            xi=sympy.Matrix( sympy.symarray('xi', (nClass,  M)))
+            xf=sympy.Matrix( sympy.symarray('xf', (nClass,  M)))
+            expr_var_list = [p, CM, fi, x]
+            expr_var_list_ext = [p, CM, fi, xi, xf, Binv_i, Binv_f]
+
+            global dA, dB, dJ, dinvcov ## instead of saving for now
+            dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
+            dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
+            dJ = sympy.lambdify(expr_var_list, self.dJd(p, keys=keys))
+            dinvcov = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
+            print("Functions created.They will be saved for future function calls")
+            dill.settings['recurse']=True
+            dill.dump(dA, open("dA.bin", "wb"))
+            dill.dump(dB, open("dB.bin", "wb"))
+            dill.dump(dJ, open("dJ.bin", "wb"))
+            #dill.dump(dcov_e, open("dcov.bin", "wb"))
 
 
     def dmudp(self, x0, t1, tf, steps, C, full_output=False):
@@ -3328,9 +3355,10 @@ cdef class Spp(SIR_type):
         Note that although we can calculate the evolution operator T via adjoint gradient ODES it
         is comparable accuracy to finite difference anyway, and far slower.
         """
+        import time
 
-        def integrand(t, dummy, n, tf, xf, spline): ## can be optimized by outputting full res
-            xt = spline(t)
+        def integrand(t, dummy, n, tf, xf, spline_x): ## can be optimized by outputting full res
+            xt = spline_x(t)
             Tn=self._obtain_time_evol_op_2(xt, xf, t, tf) ## for inner product expression
             dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
             dAdp = np.array(dAdp)
@@ -3352,8 +3380,8 @@ cdef class Spp(SIR_type):
 
         dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
         for k in range(self.dim):
-            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='BDF', t_eval=np.array([tf]),max_step=steps, args=(k, tf, xf, spline,))
-            dmudp[:,k] = res.y[0]
+            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps, args=(k, tf, xf, spline,))
+            dmudp[:,k] = res.y.T[0]
 
         if full_output==False:
             T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
@@ -3607,7 +3635,6 @@ cdef class Spp(SIR_type):
 
     def construct_fullcov_elem(self, xi, xf, dt=1):
         """Creates a sympy version of full cov. Takes symbol and symbolic matrices"""
-
         xi = xi.reshape(1,self.dim)
         xf = xf.reshape(1,self.dim)
 
@@ -3618,29 +3645,77 @@ cdef class Spp(SIR_type):
         elem_offdiag = -Uf.T*Inverse(Bf)
         return elem_diag, elem_offdiag
 
-    def dinvcovelemd(self, p, return_x0_deriv=False, keys=None):
+    def dinvcovelemd(self, p, return_x0_deriv=False, keys=None, dt=1):
         """ Constuction of invcov elements in symbolic form. The inverses of B are slow, but calculating full cov elements directly is faster"""
         assert (keys is not None), "Error: integer 1-0 array 'keys' was not passed"
         M=self.M
         nClass=self.nClass
         xi=sympy.Matrix( sympy.symarray('xi', (nClass,  M)))
         xf=sympy.Matrix( sympy.symarray('xf', (nClass,  M)))
-        no_inferred_params = np.sum(keys)
-        d_diagdp = Array(np.zeros((no_inferred_params,self.dim,self.dim)))
-        d_offdiagdp = Array(np.zeros((no_inferred_params,self.dim,self.dim)))
+        
+        ## explicitely construct the invcov elements
+        j = sympy.Matrix(self.construct_J_spp(xf))
+        Uf = sympy.eye(self.dim) + dt * j ## tangent space approx
+        dBinvdp_i, dBinvdxi = self.dBinvd(p, keys=keys, x=xi, Binv_string='Binv_i')
+        dBinvdp_f, dBinvdxf = self.dBinvd(p, keys=keys, x=xf, Binv_string='Binv_f')
+        dUdp, dUdx = dt*self.dJd(p, keys=keys)
+        dUtdp, dUtdxf = dt*self.dJd(p, keys=keys) ## transpose
+        Binv_f = Array( sympy.symarray('Binv_f', (self.dim, self.dim)))
 
-        rows, cols = np.where(keys==1)
-        elem_diag, elem_offdiag =  self.construct_fullcov_elem(xi, xf)
-        for k, (r, c) in enumerate(zip(rows, cols)):
-            param = p[r,c]
-            d_diagdp[k,:,:] = sympy.diff(elem_diag, param)
-            d_offdiagdp[k,:,:] = sympy.diff(elem_offdiag, param)
+        ## Term 1
+        term1_k = tensorcontraction(tensorproduct(dUtdp, Binv_f), (2,3) )
+        term1 = tensorcontraction(tensorproduct(term1_k, Uf), (2,3))
+        print("term1 OK")
+        ## Term 2
+        term2 = permutedims(term1, (0, 2, 1))
+        print("term2 OK")
+        ## Term 3 
+        term3_k = tensorcontraction(tensorproduct(Uf.T, dBinvdp_f), (1,3) )
+        term3 = tensorcontraction(tensorproduct(term3_k, Uf), (2,3) )
+        term3 = permutedims(term3, (1,0,2))
+        term3_k=permutedims(term3_k, (1,0,2))
+        print("term3 OK")
 
-        d_diagdxi = sympy.diff(elem_diag, xi)
-        d_diagdxf = sympy.diff(elem_diag, xf)
-        d_offdiagdxi = sympy.diff(elem_offdiag, xi)
-        d_offdiagdxf = sympy.diff(elem_offdiag, xf)
+        print(term1.shape, term2.shape, term3.shape, dBinvdp_i.shape)
+        d_diagdp = dBinvdp_i + term1+term2+term3
+        d_offdiagdp = -(term1_k + term3_k)
 
+        d_diagdxi = dBinvdxi
+        d_offdiagdxi = Array(np.zeros((self.dim, self.dim, self.dim)))
+
+        ## Term 4
+        term4_k = tensorcontraction(tensorproduct(dUtdxf, Binv_f), (2,3) )
+        term4 = tensorcontraction(tensorproduct(term4_k, Uf), (2,3))
+        print("term4 OK")
+        ## Term 5
+        term5 = permutedims(term4, (0,2,1))
+        print("term5 OK")
+        ## Term 6 
+        term6_k = tensorcontraction(tensorproduct(Uf.T, dBinvdxf), (1,3) )
+        term6 = tensorcontraction(tensorproduct(term6_k, Uf), (2,3) )
+        term6 = permutedims(term6, (1,0,2))
+        term6_k=permutedims(term6_k, (1,0,2))        
+        print("term6 OK")
+
+        d_diagdxf = term4+term5+term6
+        d_offdiagdxf = -(term4_k + term6_k)
+
+        #no_inferred_params = np.sum(keys)
+        #d_diagdp = Array(np.zeros((no_inferred_params,self.dim,self.dim)))
+        #d_offdiagdp = Array(np.zeros((no_inferred_params,self.dim,self.dim)))
+
+        #rows, cols = np.where(keys==1)
+        #elem_diag, elem_offdiag =  self.construct_fullcov_elem(xi, xf)
+        #for k, (r, c) in enumerate(zip(rows, cols)):
+        #    param = p[r,c]
+        #    d_diagdp[k,:,:] = sympy.diff(elem_diag, param)
+        #    d_offdiagdp[k,:,:] = sympy.diff(elem_offdiag, param)
+
+        #d_diagdxi = sympy.diff(elem_diag, xi)
+        #d_diagdxf = sympy.diff(elem_diag, xf)
+        #d_offdiagdxi = sympy.diff(elem_offdiag, xi)
+        #d_offdiagdxf = sympy.diff(elem_offdiag, xf)
+        print("Exiting")
         return (d_diagdp, d_offdiagdp), (d_diagdxi, d_offdiagdxi), (d_diagdxf, d_offdiagdxf)
 
 
@@ -3666,9 +3741,8 @@ cdef class Spp(SIR_type):
         return dAdp[:,0,:], dAdx[:,0,:]
 
 
-    def dBd(self, p, return_x0_deriv=False, keys=None):
+    def dBd(self, p, return_x0_deriv=False, keys=None, x=None):
         """
-        constructs Spp B. param is a string or sympy symbol. Most likely you'll wish to use 'all' string
         keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
         p is a sympy array which contains epi parameters. nParams*M due to age dependence
         [dBdp]_ijk = dB_jk/dp_i
@@ -3676,7 +3750,8 @@ cdef class Spp(SIR_type):
         assert (keys is not None), "Error: integer 1-0 'keys' was not passed"
         M=self.M
         nClass=self.nClass
-        x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
+        if x == None:
+            x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
         no_inferred_params = np.sum(keys)
         B=self.construct_B_spp(x)
         dBdp = Array(np.zeros((no_inferred_params, self.dim, self.dim)))
@@ -3686,6 +3761,30 @@ cdef class Spp(SIR_type):
             dBdp[k,:,:] = sympy.diff(B, param)
         dBdx = sympy.diff(B, x).reshape(self.dim, self.dim, self.dim)
         return dBdp, dBdx
+
+    def dBinvd(self, p, return_x0_deriv=False, keys=None, x=None, Binv_string='Binv'):
+        """
+        keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
+        p is a sympy array which contains epi parameters. nParams*M due to age dependence
+        [dBdp]_ijk = dB_jk/dp_i
+        Purpose of this function is to circumvent having to symbolically invert a big B matrix, which takes a long time. Matrix multiplication better than inversion
+        Calculates the derivative based on the expression d(B^-1)_jk/dp_i = -(B^-1)jm dB_mn/dp_i (B^-1)nk
+        """
+        assert (keys is not None), "Error: integer 1-0 'keys' was not passed"
+        M=self.M
+        nClass=self.nClass
+        dBdp, dBdx = self.dBd(p, keys=keys, x=x)
+        Binv = Array( sympy.symarray(Binv_string, (self.dim, self.dim)))
+        dBdp_Binv = sympy.tensorcontraction(tensorproduct(dBdp, Binv), (2,3) )
+        dBinvdp = -sympy.tensorcontraction(tensorproduct(Binv, dBdp_Binv), (1,3))
+        dBinvdp = permutedims(dBinvdp,(1,0,2))
+
+        print("Within self.Binvd ",dBdp.shape, dBdp_Binv.shape, dBinvdp.shape)
+
+        dBdx_Binv = sympy.tensorcontraction(tensorproduct(dBdx, Binv), (2,3) )
+        dBinvdx = -sympy.tensorcontraction(tensorproduct(Binv, dBdx_Binv), (1,3))
+        return dBinvdp, dBinvdx
+
 
     def dJd(self, p, return_x0_deriv=False, keys=None):
         """
