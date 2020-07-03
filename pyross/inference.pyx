@@ -3078,6 +3078,7 @@ cdef class Spp(SIR_type):
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
                                     det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
+        #self.model_spec=model_spec
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
@@ -3304,24 +3305,36 @@ cdef class Spp(SIR_type):
 
     def lambdify_derivative_functions(self, keys):
         """Create python functions from sympy expressions. Hashes the (in general quite long) model spec for a unique ID"""
+        import hashlib
+        def dict_id(spec):
+            unique_str = ''.join(["'%s':'%s';"%(key, val) for (key, val) in sorted(spec.items())])
+            return hashlib.sha1(unique_str.encode()).hexdigest()
+        spec_ID='00'#spec_ID=dict_id(model_spec)
+
         try:
-            dA, dB, dJ
+            dA, dB, dJ, dcov_e
             return
         except NameError:
             print("Looking for saved functions...\n")
 
         try:
-            global dA, dB, dJ
+            #model_spec = self.model_spec
+            #spec_ID=dict_id(model_spec)
+            global dA, dB, dJ, dcov_e
             dill.settings['recurse']=True
-            with open("dA.bin", "rb") as file_dA:
+            with open(f"dA_{spec_ID}.bin", "rb") as file_dA:
                 dA = dill.load(file_dA)
-            with open("dB.bin", "rb") as file_dB:
+            with open(f"dB_{spec_ID}.bin", "rb") as file_dB:
                 dB = dill.load(file_dB)
-            with open("dJ.bin", "rb") as file_dJ:
+            with open(f"dJ_{spec_ID}.bin", "rb") as file_dJ:
                 dJ = dill.load(file_dJ)
+            with open(f"dcov_{spec_ID}.bin", "rb") as file_dc:
+                dcov_e = dill.load(file_dc)
             print("Loaded.\n")
         except FileNotFoundError:
-            print("None found. Creating python functions from sympy expressions...\n")
+            print("None found. Creating python functions from sympy expressions (this might take a while)...\n")
+            #model_spec = self.model_spec
+            #spec_ID=dict_id(model_spec)
             M=self.M
             nClass=self.nClass
             parameters=self.parameters
@@ -3336,17 +3349,17 @@ cdef class Spp(SIR_type):
             expr_var_list = [p, CM, fi, x]
             expr_var_list_ext = [p, CM, fi, xi, xf, Binv_i, Binv_f]
 
-            global dA, dB, dJ, dinvcov ## instead of saving for now
+            global dA, dB, dJ, dcov_e ## instead of saving for now
             dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
             dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
             dJ = sympy.lambdify(expr_var_list, self.dJd(p, keys=keys))
-            dinvcov = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
-            print("Functions created.They will be saved for future function calls")
+            dcov_e = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
+            print("Functions created. They will be saved for future function calls")
             dill.settings['recurse']=True
-            dill.dump(dA, open("dA.bin", "wb"))
-            dill.dump(dB, open("dB.bin", "wb"))
-            dill.dump(dJ, open("dJ.bin", "wb"))
-            #dill.dump(dcov_e, open("dcov.bin", "wb"))
+            dill.dump(dA, open(f"dA_{spec_ID}.bin", "wb"))
+            dill.dump(dB, open(f"dB_{spec_ID}.bin", "wb"))
+            dill.dump(dJ, open(f"dJ_{spec_ID}.bin", "wb"))
+            dill.dump(dcov_e, open(f"dcov_{spec_ID}.bin", "wb"))
 
 
     def dmudp(self, x0, t1, tf, steps, C, full_output=False):
@@ -3390,41 +3403,41 @@ cdef class Spp(SIR_type):
         else:
             return dmudp, xd
 
-    def dfullinvcovdp(self, x0, t1, tf, steps, det_model, C):
-        """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
-        fi=self.fi
-        parameters=self.parameters
-        param_values = self.parameters.ravel()
+    #def dfullinvcovdp(self, x0, t1, tf, steps, det_model, C):
+    #    """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
+    #    fi=self.fi
+    #    parameters=self.parameters
+    #    param_values = self.parameters.ravel()
 
-        keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
-        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
-        no_inferred_params = np.sum(keys)
-        CM_f = self.CM.ravel()
-        xd = self.integrate(x0, t1, tf, steps)
-        time_points=np.linspace(t1,tf,steps)
-        dt = time_points[1]-time_points[0]
-        Nf = steps
-        full_cov_inv=[[[None]*(Nf-1) for i in range(Nf-1)] for j in range(no_inferred_params)]
+    #    keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
+    #    self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
+    #    no_inferred_params = np.sum(keys)
+    #    CM_f = self.CM.ravel()
+    #    xd = self.integrate(x0, t1, tf, steps)
+    #    time_points=np.linspace(t1,tf,steps)
+    #    dt = time_points[1]-time_points[0]
+    #    Nf = steps
+    #    full_cov_inv=[[[None]*(Nf-1) for i in range(Nf-1)] for j in range(no_inferred_params)]
 
-        for i, ti in enumerate(time_points[:steps-1]):
-            tf = time_points[i]+dt # make general
-            xi = xd[i]
-            xf = xd[i+1]
+    #    for i, ti in enumerate(time_points[:steps-1]):
+    #        tf = time_points[i]+dt # make general
+    #        xi = xd[i]
+    #        xf = xd[i+1]
 
-            (ddiagdp, doffdiagdp), _ , _ = dinvcov(param_values, CM_f, fi, xi, xf)
-            for k in range(no_inferred_params): ## num params
-                full_cov_inv[k][i][i]   = ddiagdp[k]
-                if i<Nf-2:
-                    full_cov_inv[k][i][i+1] = doffdiagdp[k]
-                    full_cov_inv[k][i+1][i] = np.transpose(doffdiagdp[k])
-        full_cov_inv_mat = np.empty((1, (Nf-1)*self.dim, (Nf-1)*self.dim))
+    #        (ddiagdp, doffdiagdp), _ , _ = dinvcov(param_values, CM_f, fi, xi, xf)
+    #        for k in range(no_inferred_params): ## num params
+    #            full_cov_inv[k][i][i]   = ddiagdp[k]
+    #            if i<Nf-2:
+    #                full_cov_inv[k][i][i+1] = doffdiagdp[k]
+    #                full_cov_inv[k][i+1][i] = np.transpose(doffdiagdp[k])
+    #    full_cov_inv_mat = np.empty((1, (Nf-1)*self.dim, (Nf-1)*self.dim))
 
-        ## Make block mat into full mat. np.sparse.bmat doesn't handle slices very well hence the workaround
-        for k in range(no_inferred_params):
-            f=sparse.bmat(full_cov_inv[k], format='csc').todense().copy()
-            f = np.array(f).reshape((1,)+f.shape)
-            full_cov_inv_mat = np.concatenate((full_cov_inv_mat, f), axis=0)
-        return full_cov_inv_mat[1:]
+    #    ## Make block mat into full mat. np.sparse.bmat doesn't handle slices very well hence the workaround
+    #    for k in range(no_inferred_params):
+    #        f=sparse.bmat(full_cov_inv[k], format='csc').todense().copy()
+    #        f = np.array(f).reshape((1,)+f.shape)
+    #        full_cov_inv_mat = np.concatenate((full_cov_inv_mat, f), axis=0)
+    #    return full_cov_inv_mat[1:]
 
 
     def FIM_sym(self,x0, t1, t2, Nf, model, C, keys=None):
@@ -3661,61 +3674,33 @@ cdef class Spp(SIR_type):
         dUdp, dUdx = dt*self.dJd(p, keys=keys)
         dUtdp, dUtdxf = dt*self.dJd(p, keys=keys) ## transpose
         Binv_f = Array( sympy.symarray('Binv_f', (self.dim, self.dim)))
-
         ## Term 1
         term1_k = tensorcontraction(tensorproduct(dUtdp, Binv_f), (2,3) )
         term1 = tensorcontraction(tensorproduct(term1_k, Uf), (2,3))
-        print("term1 OK")
         ## Term 2
         term2 = permutedims(term1, (0, 2, 1))
-        print("term2 OK")
         ## Term 3 
         term3_k = tensorcontraction(tensorproduct(Uf.T, dBinvdp_f), (1,3) )
         term3 = tensorcontraction(tensorproduct(term3_k, Uf), (2,3) )
         term3 = permutedims(term3, (1,0,2))
         term3_k=permutedims(term3_k, (1,0,2))
-        print("term3 OK")
-
-        print(term1.shape, term2.shape, term3.shape, dBinvdp_i.shape)
         d_diagdp = dBinvdp_i + term1+term2+term3
         d_offdiagdp = -(term1_k + term3_k)
-
         d_diagdxi = dBinvdxi
         d_offdiagdxi = Array(np.zeros((self.dim, self.dim, self.dim)))
-
         ## Term 4
         term4_k = tensorcontraction(tensorproduct(dUtdxf, Binv_f), (2,3) )
         term4 = tensorcontraction(tensorproduct(term4_k, Uf), (2,3))
-        print("term4 OK")
         ## Term 5
         term5 = permutedims(term4, (0,2,1))
-        print("term5 OK")
         ## Term 6 
         term6_k = tensorcontraction(tensorproduct(Uf.T, dBinvdxf), (1,3) )
         term6 = tensorcontraction(tensorproduct(term6_k, Uf), (2,3) )
         term6 = permutedims(term6, (1,0,2))
         term6_k=permutedims(term6_k, (1,0,2))        
-        print("term6 OK")
 
         d_diagdxf = term4+term5+term6
         d_offdiagdxf = -(term4_k + term6_k)
-
-        #no_inferred_params = np.sum(keys)
-        #d_diagdp = Array(np.zeros((no_inferred_params,self.dim,self.dim)))
-        #d_offdiagdp = Array(np.zeros((no_inferred_params,self.dim,self.dim)))
-
-        #rows, cols = np.where(keys==1)
-        #elem_diag, elem_offdiag =  self.construct_fullcov_elem(xi, xf)
-        #for k, (r, c) in enumerate(zip(rows, cols)):
-        #    param = p[r,c]
-        #    d_diagdp[k,:,:] = sympy.diff(elem_diag, param)
-        #    d_offdiagdp[k,:,:] = sympy.diff(elem_offdiag, param)
-
-        #d_diagdxi = sympy.diff(elem_diag, xi)
-        #d_diagdxf = sympy.diff(elem_diag, xf)
-        #d_offdiagdxi = sympy.diff(elem_offdiag, xi)
-        #d_offdiagdxf = sympy.diff(elem_offdiag, xf)
-        print("Exiting")
         return (d_diagdp, d_offdiagdp), (d_diagdxi, d_offdiagdxi), (d_diagdxf, d_offdiagdxf)
 
 
@@ -3778,8 +3763,6 @@ cdef class Spp(SIR_type):
         dBdp_Binv = sympy.tensorcontraction(tensorproduct(dBdp, Binv), (2,3) )
         dBinvdp = -sympy.tensorcontraction(tensorproduct(Binv, dBdp_Binv), (1,3))
         dBinvdp = permutedims(dBinvdp,(1,0,2))
-
-        print("Within self.Binvd ",dBdp.shape, dBdp_Binv.shape, dBinvdp.shape)
 
         dBdx_Binv = sympy.tensorcontraction(tensorproduct(dBdx, Binv), (2,3) )
         dBinvdx = -sympy.tensorcontraction(tensorproduct(Binv, dBdx_Binv), (1,3))
