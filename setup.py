@@ -1,5 +1,5 @@
 import numpy
-import os, sys
+import os, sys, re
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 import Cython.Compiler.Options
@@ -22,9 +22,20 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
+cwd = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(cwd, 'pyross', '__init__.py')) as fp:
+    for line in fp:
+        m = re.search(r'^\s*__version__\s*=\s*([\'"])([^\'"]+)\1\s*$', line)
+        if m:
+            version = m.group(2)
+            break
+    else:
+        raise RuntimeError('Unable to find own __version__ string')
+
+
 setup(
     name='pyross',
-    version='1.2.4',
+    version=version,
     url='https://github.com/rajeshrinet/pyross',
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
