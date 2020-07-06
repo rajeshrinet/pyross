@@ -798,57 +798,6 @@ def getDiagonalCM(country, M=16):
     return x
 
 
-def sample_gaussian(map_estimate, cov, N):
-    """
-    Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
-    covariance `cov` (IN DEVELOPMENT).
-
-    Parameters
-    ----------
-    map_estimate: dict
-        The MAP estimate, e.g. as computed by `inference.infer_parameters`.
-    cov: np.array
-        The covariance matrix of the flat parameters.
-    N: int
-        The number of samples.
-
-    Returns
-    -------
-    samples: list of dict
-        N samples of the Gaussian distribution.
-    """
-    # Sample the flat parameters.
-    mean = map_estimate['flat_map']
-    sample_parameters = np.random.multivariate_normal(mean, cov, N)
-
-    samples = []
-    # To construct the correpsonding samples, we need to differentiate between latent and 
-    # non-latent samples.
-    if 'map_dict' in map_estimate.keys():
-        # Non-latent inference
-        for s in sample_parameters:
-            new_sample = map_estimate.copy()
-            new_sample['flat_params'] = s
-            new_sample['map_dict'] = \
-                unflatten_parameters(s, map_estimate['flat_guess_range'],
-                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
-            samples.append(new_sample)
-    else:
-        # Latent inference
-        for s in sample_parameters:
-            new_sample = map_estimate.copy()
-            new_sample['flat_params'] = s
-            param_estimates = s[:map_estimate['param_length']]
-            new_sample['map_params_dict'] = \
-                unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
-                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
-            print("WARNING: sampling of initial conditions currently not implemented")
-            new_sample['map_x0'] = map_estimate['maps_x0'] #TODO this needs to be implemented.
-            samples.append(new_sample)
-    
-    return samples
-
-
 def resample(weighted_samples, N):
     """
     Given a set of weighted samples, produce a set of unweighted samples approximating the same 

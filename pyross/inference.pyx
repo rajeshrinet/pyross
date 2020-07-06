@@ -914,6 +914,43 @@ cdef class SIR_type:
     #                                    tangent, infer_scale_parameter, fd_method=fd_method)
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
+
+    def sample_gaussian(self, N, map_estimate, cov):
+        """
+        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
+        covariance `cov`.
+
+        Parameters
+        ----------
+        map_estimate: dict
+            The MAP estimate, e.g. as computed by `inference.infer_parameters`.
+        cov: np.array
+            The covariance matrix of the flat parameters.
+        N: int
+            The number of samples.
+
+        Returns
+        -------
+        samples: list of dict
+            N samples of the Gaussian distribution.
+        """
+        # Sample the flat parameters.
+        mean = map_estimate['flat_map']
+        sample_parameters = np.random.multivariate_normal(mean, cov, N)
+
+        samples = []
+        for s in sample_parameters:
+            new_sample = map_estimate.copy()
+            new_sample['flat_params'] = s
+            new_sample['map_dict'] = \
+                pyross.utils.unflatten_parameters(s, map_estimate['flat_guess_range'],
+                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
+            new_sample['-logp'] = None  # Not computed here.
+            samples.append(new_sample)
+        
+        return samples
+
+
     def log_G_evidence(self, x, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3,
                        fd_method="central"):
         """Compute the evidence using a Laplace approximation at the MAP estimate.
@@ -1713,6 +1750,54 @@ cdef class SIR_type:
     #     hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
     #                                           contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
+
+
+    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr):
+        """
+        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
+        covariance `cov`.
+
+        Parameters
+        ----------
+        N: int
+            The number of samples.
+        map_estimate: dict
+            The MAP estimate, e.g. as computed by `inference.latent_infer_parameters`.
+        cov: np.array
+            The covariance matrix of the flat parameters.
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+
+        Returns
+        -------
+        samples: list of dict
+            N samples of the Gaussian distribution.
+        """
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Sample the flat parameters.
+        mean = map_estimate['flat_map']
+        sample_parameters = np.random.multivariate_normal(mean, cov, N)
+
+        samples = []
+        for s in sample_parameters:
+            new_sample = map_estimate.copy()
+            new_sample['flat_params'] = s
+            param_estimates = s[:map_estimate['param_length']]
+            init_estimates = s[map_estimate['param_length']:]
+            new_sample['map_params_dict'] = \
+                pyross.utils.unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
+                        map_estimate['is_scale_parameter'], map_estimate['scaled_param_guesses'])
+            new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'], 
+                                      map_estimate['init_fltrs'], obs0, fltr[0])
+            new_sample['-logp'] = None  # Invalid.
+
+            samples.append(new_sample)
+        
+        return samples
 
 
     def log_G_evidence_latent(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3,
