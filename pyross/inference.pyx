@@ -3,6 +3,7 @@ from scipy import sparse
 from scipy.integrate import solve_ivp, quad
 from scipy.optimize import minimize, approx_fprime
 from scipy.stats import lognorm
+from scipy.linalg import solve_triangular
 import numpy as np
 from scipy.interpolate import make_interp_spline
 from scipy.linalg import eig
@@ -1915,9 +1916,9 @@ cdef class SIR_type:
         J = self.J[indices][:, :, indices, :].reshape((n_inf*M, n_inf*M))
         sign, eigvec = pyross.utils.largest_real_eig(J)
         if not sign: # if eigval not positive, just return the zero state
-            return x0
+            return np.zeros(self.dim)
         else:
-            eigvec = np.abs(eigvec)
+            eigvec = np.abs(eigvec)/np.linalg.norm(eigvec, ord=1)/self.Omega
 
             # substitute in infections and recompute fastest growing linear mode
             for (j, i) in enumerate(indices):
@@ -2057,7 +2058,9 @@ cdef class SIR_type:
             np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
             double [:] z, unknown_inits, partial_inits_memview=partial_inits.astype(DTYPE)
         z = np.subtract(obs_inits, np.dot(fltr[:, init_fltr], partial_inits_memview))
-        unknown_inits = np.linalg.solve(fltr[:, np.invert(init_fltr)], z)
+        # unknown_inits = np.linalg.solve(fltr[:, np.invert(init_fltr)], z)
+        q, r = np.linalg.qr(fltr[:, np.invert(init_fltr)])
+        unknown_inits = solve_triangular(r, q.T @ z)
         x0[init_fltr] = partial_inits_memview
         x0[np.invert(init_fltr)] = unknown_inits
         return x0
