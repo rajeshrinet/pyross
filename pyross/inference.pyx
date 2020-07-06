@@ -12,6 +12,7 @@ import time, sympy
 from sympy import MutableDenseNDimArray as Array
 from sympy import Inverse, tensorcontraction, tensorproduct, permutedims
 import dill
+import hashlib
 
 try:
     # Optional support for nested sampling.
@@ -3073,12 +3074,13 @@ cdef class Spp(SIR_type):
         readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
         readonly pyross.deterministic.Spp det_model
+        readonly dict model_spec
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
                                     det_method='LSODA', lyapunov_method='LSODA'):
         self.param_keys = list(parameters.keys())
-        #self.model_spec=model_spec
+        self.model_spec=model_spec
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
@@ -3305,21 +3307,19 @@ cdef class Spp(SIR_type):
 
     def lambdify_derivative_functions(self, keys):
         """Create python functions from sympy expressions. Hashes the (in general quite long) model spec for a unique ID"""
-        import hashlib
         def dict_id(spec):
+            """Returns a string ID corresponding to the content of the model spec. Appending the model spec itsle fwould lead to veyr long string names in general"""
             unique_str = ''.join(["'%s':'%s';"%(key, val) for (key, val) in sorted(spec.items())])
             return hashlib.sha1(unique_str.encode()).hexdigest()
-        spec_ID='00'#spec_ID=dict_id(model_spec)
 
         try:
             dA, dB, dJ, dcov_e
             return
         except NameError:
-            print("Looking for saved functions...\n")
+            print("Looking for saved functions...")
 
         try:
-            #model_spec = self.model_spec
-            #spec_ID=dict_id(model_spec)
+            spec_ID=dict_id(self.model_spec)
             global dA, dB, dJ, dcov_e
             dill.settings['recurse']=True
             with open(f"dA_{spec_ID}.bin", "rb") as file_dA:
@@ -3330,11 +3330,11 @@ cdef class Spp(SIR_type):
                 dJ = dill.load(file_dJ)
             with open(f"dcov_{spec_ID}.bin", "rb") as file_dc:
                 dcov_e = dill.load(file_dc)
-            print("Loaded.\n")
+            print("Loaded.")
         except FileNotFoundError:
-            print("None found. Creating python functions from sympy expressions (this might take a while)...\n")
+            print("None found. Creating python functions from sympy expressions (this might take a while)...")
             #model_spec = self.model_spec
-            #spec_ID=dict_id(model_spec)
+            spec_ID=dict_id(self.model_spec)
             M=self.M
             nClass=self.nClass
             parameters=self.parameters
@@ -3349,7 +3349,7 @@ cdef class Spp(SIR_type):
             expr_var_list = [p, CM, fi, x]
             expr_var_list_ext = [p, CM, fi, xi, xf, Binv_i, Binv_f]
 
-            global dA, dB, dJ, dcov_e ## instead of saving for now
+            global dA, dB, dJ, dcov_e
             dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
             dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
             dJ = sympy.lambdify(expr_var_list, self.dJd(p, keys=keys))
