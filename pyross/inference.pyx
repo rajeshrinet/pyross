@@ -8,6 +8,7 @@ from scipy.interpolate import make_interp_spline
 from scipy.linalg import eig
 cimport numpy as np
 cimport cython
+from math import isclose
 import time, sympy
 from sympy import MutableDenseNDimArray as Array
 from sympy import Inverse, tensorcontraction, tensorproduct, permutedims
@@ -3293,8 +3294,7 @@ cdef class Spp(SIR_type):
         cdef:
             Py_ssize_t steps=self.steps
             double [:,:] U=self.U
-        ## Interpolate the dynamics
-        if t1==t2:
+        if isclose(t1,t2): ## float precision
             self.U = np.eye(self.dim)
         else:
             x = self.integrate(x0, t1, t2, steps)
@@ -3313,14 +3313,14 @@ cdef class Spp(SIR_type):
             return hashlib.sha1(unique_str.encode()).hexdigest()
 
         try:
-            dA, dB, dJ, dcov_e
+            dA, dB, dJ, dinvcov_e
             return
         except NameError:
             print("Looking for saved functions...")
 
         try:
             spec_ID=dict_id(self.model_spec)
-            global dA, dB, dJ, dcov_e
+            global dA, dB, dJ, dinvcov_e
             dill.settings['recurse']=True
             with open(f"dA_{spec_ID}.bin", "rb") as file_dA:
                 dA = dill.load(file_dA)
@@ -3328,8 +3328,8 @@ cdef class Spp(SIR_type):
                 dB = dill.load(file_dB)
             with open(f"dJ_{spec_ID}.bin", "rb") as file_dJ:
                 dJ = dill.load(file_dJ)
-            with open(f"dcov_{spec_ID}.bin", "rb") as file_dc:
-                dcov_e = dill.load(file_dc)
+            with open(f"dinvcov_{spec_ID}.bin", "rb") as file_dc:
+                dinvcov_e = dill.load(file_dc)
             print("Loaded.")
         except FileNotFoundError:
             print("None found. Creating python functions from sympy expressions (this might take a while)...")
@@ -3340,7 +3340,7 @@ cdef class Spp(SIR_type):
             parameters=self.parameters
             p = sympy.Matrix( sympy.symarray('p', (parameters.shape[0], parameters.shape[1]) )) ## epi-p only
             CM = sympy.Matrix( sympy.symarray('CM', (M, M)))
-            Binv_i = sympy.Matrix( sympy.symarray('Binv_1', (self.dim, self.dim)))
+            Binv_i = sympy.Matrix( sympy.symarray('Binv_i', (self.dim, self.dim)))
             Binv_f = sympy.Matrix( sympy.symarray('Binv_f', (self.dim, self.dim)))
             fi = sympy.Matrix( sympy.symarray('fi', (1, M)))
             x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
@@ -3349,17 +3349,17 @@ cdef class Spp(SIR_type):
             expr_var_list = [p, CM, fi, x]
             expr_var_list_ext = [p, CM, fi, xi, xf, Binv_i, Binv_f]
 
-            global dA, dB, dJ, dcov_e
+            global dA, dB, dJ, dinvcov_e
             dA = sympy.lambdify(expr_var_list, self.dAd(p, keys=keys))
             dB = sympy.lambdify(expr_var_list, self.dBd(p, keys=keys))
             dJ = sympy.lambdify(expr_var_list, self.dJd(p, keys=keys))
-            dcov_e = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
+            dinvcov_e = sympy.lambdify(expr_var_list_ext, self.dinvcovelemd(p, keys=keys) )
             print("Functions created. They will be saved for future function calls")
             dill.settings['recurse']=True
             dill.dump(dA, open(f"dA_{spec_ID}.bin", "wb"))
             dill.dump(dB, open(f"dB_{spec_ID}.bin", "wb"))
             dill.dump(dJ, open(f"dJ_{spec_ID}.bin", "wb"))
-            dill.dump(dcov_e, open(f"dcov_{spec_ID}.bin", "wb"))
+            dill.dump(dinvcov_e, open(f"dinvcov_{spec_ID}.bin", "wb"))
 
 
     def dmudp(self, x0, t1, tf, steps, C, full_output=False):
@@ -3368,11 +3368,10 @@ cdef class Spp(SIR_type):
         Note that although we can calculate the evolution operator T via adjoint gradient ODES it
         is comparable accuracy to finite difference anyway, and far slower.
         """
-        import time
 
-        def integrand(t, dummy, n, tf, xf, spline_x): ## can be optimized by outputting full res
+        def integrand(t, dummy, n, tf, xf, spline_x): 
             xt = spline_x(t)
-            Tn=self._obtain_time_evol_op_2(xt, xf, t, tf) ## for inner product expression
+            Tn=self._obtain_time_evol_op_2(xt, xf, t, tf) ## NOTE:possibly replace with spline
             dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
             dAdp = np.array(dAdp)
             res=np.einsum('ik,jk->ji', Tn, dAdp)
@@ -3386,6 +3385,10 @@ cdef class Spp(SIR_type):
         self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
         no_inferred_params = np.sum(keys)
         CM_f=self.CM.ravel()
+        print(t1,tf)
+        if t1==tf:
+            return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
+
         xd = self.integrate(x0, t1, tf, steps)
         tsteps=np.linspace(t1,tf,steps)
         spline = make_interp_spline(tsteps, xd)
@@ -3401,106 +3404,67 @@ cdef class Spp(SIR_type):
             dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
             return dmu
         else:
-            return dmudp, xd
+            return dmudp
 
-    #def dfullinvcovdp(self, x0, t1, tf, steps, det_model, C):
-    #    """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
-    #    fi=self.fi
-    #    parameters=self.parameters
-    #    param_values = self.parameters.ravel()
-
-    #    keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all epi-params
-    #    self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
-    #    no_inferred_params = np.sum(keys)
-    #    CM_f = self.CM.ravel()
-    #    xd = self.integrate(x0, t1, tf, steps)
-    #    time_points=np.linspace(t1,tf,steps)
-    #    dt = time_points[1]-time_points[0]
-    #    Nf = steps
-    #    full_cov_inv=[[[None]*(Nf-1) for i in range(Nf-1)] for j in range(no_inferred_params)]
-
-    #    for i, ti in enumerate(time_points[:steps-1]):
-    #        tf = time_points[i]+dt # make general
-    #        xi = xd[i]
-    #        xf = xd[i+1]
-
-    #        (ddiagdp, doffdiagdp), _ , _ = dinvcov(param_values, CM_f, fi, xi, xf)
-    #        for k in range(no_inferred_params): ## num params
-    #            full_cov_inv[k][i][i]   = ddiagdp[k]
-    #            if i<Nf-2:
-    #                full_cov_inv[k][i][i+1] = doffdiagdp[k]
-    #                full_cov_inv[k][i+1][i] = np.transpose(doffdiagdp[k])
-    #    full_cov_inv_mat = np.empty((1, (Nf-1)*self.dim, (Nf-1)*self.dim))
-
-    #    ## Make block mat into full mat. np.sparse.bmat doesn't handle slices very well hence the workaround
-    #    for k in range(no_inferred_params):
-    #        f=sparse.bmat(full_cov_inv[k], format='csc').todense().copy()
-    #        f = np.array(f).reshape((1,)+f.shape)
-    #        full_cov_inv_mat = np.concatenate((full_cov_inv_mat, f), axis=0)
-    #    return full_cov_inv_mat[1:]
-
-
-    def FIM_sym(self,x0, t1, t2, Nf, model, C, keys=None):
-        """Does the fullinfo FIM based off symbolic expressions. In development,"""
-        C = self.contactMatrix
-
+    def dfullinvcovdp(self, x0, t1, t2, steps, C):
+        """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
         M=self.M
-        nClass=self.nClass
         num_of_infection_terms=self.infection_terms.shape[0]
+        fi=self.fi
         parameters=self.parameters
-        xd = self.integrate(x0, 0, t2-t1, Nf)
-        time_points = np.linspace(0, t2-t1, Nf)
-        dt = time_points[1]
-        l = np.zeros((num_of_infection_terms,M), dtype=DTYPE)
-        FIM=0
-        if keys == None:
-            keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
-        self.lambdify_derivative_functions(keys)
-        ## Ready the inputs for these functions
         param_values = self.parameters.ravel()
-        fi = self.fi
-        indices = np.triu_indices(self.dim, 1)
-        for k in range(time_points.size-1):
-            #print(f"Progress :\t{k/(time_points.size-1)}")
-            xi, xf = xd[k], xd[k+1]
-            ti = time_points[k]
-            tf = ti+dt
-            CM_f = C(ti).ravel() ## for generality - redundant for a constant ContactMatrix
-            self.CM=C(ti)
-            ## yield the required arrays
+        l = np.zeros((num_of_infection_terms,M), dtype=DTYPE)
+        keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## all epi-params
+
+        self.lambdify_derivative_functions(keys)
+        no_inferred_params = np.sum(keys)
+        self.CM=C(0)
+        CM_f = self.CM.ravel()
+        xd = self.integrate(x0, t1, t2, steps)
+        time_points=np.linspace(t1,t2,steps)
+        dt = time_points[1]-time_points[0]
+        Nf = steps
+        full_cov_inv=[[[None]*(Nf-1) for i in range(Nf-1)] for j in range(no_inferred_params)]
+
+        dxidp = self.dmudp(x0, t1, time_points[0], steps, C, full_output=True)
+
+        for i, ti in enumerate(time_points[:steps-1]):
+            tf = time_points[i]+dt # make general
+            xi = xd[i]
+            xf = xd[i+1]
+
             self.fill_lambdas(xi, l)
             self.noise_correlation(xi, l)
             Bmat = self.convert_vec_to_mat(self.B_vec)
-            Binv = np.linalg.inv(Bmat)
-            ## yield the derivatives by calling saved functions (faster)
-            dtan, dAdx = dA(param_values, CM_f, fi, xi.ravel())
-            dcov, dBdx = dB(param_values, CM_f, fi, xi.ravel())
-            dtan = np.array(dtan)
-            dAdx = np.array(dAdx)
-            dcov = np.array(dcov)
-            dBdx = np.array(dBdx)
-            ## Make things true symmetric where necessary
-            for i in range(np.sum(keys)): ## len params
-                dcov_i = dcov[i]
-                dcov_i.T[indices] = dcov_i[indices]
-            for i in range(self.dim): ## len params
-                dBdx_i = dBdx[i]
-                dBdx_i.T[indices] = dBdx_i[indices]
-            ## construct d[..]dx0 and stack
-            self._obtain_time_evol_op(x0, xi, t1, ti) ## initial to current time
-            U=self.U
+            Binv_i = np.linalg.inv(Bmat).ravel()
+            self.fill_lambdas(xf, l)
+            self.noise_correlation(xf, l)
+            Bmat = self.convert_vec_to_mat(self.B_vec)
+            Binv_f = np.linalg.inv(Bmat).ravel()
 
-            dtandx0 = np.einsum('ij,ik->ik', U, dAdx)
-            dcovdx0 = np.einsum('ji, jkl->ikl', U, dBdx)
-            dtan = np.concatenate((dtan, dtandx0), axis=0)
-            dcov = np.concatenate((dcov, dcovdx0), axis=0)
-            ## Sum for FIM
-            dmu   =  self.dmudp(x0.flatten(), t1, tf, Nf, model, C)
-            dtan +=  np.einsum('lj,il->ij',dAdx, dmu) ## missing part by product rule
-            dcov += np.einsum('ijk,li->ljk', dBdx, dmu)
-            FIM  += np.einsum('ia, ak, jk', dtan, Binv, dtan)
-            FIM  += 0.5*np.einsum('ab,ibc,cd,jda', Binv, dcov, Binv, dcov)
-        return FIM
+            (ddiagdp, doffdiagdp), (ddiagdxi, doffdiagdxi) , (ddiagdxf, doffdiagdxf) = dinvcov_e(param_values, CM_f, fi, xi, xf, Binv_i, Binv_f)
+            #dxidp = self.dmudp(x0, t1, ti, steps, C, full_output=True)
+            dxfdp = self.dmudp(x0, t1, tf, steps, C, full_output=True)
+            ## use chain rule to update
+            ddiagdp += np.einsum('ijk, li->ljk', ddiagdxi, dxidp)
+            ddiagdp += np.einsum('ijk, li->ljk', ddiagdxf, dxfdp)
+            doffdiagdp += np.einsum('ijk, li->ljk', doffdiagdxi, dxidp)
+            doffdiagdp += np.einsum('ijk, li->ljk', doffdiagdxf, dxfdp)
+            for k in range(no_inferred_params): ## num params
+                full_cov_inv[k][i][i]   = ddiagdp[k]
+                if i<Nf-2:
+                    full_cov_inv[k][i][i+1] = doffdiagdp[k]
+                    full_cov_inv[k][i+1][i] = np.transpose(doffdiagdp[k])
+            dxidp = dxfdp.copy()
+
+        ## Make block mat into full mat. np.sparse.bmat doesn't handle slices very well hence the workaround
+        full_cov_inv_mat = np.empty((1, (Nf-1)*self.dim, (Nf-1)*self.dim))
+        for k in range(no_inferred_params):
+            f=sparse.bmat(full_cov_inv[k], format='csc').todense().copy()
+            f = np.array(f).reshape((1,)+f.shape)
+            full_cov_inv_mat = np.concatenate((full_cov_inv_mat, f), axis=0)
+        return full_cov_inv_mat[1:]
+
 
     def construct_l(self, x):
         """constructs sympy l. x is a sympy matrix"""
@@ -3554,7 +3518,6 @@ cdef class Spp(SIR_type):
                     A[product_index, m] += rate[m]*reagent[m]
         A=A.reshape(1, self.dim)
         return A
-
 
     def construct_B_spp(self, x):
         """constructs Spp B. x is a sympy array"""
@@ -3646,7 +3609,7 @@ cdef class Spp(SIR_type):
         J=J.reshape(self.dim, self.dim)
         return J
 
-    def construct_fullcov_elem(self, xi, xf, dt=1):
+    def construct_fullcov_elem(self, xi, xf, dt=1): ##
         """Creates a sympy version of full cov. Takes symbol and symbolic matrices"""
         xi = xi.reshape(1,self.dim)
         xf = xf.reshape(1,self.dim)
@@ -3658,7 +3621,7 @@ cdef class Spp(SIR_type):
         elem_offdiag = -Uf.T*Inverse(Bf)
         return elem_diag, elem_offdiag
 
-    def dinvcovelemd(self, p, return_x0_deriv=False, keys=None, dt=1):
+    def dinvcovelemd(self, p, return_x0_deriv=False, keys=None, dt=1): ##
         """ Constuction of invcov elements in symbolic form. The inverses of B are slow, but calculating full cov elements directly is faster"""
         assert (keys is not None), "Error: integer 1-0 array 'keys' was not passed"
         M=self.M
@@ -3671,8 +3634,9 @@ cdef class Spp(SIR_type):
         Uf = sympy.eye(self.dim) + dt * j ## tangent space approx
         dBinvdp_i, dBinvdxi = self.dBinvd(p, keys=keys, x=xi, Binv_string='Binv_i')
         dBinvdp_f, dBinvdxf = self.dBinvd(p, keys=keys, x=xf, Binv_string='Binv_f')
-        dUdp, dUdx = dt*self.dJd(p, keys=keys)
-        dUtdp, dUtdxf = dt*self.dJd(p, keys=keys) ## transpose
+        dUdp, dUdxf = dt*self.dJd(p, x=xf, keys=keys)
+        dUtdp = permutedims(dUdp, (0,2,1))
+        dUtdxf = permutedims(dUdxf, (0,2,1))
         Binv_f = Array( sympy.symarray('Binv_f', (self.dim, self.dim)))
         ## Term 1
         term1_k = tensorcontraction(tensorproduct(dUtdp, Binv_f), (2,3) )
@@ -3704,7 +3668,7 @@ cdef class Spp(SIR_type):
         return (d_diagdp, d_offdiagdp), (d_diagdxi, d_offdiagdxi), (d_diagdxf, d_offdiagdxf)
 
 
-    def dAd(self, p, return_x0_deriv=False, keys=None):
+    def dAd(self, p, return_x0_deriv=False, keys=None, x=None):
         """
         constructs Spp B. param is a string or sympy symbol. Most likely you'll wish to use 'all' string
         keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
@@ -3714,7 +3678,8 @@ cdef class Spp(SIR_type):
         assert (keys is not None), "Error: integer 1-0 array 'keys' was not passed"
         M=self.M
         nClass=self.nClass
-        x=sympy.Matrix( sympy.symarray('x', (nClass,  M)))
+        if x == None:
+            x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
         no_inferred_params = np.sum(keys)
         A=self.construct_A_spp(x)
         dAdp = Array(np.zeros((no_inferred_params, 1, self.dim)))
@@ -3769,7 +3734,7 @@ cdef class Spp(SIR_type):
         return dBinvdp, dBinvdx
 
 
-    def dJd(self, p, return_x0_deriv=False, keys=None):
+    def dJd(self, p, return_x0_deriv=False, keys=None, x=None):
         """
         constructs Spp J. param is a string or sympy symbol. Most likely you'll wish to use 'all' string
         keys can be passed as a integer 0,1 numpy array which selects the parameters to be used for FIM calculation
@@ -3779,7 +3744,8 @@ cdef class Spp(SIR_type):
         assert (keys is not None), "Error: integer 1-0 'keys' was not passed"
         M=self.M
         nClass=self.nClass
-        x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
+        if x == None:
+            x =sympy.Matrix( sympy.symarray('x', (nClass, M)))
         no_inferred_params = np.sum(keys)
         J=self.construct_J_spp(x)
         dJdp = Array(np.zeros((no_inferred_params, self.dim, self.dim)))
