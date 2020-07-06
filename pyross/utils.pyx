@@ -308,15 +308,10 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         return x, log_det
 
 def largest_real_eig(np.ndarray A):
-    try:
-        eigval, eigvec = eigs(A, return_eigenvectors=True, k=1, which='LR')
-        eigvec = np.real(eigvec[:, 0])
-        eigval = np.real(eigval)[0]
-    except ArpackNoConvergence:
-        w, v = np.linalg.eig(A)
-        max_index = np.argmax(np.real(w))
-        eigval = np.real(w[max_index])
-        eigvec = np.real(eigvec[:, max_index])
+    w, v = np.linalg.eig(A)
+    max_index = np.argmax(np.real(w))
+    eigval = np.real(w[max_index])
+    eigvec = np.real(v[:, max_index])
     eigval_sign = (eigval > 0)
     return eigval_sign, eigvec
 
@@ -473,12 +468,12 @@ def parse_param_prior_dict(prior_dict, M):
                 count += 1
             else:
                 assert len(mean) == M, 'length of mean must be either 1 or M'
-                flat_guess += mean
+                flat_guess += list(mean)
                 try:
                     assert len(sub_dict['std']) == M
                     assert len(sub_dict['bounds']) == M
-                    flat_stds += sub_dict['std']
-                    flat_bounds += sub_dict['bounds']
+                    flat_stds += list(sub_dict['std'])
+                    flat_bounds += list(sub_dict['bounds'])
                 except KeyError:
                     raise Exception('Sub-dict under {} must have "std" and "bounds"'
                                     ' as keys'.format(key))
@@ -796,57 +791,6 @@ def getDiagonalCM(country, M=16):
     for i in range(M):
         x[i] = 1*CM[i,i]
     return x
-
-
-def sample_gaussian(map_estimate, cov, N):
-    """
-    Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
-    covariance `cov` (IN DEVELOPMENT).
-
-    Parameters
-    ----------
-    map_estimate: dict
-        The MAP estimate, e.g. as computed by `inference.infer_parameters`.
-    cov: np.array
-        The covariance matrix of the flat parameters.
-    N: int
-        The number of samples.
-
-    Returns
-    -------
-    samples: list of dict
-        N samples of the Gaussian distribution.
-    """
-    # Sample the flat parameters.
-    mean = map_estimate['flat_map']
-    sample_parameters = np.random.multivariate_normal(mean, cov, N)
-
-    samples = []
-    # To construct the correpsonding samples, we need to differentiate between latent and 
-    # non-latent samples.
-    if 'map_dict' in map_estimate.keys():
-        # Non-latent inference
-        for s in sample_parameters:
-            new_sample = map_estimate.copy()
-            new_sample['flat_params'] = s
-            new_sample['map_dict'] = \
-                unflatten_parameters(s, map_estimate['flat_guess_range'],
-                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
-            samples.append(new_sample)
-    else:
-        # Latent inference
-        for s in sample_parameters:
-            new_sample = map_estimate.copy()
-            new_sample['flat_params'] = s
-            param_estimates = s[:map_estimate['param_length']]
-            new_sample['map_params_dict'] = \
-                unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
-                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
-            print("WARNING: sampling of initial conditions currently not implemented")
-            new_sample['map_x0'] = map_estimate['maps_x0'] #TODO this needs to be implemented.
-            samples.append(new_sample)
-    
-    return samples
 
 
 def resample(weighted_samples, N):
