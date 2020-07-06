@@ -468,12 +468,12 @@ def parse_param_prior_dict(prior_dict, M):
                 count += 1
             else:
                 assert len(mean) == M, 'length of mean must be either 1 or M'
-                flat_guess += mean
+                flat_guess += list(mean)
                 try:
                     assert len(sub_dict['std']) == M
                     assert len(sub_dict['bounds']) == M
-                    flat_stds += sub_dict['std']
-                    flat_bounds += sub_dict['bounds']
+                    flat_stds += list(sub_dict['std'])
+                    flat_bounds += list(sub_dict['bounds'])
                 except KeyError:
                     raise Exception('Sub-dict under {} must have "std" and "bounds"'
                                     ' as keys'.format(key))
