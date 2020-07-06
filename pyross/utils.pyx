@@ -797,10 +797,76 @@ def getDiagonalCM(country, M=16):
         x[i] = 1*CM[i,i]
     return x
 
+
+def sample_gaussian(map_estimate, cov, N):
+    """
+    Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
+    covariance `cov` (IN DEVELOPMENT).
+
+    Parameters
+    ----------
+    map_estimate: dict
+        The MAP estimate, e.g. as computed by `inference.infer_parameters`.
+    cov: np.array
+        The covariance matrix of the flat parameters.
+    N: int
+        The number of samples.
+
+    Returns
+    -------
+    samples: list of dict
+        N samples of the Gaussian distribution.
+    """
+    # Sample the flat parameters.
+    mean = map_estimate['flat_map']
+    sample_parameters = np.random.multivariate_normal(mean, cov, N)
+
+    samples = []
+    # To construct the correpsonding samples, we need to differentiate between latent and 
+    # non-latent samples.
+    if 'map_dict' in map_estimate.keys():
+        # Non-latent inference
+        for s in sample_parameters:
+            new_sample = map_estimate.copy()
+            new_sample['flat_params'] = s
+            new_sample['map_dict'] = \
+                unflatten_parameters(s, map_estimate['flat_guess_range'],
+                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
+            samples.append(new_sample)
+    else:
+        # Latent inference
+        for s in sample_parameters:
+            new_sample = map_estimate.copy()
+            new_sample['flat_params'] = s
+            param_estimates = s[:map_estimate['param_length']]
+            new_sample['map_params_dict'] = \
+                unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
+                        map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
+            print("WARNING: sampling of initial conditions currently not implemented")
+            new_sample['map_x0'] = map_estimate['maps_x0'] #TODO this needs to be implemented.
+            samples.append(new_sample)
+    
+    return samples
+
+
 def resample(weighted_samples, N):
-    # Given a set of weighted samples, produce a set of unweighted samples
-    # approximating the same distribution. We implement residual resampling
-    # here, see https://doi.org/10.1109/ISPA.2005.195385 for context.
+    """
+    Given a set of weighted samples, produce a set of unweighted samples approximating the same 
+    distribution. We implement residual resampling here, see https://doi.org/10.1109/ISPA.2005.195385 
+    for some context. This function can (and for large N will) duplicate likely samples.
+
+    Parameters
+    ----------
+    weighted_samples: list of dict
+        The set of weighed samples (e.g. given by nested sampling).
+    N: int
+        The number of samples that should be drawn from the given samples.
+
+    Returns
+    -------
+    sample_list: list of dict
+        A set of uniformly weighted samples.
+    """
 
     weights = np.array([w['weight'] for w in weighted_samples])
     weights /= np.sum(weights)
@@ -819,22 +885,50 @@ def resample(weighted_samples, N):
 
 
 def posterior_mean(weighted_samples):
-    # Compute the posterior mean of a set of weighted samples of the posterior
-    # (e.g. computed by nested sampling).
+    """
+    Compute the posterior mean of a set of (potentially) weighted samples of the posterior 
+    (e.g. computed by nested sampling or by MCMC).
+
+    Parameters
+    ----------
+    weighted_samples: list of dict
+        The set of (weighted) samples.
+    
+    Returns
+    -------
+    sample: dict
+        An approximation of the posterior mean.
+    """
     weights = np.array([w['weight'] for w in weighted_samples])
     weights /= np.sum(weights)
 
     sample = weighted_samples[0].copy()
     sample['weight'] = 1.0
     # Set the average parameters
-    for key in sample['map_params_dict'].keys():
-        vals = [w['map_params_dict'][key] for w in weighted_samples]
-        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
-        sample['map_params_dict'][key] = avg
+    try:
+        for key in sample['map_dict'].keys():
+            vals = [w['map_dict'][key] for w in weighted_samples]
+            avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+            sample['map_dict'][key] = avg
+    except KeyError:
+        # If this happens, the samples are from latent inference.
+        pass
+
+    try:
+        for key in sample['map_params_dict'].keys():
+            vals = [w['map_params_dict'][key] for w in weighted_samples]
+            avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+            sample['map_params_dict'][key] = avg
+    except KeyError:
+        pass
 
     for key in ['map_x0', 'flat_map']:
-        vals = [w[key] for w in weighted_samples]
-        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
-        sample[key] = avg
+        try:
+            vals = [w[key] for w in weighted_samples]
+            avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+            sample[key] = avg
+        except KeyError:
+            # Happens for non-latent samples since key `map_x0` doesn't exist then.
+            pass
 
     return sample
