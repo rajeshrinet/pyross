@@ -348,11 +348,11 @@ cdef class SIR_type:
                 's':s, 'scale':scale
             }
             output_samples.append(output_dict)
-            
+
         return result, output_samples
 
 
-    def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None, 
+    def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None,
                        walker_pos=None, nsamples=1000, nprocesses=0):
         if emcee is None:
             raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
@@ -919,7 +919,7 @@ cdef class SIR_type:
 
     def sample_gaussian(self, N, map_estimate, cov):
         """
-        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
+        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
 
         Parameters
@@ -949,7 +949,7 @@ cdef class SIR_type:
                         map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
             new_sample['-logp'] = None  # Not computed here.
             samples.append(new_sample)
-        
+
         return samples
 
 
@@ -1251,7 +1251,7 @@ cdef class SIR_type:
 
 
     def _loglike_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
-                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None, 
+                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
                         obs0=None, init_flags=None, init_fltrs=None, s=None, scale=None, tangent=None):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
@@ -1409,7 +1409,7 @@ cdef class SIR_type:
 
 
     def mcmc_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
-                              init_priors,tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None, 
+                              init_priors,tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None,
                               nsamples=1000, nprocesses=0):
         if emcee is None:
             raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
@@ -1451,7 +1451,7 @@ cdef class SIR_type:
         loglike_args = {'bounds':bounds, 'param_keys':keys, 'param_guess_range':param_guess_range,
                         'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
                         'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale, 
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale,
                         'tangent':tangent}
 
         if walker_pos is None:
@@ -1467,7 +1467,7 @@ cdef class SIR_type:
                 sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent,
                                                 kwargs=loglike_args, pool=mcmc_pool)
             else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent, 
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent,
                                                 kwargs=loglike_args)
 
             sampler.run_mcmc(p0, nsamples, progress=verbose)
@@ -1490,7 +1490,7 @@ cdef class SIR_type:
 
         return sampler
 
-    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors, flat=True, 
+    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors, flat=True,
                                              discard=0, thin=1):
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
@@ -1579,6 +1579,8 @@ cdef class SIR_type:
 
         minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+        minus_logp += penalty*fltr.shape[0] # add penalty for negative inits
+
         return minus_logp
 
     def latent_infer_control(self, obs, fltr, Tf, generator, param_priors, init_priors,
@@ -1756,7 +1758,7 @@ cdef class SIR_type:
 
     def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr):
         """
-        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified 
+        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
 
         Parameters
@@ -1793,12 +1795,12 @@ cdef class SIR_type:
             new_sample['map_params_dict'] = \
                 pyross.utils.unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
                         map_estimate['is_scale_parameter'], map_estimate['scaled_param_guesses'])
-            new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'], 
+            new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
                                       map_estimate['init_fltrs'], obs0, fltr[0])
             new_sample['-logp'] = None  # Invalid.
 
             samples.append(new_sample)
-        
+
         return samples
 
 
@@ -3772,7 +3774,7 @@ cdef class Spp(SIR_type):
         nClass=self.nClass
         xi=sympy.Matrix( sympy.symarray('xi', (nClass,  M)))
         xf=sympy.Matrix( sympy.symarray('xf', (nClass,  M)))
-        
+
         ## explicitely construct the invcov elements
         j = sympy.Matrix(self.construct_J_spp(xf))
         Uf = sympy.eye(self.dim) + dt * j ## tangent space approx
@@ -3786,7 +3788,7 @@ cdef class Spp(SIR_type):
         term1 = tensorcontraction(tensorproduct(term1_k, Uf), (2,3))
         ## Term 2
         term2 = permutedims(term1, (0, 2, 1))
-        ## Term 3 
+        ## Term 3
         term3_k = tensorcontraction(tensorproduct(Uf.T, dBinvdp_f), (1,3) )
         term3 = tensorcontraction(tensorproduct(term3_k, Uf), (2,3) )
         term3 = permutedims(term3, (1,0,2))
@@ -3800,11 +3802,11 @@ cdef class Spp(SIR_type):
         term4 = tensorcontraction(tensorproduct(term4_k, Uf), (2,3))
         ## Term 5
         term5 = permutedims(term4, (0,2,1))
-        ## Term 6 
+        ## Term 6
         term6_k = tensorcontraction(tensorproduct(Uf.T, dBinvdxf), (1,3) )
         term6 = tensorcontraction(tensorproduct(term6_k, Uf), (2,3) )
         term6 = permutedims(term6, (1,0,2))
-        term6_k=permutedims(term6_k, (1,0,2))        
+        term6_k=permutedims(term6_k, (1,0,2))
 
         d_diagdxf = term4+term5+term6
         d_offdiagdxf = -(term4_k + term6_k)
