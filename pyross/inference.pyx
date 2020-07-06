@@ -409,31 +409,41 @@ cdef class SIR_type:
 
         return sampler
 
-    def mcmc_inference_process_result(self, sampler, prior_dict, burn_in=0, subsample=1):
+    def mcmc_inference_process_result(self, sampler, prior_dict, flat=True, discard=0, thin=1):
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
-        output_samples = []
+        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
+        samples_per_chain = samples.shape[0]
+        nr_chains = 1 if flat else samples.shape[1]
+        if flat:
+            output_samples = []
+        else:
+            output_samples = [[] for _ in nr_chains]
 
-        samples = sampler.get_chain(flat=True)
-        samples = samples[burn_in::subsample, :]
-        nr_samples = samples.shape[0]
-        for i in range(nr_samples):
-            sample = samples[i,:]
-            weight = 1.0 / nr_samples
+        for i in range(samples_per_chain):
+            for j in range(nr_chains):
+                if flat:
+                    sample = samples[i,:]
+                else:
+                    sample = samples[i, j, :]
+                weight = 1.0 / (samples_per_chain * nr_chains)
 
-            orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
-                                             is_scale_parameter, scaled_guesses)
-            output_dict = {
-                'map_dict':self.fill_params_dict(keys, orig_sample),
-                'flat_map':sample, 'weight':weight, 'keys': keys,
-                'is_scale_parameter':is_scale_parameter,
-                'flat_guess_range':flat_guess_range,
-                'scaled_guesses':scaled_guesses,
-                's':s, 'scale':scale
-            }
-            output_samples.append(output_dict)
+                orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
+                                                is_scale_parameter, scaled_guesses)
+                output_dict = {
+                    'map_dict':self.fill_params_dict(keys, orig_sample),
+                    'flat_map':sample, 'weight':weight, 'keys': keys,
+                    'is_scale_parameter':is_scale_parameter,
+                    'flat_guess_range':flat_guess_range,
+                    'scaled_guesses':scaled_guesses,
+                    's':s, 'scale':scale
+                }
+                if flat:
+                    output_samples.append(output_dict)
+                else:
+                    output_samples[j].append(output_dict)
 
         return output_samples
 
@@ -1441,7 +1451,8 @@ cdef class SIR_type:
 
         return sampler
 
-    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors, burn_in=0, subsample=1):
+    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors, flat=True, 
+                                             discard=0, thin=1):
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
@@ -1461,34 +1472,45 @@ cdef class SIR_type:
 
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
-        output_samples = []
-        samples = sampler.get_chain(flat=True)
-        samples = samples[burn_in::subsample, :]
-        nr_samples = samples.shape[0]
-        for i in range(nr_samples):
-            sample = samples[i,:]
-            weight = 1.0 / nr_samples
-            param_estimates = sample[:param_length]
-            orig_params = pyross.utils.unflatten_parameters(param_estimates,
-                                                            param_guess_range,
-                                                            is_scale_parameter,
-                                                            scaled_param_guesses)
+        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
+        samples_per_chain = samples.shape[0]
+        nr_chains = 1 if flat else samples.shape[1]
+        if flat:
+            output_samples = []
+        else:
+            output_samples = [[] for _ in nr_chains]
 
-            init_estimates = sample[param_length:]
-            sample_params_dict = self.fill_params_dict(keys, orig_params)
-            self.set_params(sample_params_dict)
-            self.set_det_model(sample_params_dict)
-            map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
-                                        obs0, fltr[0])
-            output_dict = {
-                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
-                'flat_map':sample, 'weight':weight,
-                'is_scale_parameter':is_scale_parameter,
-                'flat_param_guess_range':param_guess_range,
-                'scaled_param_guesses':scaled_param_guesses,
-                'init_flags': init_flags, 'init_fltrs': init_fltrs
-            }
-            output_samples.append(output_dict)
+        for i in range(samples_per_chain):
+            for j in range(nr_chains):
+                if flat:
+                    sample = samples[i,:]
+                else:
+                    sample = samples[i, j, :]
+                weight = 1.0 / (samples_per_chain * nr_chains)
+                param_estimates = sample[:param_length]
+                orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                                param_guess_range,
+                                                                is_scale_parameter,
+                                                                scaled_param_guesses)
+
+                init_estimates = sample[param_length:]
+                sample_params_dict = self.fill_params_dict(keys, orig_params)
+                self.set_params(sample_params_dict)
+                self.set_det_model(sample_params_dict)
+                map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
+                                            obs0, fltr[0])
+                output_dict = {
+                    'map_params_dict':sample_params_dict, 'map_x0':map_x0,
+                    'flat_map':sample, 'weight':weight,
+                    'is_scale_parameter':is_scale_parameter,
+                    'flat_param_guess_range':param_guess_range,
+                    'scaled_param_guesses':scaled_param_guesses,
+                    'init_flags': init_flags, 'init_fltrs': init_fltrs
+                }
+                if flat:
+                    output_samples.append(output_dict)
+                else:
+                    output_samples[j].append(output_dict)
 
         return output_samples
 
