@@ -3405,6 +3405,7 @@ cdef class Spp(SIR_type):
             for i in linear_terms_indices:
                 product_index = self.linear_terms[i, 2]
                 if product_index in indices:
+                    a += 1
                     indices.add(self.linear_terms[i, 1])
                     temp.remove(i)
             linear_terms_indices = temp
