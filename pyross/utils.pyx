@@ -795,8 +795,8 @@ def getDiagonalCM(country, M=16):
 
 def resample(weighted_samples, N):
     """
-    Given a set of weighted samples, produce a set of unweighted samples approximating the same 
-    distribution. We implement residual resampling here, see https://doi.org/10.1109/ISPA.2005.195385 
+    Given a set of weighted samples, produce a set of unweighted samples approximating the same
+    distribution. We implement residual resampling here, see https://doi.org/10.1109/ISPA.2005.195385
     for some context. This function can (and for large N will) duplicate likely samples.
 
     Parameters
@@ -830,14 +830,14 @@ def resample(weighted_samples, N):
 
 def posterior_mean(weighted_samples):
     """
-    Compute the posterior mean of a set of (potentially) weighted samples of the posterior 
+    Compute the posterior mean of a set of (potentially) weighted samples of the posterior
     (e.g. computed by nested sampling or by MCMC).
 
     Parameters
     ----------
     weighted_samples: list of dict
         The set of (weighted) samples.
-    
+
     Returns
     -------
     sample: dict
