@@ -72,8 +72,7 @@ cdef class SIR_type:
         self.Omega = Omega
         self.M = M
         self.fi = fi
-        if steps < 4:
-            raise Exception('Steps must be at least 4 for internal spline interpolation.')
+        assert steps >= 2, 'Number of steps must be at least 2'
         self.steps = steps
         self.set_params(parameters)
         self.det_method=det_method
@@ -114,12 +113,6 @@ cdef class SIR_type:
             minus_logp = self._obtain_logp_for_traj(x, Tf)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
         return minus_logp
-
-    def symbolic_test(self):
-        x  =  sympy.symbols('x')
-        expr = sympy.sin(x)
-        diff = sympy.diff(expr, x)
-        return diff, float(x.subs(x, 2))
 
     def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
                         tangent=False, verbose=False,
@@ -2122,11 +2115,11 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        det_method: str
+        lyapunov_method: str
             The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
         '''
         if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
-            raise Exception('det_method not implemented. Please see our documentation for the available options')
+            raise Exception('{} not implemented. Choose between LSODA, RK45, RK2 and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
 
     def set_det_method(self, det_method):
@@ -2135,10 +2128,10 @@ cdef class SIR_type:
         Parameters
         ----------
         det_method: str
-            The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
+            The name of the integration method. Choose between 'LSODA' and 'RK45'.
         '''
-        if det_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
-            raise Exception('det_method not implemented. Please see our documentation for the available options')
+        if det_method not in ['LSODA', 'RK45']:
+            raise Exception('{} not implemented. Choose between LSODA and RK45'.format(det_method))
         self.det_method=det_method
 
     def set_det_model(self, parameters):
@@ -2245,7 +2238,6 @@ cdef class SIR_type:
             np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
             double [:] z, unknown_inits, partial_inits_memview=partial_inits.astype(DTYPE)
         z = np.subtract(obs_inits, np.dot(fltr[:, init_fltr], partial_inits_memview))
-        # unknown_inits = np.linalg.solve(fltr[:, np.invert(init_fltr)], z)
         q, r = np.linalg.qr(fltr[:, np.invert(init_fltr)])
         unknown_inits = solve_triangular(r, q.T @ z)
         x0[init_fltr] = partial_inits_memview
@@ -2255,17 +2247,18 @@ cdef class SIR_type:
     cdef double _obtain_logp_for_traj(self, double [:, :] x, double Tf):
         cdef:
             double log_p = 0
-            double [:] xi, xf, dev, mean
-            double [:, :] cov
-            Py_ssize_t i, Nf=x.shape[0]
+            double [:] xi, xf, dev
+            double [:, :] cov, xm
+            Py_ssize_t i, Nf=x.shape[0], steps=self.steps
             double [:] time_points = np.linspace(0, Tf, Nf)
         for i in range(Nf-1):
             xi = x[i]
             xf = x[i+1]
             ti = time_points[i]
             tf = time_points[i+1]
-            mean, cov = self._estimate_cond_mean_cov(xi, ti, tf)
-            dev = np.subtract(xf, mean)
+            xm, sol = self.integrate(xi, ti, tf, steps, dense_output=True)
+            cov = self._estimate_cond_cov(sol, ti, tf)
+            dev = np.subtract(xf, xm[steps-1])
             log_p += self._log_cond_p(dev, cov)
         return -log_p
 
@@ -2302,7 +2295,11 @@ cdef class SIR_type:
         for i in range(1, Nf-1):
             xt = x[i]
             t = time_points[i]
-            dx_det, cov = self._estimate_dx_and_cov(xt, t, dt)
+            self.det_model.set_contactMatrix(t, self.contactMatrix)
+            self.det_model.rhs(np.multiply(xt, self.Omega), t)
+            dx_det = np.multiply(dt/self.Omega, self.det_model.dxdt)
+            self.compute_jacobian_and_b_matrix(xt, t)
+            cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             dev = np.subtract(dx[i], dx_det)
             logp += self._log_cond_p(dev, cov)
         return -logp
@@ -2310,57 +2307,28 @@ cdef class SIR_type:
     cdef double _log_cond_p(self, double [:] x, double [:, :] cov):
         cdef:
             double [:] invcov_x
-            double _log_cond_p
+            double log_cond_p
             double det
         invcov_x, ldet = pyross.utils.solve_symmetric_close_to_singular(cov, x)
-        _log_cond_p = - np.dot(x, invcov_x)*(self.Omega/2) - (self.dim/2)*log(2*PI)
-        _log_cond_p -= (ldet - self.dim*log(self.Omega))/2
-        _log_cond_p -= self.dim*np.log(self.Omega)
-        return _log_cond_p
+        log_cond_p = - np.dot(x, invcov_x)*(self.Omega/2) - (self.dim/2)*log(2*PI)
+        log_cond_p -= (ldet - self.dim*log(self.Omega))/2
+        log_cond_p -= self.dim*np.log(self.Omega)
+        return log_cond_p
 
-    cdef _estimate_cond_mean_cov(self, double [:] x0, double t1, double t2):
+    cdef _estimate_cond_cov(self, object sol, double t1, double t2):
         cdef:
-            double [:, :] cov_array
-            double [:] cov, sigma0=np.zeros((self.vec_size), dtype=DTYPE)
-            double [:, :] x, cov_mat
-            Py_ssize_t steps = self.steps
-            double [:] time_points = np.linspace(t1, t2, steps)
-        x = self.integrate(x0, t1, t2, steps)
-        spline = make_interp_spline(time_points, x)
+            double [:] cov_vec, sigma0=np.zeros((self.vec_size), dtype=DTYPE)
+            double [:, :] cov
 
         def rhs(t, sig):
-            self.CM = self.contactMatrix(t)
-            self._lyapunov_fun(t, sig, spline)
+            x = sol(t)/self.Omega # sol is an ODESolver obj for extensive variables
+            self.compute_jacobian_and_b_matrix(x, t, b_matrix=True, jacobian=True)
+            self._compute_dsigdt(sig)
             return self.dsigmadt
 
-        if self.lyapunov_method=='euler':
-            cov_array = pyross.utils.forward_euler_integration(rhs, sigma0, t1, t2, steps)
-            cov = cov_array[steps-1]
-        elif self.lyapunov_method=='RK45':
-            res = solve_ivp(rhs, (t1, t2), sigma0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
-            cov = res.y[0]
-        elif self.lyapunov_method=='LSODA':
-            res = solve_ivp(rhs, (t1, t2), sigma0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
-            cov = res.y[0]
-        elif self.lyapunov_method=='RK2':
-            cov_array = pyross.utils.RK2_integration(rhs, sigma0, t1, t2, steps)
-            cov = cov_array[steps-1]
-        else:
-            raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
-
-        cov_mat = self.convert_vec_to_mat(cov)
-        return x[steps-1], cov_mat
-
-    cdef _estimate_dx_and_cov(self, double [:] xt, double t, double dt):
-        cdef:
-            double [:] dx_det
-            double [:, :] cov
-        self.det_model.set_contactMatrix(t, self.contactMatrix)
-        self.det_model.rhs(np.multiply(xt, self.Omega), t)
-        dx_det = np.multiply(dt/self.Omega, self.det_model.dxdt)
-        self.compute_jacobian_and_b_matrix(xt, t)
-        cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
-        return dx_det, cov
+        cov_vec = self._solve_lyapunov_type_eq(rhs, sigma0, t1, t2, self.steps)
+        cov = self.convert_vec_to_mat(cov_vec)
+        return cov
 
     cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf):
         cdef:
@@ -2371,15 +2339,15 @@ cdef class SIR_type:
             double [:, :] cond_cov, cov, temp
             double [:, :, :, :] full_cov
             double ti, tf
-        xm = self.integrate(x0, 0, Tf, Nf, method='LSODA', maxNumSteps=self.steps*Nf)
+        xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True,
+                                           maxNumSteps=self.steps*Nf)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         for i in range(Nf-1):
             ti = time_points[i]
             tf = time_points[i+1]
-            xi = xm[i]
-            xf, cond_cov = self._estimate_cond_mean_cov(xi, ti, tf)
-            self._obtain_time_evol_op(xi, xf, ti, tf)
+            cond_cov = self._estimate_cond_cov(sol, ti, tf)
+            self._obtain_time_evol_op(sol, ti, tf)
             cov = np.add(self.U@cov@self.U.T, cond_cov)
             full_cov[i, :, i, :] = cov
             if i>0:
@@ -2399,8 +2367,7 @@ cdef class SIR_type:
             double [:, :] cov, cond_cov, U, J_dt, temp
             double [:, :, :, :] full_cov
             double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf,
-                                method='LSODA', maxNumSteps=self.steps*Nf)
+        xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -2410,8 +2377,7 @@ cdef class SIR_type:
             cond_cov = np.multiply(dt, self.convert_vec_to_mat(self.B_vec))
             J_dt = np.multiply(dt, self.J_mat)
             U = np.add(np.identity(dim), J_dt)
-            cov = np.dot(np.dot(U, cov), U.T)
-            cov = np.add(cov, cond_cov)
+            cov = np.add(np.dot(np.dot(U, cov), U.T), cond_cov)
             full_cov[i, :, i, :] = cov
             if i>0:
                 for j in range(0, i):
@@ -2420,20 +2386,56 @@ cdef class SIR_type:
                     full_cov[i, :, j, :] = temp.T
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
 
-    cpdef _obtain_time_evol_op(self, double [:] x0, double [:] xf, double t1, double t2):
+    cpdef _obtain_time_evol_op_2(self, sol, double t1, double t2):
         cdef:
             double [:, :] U=self.U
+            double [:] xi, xf
             double epsilon=1./self.Omega
             Py_ssize_t i, j, steps=self.steps
-        if t1==t2:
+        if isclose(t1, t2):
             U = np.eye(self.dim)
         else:
+            xi = sol(t1)
+            xf = sol(t2)
             for i in range(self.dim):
-                x0[i] += epsilon
-                pos = self.integrate(x0, t1, t2, steps)[steps-1]
+                xi[i] += epsilon
+                pos = self.integrate(xi, t1, t2, steps)[steps-1]
                 for j in range(self.dim):
                     U[j, i] = (pos[j]-xf[j])/(epsilon)
-                x0[i] -= epsilon
+                xi[i] -= epsilon
+
+    def _obtain_time_evol_op(self, sol, double t1, double t2):
+        cdef:
+            Py_ssize_t steps=self.steps
+
+        def rhs(t, U_vec):
+            xt = sol(t)
+            self.compute_jacobian_and_b_matrix(xt, t, b_matrix=False, jacobian=True)
+            U_mat = np.reshape(U_vec, (self.dim, self.dim))
+            dUdt = np.dot(self.J_mat, U_mat)
+            return np.ravel(dUdt)
+
+        if isclose(t1, t2): ## float precision
+            self.U = np.eye(self.dim)
+        else:
+            U0 = np.identity((self.dim)).flatten()
+            U_vec = self._solve_lyapunov_type_eq(rhs, U0, t1, t2, steps)
+            self.U = np.reshape(U_vec, (self.dim, self.dim))
+
+    def _solve_lyapunov_type_eq(self, rhs, M0, t1, t2, steps):
+        if self.lyapunov_method=='euler':
+            sol_vec = pyross.utils.forward_euler_integration(rhs, M0, t1, t2, steps)[steps-1]
+        elif self.lyapunov_method=='RK45':
+            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            sol_vec = res.y[:, 0]
+        elif self.lyapunov_method=='LSODA':
+            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            sol_vec = res.y[:, 0]
+        elif self.lyapunov_method=='RK2':
+            sol_vec = pyross.utils.RK2_integration(rhs, M0, t1, t2, steps)[steps-1]
+        else:
+            raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
+        return sol_vec
 
     cdef _compute_dsigdt(self, double [:] sig):
         cdef:
@@ -2461,15 +2463,12 @@ cdef class SIR_type:
                 count += 1
         return cov_mat
 
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        raise NotImplementedError("Please Implement _lyapunov_fun in subclass")
-
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                              b_matrix=True, jacobian=False):
         raise NotImplementedError("Please Implement compute_jacobian_and_b_matrix in subclass")
 
-
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, method=None, maxNumSteps=100000):
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps,
+                  dense_output=False, maxNumSteps=100000):
         """An light weight integrate method similar to `simulate` in pyross.deterministic
 
         Parameters
@@ -2497,73 +2496,17 @@ cdef class SIR_type:
             return self.det_model.dxdt
 
         x0 = np.multiply(x0, self.Omega)
+        time_points = np.linspace(t1, t2, steps)
+        res = solve_ivp(rhs0, [t1,t2], x0, method=self.det_method,
+                        t_eval=time_points, dense_output=dense_output,
+                        max_step=maxNumSteps, rtol=1e-4)
+        y = np.divide(res.y.T, self.Omega)
 
-        if method is None:
-            method = self.det_method
-        if method=='LSODA':
-            time_points = np.linspace(t1, t2, steps)
-            sol = solve_ivp(rhs0, [t1,t2], x0, method='LSODA', t_eval=time_points, max_step=maxNumSteps, rtol=1e-4).y.T
-        elif method=='RK45':
-            time_points = np.linspace(t1, t2, steps)
-            sol = solve_ivp(rhs0, [t1,t2], x0, method='RK45', t_eval=time_points, max_step=maxNumSteps).y.T
-        elif method=='euler':
-            sol = pyross.utils.forward_euler_integration(rhs0, x0, t1, t2, steps)
-        elif method=='RK2':
-            sol = pyross.utils.RK2_integration(rhs0, x0, t1, t2, steps)
+        if dense_output:
+            return y, res.sol
         else:
-            print(method)
-            raise Exception("Error: method not found. use set_det_method to reset, or pass in a valid method")
-        return np.divide(sol, self.Omega)
+            return y
 
-    def _flatten_parameters(self, guess, stds, bounds, infer_scale_parameter):
-        # Deal with age-dependent rates: Transfer the supplied guess to a flat guess where the age dependent rates are either listed
-        # as multiple parameters (infer_scale_parameter is False) or replaced by a scaling factor with initial value 1.0
-        # (infer_scale_parameter is True).
-        age_dependent = np.array([hasattr(g, "__len__") for g in guess], dtype=np.bool)  # Select all guesses with more than 1 entry
-        n_age_dep = np.sum(age_dependent)
-        if not hasattr(infer_scale_parameter, "__len__"):
-            # infer_scale_parameter can be either set for all age-dependent parameters or individually
-            infer_scale_parameter = np.array([infer_scale_parameter]*n_age_dep, dtype=np.bool)
-        is_scale_parameter = np.zeros(len(guess), dtype=np.bool)
-        k = 0
-        for j in range(len(guess)):
-            if age_dependent[j]:
-                is_scale_parameter[j] = infer_scale_parameter[k]
-                k += 1
-
-        n_scaled_age_dep = np.sum(infer_scale_parameter)
-        flat_guess_size  = len(guess) - n_age_dep + self.M * (n_age_dep - n_scaled_age_dep) + n_scaled_age_dep
-
-        # Define a new flat guess and a list of slices that correspond to the intitial guess
-        flat_guess       = np.zeros(flat_guess_size)
-        flat_stds        = np.zeros(flat_guess_size)
-        flat_bounds      = np.zeros((flat_guess_size, 2))
-        flat_guess_range = []  # Indicates the position(s) in flat_guess that each parameter corresponds to
-        scaled_guesses   = []  # Store the age-dependent guesses where we infer a scale parameter in this list
-        i = 0; j = 0
-        while i < flat_guess_size:
-            if age_dependent[j] and is_scale_parameter[j]:
-                flat_guess[i]    = 1.0          # Initial guess for the scaling parameter
-                flat_stds[i]     = stds[j]      # Assume that suitable std. deviation for scaling factor and bounds are
-                flat_bounds[i,:] = bounds[j,:]  # provided by the user (only one bound for age-dependent parameters possible).
-                scaled_guesses.append(guess[j])
-                flat_guess_range.append(i)
-                i += 1
-            elif age_dependent[j]:
-                flat_guess[i:i+self.M]    = guess[j]
-                flat_stds[i:i+self.M]     = stds[j]
-                flat_bounds[i:i+self.M,:] = bounds[j,:]
-                flat_guess_range.append(list(range(i, i+self.M)))
-                i += self.M
-            else:
-                flat_guess[i]    = guess[j]
-                flat_stds[i]     = stds[j]
-                flat_bounds[i,:] = bounds[j,:]
-                flat_guess_range.append(i)
-                i += 1
-            j += 1
-
-        return flat_guess, flat_stds, flat_bounds, flat_guess_range, is_scale_parameter, scaled_guesses
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -2601,13 +2544,12 @@ cdef class SIR(SIR_type):
         System size parameter, e.g. total population. Default to 1.
     steps: int, optional
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
-        The minimal and the default value is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
-        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
@@ -2629,20 +2571,6 @@ cdef class SIR(SIR_type):
     def make_params_dict(self):
         parameters = {'alpha':self.alpha, 'beta':self.beta, 'gIa':self.gIa, 'gIs':self.gIs, 'fsa':self.fsa}
         return parameters
-
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        cdef:
-            double [:] x, s, Ia, Is
-            Py_ssize_t M=self.M
-        x = spline(t)
-        s = x[0:M]
-        Ia = x[M:2*M]
-        Is = x[2*M:3*M]
-        cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        self.fill_lambdas(Ia, Is, l)
-        self.jacobian(s, l)
-        self.noise_correlation(s, Ia, Is, l)
-        self._compute_dsigdt(sig)
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                                 b_matrix=True, jacobian=False):
@@ -2746,13 +2674,12 @@ cdef class SEIR(SIR_type):
         System size, e.g. total population. Default is 1.
     steps: int, optional
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
-        The minimal and default is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
-        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
@@ -2782,22 +2709,6 @@ cdef class SEIR(SIR_type):
         parameters = {'alpha':self.alpha, 'beta':self.beta, 'gIa':self.gIa,
                             'gIs':self.gIs, 'gE':self.gE, 'fsa':self.fsa}
         return parameters
-
-
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        cdef:
-            double [:] x, s, e, Ia, Is
-            Py_ssize_t M=self.M
-        x = spline(t)
-        s = x[0:M]
-        e = x[M:2*M]
-        Ia = x[2*M:3*M]
-        Is = x[3*M:4*M]
-        cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        self.fill_lambdas(Ia, Is, l)
-        self.jacobian(s, l)
-        self.noise_correlation(s, e, Ia, Is, l)
-        self._compute_dsigdt(sig)
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                             b_matrix=True, jacobian=False):
@@ -2915,13 +2826,12 @@ cdef class SEAIRQ(SIR_type):
         System size, e.g. total population. Default is 1.
     steps: int, optional
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
-        The minimal and default is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
-        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
@@ -2961,23 +2871,6 @@ cdef class SEAIRQ(SIR_type):
                       'tIs': self.tIs
                       }
         return parameters
-
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        cdef:
-            double [:] x, s, e, a, Ia, Is, Q
-            Py_ssize_t M=self.M
-        x = spline(t)
-        s = x[0:M]
-        e = x[M:2*M]
-        a = x[2*M:3*M]
-        Ia = x[3*M:4*M]
-        Is = x[4*M:5*M]
-        q = x[5*M:6*M]
-        cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        self.fill_lambdas(a, Ia, Is, l)
-        self.jacobian(s, l)
-        self.noise_correlation(s, e, a, Ia, Is, q, l)
-        self._compute_dsigdt(sig)
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                         b_matrix=True, jacobian=False):
@@ -3113,15 +3006,14 @@ cdef class SEAIRQ_testing(SIR_type):
         Number of people in each age group divided by Omega.
     Omega: float, optional
         System size, e.g. total population. Default is 1.
-    steps: int
+    steps: int, optional
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
-        The minimal and default is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
-        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
@@ -3175,25 +3067,6 @@ cdef class SEAIRQ_testing(SIR_type):
                       'kapE': self.kapE
                       }
         return parameters
-
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        cdef:
-            double [:] x, s, e, a, Ia, Is, Q, TR
-            Py_ssize_t M=self.M
-        x = spline(t)
-        s = x[0:M]
-        e = x[M:2*M]
-        a = x[2*M:3*M]
-        Ia = x[3*M:4*M]
-        Is = x[4*M:5*M]
-        q = x[5*M:6*M]
-        TR=self.testRate(t)
-        cdef double [:] l=np.zeros((M), dtype=DTYPE)
-        self.fill_lambdas(a, Ia, Is, l)
-        self.jacobian(s, e, a, Ia, Is, q, l, TR)
-        self.noise_correlation(s, e, a, Ia, Is, q, l, TR)
-        self._compute_dsigdt(sig)
-
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                             b_matrix=True, jacobian=False):
@@ -3329,15 +3202,14 @@ cdef class Spp(SIR_type):
         Fraction of each age group.
     Omega: int
         Total population.
-    steps: int
+    steps: int, optional
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
-        The minimal is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
-        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
@@ -3438,22 +3310,6 @@ cdef class Spp(SIR_type):
         else:
             r = self.fi - np.sum(xrs, axis=0)
         return r
-
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        cdef:
-            double [:] x, fi=self.fi
-            Py_ssize_t nClass=self.nClass, M=self.M
-            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-        x = spline(t)
-        cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-        if self.constant_terms.size > 0:
-            fi = x[(nClass-1)*M:]
-        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-        self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-        self.fill_lambdas(x, l)
-        self.jacobian(x, l)
-        self.noise_correlation(x, l)
-        self._compute_dsigdt(sig)
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                             b_matrix=True, jacobian=False):
@@ -3570,37 +3426,6 @@ cdef class Spp(SIR_type):
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
-    def adj_RHS_mean(self, double t, double [:] lam, double [:] x0, spline):
-        """RHS function for the adjoint gradient calculation of the time evolution operator."""
-        cdef:
-            Py_ssize_t M=self.M, nClass=self.nClass
-            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-            double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-            double [:] fsa=self.fsa, beta=self.beta, fi=self.fi
-        self.CM = self.contactMatrix(t)
-        x  = spline(t)
-        self.fill_lambdas(x, l)
-        self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-        self.jacobian(x, l)
-        return -np.dot(self.J_mat.T, lam )
-
-    cpdef _obtain_time_evol_op_2(self, double [:] x0, double [:] xf, double t1, double t2):
-        """
-        xf is a redundant input here, added for consistency with the finite difference version '_obtain_time_evol_op'
-        """
-        cdef:
-            Py_ssize_t steps=self.steps
-            double [:,:] U=self.U
-        if isclose(t1,t2): ## float precision
-            self.U = np.eye(self.dim)
-        else:
-            x = self.integrate(x0, t1, t2, steps)
-            tsteps = np.linspace(t1, t2, steps)
-            spline = make_interp_spline(tsteps, x)
-            for k, row in enumerate(np.eye(self.dim)):
-                a = solve_ivp(self.adj_RHS_mean, [t2,t1], row, t_eval=np.array([t1]), method='DOP853', args=(x0, spline,))
-                self.U[k,:] = a.y.T[0]
-        return self.U
 
     def lambdify_derivative_functions(self, keys):
         """Create python functions from sympy expressions. Hashes the (in general quite long) model spec for a unique ID"""
@@ -3658,50 +3483,50 @@ cdef class Spp(SIR_type):
             dill.dump(dJ, open(f"dJ_{spec_ID}.bin", "wb"))
             dill.dump(dinvcov_e, open(f"dinvcov_{spec_ID}.bin", "wb"))
 
-
-    def dmudp(self, x0, t1, tf, steps, C, full_output=False):
-        """
-        calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
-        Note that although we can calculate the evolution operator T via adjoint gradient ODES it
-        is comparable accuracy to finite difference anyway, and far slower.
-        """
-
-        def integrand(t, dummy, n, tf, xf, spline_x):
-            xt = spline_x(t)
-            Tn=self._obtain_time_evol_op_2(xt, xf, t, tf) ## NOTE:possibly replace with spline
-            dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
-            dAdp = np.array(dAdp)
-            res=np.einsum('ik,jk->ji', Tn, dAdp)
-            return res[:,n]
-
-        fi=self.fi
-        parameters=self.parameters
-        param_values = self.parameters.ravel()
-
-        keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
-        self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
-        no_inferred_params = np.sum(keys)
-        CM_f=self.CM.ravel()
-        print(t1,tf)
-        if t1==tf:
-            return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
-
-        xd = self.integrate(x0, t1, tf, steps)
-        tsteps=np.linspace(t1,tf,steps)
-        spline = make_interp_spline(tsteps, xd)
-        xf = spline(tf)
-
-        dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
-        for k in range(self.dim):
-            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps, args=(k, tf, xf, spline,))
-            dmudp[:,k] = res.y.T[0]
-
-        if full_output==False:
-            T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
-            dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
-            return dmu
-        else:
-            return dmudp
+    #
+    # def dmudp(self, x0, t1, tf, steps, C, full_output=False):
+    #     """
+    #     calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
+    #     Note that although we can calculate the evolution operator T via adjoint gradient ODES it
+    #     is comparable accuracy to finite difference anyway, and far slower.
+    #     """
+    #
+    #     def integrand(t, dummy, n, tf, sol):
+    #         xt = spline_x(t)
+    #         self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
+    #         dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
+    #         dAdp = np.array(dAdp)
+    #         res=np.einsum('ik,jk->ji', self.U, dAdp)
+    #         return res[:,n]
+    #
+    #     fi=self.fi
+    #     parameters=self.parameters
+    #     param_values = self.parameters.ravel()
+    #
+    #     keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
+    #     self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
+    #     no_inferred_params = np.sum(keys)
+    #     CM_f=self.CM.ravel()
+    #     print(t1,tf)
+    #     if t1==tf:
+    #         return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
+    #
+    #     xd, sol = self.integrate(x0, t1, tf, steps, dense_output=True)
+    #     tsteps=np.linspace(t1,tf,steps)
+    #     spline = make_interp_spline(tsteps, xd)
+    #     xf = spline(tf)
+    #
+    #     dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
+    #     for k in range(self.dim):
+    #         res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps, args=(k, tf, xf, spline,))
+    #         dmudp[:,k] = res.y.T[0]
+    #
+    #     if full_output==False:
+    #         T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
+    #         dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
+    #         return dmu
+    #     else:
+    #         return dmudp
 
     def dfullinvcovdp(self, x0, t1, t2, steps, C):
         """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
@@ -4168,12 +3993,11 @@ cdef class SppQ(SIR_type):
             for i in linear_terms_indices:
                 product_index = self.linear_terms[i, 2]
                 if product_index in indices:
+                    a += 1
                     indices.add(self.linear_terms[i, 1])
-                    temp.pop(i)
+                    temp.remove(i)
             linear_terms_indices = temp
         return list(indices)
-
-
 
     def set_params(self, parameters):
         nParams = len(self.param_keys)
@@ -4243,27 +4067,6 @@ cdef class SppQ(SIR_type):
             ntestpop += parameters[test_freq[nClassUwoN], m] * r[m]
         tau0 = TR / (Omega * ntestpop)
         return ntestpop, tau0
-
-    cdef _lyapunov_fun(self, double t, double [:] sig, spline):
-        cdef:
-            double [:] x, fi=self.fi
-            double TR
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, M=self.M
-            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-            double ntestpop, tau0
-        x = spline(t)
-        cdef double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-        cdef double [:] r=np.zeros(self.M, dtype=DTYPE)
-        if self.constant_terms.size > 0:
-            fi = x[(nClassU-1)*M:]
-        TR = self.testRate(t)
-        self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-        self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-        self.fill_lambdas(x, l)
-        ntestpop, tau0 = self.calculate_test_r(x, r, TR)
-        self.jacobian(x, l, r, ntestpop, tau0)
-        self.noise_correlation(x, l, r, tau0)
-        self._compute_dsigdt(sig)
 
     cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
                                         b_matrix=True, jacobian=False):
