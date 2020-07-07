@@ -785,7 +785,7 @@ cdef class SIR_type:
         sign, eigvec = pyross.utils.largest_real_eig(FIM)
         if not sign:
             raise Exception("Largest eigenvalue of FIM is negative - check for appropriate step size eps in FIM computation ")
-            
+
         evals, evecs = eig(FIM)
         evals = np.real(evals)
         dim = len(evals)
@@ -805,13 +805,13 @@ cdef class SIR_type:
                 print("CAUTION: Proceed with slightly modified FIM, shifting the small negative eigenvalue ", i_k, " into the positives. Thereby, all other eigenvalues and therefore sensitivities will be shifted slightly. This will have a larger relative effect on the above-mentioned small eigenvalues/sensitivities.\n")
                 buffer[i_k]=abs(i)
             i_k +=1
-        
+
         max_neg = np.amax(buffer)
         if max_neg > 0.:
             FIM = FIM + np.diag(np.repeat(2*max_neg, repeats=dim))
-            evals, evecs = eig(FIM) 
+            evals, evecs = eig(FIM)
             evals = np.real(evals)
-        
+
         L = np.diag(evals)
         S_ij = np.sqrt(L)@evecs
         S2_ij = S_ij**2
@@ -984,7 +984,7 @@ cdef class SIR_type:
         full_fltr = sparse.block_diag(fltr_)
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
-        xm = self.integrate(x0, 0, Tf, Nf, method='LSODA')
+        xm = self.integrate(x0, 0, Tf, Nf)
         xm_red = full_fltr@(np.ravel(xm[1:]))
         return xm_red
 
