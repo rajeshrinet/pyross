@@ -308,15 +308,10 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         return x, log_det
 
 def largest_real_eig(np.ndarray A):
-    try:
-        eigval, eigvec = eigs(A, return_eigenvectors=True, k=1, which='LR')
-        eigvec = np.real(eigvec[:, 0])
-        eigval = np.real(eigval)[0]
-    except ArpackNoConvergence:
-        w, v = np.linalg.eig(A)
-        max_index = np.argmax(np.real(w))
-        eigval = np.real(w[max_index])
-        eigvec = np.real(eigvec[:, max_index])
+    w, v = np.linalg.eig(A)
+    max_index = np.argmax(np.real(w))
+    eigval = np.real(w[max_index])
+    eigvec = np.real(v[:, max_index])
     eigval_sign = (eigval > 0)
     return eigval_sign, eigvec
 
