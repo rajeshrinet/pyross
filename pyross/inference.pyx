@@ -764,7 +764,7 @@ cdef class SIR_type:
             i_k += 1
         return ff, ss, Z_sto, Z_det
 
-    def sensitivity(self, FIM):
+    def sensitivity(self, FIM, rtol=1e-9, atol=1e-5):
         '''
         Computes the normalized sensitivity measure as defined in https://doi.org/10.1073/pnas.1015814108.
 
@@ -772,17 +772,47 @@ cdef class SIR_type:
         ----------
         FIM: 2d numpy.array
             The Fisher Information Matrix
+        rtol: float, optional
+            The relative tolerance for the identifiability of an eigenvalue relative to the largest eigenvalue. Default is 1e-9.
+        atol: float, optional
+            The absolute tolerance for the identifiability of an eigenvalue. Default is 1e-5.
 
         Returns
         -------
         T_j: numpy.array
             Normalized sensitivity measure for parameters to be estimated. A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest.
         '''
-
+        sign, eigvec = pyross.utils.largest_real_eig(FIM)
+        if not sign:
+            raise Exception("Largest eigenvalue of FIM is negative - check for appropriate step size eps in FIM computation ")
+            
         evals, evecs = eig(FIM)
-        if np.any(np.real(evals)<0.):
-            raise Exception('Negative eigenvalue - FIM is not positive definite. Check for appropriate step size eps in FIM computation.')
-        L = np.diag(np.real(evals))
+        evals = np.real(evals)
+        dim = len(evals)
+        max_eval = np.amax(evals)
+        buffer = np.zeros(dim)
+        i_k = 0
+        for i in evals:
+            if i>0 and i/max_eval <= rtol:
+                print("Relative size: Eigenvalue ", i_k, " is less than ", rtol, " times the largest eigenvalue and might not be identifiable.\n")
+            if i>0 and i <= atol:
+                print("Absolute size: Eigenvalue ", i_k, " is smaller than ", atol, " and might not be identifiable.\n")
+            if i<0 and abs(i/max_eval) > rtol:
+                raise Exception('Large negative eigenvalue ', i_k, ' - FIM is not positive definite. Check for appropriate step size eps in FIM computation or increase the relative tolerance rtol under which eigenvalues are treated as relatively small and potentially unidentifiable.')
+            elif i<0 and abs(i/max_eval) <= rtol:
+                print("Relative size + negative: Eigenvalue ", i_k, " is less than ", rtol, " times the largest eigenvalue AND NEGATIVE and might not be identifiable.")
+                print("Please ensure that the step size eps in the FIM computation is appropriate.")
+                print("CAUTION: Proceed with slightly modified FIM, shifting the small negative eigenvalue ", i_k, " into the positives. Thereby, all other eigenvalues and therefore sensitivities will be shifted slightly. This will have a larger relative effect on the above-mentioned small eigenvalues/sensitivities.\n")
+                buffer[i_k]=abs(i)
+            i_k +=1
+        
+        max_neg = np.amax(buffer)
+        if max_neg > 0.:
+            FIM = FIM + np.diag(np.repeat(2*max_neg, repeats=dim))
+            evals, evecs = eig(FIM) 
+            evals = np.real(evals)
+        
+        L = np.diag(evals)
         S_ij = np.sqrt(L)@evecs
         S2_ij = S_ij**2
         S2_j = np.sum(S2_ij, axis=0)
