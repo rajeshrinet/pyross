@@ -141,6 +141,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         y_result = global_opt.best.f
 
         if verbose:
+            if iteration == global_max_iter:
+                print("Global optimisation: Maximum number of iterations reached.")
             print('Optimal value (global minimisation): ', y_result)
             print('Starting local minimisation...')
 
@@ -148,6 +150,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     if enable_local:
         # Use derivative free local optimisation algorithm with support for boundary conditions
         # to converge to the next minimum (which is hopefully the global one).
+        dim = len(guess)
         local_opt = nlopt.opt(nlopt.LN_BOBYQA, guess.shape[0])
         local_opt.set_min_objective(lambda x, grad: objective_fct(x, grad, **args_dict))
         local_opt.set_lower_bounds(bounds[:,0])
@@ -155,10 +158,17 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         local_opt.set_ftol_rel(ftol)
         local_opt.set_maxeval(3*local_max_iter)
 
+        if enable_global:
+            # CMA gives us the scaling of the varialbes close to the minimum
+            min_stds = global_opt.result.stds
+            local_opt.set_initial_step(1/2 * min_stds)
+
         x_result = local_opt.optimize(x_result)
         y_result = local_opt.last_optimum_value()
 
         if verbose:
+            if local_opt.get_numevals() == 3*local_max_iter:
+                print("Local optimisation: Maximum number of iterations reached.")
             print('Optimal value (local minimisation): ', y_result)
 
     return x_result, y_result

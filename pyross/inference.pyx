@@ -2458,7 +2458,7 @@ cdef class SIR_type:
         log_cond_p -= self.dim*np.log(self.Omega)
         return log_cond_p
 
-    cdef _estimate_cond_cov(self, object sol, double t1, double t2):
+    def _estimate_cond_cov(self, object sol, double t1, double t2):
         cdef:
             double [:] cov_vec, sigma0=np.zeros((self.vec_size), dtype=DTYPE)
             double [:, :] cov
@@ -2538,8 +2538,8 @@ cdef class SIR_type:
         if isclose(t1, t2):
             U = np.eye(self.dim)
         else:
-            xi = sol(t1)
-            xf = sol(t2)
+            xi = sol(t1)/self.Omega
+            xf = sol(t2)/self.Omega
             for i in range(self.dim):
                 xi[i] += epsilon
                 pos = self.integrate(xi, t1, t2, steps)[steps-1]
@@ -3187,10 +3187,6 @@ cdef class SEAIRQ_testing(SIR_type):
 
     def set_testRate(self, testRate):
         self.testRate=testRate
-
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, method=None, maxNumSteps=100000):
-        self.det_model.set_testRate(self.testRate)
-        return super().integrate(x0, t1, t2, steps, maxNumSteps=maxNumSteps, method=method)
 
     def make_det_model(self, parameters):
         self.det_model = pyross.deterministic.SEAIRQ_testing(parameters, self.M, self.fi*self.Omega)
@@ -4163,10 +4159,6 @@ cdef class SppQ(SIR_type):
     def set_testRate(self, testRate):
         self.testRate=testRate
         self.det_model.set_testRate(testRate)
-
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps, method=None, maxNumSteps=100000):
-        self.det_model.set_testRate(self.testRate)
-        return super().integrate(x0, t1, t2, steps, method, maxNumSteps)
 
     def set_det_model(self, parameters):
         self.det_model.update_model_parameters(parameters)
