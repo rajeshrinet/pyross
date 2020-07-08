@@ -215,9 +215,12 @@ cdef class SIR_type:
         # Get the parameters (in their original structure) from the flattened parameter vector.
         orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
                                              is_scale_parameter, scaled_guesses)
+        l_post = -res[1]
+        l_prior = np.sum(lognorm.logpdf(params, s, scale=scale))
+        l_like = l_post - l_prior
         output_dict = {
-            'map_dict':self.fill_params_dict(keys, orig_params),
-            'flat_map':params, '-logp':res[1], 'keys': keys,
+            'map_dict':self.fill_params_dict(keys, orig_params), 'flat_map':params, 'keys': keys,
+            'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
             'is_scale_parameter':is_scale_parameter,
             'flat_guess_range':flat_guess_range,
             'scaled_guesses':scaled_guesses,
@@ -226,7 +229,7 @@ cdef class SIR_type:
         return output_dict
 
     def _loglike(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
-                 flat_guess_range=None, x=None, Tf=None, s=None, scale=None, tangent=None):
+                 flat_guess_range=None, x=None, Tf=None, tangent=None):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
             if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
@@ -238,15 +241,14 @@ cdef class SIR_type:
         self.set_params(parameters)
         self.set_det_model(parameters)
         if tangent:
-            minus_logp = self._obtain_logp_for_traj_tangent(x, Tf)
+            minus_loglike = self._obtain_logp_for_traj_tangent(x, Tf)
         else:
-            minus_logp = self._obtain_logp_for_traj(x, Tf)
-        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+            minus_loglike = self._obtain_logp_for_traj(x, Tf)
 
-        if np.isnan(minus_logp):
+        if np.isnan(minus_loglike):
             return -np.inf
 
-        return -minus_logp
+        return -minus_loglike
 
     def _nested_sampling_prior_transform(self, x, s=None, scale=None, ppf_bounds=None):
         # Tranform a sample x ~ Unif([0,1]^d) to a sample of the prior using inverse tranform sampling.
@@ -328,7 +330,7 @@ cdef class SIR_type:
         prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                       'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
+                       'x':x, 'Tf':Tf, 'tangent':tangent}
 
         result = nested_sampling(self._loglike, self._nested_sampling_prior_transform, k, queue_size,
                                  max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
@@ -338,12 +340,16 @@ cdef class SIR_type:
         for i in range(len(result.samples)):
             sample = result.samples[i]
             weight = result.weights[i]
+            l_like = result.logl[i]
 
             orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
                                              is_scale_parameter, scaled_guesses)
+            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_post = l_like + l_prior
             output_dict = {
                 'map_dict':self.fill_params_dict(keys, orig_sample),
                 'flat_map':sample, 'weight':weight, 'keys': keys,
+                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
                 'is_scale_parameter':is_scale_parameter,
                 'flat_guess_range':flat_guess_range,
                 'scaled_guesses':scaled_guesses,
@@ -353,6 +359,13 @@ cdef class SIR_type:
 
         return result, output_samples
 
+    def _logposterior(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
+                 flat_guess_range=None, x=None, Tf=None, s=None, scale=None, tangent=None):
+        logp = self._loglike(self, params, bounds, keys, is_scale_parameter, scaled_guesses, 
+                             flat_guess_range, x, Tf, tangent)
+        logp += np.sum(lognorm.logpdf(params, s, scale=scale))
+
+        return logp
 
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None,
                        walker_pos=None, nsamples=1000, nprocesses=0):
@@ -437,7 +450,7 @@ cdef class SIR_type:
         if nwalkers is None:
             nwalkers = 2*ndim
 
-        loglike_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
+        logpost_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
                 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                 'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
         if walker_pos is None:
@@ -450,10 +463,10 @@ cdef class SIR_type:
             # Start a new MCMC chain.
             if nprocesses > 1:
                 mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike, kwargs=loglike_args,
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior, kwargs=logpost_args,
                                                 pool=mcmc_pool)
             else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike, kwargs=loglike_args)
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior, kwargs=logpost_args)
 
             sampler.run_mcmc(p0, nsamples, progress=verbose)
         else:
@@ -501,6 +514,7 @@ cdef class SIR_type:
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
+        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
         samples_per_chain = samples.shape[0]
         nr_chains = 1 if flat else samples.shape[1]
         if flat:
@@ -512,15 +526,20 @@ cdef class SIR_type:
             for j in range(nr_chains):
                 if flat:
                     sample = samples[i,:]
+                    l_post = log_posts[i]
                 else:
                     sample = samples[i, j, :]
+                    l_post = log_posts[i, j]
                 weight = 1.0 / (samples_per_chain * nr_chains)
 
                 orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
                                                 is_scale_parameter, scaled_guesses)
+                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+                l_like = l_post - l_prior
                 output_dict = {
                     'map_dict':self.fill_params_dict(keys, orig_sample),
                     'flat_map':sample, 'weight':weight, 'keys': keys,
+                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
                     'is_scale_parameter':is_scale_parameter,
                     'flat_guess_range':flat_guess_range,
                     'scaled_guesses':scaled_guesses,
@@ -639,9 +658,12 @@ cdef class SIR_type:
         orig_params = pyross.utils.unflatten_parameters(res[0], flat_guess_range,
                                              is_scale_parameter, scaled_guesses)
         map_dict = {k:orig_params[i] for (i, k) in enumerate(keys)}
+        l_post = -res[1]
+        l_prior = np.sum(lognorm.logpdf(res[0], s, scale=scale))
+        l_like = l_post - l_prior
         output_dict = {
-            'map_dict': map_dict,
-            'flat_map': res[0], '-logp':res[1], 'keys': keys,
+            'map_dict': map_dict, 'flat_map': res[0], 'keys': keys,
+            'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
             'is_scale_parameter':is_scale_parameter,
             'flat_guess_range':flat_guess_range,
             'scaled_guesses':scaled_guesses,
@@ -1001,37 +1023,59 @@ cdef class SIR_type:
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
-    def sample_gaussian(self, N, map_estimate, cov):
+    def sample_gaussian(self, N, map_estimate, cov, x, Tf, contactMatrix, prior_dict, tangent=False):
         """
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
 
         Parameters
         ----------
+        N: int
+            The number of samples.
         map_estimate: dict
             The MAP estimate, e.g. as computed by `inference.infer_parameters`.
         cov: np.array
             The covariance matrix of the flat parameters.
-        N: int
-            The number of samples.
+        x:  np.array
+            The full trajectory.
+        Tf: float
+            The total time of the trajectory.
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        prior_dict: dict
+            A dictionary containing priors. See examples.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
 
         Returns
         -------
         samples: list of dict
             N samples of the Gaussian distribution.
         """
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
+                       'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
+                       'x':x, 'Tf':Tf, 'tangent':tangent}
+
         # Sample the flat parameters.
         mean = map_estimate['flat_map']
         sample_parameters = np.random.multivariate_normal(mean, cov, N)
 
         samples = []
-        for s in sample_parameters:
+        for sample in sample_parameters:
             new_sample = map_estimate.copy()
-            new_sample['flat_params'] = s
+            new_sample['flat_params'] = sample
             new_sample['map_dict'] = \
-                pyross.utils.unflatten_parameters(s, map_estimate['flat_guess_range'],
+                pyross.utils.unflatten_parameters(sample, map_estimate['flat_guess_range'],
                         map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
-            new_sample['-logp'] = None  # Not computed here.
+            l_like = self._loglike(sample, **loglike_args)
+            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_post = l_like + l_prior
+            new_sample['log_posterior'] = l_post
+            new_sample['log_prior'] = l_prior
+            new_sample['log_likelihood'] = l_like
             samples.append(new_sample)
 
         return samples
@@ -1060,7 +1104,7 @@ cdef class SIR_type:
         -------
         log_evidence: float
             The log-evidence computed via Laplace approximation at the MAP estimate."""
-        logP_MAPs = -map_dict['-logp']
+        logP_MAPs = map_dict['log_posterior']
         A = self.compute_hessian(x, Tf, contactMatrix, map_dict, tangent, eps, fd_method)
         k = A.shape[0]
 
@@ -1322,10 +1366,13 @@ cdef class SIR_type:
         self.set_det_model(map_params_dict)
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                       obs0, fltr[0])
+        l_post = -res[1]
+        l_prior = np.sum(lognorm.logpdf(estimates, s, scale=scale))
+        l_like = l_post - l_prior
         output_dict = {
-            'map_params_dict':map_params_dict, 'map_x0':map_x0,
-            'flat_map':estimates, '-logp':res[1],
+            'map_params_dict':map_params_dict, 'map_x0':map_x0, 'flat_map':estimates,
             'param_keys': keys, 'param_guess_range': param_guess_range,
+            'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
             'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
             'scaled_param_guesses':scaled_param_guesses,
             'init_flags': init_flags, 'init_fltrs': init_fltrs,
@@ -1336,7 +1383,7 @@ cdef class SIR_type:
 
     def _loglike_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
                         scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
-                        obs0=None, init_flags=None, init_fltrs=None, s=None, scale=None, tangent=None):
+                        obs0=None, init_flags=None, init_fltrs=None, tangent=None):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
             if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
@@ -1354,13 +1401,12 @@ cdef class SIR_type:
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
 
-        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
-        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
+        minus_loglike = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
 
-        if np.isnan(minus_logp):
+        if np.isnan(minus_loglike):
             return -np.inf
 
-        return -minus_logp
+        return -minus_loglike
 
     def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
                                          init_priors,tangent=False, verbose=False, queue_size=1,
@@ -1457,7 +1503,7 @@ cdef class SIR_type:
         loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
                         'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
                         'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale, 'tangent':tangent}
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 'tangent':tangent}
 
         result = nested_sampling(self._loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
                                  max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
@@ -1467,6 +1513,7 @@ cdef class SIR_type:
         for i in range(len(result.samples)):
             sample = result.samples[i]
             weight = result.weights[i]
+            l_like = result.logl[i]
             param_estimates = sample[:param_length]
             orig_params = pyross.utils.unflatten_parameters(param_estimates,
                                                             param_guess_range,
@@ -1479,9 +1526,12 @@ cdef class SIR_type:
             self.set_det_model(sample_params_dict)
             map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                         obs0, fltr[0])
+            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_post = l_prior + l_like
             output_dict = {
-                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
+                'map_params_dict':sample_params_dict, 'map_x0':map_x0, 
                 'flat_map':sample, 'weight':weight,
+                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
                 'is_scale_parameter':is_scale_parameter,
                 'flat_param_guess_range':param_guess_range,
                 'scaled_param_guesses':scaled_param_guesses,
@@ -1490,6 +1540,16 @@ cdef class SIR_type:
             output_samples.append(output_dict)
 
         return result, output_samples
+
+
+    def _logposterior_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
+                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
+                        obs0=None, init_flags=None, init_fltrs=None, s=None, scale=None, tangent=None):
+        logp = self._loglike_latent(params, bounds, param_keys, param_guess_range, is_scale_parameter,
+                    scaled_param_guesses, param_length, obs, fltr, Tf, obs0, init_flags, init_fltrs,
+                    tangent)
+        logp += np.sum(lognorm.logpdf(params, s, scale=scale))
+        return logp
 
 
     def mcmc_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
@@ -1511,7 +1571,7 @@ cdef class SIR_type:
             A function that returns the contact matrix at time t (input).
         param_priors: dict
             A dictionary for priors for the model parameters.
-            See `infer_latent_parameters` for further explanations.
+            See `latent_infer_parameters` for further explanations.
         init_priors: dict
             A dictionary for priors for the initial conditions.
             See `latent_infer_parameters` for further explanations.
@@ -1543,7 +1603,7 @@ cdef class SIR_type:
         Examples
         --------
         For the structure of the model input paramters, in particular `param_priors, init_priors`, see the documentation
-        of `infer_latent_parameters`. To start sampling the posterior, run
+        of `latent_infer_parameters`. To start sampling the posterior, run
         >>> sampler = estimator.mcmc_latent_inference(obs, fltr, Tf, contactMatrix, param_priors, init_priors, verbose=True)
 
         To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
@@ -1617,10 +1677,10 @@ cdef class SIR_type:
             # Start a new MCMC chain.
             if nprocesses > 1:
                 mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent,
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent,
                                                 kwargs=loglike_args, pool=mcmc_pool)
             else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._loglike_latent,
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent,
                                                 kwargs=loglike_args)
 
             sampler.run_mcmc(p0, nsamples, progress=verbose)
@@ -1643,8 +1703,8 @@ cdef class SIR_type:
 
         return sampler
 
-    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors, flat=True,
-                                             discard=0, thin=1):
+    def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors,
+                                            flat=True, discard=0, thin=1):
         """
         Take the sampler generated by `mcmc_latent_inference` and produce output dictionaries for further use
         in the pyross framework.
@@ -1698,6 +1758,7 @@ cdef class SIR_type:
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
+        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
         samples_per_chain = samples.shape[0]
         nr_chains = 1 if flat else samples.shape[1]
         if flat:
@@ -1709,8 +1770,10 @@ cdef class SIR_type:
             for j in range(nr_chains):
                 if flat:
                     sample = samples[i,:]
+                    l_post = log_posts[i]
                 else:
                     sample = samples[i, j, :]
+                    l_post = log_posts[i]
                 weight = 1.0 / (samples_per_chain * nr_chains)
                 param_estimates = sample[:param_length]
                 orig_params = pyross.utils.unflatten_parameters(param_estimates,
@@ -1724,9 +1787,12 @@ cdef class SIR_type:
                 self.set_det_model(sample_params_dict)
                 map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                             obs0, fltr[0])
+                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+                l_like = l_post - l_prior
                 output_dict = {
                     'map_params_dict':sample_params_dict, 'map_x0':map_x0,
                     'flat_map':sample, 'weight':weight,
+                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
                     'is_scale_parameter':is_scale_parameter,
                     'flat_param_guess_range':param_guess_range,
                     'scaled_param_guesses':scaled_param_guesses,
@@ -1884,9 +1950,12 @@ cdef class SIR_type:
         map_params_dict = {k:orig_params[i] for (i, k) in enumerate(keys)}
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                     obs0, fltr[0])
+        l_post = -res[1]
+        l_prior = np.sum(lognorm.logpdf(estimates, s, scale=scale))
+        l_like = l_post - l_prior
         output_dict = {
-            'map_params_dict':map_params_dict, 'map_x0':map_x0,
-            'flat_map':estimates, '-logp':res[1],
+            'map_params_dict':map_params_dict, 'map_x0':map_x0, 'flat_map':estimates,
+            'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
             'param_keys': keys, 'param_guess_range': param_guess_range,
             'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
             'scaled_param_guesses':scaled_param_guesses,
@@ -1942,7 +2011,8 @@ cdef class SIR_type:
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
-    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr):
+    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors, 
+                               tangent=False):
         """
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
@@ -1960,31 +2030,74 @@ cdef class SIR_type:
         fltr: 2d np.array
             The filter for the observation such that
             :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            The total time of the trajectory.
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        param_priors: dict
+            A dictionary that specifies priors for parameters.
+            See `infer_parameters` for examples.
+        init_priors: dict
+            A dictionary that specifies priors for initial conditions.
+            See below for examples.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
 
         Returns
         -------
         samples: list of dict
             N samples of the Gaussian distribution.
         """
+        self.contactMatrix = contactMatrix
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
+
+        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
+                        'is_scale_parameter':is_scale_parameter,
+                        'scaled_param_guesses':scaled_param_guesses,
+                        'param_length':param_length,
+                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
+                        'tangent':tangent}
 
         # Sample the flat parameters.
         mean = map_estimate['flat_map']
         sample_parameters = np.random.multivariate_normal(mean, cov, N)
 
         samples = []
-        for s in sample_parameters:
+        for sample in sample_parameters:
             new_sample = map_estimate.copy()
-            new_sample['flat_params'] = s
-            param_estimates = s[:map_estimate['param_length']]
-            init_estimates = s[map_estimate['param_length']:]
+            new_sample['flat_params'] = sample
+            param_estimates = sample[:map_estimate['param_length']]
+            init_estimates = sample[map_estimate['param_length']:]
             new_sample['map_params_dict'] = \
                 pyross.utils.unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
                         map_estimate['is_scale_parameter'], map_estimate['scaled_param_guesses'])
             new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
                                       map_estimate['init_fltrs'], obs0, fltr[0])
-            new_sample['-logp'] = None  # Invalid.
-
+            l_like = self._loglike_latent(sample, **loglike_args)
+            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_post = l_like + l_prior
+            new_sample['log_posterior'] = l_post
+            new_sample['log_prior'] = l_prior
+            new_sample['log_likelihood'] = l_like
             samples.append(new_sample)
 
         return samples
@@ -2013,7 +2126,7 @@ cdef class SIR_type:
         -------
         log_evidence: float
             The log-evidence computed via Laplace approximation at the MAP estimate."""
-        logP_MAPs = -map_dict['-logp']
+        logP_MAPs = map_dict['log_posterior']
         A = self.compute_hessian_latent(obs, fltr, Tf, contactMatrix, map_dict, tangent, eps, fd_method)
         k = A.shape[0]
 

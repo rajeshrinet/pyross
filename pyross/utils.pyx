@@ -875,4 +875,8 @@ def posterior_mean(weighted_samples):
             # Happens for non-latent samples since key `map_x0` doesn't exist then.
             pass
 
+    # Reset the value of log-posterior
+    sample['log_posterior']  = None
+    sample['log_prior']      = None
+    sample['log_likelihood'] = None
     return sample
