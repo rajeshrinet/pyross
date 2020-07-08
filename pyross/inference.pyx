@@ -354,7 +354,7 @@ cdef class SIR_type:
 
     def _logposterior(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
                  flat_guess_range=None, x=None, Tf=None, s=None, scale=None, tangent=None):
-        logp = self._loglike(self, params, bounds, keys, is_scale_parameter, scaled_guesses, 
+        logp = self._loglike(self, params, bounds, keys, is_scale_parameter, scaled_guesses,
                              flat_guess_range, x, Tf, tangent)
         logp += np.sum(lognorm.logpdf(params, s, scale=scale))
 
@@ -1552,7 +1552,7 @@ cdef class SIR_type:
             l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
             l_post = l_prior + l_like
             output_dict = {
-                'map_params_dict':sample_params_dict, 'map_x0':map_x0, 
+                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
                 'flat_map':sample, 'weight':weight,
                 'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
                 'is_scale_parameter':is_scale_parameter,
@@ -2034,7 +2034,7 @@ cdef class SIR_type:
     #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
 
 
-    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors, 
+    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors,
                                tangent=False):
         """
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
@@ -2552,7 +2552,7 @@ cdef class SIR_type:
             Py_ssize_t steps=self.steps
 
         def rhs(t, U_vec):
-            xt = sol(t)
+            xt = sol(t)/self.Omega
             self.compute_jacobian_and_b_matrix(xt, t, b_matrix=False, jacobian=True)
             U_mat = np.reshape(U_vec, (self.dim, self.dim))
             dUdt = np.dot(self.J_mat, U_mat)
@@ -2730,8 +2730,6 @@ cdef class SIR(SIR_type):
             self.noise_correlation(s, Ia, Is, l)
         if jacobian:
             self.jacobian(s, l)
-
-
 
     cdef fill_lambdas(self, double [:] Ia, double [:] Is, double [:] l):
         cdef:
@@ -3626,50 +3624,60 @@ cdef class Spp(SIR_type):
             dill.dump(dJ, open(f"dJ_{spec_ID}.bin", "wb"))
             dill.dump(dinvcov_e, open(f"dinvcov_{spec_ID}.bin", "wb"))
 
-    #
-    # def dmudp(self, x0, t1, tf, steps, C, full_output=False):
-    #     """
-    #     calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
-    #     Note that although we can calculate the evolution operator T via adjoint gradient ODES it
-    #     is comparable accuracy to finite difference anyway, and far slower.
-    #     """
-    #
-    #     def integrand(t, dummy, n, tf, sol):
-    #         xt = spline_x(t)
-    #         self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
-    #         dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
-    #         dAdp = np.array(dAdp)
-    #         res=np.einsum('ik,jk->ji', self.U, dAdp)
-    #         return res[:,n]
-    #
-    #     fi=self.fi
-    #     parameters=self.parameters
-    #     param_values = self.parameters.ravel()
-    #
-    #     keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
-    #     self.lambdify_derivative_functions(keys) ## could probably check for saved functions here
-    #     no_inferred_params = np.sum(keys)
-    #     CM_f=self.CM.ravel()
-    #     print(t1,tf)
-    #     if t1==tf:
-    #         return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
-    #
-    #     xd, sol = self.integrate(x0, t1, tf, steps, dense_output=True)
-    #     tsteps=np.linspace(t1,tf,steps)
-    #     spline = make_interp_spline(tsteps, xd)
-    #     xf = spline(tf)
-    #
-    #     dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
-    #     for k in range(self.dim):
-    #         res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps, args=(k, tf, xf, spline,))
-    #         dmudp[:,k] = res.y.T[0]
-    #
-    #     if full_output==False:
-    #         T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
-    #         dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
-    #         return dmu
-    #     else:
-    #         return dmudp
+    def _obtain_full_time_evol_op(sol, t1, t2, Nf):
+        '''
+        Returns time evolution operators U(t, t2) as a dense output object
+        '''
+        # do backward time integration and return a dense output object
+
+
+    def dmudp(self, x0, t1, tf, steps, C, full_output=False):
+        """
+        calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
+        Note that although we can calculate the evolution operator T via adjoint gradient ODES it
+        is comparable accuracy to finite difference anyway, and far slower.
+        """
+
+        def integrand(t, dummy, n, tf, sol):
+            xt = spline_x(t)
+            self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
+            dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
+            dAdp = np.array(dAdp)
+            res=np.einsum('ik,jk->ji', self.U, dAdp)
+            return res[:,n]
+
+        fi=self.fi
+        parameters=self.parameters
+        param_values = self.parameters.ravel()
+
+        keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
+        self.lambdify_derivative_functions(keys)
+        no_inferred_params = np.sum(keys)
+        CM_f=self.CM.ravel()
+        if isclose(ti, tf):
+            return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
+
+        xd, sol = self.integrate(x0, t1, tf, steps, dense_output=True
+
+        def integrand(t, y):
+            xt = sol(t)
+            self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
+            dAdp, _ = dA(param_values, CM_f, fi, xt)
+            dAdp = np.array(dAdp)
+            res=np.einsum('ik,jk->ji', self.U, dAdp)
+            return res[:,n]
+
+        dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
+        for k in range(self.dim):
+            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps)
+            dmudp[:,k] = res.y.T[0]
+
+        if full_output==False:
+            T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
+            dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
+            return dmu
+        else:
+            return dmudp
 
     def dfullinvcovdp(self, x0, t1, t2, steps, C):
         """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
