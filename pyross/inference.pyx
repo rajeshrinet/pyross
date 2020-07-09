@@ -1843,14 +1843,15 @@ cdef class SIR_type:
                                                         is_scale_parameter,
                                                          scaled_param_guesses)
         kwargs = {k:orig_params[i] for (i, k) in enumerate(param_keys)}
-        x0 = self._construct_inits(inits, init_flags, init_fltrs,
-                                    obs0, fltr[0])
-        penalty = self._penalty_from_negative_values(x0)
-        x0[x0<0] = 0.1/self.Omega # set to be small and positive
         if intervention_fun is None:
             self.contactMatrix = generator.constant_contactMatrix(**kwargs)
         else:
             self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
+
+        x0 = self._construct_inits(inits, init_flags, init_fltrs,
+                                    obs0, fltr[0])
+        penalty = self._penalty_from_negative_values(x0)
+        x0[x0<0] = 0.1/self.Omega # set to be small and positive
 
         minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
@@ -1971,6 +1972,11 @@ cdef class SIR_type:
                                                       scaled_param_guesses)
         init_estimates = estimates[param_length:]
         map_params_dict = {k:orig_params[i] for (i, k) in enumerate(keys)}
+
+        if intervention_fun is None:
+            self.contactMatrix = generator.constant_contactMatrix(**map_params_dict)
+        else:
+            self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_params_dict)
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                     obs0, fltr[0])
         l_post = -res[1]
@@ -2458,7 +2464,7 @@ cdef class SIR_type:
         log_cond_p -= self.dim*np.log(self.Omega)
         return log_cond_p
 
-    def _estimate_cond_cov(self, object sol, double t1, double t2):
+    cdef _estimate_cond_cov(self, object sol, double t1, double t2):
         cdef:
             double [:] cov_vec, sigma0=np.zeros((self.vec_size), dtype=DTYPE)
             double [:, :] cov
@@ -2569,10 +2575,10 @@ cdef class SIR_type:
         if self.lyapunov_method=='euler':
             sol_vec = pyross.utils.forward_euler_integration(rhs, M0, t1, t2, steps)[steps-1]
         elif self.lyapunov_method=='RK45':
-            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps)
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='LSODA':
-            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps)
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='RK2':
             sol_vec = pyross.utils.RK2_integration(rhs, M0, t1, t2, steps)[steps-1]
