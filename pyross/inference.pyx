@@ -1972,6 +1972,11 @@ cdef class SIR_type:
                                                       scaled_param_guesses)
         init_estimates = estimates[param_length:]
         map_params_dict = {k:orig_params[i] for (i, k) in enumerate(keys)}
+
+        if intervention_fun is None:
+            self.contactMatrix = generator.constant_contactMatrix(**map_params_dict)
+        else:
+            self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_params_dict)
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                     obs0, fltr[0])
         l_post = -res[1]
