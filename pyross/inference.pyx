@@ -2464,7 +2464,7 @@ cdef class SIR_type:
         log_cond_p -= self.dim*np.log(self.Omega)
         return log_cond_p
 
-    def _estimate_cond_cov(self, object sol, double t1, double t2):
+    cdef _estimate_cond_cov(self, object sol, double t1, double t2):
         cdef:
             double [:] cov_vec, sigma0=np.zeros((self.vec_size), dtype=DTYPE)
             double [:, :] cov
@@ -2575,10 +2575,10 @@ cdef class SIR_type:
         if self.lyapunov_method=='euler':
             sol_vec = pyross.utils.forward_euler_integration(rhs, M0, t1, t2, steps)[steps-1]
         elif self.lyapunov_method=='RK45':
-            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps)
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='LSODA':
-            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=steps)
+            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps)
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='RK2':
             sol_vec = pyross.utils.RK2_integration(rhs, M0, t1, t2, steps)[steps-1]
