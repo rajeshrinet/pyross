@@ -3633,53 +3633,53 @@ cdef class Spp(SIR_type):
         # do backward time integration and return a dense output object
 
 
-    def dmudp(self, x0, t1, tf, steps, C, full_output=False):
-        """
-        calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
-        Note that although we can calculate the evolution operator T via adjoint gradient ODES it
-        is comparable accuracy to finite difference anyway, and far slower.
-        """
-
-        def integrand(t, dummy, n, tf, sol):
-            xt = spline_x(t)
-            self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
-            dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
-            dAdp = np.array(dAdp)
-            res=np.einsum('ik,jk->ji', self.U, dAdp)
-            return res[:,n]
-
-        fi=self.fi
-        parameters=self.parameters
-        param_values = self.parameters.ravel()
-
-        keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
-        self.lambdify_derivative_functions(keys)
-        no_inferred_params = np.sum(keys)
-        CM_f=self.CM.ravel()
-        if isclose(ti, tf):
-            return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
-
-        xd, sol = self.integrate(x0, t1, tf, steps, dense_output=True
-
-        def integrand(t, y):
-            xt = sol(t)
-            self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
-            dAdp, _ = dA(param_values, CM_f, fi, xt)
-            dAdp = np.array(dAdp)
-            res=np.einsum('ik,jk->ji', self.U, dAdp)
-            return res[:,n]
-
-        dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
-        for k in range(self.dim):
-            res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps)
-            dmudp[:,k] = res.y.T[0]
-
-        if full_output==False:
-            T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
-            dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
-            return dmu
-        else:
-            return dmudp
+    # def dmudp(self, x0, t1, tf, steps, C, full_output=False):
+    #     """
+    #     calculates the derivatives of the mean traj x with respect to epi params and initial conditions.
+    #     Note that although we can calculate the evolution operator T via adjoint gradient ODES it
+    #     is comparable accuracy to finite difference anyway, and far slower.
+    #     """
+    #
+    #     def integrand(t, dummy, n, tf, sol):
+    #         xt = spline_x(t)
+    #         self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
+    #         dAdp, _ = dA(param_values, CM_f, fi, xt.ravel())
+    #         dAdp = np.array(dAdp)
+    #         res=np.einsum('ik,jk->ji', self.U, dAdp)
+    #         return res[:,n]
+    #
+    #     fi=self.fi
+    #     parameters=self.parameters
+    #     param_values = self.parameters.ravel()
+    #
+    #     keys = np.ones((parameters.shape[0], parameters.shape[1]), dtype=int) ## default to all params
+    #     self.lambdify_derivative_functions(keys)
+    #     no_inferred_params = np.sum(keys)
+    #     CM_f=self.CM.ravel()
+    #     if isclose(ti, tf):
+    #         return np.zeros((no_inferred_params, self.dim)) ## ivp degen case
+    #
+    #     xd, sol = self.integrate(x0, t1, tf, steps, dense_output=True
+    #
+    #     def integrand(t, y):
+    #         xt = sol(t)
+    #         self._obtain_time_evol_op_2(sol, t, tf) ## NOTE:possibly replace with spline
+    #         dAdp, _ = dA(param_values, CM_f, fi, xt)
+    #         dAdp = np.array(dAdp)
+    #         res=np.einsum('ik,jk->ji', self.U, dAdp)
+    #         return res[:,n]
+    #
+    #     dmudp = np.zeros((no_inferred_params, self.dim), dtype=DTYPE)
+    #     for k in range(self.dim):
+    #         res = solve_ivp(integrand, [t1,tf], np.zeros(no_inferred_params), method='DOP853', t_eval=np.array([tf]),max_step=steps)
+    #         dmudp[:,k] = res.y.T[0]
+    #
+    #     if full_output==False:
+    #         T=self._obtain_time_evol_op_2(x0, xf, t1, tf)
+    #         dmu  = np.concatenate((dmudp, np.transpose(T)), axis=0)
+    #         return dmu
+    #     else:
+    #         return dmudp
 
     def dfullinvcovdp(self, x0, t1, t2, steps, C):
         """ calculates the derivatives of full inv_cov. Relies on derivatives of the elements created by dinvcovelemd() """
