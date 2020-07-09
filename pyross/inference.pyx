@@ -1843,14 +1843,15 @@ cdef class SIR_type:
                                                         is_scale_parameter,
                                                          scaled_param_guesses)
         kwargs = {k:orig_params[i] for (i, k) in enumerate(param_keys)}
-        x0 = self._construct_inits(inits, init_flags, init_fltrs,
-                                    obs0, fltr[0])
-        penalty = self._penalty_from_negative_values(x0)
-        x0[x0<0] = 0.1/self.Omega # set to be small and positive
         if intervention_fun is None:
             self.contactMatrix = generator.constant_contactMatrix(**kwargs)
         else:
             self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **kwargs)
+
+        x0 = self._construct_inits(inits, init_flags, init_fltrs,
+                                    obs0, fltr[0])
+        penalty = self._penalty_from_negative_values(x0)
+        x0[x0<0] = 0.1/self.Omega # set to be small and positive
 
         minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent=tangent)
         minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
