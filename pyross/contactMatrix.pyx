@@ -904,20 +904,36 @@ def Denmark():
 
 
 
-def France():
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-    uH = u1 + u2 + 'home_1.xlsx'
-    uW = u1 + u2 + 'work_1.xlsx'
-    uS = u1 + u2 + 'school_1.xlsx'
-    uO = u1 + u2 + 'other_locations_1.xlsx' 
+def France(source='fumanelliEtAl'):
+    if source=='premEtAl':
+        u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
+        u2 ='/data/contact_matrices_152_countries/MUestimates_'
+        uH = u1 + u2 + 'home_1.xlsx'
+        uW = u1 + u2 + 'work_1.xlsx'
+        uS = u1 + u2 + 'school_1.xlsx'
+        uO = u1 + u2 + 'other_locations_1.xlsx' 
 
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name='France'))
-    CW = np.array(pd.read_excel(uW,  sheet_name='France'))
-    CS = np.array(pd.read_excel(uS,  sheet_name='France'))
-    CO = np.array(pd.read_excel(uO,  sheet_name='France'))
+        import pandas as pd
+        CH = np.array(pd.read_excel(uH,  sheet_name='France'))
+        CW = np.array(pd.read_excel(uW,  sheet_name='France'))
+        CS = np.array(pd.read_excel(uS,  sheet_name='France'))
+        CO = np.array(pd.read_excel(uO,  sheet_name='France'))
+    
+    elif source=='fumanelliEtAl':
+        u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+        uH = u1 + 'UKH.txt'
+        uW = u1 + 'UKW.txt'
+        uS = u1 + 'UKS.txt'
+        uO = u1 + 'UKO.txt' 
+    
+        CH = np.genfromtxt(uH)
+        CW = np.genfromtxt(uW)
+        CS = np.genfromtxt(uS)
+        CO = np.genfromtxt(uO) 
+    else:
+        raise Exception("Please use 'premEtAl' or 'fumanelliEtAl'")
     return CH, CW, CS, CO
+
 
 
 def Germany():
