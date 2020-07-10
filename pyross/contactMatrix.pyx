@@ -921,10 +921,10 @@ def France(source='fumanelliEtAl'):
     
     elif source=='fumanelliEtAl':
         u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
-        uH = u1 + 'UKH.txt'
-        uW = u1 + 'UKW.txt'
-        uS = u1 + 'UKS.txt'
-        uO = u1 + 'UKO.txt' 
+        uH = u1 + 'France_H.txt'
+        uW = u1 + 'France_W.txt'
+        uS = u1 + 'France_S.txt'
+        uO = u1 + 'France_O.txt' 
     
         CH = np.genfromtxt(uH)
         CW = np.genfromtxt(uW)
