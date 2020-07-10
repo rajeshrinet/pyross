@@ -1660,6 +1660,7 @@ cdef class SIR_type:
         if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
+        self.contactMatrix = contactMatrix
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
