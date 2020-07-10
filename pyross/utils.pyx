@@ -622,6 +622,7 @@ def getPopulation(country='India', M=16):
     u6 = u0 + 'age_structures/UK.csv'
     u7 = u0 + 'age_structures/US.csv'
     u8 = u0 + 'age_structures/China-2019.csv'
+    u9 = u0 + 'age_structures/France.txt'
 
     import pandas as pd
     if country=='India':
@@ -679,6 +680,8 @@ def getPopulation(country='India', M=16):
         N_f  = np.array((data[2]))[0:M]
         Ni   = N_m + N_f
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
+    elif country=='France':
+        Ni = np.genfromtxt(u9)[:, 3]
 
     else:
         print('Direct extraction of Ni is not implemnted , please do it locally')
