@@ -2624,6 +2624,9 @@ cdef class Spp(CommonMethods):
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
+        Default: Identical mapping of the dictionary at all times. 
 
     Examples
     --------
@@ -2647,11 +2650,16 @@ cdef class Spp(CommonMethods):
         }
     """
 
-    def __init__(self, model_spec, parameters, M, Ni):
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
 
         self.N = DTYPE(np.sum(Ni))
         self.M = DTYPE(M)
         self.Ni = np.array(Ni, dtype=DTYPE)
+        
+        self.time_dep_param_mapping = time_dep_param_mapping
+        if self.time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            parameters = self.time_dep_param_mapping(parameters, 0)
 
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
@@ -2660,13 +2668,33 @@ cdef class Spp(CommonMethods):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
-        self.update_model_parameters(parameters)
+        if self.time_dep_param_mapping is None:
+            self.update_model_parameters(parameters)
+        else:
+            self.update_time_dep_model_parameters(0)
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
 
 
     def update_model_parameters(self, parameters):
+        if self.time_dep_param_mapping is None:
+            nParams = len(self.param_keys)
+            self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+
+            try:
+                for (i, key) in enumerate(self.param_keys):
+                    param = parameters[key]
+                    self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters passed do not contain certain keys.\
+                                 The keys are {}'.format(self.param_keys))
+        else:
+            self.param_dict = parameters.copy()
+            self.update_time_dep_model_parameters(0)
+
+    def update_time_dep_model_parameters(self, tt):
+        parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
@@ -2674,9 +2702,9 @@ cdef class Spp(CommonMethods):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
-            raise Exception('The parameters passed does not contain certain keys.\
+            raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
-
+            
     cpdef rhs(self, xt_arr, tt):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
@@ -2692,6 +2720,9 @@ cdef class Spp(CommonMethods):
             double [:,:] CM = self.CM
             double [:,:] lambdas = self._lambdas
 
+        if self.time_dep_param_mapping is not None:
+            self.update_time_dep_model_parameters(tt)
+         
         # Compute lambda
         if self.constant_terms.size > 0:
             Ni = xt_arr[(nClass-1)*M:] # update Ni
@@ -2863,8 +2894,6 @@ cdef class Spp(CommonMethods):
         return Os
 
 
-
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -2886,11 +2915,14 @@ cdef class SppQ(CommonMethods):
         I.e len(contactMatrix)
     Ni: np.array(M, )
         Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
+        Default: Identical mapping of the dictionary at all times. 
 
     Examples
     --------
-    An example of model_spec and parameters for SIR class with a constant influx, 
-    random testing (without false positives/negatives), and quarantine
+    An example of model_spec and parameters for SIR class with random
+    testing (without false positives/negatives) and quarantine
 
     >>> model_spec = {
             "classes" : ["S", "I"],
@@ -2913,11 +2945,16 @@ cdef class SppQ(CommonMethods):
         }
     """
 
-    def __init__(self, model_spec, parameters, M, Ni):
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
 
         self.N = DTYPE(np.sum(Ni))
         self.M = DTYPE(M)
         self.Ni = np.array(Ni, dtype=DTYPE)
+        
+        self.time_dep_param_mapping = time_dep_param_mapping
+        if self.time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            parameters = self.time_dep_param_mapping(parameters, 0)
 
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
@@ -2928,7 +2965,10 @@ cdef class SppQ(CommonMethods):
         self.infection_terms = res[4]
         self.test_pos = res[5]
         self.test_freq = res[6]
-        self.update_model_parameters(parameters)
+        if self.time_dep_param_mapping is None:
+            self.update_model_parameters(parameters)
+        else:
+            self.update_time_dep_model_parameters(0)
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
@@ -2943,6 +2983,23 @@ cdef class SppQ(CommonMethods):
 
 
     def update_model_parameters(self, parameters):
+        if self.time_dep_param_mapping is None:
+            nParams = len(self.param_keys)
+            self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+
+            try:
+                for (i, key) in enumerate(self.param_keys):
+                    param = parameters[key]
+                    self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters passed do not contain certain keys.\
+                                 The keys are {}'.format(self.param_keys))
+        else:
+            self.param_dict = parameters.copy()
+            self.update_time_dep_model_parameters(0)
+
+    def update_time_dep_model_parameters(self, tt):
+        parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
@@ -2950,7 +3007,7 @@ cdef class SppQ(CommonMethods):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
-            raise Exception('The parameters passed does not contain certain keys.\
+            raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
             
     cpdef set_testRate(self, testRate):
@@ -2978,6 +3035,9 @@ cdef class SppQ(CommonMethods):
             double Ntestpop, tau0
             
 
+        if self.time_dep_param_mapping is not None:
+            self.update_time_dep_model_parameters(tt)
+         
         # Compute lambda
         if self.constant_terms.size > 0:
             Ni = xt_arr[(nClassU-1)*M:] # update Ni
@@ -3184,7 +3244,6 @@ cdef class SppQ(CommonMethods):
             class_index = self.class_index_dict[model_class_key]
             Os = X[:, class_index*self.M:(class_index+1)*self.M]
         return Os
-
 
 
 

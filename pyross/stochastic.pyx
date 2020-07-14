@@ -1378,6 +1378,7 @@ cdef class SIR(stochastic_integration):
                      'fsa':self.fsa,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
+        
         return out_dict
 
 
@@ -2488,6 +2489,9 @@ cdef class Spp(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
         Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
+        Default: Identical mapping of the dictionary at all times. 
 
     Examples
     --------
@@ -2518,9 +2522,11 @@ cdef class Spp(stochastic_integration):
         np.ndarray constant_terms, linear_terms, infection_terms
         np.ndarray _lambdas
         list param_keys
+        readonly dict param_dict
         dict class_index_dict
+        readonly object time_dep_param_mapping
 
-    def __init__(self, model_spec, parameters, M, Ni):
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
         cdef:
             int i, m
             int nRpa # short for number of reactions per age group
@@ -2534,6 +2540,11 @@ cdef class Spp(stochastic_integration):
         self.M = M
         self.Ni = np.array(Ni, dtype=long)
 
+        self.time_dep_param_mapping = time_dep_param_mapping
+        if self.time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            parameters = self.time_dep_param_mapping(parameters, 0)
+        
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
@@ -2542,7 +2553,10 @@ cdef class Spp(stochastic_integration):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
-        self.update_model_parameters(parameters)
+        if self.time_dep_param_mapping is None:
+            self.update_model_parameters(parameters)
+        else:
+            self.update_time_dep_model_parameters(0)
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
 
         #
@@ -2622,6 +2636,9 @@ cdef class Spp(stochastic_integration):
             int offset, nClass = self.nClass
             int S_index=self.class_index_dict['S']
 
+        if self.time_dep_param_mapping is not None:
+            self.update_time_dep_model_parameters(tt)            
+
         # Compute lambda
         if constant_terms.size > 0:
             for i in range(M):
@@ -2658,9 +2675,27 @@ cdef class Spp(stochastic_integration):
                 rates[offset + i + m*nRpa] = rate
 
         return
-
-
+    
+            
     def update_model_parameters(self, parameters):
+        if self.time_dep_param_mapping is None:
+            nParams = len(self.param_keys)
+            self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+
+            try:
+                for (i, key) in enumerate(self.param_keys):
+                    param = parameters[key]
+                    self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters passed do not contain certain keys.\
+                                 The keys are {}'.format(self.param_keys))
+        else:
+            self.param_dict = parameters.copy()
+            self.update_time_dep_model_parameters(0)
+
+            
+    def update_time_dep_model_parameters(self, tt):
+        parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
@@ -2668,7 +2703,8 @@ cdef class Spp(stochastic_integration):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
-            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
+            raise Exception('The parameters passed do not contain certain keys.\
+                             The keys are {}'.format(self.param_keys))
 
 
     def make_parameters_dict(self):
@@ -2800,7 +2836,6 @@ cdef class Spp(stochastic_integration):
         param_dict = self.make_parameters_dict()
         out_dict.update(param_dict)
         return out_dict
-
 cdef class SppQ(stochastic_integration):
     """
     Generic user-defined epidemic model with quarantine.
@@ -2819,10 +2854,13 @@ cdef class SppQ(stochastic_integration):
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
         Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
+        Default: Identical mapping of the dictionary at all times. 
 
     Examples
     --------
-    An example of model_spec and parameters for SIR class with a constant influx, random testing (without false positives/negatives), and quarantine
+    An example of model_spec and parameters for SIR class with random testing (without false positives/negatives) and quarantine
 
     >>> model_spec = {
             "classes" : ["S", "I"],
@@ -2854,9 +2892,11 @@ cdef class SppQ(stochastic_integration):
         np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
         np.ndarray _lambdas
         list param_keys
+        readonly dict param_dict
         dict class_index_dict
+        readonly object time_dep_param_mapping
 
-    def __init__(self, model_spec, parameters, M, Ni):
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
         cdef:
             int i, m
             int nRpa # short for number of reactions per age group
@@ -2870,6 +2910,11 @@ cdef class SppQ(stochastic_integration):
         self.M = M
         self.Ni = np.array(Ni, dtype=long)
 
+        self.time_dep_param_mapping = time_dep_param_mapping
+        if self.time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            parameters = self.time_dep_param_mapping(parameters, 0)
+        
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
@@ -2881,7 +2926,10 @@ cdef class SppQ(stochastic_integration):
         self.infection_terms = res[4]
         self.test_pos = res[5]
         self.test_freq = res[6]
-        self.update_model_parameters(parameters)
+        if self.time_dep_param_mapping is None:
+            self.update_model_parameters(parameters)
+        else:
+            self.update_time_dep_model_parameters(0)
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         
         if self.constant_terms.size > 0:
@@ -2986,6 +3034,8 @@ cdef class SppQ(stochastic_integration):
             double TR = self.testRate(tt)
             double Ntestpop, tau0
 
+        if self.time_dep_param_mapping is not None:
+            self.update_time_dep_model_parameters(tt)  
         
         if constant_terms.size > 0:
             for i in range(M):
@@ -3049,9 +3099,27 @@ cdef class SppQ(stochastic_integration):
             rates[offset + nClassUwoN + m*nRpa] = rate
 
         return
-
-
+    
+            
     def update_model_parameters(self, parameters):
+        if self.time_dep_param_mapping is None:
+            nParams = len(self.param_keys)
+            self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+
+            try:
+                for (i, key) in enumerate(self.param_keys):
+                    param = parameters[key]
+                    self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters passed do not contain certain keys.\
+                                 The keys are {}'.format(self.param_keys))
+        else:
+            self.param_dict = parameters.copy()
+            self.update_time_dep_model_parameters(0)
+
+            
+    def update_time_dep_model_parameters(self, tt):
+        parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
@@ -3201,8 +3269,6 @@ cdef class SppQ(stochastic_integration):
         param_dict = self.make_parameters_dict()
         out_dict.update(param_dict)
         return out_dict 
-
-
 
 
 
@@ -3611,7 +3677,6 @@ cdef class SEI5R(stochastic_integration):
 
         self.population = (out_dict['X'])[:,7*self.M:8*self.M]
         return out_dict
-
 
 
 

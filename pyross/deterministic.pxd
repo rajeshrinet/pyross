@@ -266,8 +266,10 @@ cdef class Spp(CommonMethods):
         readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
         readonly list param_keys
+        readonly dict param_dict
         readonly dict class_index_dict
         readonly np.ndarray _lambdas
+        readonly object time_dep_param_mapping
 
     cpdef rhs(self, rp, tt)
 
@@ -288,9 +290,11 @@ cdef class SppQ(CommonMethods):
         readonly np.ndarray parameters
         readonly list param_keys
         readonly dict class_index_dict
+        readonly dict param_dict
         readonly np.ndarray _lambdas
         readonly int nClassU
         readonly object testRate
+        readonly object time_dep_param_mapping
 
     cpdef rhs(self, rp, tt)
     cpdef set_testRate(self, testRate)

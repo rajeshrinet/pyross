@@ -3357,7 +3357,10 @@ cdef class Spp(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
-
+    parameter_mapping: python function, optional
+        A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
+    time_dep_param_mapping: python function, optional
+        As parameter_mapping, but time-dependent. The user-defined function takes time as a second argument.
 
     See `SIR_type` for a table of all the methods
 
@@ -3386,23 +3389,44 @@ cdef class Spp(SIR_type):
     cdef:
         readonly np.ndarray constant_terms, linear_terms, infection_terms
         readonly np.ndarray parameters
+        readonly np.ndarray model_parameters
         readonly pyross.deterministic.Spp det_model
         readonly dict model_spec
+        readonly dict param_dict
+        readonly list model_param_keys
+        readonly object parameter_mapping
+        readonly object time_dep_param_mapping
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA'):
+                                    det_method='LSODA', lyapunov_method='LSODA', parameter_mapping=None, time_dep_param_mapping=None):
+        if parameter_mapping is not None and time_dep_param_mapping is not None:
+            raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
+        self.parameter_mapping = parameter_mapping
+        self.time_dep_param_mapping = time_dep_param_mapping
         self.param_keys = list(parameters.keys())
+        if parameter_mapping is not None:
+            self.model_param_keys = list(parameter_mapping(parameters).keys())
+        elif time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            self.model_param_keys = list(time_dep_param_mapping(parameters, 0).keys())
+        else:
+            self.model_param_keys = self.param_keys.copy()
         self.model_spec=model_spec
-        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
+        res = pyross.utils.parse_model_spec(model_spec, self.model_param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method)
-        self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
-
+        if self.parameter_mapping is not None:
+            parameters = self.parameter_mapping(parameters)
+        if self.time_dep_param_mapping is not None:
+            self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+        else:
+            self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
+ 
     def infection_indices(self):
         cdef Py_ssize_t a = 100
         indices = set()
@@ -3435,10 +3459,40 @@ cdef class Spp(SIR_type):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
-            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
+            raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
+        if self.parameter_mapping is not None:
+            model_parameters = self.parameter_mapping(parameters)
+            nParams = len(self.model_param_keys)
+            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+            try:
+                for (i, key) in enumerate(self.model_param_keys):
+                    param = model_parameters[key]
+                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
+        elif self.time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            self.set_time_dep_model_parameters(0)
+        else:
+            self.model_parameters = self.parameters.copy()
 
+    def set_time_dep_model_parameters(self, tt):
+        model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
+        nParams = len(self.model_param_keys)
+        self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        try:
+            for (i, key) in enumerate(self.model_param_keys):
+                param = model_parameters[key]
+                self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+        except KeyError:
+            raise Exception('The parameters passed do not contain certain keys.\
+                             The keys are {}'.format(self.param_keys))        
+    
     def set_det_model(self, parameters):
-        self.det_model.update_model_parameters(parameters)
+        if self.parameter_mapping is not None:          
+            self.det_model.update_model_parameters(self.parameter_mapping(parameters))
+        else:    
+            self.det_model.update_model_parameters(parameters)
 
 
     def make_params_dict(self):
@@ -3463,6 +3517,8 @@ cdef class Spp(SIR_type):
             double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
             double [:] fi=self.fi
         self.CM = self.contactMatrix(t)
+        if self.time_dep_param_mapping is not None:
+            self.set_time_dep_model_parameters(t)
         if self.constant_terms.size > 0:
             fi = x[(nClass-1)*M:]
         self.fill_lambdas(x, l)
@@ -3493,7 +3549,7 @@ cdef class Spp(SIR_type):
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             double [:] rate
             double [:] fi=self.fi
@@ -3528,7 +3584,7 @@ cdef class Spp(SIR_type):
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             int [:, :] constant_terms=self.constant_terms
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             double [:] s, reagent, rate
@@ -4056,26 +4112,28 @@ cdef class SppQ(SIR_type):
         Fraction of each age group.
     Omega: int
         Total population.
-    steps: int
+    steps: int, optional
         The number of internal integration steps performed between the observed points (not used in tangent space inference).
-        The minimal is 4, as required by the cubic spline fit used for interpolation.
-        For robustness, set steps to be large, det_method='LSODA', lyapunov_method='LSODA'.
-        For speed, set steps to be 4, det_method='RK2', lyapunov_method='euler'.
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
         For a combination of the two, choose something in between.
     det_method: str, optional
         The integration method used for deterministic integration.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
-
+    parameter_mapping: python function, optional
+        A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
+    time_dep_param_mapping: python function, optional
+        As parameter_mapping, but time-dependent. The user-defined function takes time as a second argument.
 
     See `SIR_type` for a table of all the methods
 
     Examples
     --------
-    An example of model_spec and parameters for SIR class with a constant influx,
-    random testing (without false positives/negatives), and quarantine
+    An example of model_spec and parameters for SIR class with random
+    testing (without false positives/negatives) and quarantine
 
     >>> model_spec = {
             "classes" : ["S", "I"],
@@ -4102,14 +4160,32 @@ cdef class SppQ(SIR_type):
         readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
         readonly np.ndarray parameters
         readonly Py_ssize_t nClassU, nClassUwoN
+        readonly np.ndarray model_parameters
         readonly pyross.deterministic.SppQ det_model
+        readonly dict model_spec
+        readonly dict param_dict
+        readonly list model_param_keys
+        readonly object parameter_mapping
+        readonly object time_dep_param_mapping
         readonly object testRate
 
 
     def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA'):
+                                    det_method='LSODA', lyapunov_method='LSODA', parameter_mapping=None, time_dep_param_mapping=None):
+        if parameter_mapping is not None and time_dep_param_mapping is not None:
+            raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
+        self.parameter_mapping = parameter_mapping
+        self.time_dep_param_mapping = time_dep_param_mapping
         self.param_keys = list(parameters.keys())
-        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
+        if parameter_mapping is not None:
+            self.model_param_keys = list(parameter_mapping(parameters).keys())
+        elif time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            self.model_param_keys = list(time_dep_param_mapping(parameters, 0).keys())
+        else:
+            self.model_param_keys = self.param_keys.copy()
+        self.model_spec=model_spec
+        res = pyross.utils.parse_model_spec(model_spec, self.model_param_keys)
         self.nClass = res[0]
         self.class_index_dict = res[1]
         self.constant_terms = res[2]
@@ -4118,7 +4194,12 @@ cdef class SppQ(SIR_type):
         self.test_pos = res[5]
         self.test_freq = res[6]
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method)
-        self.det_model = pyross.deterministic.SppQ(model_spec, parameters, M, fi*Omega)
+        if self.parameter_mapping is not None:
+            parameters = self.parameter_mapping(parameters)
+        if self.time_dep_param_mapping is not None:
+            self.det_model = pyross.deterministic.SppQ(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+        else:
+            self.det_model = pyross.deterministic.SppQ(model_spec, parameters, M, fi*Omega)
         self.testRate =  testRate
         self.det_model.set_testRate(testRate)
 
@@ -4128,6 +4209,7 @@ cdef class SppQ(SIR_type):
         else:
             self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
             self.nClassUwoN = self.nClassU
+        
 
     def infection_indices(self):
         cdef Py_ssize_t a = 100
@@ -4161,14 +4243,44 @@ cdef class SppQ(SIR_type):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
         except KeyError:
-            raise Exception('The parameters passed does not contain certain keys. The keys are {}'.format(self.param_keys))
+            raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
+        if self.parameter_mapping is not None:
+            model_parameters = self.parameter_mapping(parameters)
+            nParams = len(self.model_param_keys)
+            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+            try:
+                for (i, key) in enumerate(self.model_param_keys):
+                    param = model_parameters[key]
+                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
+        elif self.time_dep_param_mapping is not None:
+            self.param_dict = parameters.copy()
+            self.set_time_dep_model_parameters(0)
+        else:
+            self.model_parameters = self.parameters.copy()
+
+    def set_time_dep_model_parameters(self, tt):
+        model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
+        nParams = len(self.model_param_keys)
+        self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        try:
+            for (i, key) in enumerate(self.model_param_keys):
+                param = model_parameters[key]
+                self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+        except KeyError:
+            raise Exception('The parameters passed do not contain certain keys.\
+                             The keys are {}'.format(self.param_keys))  
 
     def set_testRate(self, testRate):
         self.testRate=testRate
         self.det_model.set_testRate(testRate)
 
     def set_det_model(self, parameters):
-        self.det_model.update_model_parameters(parameters)
+        if self.parameter_mapping is not None:          
+            self.det_model.update_model_parameters(self.parameter_mapping(parameters))
+        else:    
+            self.det_model.update_model_parameters(parameters)
         self.det_model.set_testRate(self.testRate)
 
     def make_params_dict(self):
@@ -4229,6 +4341,8 @@ cdef class SppQ(SIR_type):
             double ntestpop, tau0
             double [:] r=np.zeros(self.M, dtype=DTYPE)
         self.CM = self.contactMatrix(t)
+        if self.time_dep_param_mapping is not None:
+            self.set_time_dep_model_parameters(t)
         TR = self.testRate(t)
         if self.constant_terms.size > 0:
             fi = x[(nClassU-1)*M:]
