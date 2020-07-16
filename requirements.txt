@@ -3,9 +3,10 @@ numpy
 scipy
 sympy 
 xlrd 
-nlopt==2.6.2
+nlopt
 pathos
 cma
+dill
 matplotlib
 ipython
 jupyter

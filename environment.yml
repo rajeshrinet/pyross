@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python
   - cython
+  - dill
   - numpy
   - matplotlib
   - jupyter

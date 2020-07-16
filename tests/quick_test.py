@@ -138,9 +138,9 @@ class DeterministicTest(unittest.TestCase):
         for name, model in deterministic_models.items():
             if name.startswith('S') and not name in skip:
                 m = model(self.parameters, self.M, self.N)
-                x0 = np.array([*self.N, *np.ones(self.M),
-                               *np.zeros(m.nClass-2)], dtype=np.float64).reshape((m.nClass,1))
-                traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
+                #x0 = np.array([*self.N, *np.ones(self.M),
+                #               *np.zeros(m.nClass-2)], dtype=np.float64).reshape((m.nClass,1))
+                #traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
 
 
 class StochasticTest(unittest.TestCase):
@@ -176,11 +176,11 @@ class StochasticTest(unittest.TestCase):
            if name.startswith('S') and not name in skip:
                params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                m = model(params, M, N + M*10)
-               x0 = np.array([*self.parameters['N'],
-                              *np.ones(self.parameters['M'])*10,
-                              *np.zeros(m.nClass -2)],
-                             dtype=np.float64).reshape((m.nClass,1))
-               traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
+               #x0 = np.array([*self.parameters['N'],
+               #               *np.ones(self.parameters['M'])*10,
+               #               *np.zeros(m.nClass -2)],
+               #              dtype=np.float64).reshape((m.nClass,1))
+               #traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
 
     def test_stochastic_mean_gillespie(self):
         """Runs stochastic models a few times and compares mean to
@@ -193,7 +193,8 @@ class StochasticTest(unittest.TestCase):
                 mS = model(params, M, N + M*self.iinfec)
                 # print(mS.kk)
                 mD = deterministic_models[name](params, M, N + M*self.iinfec)
-                x0 = np.array([*self.parameters['N'],
+                N  = self.parameters['N']
+                x0 = np.array([*N,
                               *np.ones(self.parameters['M'])*self.iinfec,
                               *np.zeros(mS.nClass -2)],
                               dtype=np.float64).reshape((mS.nClass,1))
