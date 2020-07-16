@@ -118,7 +118,7 @@ cdef class SIR_type:
                         tangent=False, verbose=False,
                         enable_global=True, global_max_iter=100, global_atol=1,
                         enable_local=True, local_max_iter=200, ftol=1e-6,
-                        cma_processes=0, cma_population=16):
+                        cma_processes=0, cma_population=16, cma_random_seed=None):
         """Infers the MAP estimates for epidemiological parameters
 
         Parameters
@@ -150,6 +150,8 @@ cdef class SIR_type:
         cma_population: int, optional
             he number of samples used in each step of the CMA algorithm.
             Should ideally be factor of `cma_processes`.
+        cma_random_seed: int (between 0 and 2**32-1)
+            Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
         local_max_iter: int, optional
             The maximum number of iterations for the local algorithm.
         ftol: float, optional
@@ -203,7 +205,7 @@ cdef class SIR_type:
                            enable_global=enable_global, enable_local=enable_local,
                            cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds,
-                           verbose=verbose, args_dict=minimize_args)
+                           verbose=verbose, cma_random_seed=cma_random_seed, args_dict=minimize_args)
         params = res[0]
         # Get the parameters (in their original structure) from the flattened parameter vector.
         orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
@@ -572,7 +574,7 @@ cdef class SIR_type:
                       verbose=False, ftol=1e-6,
                       global_max_iter=100, local_max_iter=100, global_atol=1.,
                       enable_global=True, enable_local=True,
-                      cma_processes=0, cma_population=16):
+                      cma_processes=0, cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown. The lockdown is modelled by scaling the contact matrices for contact at work, school, and other
@@ -621,6 +623,8 @@ cdef class SIR_type:
             Number of parallel processes used for global optimisation.
         cma_population: int, optional
             The number of samples used in each step of the CMA algorithm.
+        cma_random_seed: int (between 0 and 2**32-1)
+            Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
 
         Returns
         -------
@@ -646,7 +650,7 @@ cdef class SIR_type:
         res = minimization(self._infer_control_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_atol=global_atol,
                            enable_global=enable_global, enable_local=enable_local, cma_processes=cma_processes,
-                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args)
+                           cma_population=cma_population, cma_stds=cma_stds, verbose=verbose, args_dict=minimize_args, cma_random_seed=cma_random_seed)
 
         orig_params = pyross.utils.unflatten_parameters(res[0], flat_guess_range,
                                              is_scale_parameter, scaled_guesses)
@@ -1216,7 +1220,7 @@ cdef class SIR_type:
                             double ftol=1e-5,
                             global_max_iter=100, local_max_iter=100, global_atol=1,
                             enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16):
+                            cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
@@ -1257,6 +1261,8 @@ cdef class SIR_type:
         cma_population: int, optional
             he number of samples used in each step of the CMA algorithm.
             Should ideally be factor of `cma_processes`.
+        cma_random_seed: int (between 0 and 2**32-1)
+            Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
         local_max_iter: int, optional
             The maximum number of iterations for the local algorithm.
         ftol: float, optional
@@ -1373,7 +1379,7 @@ cdef class SIR_type:
                            enable_global=enable_global, enable_local=enable_local,
                            cma_processes=cma_processes,
                            cma_population=cma_population, cma_stds=cma_stds,
-                           verbose=verbose, args_dict=minimize_args)
+                           verbose=verbose, args_dict=minimize_args, cma_random_seed=cma_random_seed)
 
         estimates = res[0]
 
@@ -1864,7 +1870,7 @@ cdef class SIR_type:
                             intervention_fun=None, tangent=False,
                             verbose=False, ftol=1e-5, global_max_iter=100,
                             local_max_iter=100, global_atol=1., enable_global=True,
-                            enable_local=True, cma_processes=0, cma_population=16):
+                            enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown with partially observed classes. The unobserved classes are treated as latent variables. The lockdown
@@ -1914,6 +1920,8 @@ cdef class SIR_type:
             Number of parallel processes used for global optimisation.
         cma_population: int, optional
             The number of samples used in each step of the CMA algorithm.
+        cma_random_seed: int (between 0 and 2**32-1)
+            Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
 
         Returns
         -------
@@ -1962,7 +1970,7 @@ cdef class SIR_type:
                           enable_global=enable_global, enable_local=enable_local,
                           cma_processes=cma_processes,
                           cma_population=cma_population, cma_stds=cma_stds,
-                          verbose=verbose, args_dict=minimize_args)
+                          verbose=verbose, cma_random_seed=cma_random_seed, args_dict=minimize_args)
         estimates = res[0]
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
