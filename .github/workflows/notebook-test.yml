@@ -9,7 +9,7 @@ on: [push, pull_request]
 jobs:
 
   build-and-test:
-    name: test example notebooks
+    name: check examples
     runs-on: ubuntu-latest
 
     steps:
