@@ -8,7 +8,7 @@ dependencies:
   - matplotlib
   - jupyter
   - scipy
-  - nlopt
+  - nlopt=2.4.2
   - pathos
   - pip
   - pytest 
