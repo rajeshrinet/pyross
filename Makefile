@@ -4,7 +4,8 @@ recursive=True
 
 make:
 	@echo Installing pyross...
-	pip install --upgrade pip
+	${PYTHON} -m pip install --upgrade pip 
+	${PYTHON} -m pip install -r requirements.txt 
 	${PYTHON} setup.py install
 	@echo adding githook...
 	cp .githooks/pre-push .git/hooks/
