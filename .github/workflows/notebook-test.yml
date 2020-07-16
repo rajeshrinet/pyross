@@ -1,4 +1,4 @@
-name: notebooks
+name: Notebooks
 
 on: [push, pull_request]
 #on:

@@ -88,8 +88,7 @@ class DeterministicTest(unittest.TestCase):
         """
         All integration methods produce paths which agree within .1%
         """
-        integrators = ['solve_ivp', 'odeint', 'odespy',
-                       'odespy-rkf45', 'odespy-rk4']
+        integrators = ['solve_ivp', 'odeint']
         paths = []
         model = pyross.deterministic.SIR(self.parameters, self.M, self.N)
         for integrator in integrators:
@@ -98,7 +97,6 @@ class DeterministicTest(unittest.TestCase):
                                       self.contactMatrix, self.Tf,
                                       self.Nf, integrator=integrator)
             except ImportError:
-                print(f"{integrator} is not installed, skipping...")
                 pass
             paths.append(data['X'])
         for i in range(len(paths)):

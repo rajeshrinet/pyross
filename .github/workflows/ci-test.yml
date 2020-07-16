@@ -28,9 +28,10 @@ jobs:
       - name: Install pyross 
         run: python setup.py install 
 
-      - name: Test-pyross
+      - name: Test pyross
         shell: bash -l {0}
         run: |
-          make test
+          cd tests 
+          python quick_test.py
 
 
