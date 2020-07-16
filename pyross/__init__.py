@@ -8,6 +8,6 @@ import pyross.stochastic
 import pyross.utils
 import pyross.utils_python 
 
-# current version of PyRoss
-__version__="1.2.5"
+## current version of PyRoss
+__version__="1.2.6"
 
