@@ -28,6 +28,7 @@ def run_notebook_tests(path, recursive=False):
     ignore_list = [os.path.join(cwd, 'control/ex04-SIR-optimal_control.ipynb'),
                    os.path.join(cwd, 'inference/ex-lin-mode-M=2.ipynb'),
                    os.path.join(cwd, 'inference/ex-evidence.ipynb'),
+                   os.path.join(cwd, 'inference/ex-optimal_design.ipynb'),
                    os.path.join(cwd, 'inference/ex06_inference_latent_SEIR.ipynb'),
                    os.path.join(cwd, 'inference/ex13_calibration_latent_SIR.ipynb'),
                    os.path.join(cwd, 'inference/ex-fastest-growing-mode-inference.ipynb'),
