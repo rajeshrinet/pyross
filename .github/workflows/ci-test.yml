@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.7]
     steps:
       - uses: actions/checkout@v2
@@ -29,9 +29,6 @@ jobs:
         run: python setup.py install 
 
       - name: Test pyross
-        shell: bash -l {0}
-        run: |
-          cd tests 
-          python quick_test.py
+        run: cd tests && python quick_test.py
 
 
