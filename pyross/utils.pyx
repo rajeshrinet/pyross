@@ -9,7 +9,6 @@ cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
 from scipy.sparse.linalg.eigen.arpack import eigs, ArpackNoConvergence
 from scipy.misc import derivative
-import matplotlib.pyplot as plt
 
 
 
