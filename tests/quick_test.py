@@ -88,7 +88,8 @@ class DeterministicTest(unittest.TestCase):
         """
         All integration methods produce paths which agree within .1%
         """
-        integrators = ['solve_ivp', 'odeint']
+        integrators = ['solve_ivp', 'odeint', 'odespy',
+                       'odespy-rkf45', 'odespy-rk4']
         paths = []
         model = pyross.deterministic.SIR(self.parameters, self.M, self.N)
         for integrator in integrators:
@@ -97,6 +98,7 @@ class DeterministicTest(unittest.TestCase):
                                       self.contactMatrix, self.Tf,
                                       self.Nf, integrator=integrator)
             except ImportError:
+                print(f"{integrator} is not installed, skipping...")
                 pass
             paths.append(data['X'])
         for i in range(len(paths)):
@@ -138,9 +140,9 @@ class DeterministicTest(unittest.TestCase):
         for name, model in deterministic_models.items():
             if name.startswith('S') and not name in skip:
                 m = model(self.parameters, self.M, self.N)
-                #x0 = np.array([*self.N, *np.ones(self.M),
-                #               *np.zeros(m.nClass-2)], dtype=np.float64).reshape((m.nClass,1))
-                #traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
+                x0 = np.array([*self.N, *np.ones(self.M),
+                               *np.zeros(m.nClass-2)], dtype=np.float64).reshape((m.nClass,1))
+                traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
 
 
 class StochasticTest(unittest.TestCase):
@@ -176,11 +178,11 @@ class StochasticTest(unittest.TestCase):
            if name.startswith('S') and not name in skip:
                params, M, N = self.parameters, self.parameters['M'], self.parameters['N']
                m = model(params, M, N + M*10)
-               #x0 = np.array([*self.parameters['N'],
-               #               *np.ones(self.parameters['M'])*10,
-               #               *np.zeros(m.nClass -2)],
-               #              dtype=np.float64).reshape((m.nClass,1))
-               #traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
+               x0 = np.array([*self.parameters['N'],
+                              *np.ones(self.parameters['M'])*10,
+                              *np.zeros(m.nClass -2)],
+                             dtype=np.float64).reshape((m.nClass,1))
+               traj_dict[name] = m.simulate(*x0, self.contactMatrix, 100, 100)
 
     def test_stochastic_mean_gillespie(self):
         """Runs stochastic models a few times and compares mean to
@@ -193,8 +195,7 @@ class StochasticTest(unittest.TestCase):
                 mS = model(params, M, N + M*self.iinfec)
                 # print(mS.kk)
                 mD = deterministic_models[name](params, M, N + M*self.iinfec)
-                N  = self.parameters['N']
-                x0 = np.array([*N,
+                x0 = np.array([*self.parameters['N'],
                               *np.ones(self.parameters['M'])*self.iinfec,
                               *np.zeros(mS.nClass -2)],
                               dtype=np.float64).reshape((mS.nClass,1))
