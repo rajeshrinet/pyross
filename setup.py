@@ -50,8 +50,8 @@ setup(
         ),
     libraries=[],
     packages=['pyross'],
-    install_requires=['cython','numpy','scipy','cma','pandas',
-                      'nlopt','xlrd','sympy'],
+    install_requires=['cython','numpy','scipy','cma','sympy',
+                      'nlopt==2.4.2','pandas','xlrd'],
     package_data={'pyross': ['*.pxd']},
     include_package_data=True,
     classifiers=[
