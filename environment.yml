@@ -4,14 +4,10 @@ channels:
 dependencies:
   - python
   - cython
-  - dill
   - numpy
   - matplotlib
   - jupyter
   - scipy
-  - nlopt=2.6.2
-  - pathos
-  - pip
   - pytest 
   - pytest-cov
   - pandas
@@ -19,6 +15,10 @@ dependencies:
   - ipython
   - nbconvert
   - xlrd
+  - pip
   - pip:
     - cma
+    - dill
+    - nlopt
+    - pathos
     - git+https://github.com/kbarbary/nestle.git
