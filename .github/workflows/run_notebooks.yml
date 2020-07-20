@@ -26,6 +26,10 @@ jobs:
         run: |
           conda activate pyross
           make
+      - name: testing-inference
+        shell: bash -l {0}
+        run: |
+          make nbtest -e path="examples/inference" recursive=False
       - name: testing-deterministic
         shell: bash -l {0}
         run: |
@@ -46,10 +50,6 @@ jobs:
         shell: bash -l {0}
         run: |
           make nbtest -e path="examples/control"  recursive=False
-      - name: testing-inference
-        shell: bash -l {0}
-        run: |
-          make nbtest -e path="examples/inference" recursive=False
       - name: testing-forecast
         shell: bash -l {0}
         run: |

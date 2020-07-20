@@ -47,7 +47,7 @@ Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wi
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
-### From a checkout of this repository
+#### From a checkout of this repository
 
 Install PyRoss and required dependencies using
 
@@ -58,7 +58,7 @@ Install PyRoss and required dependencies using
 >> python setup.py install
 ```
 
-### Via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html)
+#### Via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html)
 
 Install PyRoss and its dependencies in a `pyross` [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml):
 
@@ -70,7 +70,7 @@ Install PyRoss and its dependencies in a `pyross` [environment](https://github.c
 >> make
 ```
 
-### Via pip
+#### Via pip
 
 Install the latest [PyPI](https://pypi.org/project/pyross) version
 
