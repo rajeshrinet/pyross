@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.2.8 
+* Use dynesty in place of nestle 
+
 ## 1.2.3
 * new inference interface - see https://github.com/rajeshrinet/pyross/pull/33
 
