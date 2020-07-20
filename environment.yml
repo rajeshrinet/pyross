@@ -15,10 +15,10 @@ dependencies:
   - ipython
   - nbconvert
   - xlrd
+  - dynesty
   - pip
   - pip:
     - cma
     - dill
     - nlopt
     - pathos
-    - git+https://github.com/kbarbary/nestle.git

@@ -18,9 +18,9 @@ import hashlib
 
 try:
     # Optional support for nested sampling.
-    import nestle
+    import dynesty
 except ImportError:
-    nestle = None
+    dynesty = None
 
 try:
     # Optional support for nested sampling.
@@ -37,7 +37,7 @@ except ImportError:
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
-from pyross.utils_python import minimization, nested_sampling
+from pyross.utils_python import minimization
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -245,22 +245,15 @@ cdef class SIR_type:
 
         return -minus_loglike
 
-    def _nested_sampling_prior_transform(self, x, s=None, scale=None, ppf_bounds=None):
-        # Tranform a sample x ~ Unif([0,1]^d) to a sample of the prior using inverse tranform sampling.
-        y = ppf_bounds[:,0] + x * ppf_bounds[:,1]
-        return lognorm.ppf(y, s, scale=scale)
+    def _nested_sampling_prior_transform(self, x, s=None, scale=None):
+        return lognorm.ppf(x, s, scale=scale)
 
     def nested_sampling_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False,
-                                  queue_size=1, max_workers=None, npoints=100, method='single', max_iter=1000,
-                                  dlogz=None, decline_factor=None):
+                                  nprocesses=0, queue_size=None, maxiter=None, maxcall=None, dlogz=None,
+                                  n_effective=None, add_live=True, sampler=None, **dynesty_args):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
-        using nested sampling as implemented in the `nestle` Python package. This function assumes that full data on
+        using nested sampling as implemented in the `dynesty` Python package. This function assumes that full data on
         all classes is available.
-
-        This function provides a computational alterantive to `log_G_evidence` and `infer_parameters`. It does not use
-        the Laplace approximation to compute the evidence and, in addition,  returns a set of representative samples that can
-        be used to compute a posterior mean estimate (insted of the MAP estimate). This approach approach is much more resource
-        intensive and typically only viable for small models or tangent space inference.
 
         Parameters
         ----------
@@ -277,64 +270,124 @@ cdef class SIR_type:
             Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
-        queue_size: int
-            Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
-            is computed in parallel (if queue_size > 1).
-        max_workers: int
-            The maximal number of processes used to compute samples.
-        npoints: int
-            Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
-            number the more accurate and expensive is the evidence computation.
-        method: str
-            Nested sampling method used int `nestle.sample`, see their documentation. Default is `single`, for multimodel posteriors,
-            use `multi`.
-        max_iter: int
-            Maximum number of iterations of the nested sampling algorithm.
+        nprocesses: int, optional
+            The number of processes used for parallel evaluation of the likelihood.
+        queue_size: int, optional
+            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
+        maxiter: int, optional
+            The maximum number of iterations. Default is no limit.
+        maxcall:int, optional
+            The maximum number of calls to the likelihood function. Default no limit.
         dlogz: float, optional
-            Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with `decline_factor`.
-        decline_factor: float, optional
-            Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
-            `decline_factor * nsamples` consecutive samples. This option is mutually exclusive with `dlogz`.
+            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
+            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
+        n_effective: float, optional
+            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
+        add_live: bool, optional
+            Determines whether to add the remaining set of live points to the set of samples. Default is True.
+        sampler: dynesty.NestedSampler, optional
+            Continue running an instance of a nested sampler until the termination criteria are met.
+        **dynesty_args
+            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
+            are (this is not comprehensive, for details see the documentation of dynesty):
+            nlive: int, optional
+                The number of live points. Default is 500.
+            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
+                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
+            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
+                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
 
         Returns
         -------
-        result:
-            The result of the nested sampling algorithm as returned by `nestle.nested_sampling`. The approximated evidence can
-            be accessed by `result.logz`.
-        samples: dict
-            A set of weighted samples approximating the posterios distribution. Use `pyross.utils.posterior_mean` to compute
-            the posterior mean and `pyross.utils.resample` to sample from the weighted set.
+        sampler: dynesty.NestedSampler
+            The state of the sampler after termination of the nested sampling run.
         '''
 
-        if nestle is None:
-            raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+        if dynesty is None:
+            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if queue_size is None:
+            queue_size = nprocesses
 
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
         self.contactMatrix = contactMatrix
 
-        k = len(guess)
-        # We sample the prior by inverse transform sampling from the unite cube. To implement bounds (if supplied)
-        # we shrink the unit cube according the the provided bounds in each dimension.
-        ppf_bounds = np.zeros((k, 2))
-        ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
-        ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
-        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
-
-        prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
+        ndim = len(guess)
+        prior_transform_args = {'s':s, 'scale':scale}
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                       'x':x, 'Tf':Tf, 'tangent':tangent}
+                       'x':x, 'Tf':Tf, 'tangent':tangent, 'bounds':bounds}
 
-        result = nested_sampling(self._loglike, self._nested_sampling_prior_transform, k, queue_size,
-                                 max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
-                                 prior_transform_args)
+        if sampler is None:
+            if nprocesses > 1:
+                pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = dynesty.NestedSampler(self._loglike, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                pool=pool, queue_size=queue_size, **dynesty_args)
+            else:
+                sampler = dynesty.NestedSampler(self._loglike, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                **dynesty_args)
+        else:
+            if nprocesses > 1:
+                # Restart the pool we closed at the end of the previous run.
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler.M = sampler.pool.map
+            elif sampler.pool is not None:
+                sampler.pool = None
+                sampler.M = map
 
+        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
+                           add_live=add_live, print_progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def nested_sampling_inference_process_result(self, sampler, prior_dict):
+        """
+        Take the sampler generated by `nested_sampling_inference` and produce output dictionaries for further use
+        in the pyross framework.
+
+        Parameters
+        ----------
+        sampler: dynesty.NestedSampler
+            Output of `nested_sampling_inference`.
+        param_priors: dict
+            A dictionary for priors for the model parameters.
+            See `infer_parameters` for further explanations.
+
+        Returns
+        -------
+        result: dynesty.Result
+            The result of the nested sampling iteration. Relevant entries include:
+            result.logz: list
+                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
+        output_samples: list
+            The processed weighted posterior samples.
+        """
+
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        result = sampler.results
         output_samples = []
         for i in range(len(result.samples)):
             sample = result.samples[i]
-            weight = result.weights[i]
+            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
             l_like = result.logl[i]
 
             orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
@@ -1438,15 +1491,11 @@ cdef class SIR_type:
         return -minus_loglike
 
     def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
-                                         init_priors,tangent=False, verbose=False, queue_size=1,
-                                         max_workers=None, npoints=100, method='single', max_iter=1000, dlogz=None,
-                                         decline_factor=None):
+                                         init_priors,tangent=False, verbose=False, nprocesses=0, queue_size=None, 
+                                         maxiter=None, maxcall=None, dlogz=None, n_effective=None, add_live=True, 
+                                         sampler=None, **dynesty_args):
         '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
-        with latent variables using nested sampling as implemented in the `nestle` Python package.
-
-        This function provides a computational alterantive to `latent_infer_parameters`. It computes an estimate of the evidence and,
-        in addition, returns a set of representative samples that can be used to compute a posterior mean estimate (insted of the MAP
-        estimate). This approach approach is much more resource intensive and typically only viable for small models or tangent space inference.
+        with latent variables using nested sampling as implemented in the `dynesty` Python package.
 
         Parameters
         ----------
@@ -1470,37 +1519,51 @@ cdef class SIR_type:
             Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
         verbose: bool, optional
             Set to True to see intermediate outputs from the nested sampling procedure.
-        queue_size: int
-            Size of the internal queue of samples of the nested sampling algorithm. The log-likelihood of these samples
-            is computed in parallel (if queue_size > 1).
-        max_workers: int
-            The maximal number of processes used to compute samples.
-        npoints: int
-            Argument of `nestle.sample`. The number of active points used in the nested sampling algorithm. The higher the
-            number the more accurate and expensive is the evidence computation.
-        method: str
-            Nested sampling method used int `nestle.sample`, see their documentation. Default is `single`, for multimodel posteriors,
-            use `multi`.
-        max_iter: int
-            Maximum number of iterations of the nested sampling algorithm.
+        nprocesses: int, optional
+            The number of processes used for parallel evaluation of the likelihood.
+        queue_size: int, optional
+            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
+        maxiter: int, optional
+            The maximum number of iterations. Default is no limit.
+        maxcall:int, optional
+            The maximum number of calls to the likelihood function. Default no limit.
         dlogz: float, optional
-            Stopping threshold for the estimated error of the log-evidence. This option is mutually exclusive with `decline_factor`.
-        decline_factor: float, optional
-            Stop the iteration when the weight (likelihood times prior volume) of newly saved samples has been declining for
-            `decline_factor * nsamples` consecutive samples. This option is mutually exclusive with `dlogz`.
+            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
+            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
+        n_effective: float, optional
+            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
+        add_live: bool, optional
+            Determines whether to add the remaining set of live points to the set of samples. Default is True.
+        sampler: dynesty.NestedSampler, optional
+            Continue running an instance of a nested sampler until the termination criteria are met.
+        **dynesty_args
+            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
+            are (this is not comprehensive, for details see the documentation of dynesty):
+            nlive: int, optional
+                The number of live points. Default is 500.
+            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
+                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
+            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
+                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
 
         Returns
         -------
-        result:
-            The result of the nested sampling algorithm as returned by `nestle.nested_sampling`. The approximated log-evidence
-            can be accessed by `result.logz`.
-        samples: dict
-            A set of weighted samples approximating the posterior distribution. Use `pyross.utils.posterior_mean` to compute
-            the posterior mean and `pyross.utils.resample` to sample from the weighted set.
+        sampler: dynesty.NestedSampler
+            The state of the sampler after termination of the nested sampling run.
         '''
 
-        if nestle is None:
-            raise Exception("Nested sampling needs optional dependency `nestle` which was not found.")
+        if dynesty is None:
+            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if queue_size is None:
+            queue_size = nprocesses
 
         self.contactMatrix = contactMatrix
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
@@ -1522,26 +1585,98 @@ cdef class SIR_type:
 
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
-        k = len(guess)
-        ppf_bounds = np.zeros((k, 2))
-        ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
-        ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
-        ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+        ndim = len(guess)
 
-        prior_transform_args = {'s':s, 'scale':scale, 'ppf_bounds':ppf_bounds}
+        prior_transform_args = {'s':s, 'scale':scale}
         loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
                         'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
                         'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 'tangent':tangent}
+                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 'tangent':tangent, 'bounds':bounds}
 
-        result = nested_sampling(self._loglike_latent, self._nested_sampling_prior_transform, k, queue_size,
-                                 max_workers, verbose, method, npoints, max_iter, dlogz, decline_factor, loglike_args,
-                                 prior_transform_args)
+        if sampler is None:
+            if nprocesses > 1:
+                pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = dynesty.NestedSampler(self._loglike_latent, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                pool=pool, queue_size=queue_size, **dynesty_args)
+            else:
+                sampler = dynesty.NestedSampler(self._loglike_latent, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                **dynesty_args)
+        else:
+            if nprocesses > 1:
+                # Restart the pool we closed at the end of the previous run.
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler.M = sampler.pool.map
+            elif sampler.pool is not None:
+                sampler.pool = None
+                sampler.M = map
 
+        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
+                           add_live=add_live, print_progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def nested_sampling_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors):
+        """
+        Take the sampler generated by `nested_sampling_latent_inference` and produce output dictionaries for further use
+        in the pyross framework.
+
+        Parameters
+        ----------
+        sampler: dynesty.NestedSampler
+            Output of `nested_sampling_latent_inference`.
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
+        param_priors: dict
+            A dictionary for priors for the model parameters.
+            See `latent_infer_parameters` for further explanations.
+        init_priors: dict
+            A dictionary for priors for the initial conditions.
+            See `latent_infer_parameters` for further explanations.
+
+        Returns
+        -------
+        result: dynesty.Result
+            The result of the nested sampling iteration. Relevant entries include:
+            result.logz: list
+                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
+        output_samples: list
+            The processed weighted posterior samples.
+        """
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        result = sampler.results
         output_samples = []
         for i in range(len(result.samples)):
             sample = result.samples[i]
-            weight = result.weights[i]
+            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
             l_like = result.logl[i]
             param_estimates = sample[:param_length]
             orig_params = pyross.utils.unflatten_parameters(param_estimates,
