@@ -155,6 +155,10 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         if enable_global:
             # CMA gives us the scaling of the varialbes close to the minimum
             min_stds = global_opt.result.stds
+            # These values can sometimes create initial steps outside of the boundaries (in particular if CMA is
+            # only run for short times). This seems to create problems for NLopt, so we restrict the steps here
+            # to be within the boundaries.
+            min_stds = np.minimum(min_stds, np.amin([bounds[:, 1] - x_result, x_result -  bounds[:, 0]], axis=0))
             local_opt.set_initial_step(1/2 * min_stds)
 
         x_result = local_opt.optimize(x_result)
