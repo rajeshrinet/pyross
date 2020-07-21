@@ -106,7 +106,6 @@ cdef class SIR_type:
                                              is_scale_parameter, scaled_guesses)
         parameters = self.fill_params_dict(keys, orig_params)
         self.set_params(parameters)
-        self.set_det_model(parameters)
         if tangent:
             minus_logp = self._obtain_logp_for_traj_tangent(x, Tf)
         else:
@@ -234,7 +233,6 @@ cdef class SIR_type:
                                              is_scale_parameter, scaled_guesses)
         parameters = self.fill_params_dict(keys, orig_params)
         self.set_params(parameters)
-        self.set_det_model(parameters)
         if tangent:
             minus_loglike = self._obtain_logp_for_traj_tangent(x, Tf)
         else:
@@ -1057,7 +1055,6 @@ cdef class SIR_type:
 
         parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
-        self.set_det_model(parameters)
         fltr_ = fltr[1:]
         Nf=fltr_.shape[0]+1
         full_fltr = sparse.block_diag(fltr_)
@@ -1081,7 +1078,6 @@ cdef class SIR_type:
 
         parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
-        self.set_det_model(parameters)
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
         fltr_ = fltr[1:]
@@ -1215,7 +1211,6 @@ cdef class SIR_type:
             double minus_log_p
             double [:, :] x_memview=x.astype('float')
         self.set_params(parameters)
-        self.set_det_model(parameters)
         self.contactMatrix = contactMatrix
         if tangent:
             minus_logp = self._obtain_logp_for_traj_tangent(x_memview, Tf)
@@ -1238,7 +1233,6 @@ cdef class SIR_type:
 
         parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
-        self.set_det_model(parameters)
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
         penalty = self._penalty_from_negative_values(x0)
@@ -1445,7 +1439,6 @@ cdef class SIR_type:
         init_estimates = estimates[param_length:]
         map_params_dict = self.fill_params_dict(keys, orig_params)
         self.set_params(map_params_dict)
-        self.set_det_model(map_params_dict)
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                       obs0, fltr[0])
         l_post = -res[1]
@@ -1479,7 +1472,6 @@ cdef class SIR_type:
 
         parameters = self.fill_params_dict(param_keys, orig_params)
         self.set_params(parameters)
-        self.set_det_model(parameters)
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
 
@@ -1687,7 +1679,6 @@ cdef class SIR_type:
             init_estimates = sample[param_length:]
             sample_params_dict = self.fill_params_dict(keys, orig_params)
             self.set_params(sample_params_dict)
-            self.set_det_model(sample_params_dict)
             map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                         obs0, fltr[0])
             l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
@@ -1949,7 +1940,6 @@ cdef class SIR_type:
                 init_estimates = sample[param_length:]
                 sample_params_dict = self.fill_params_dict(keys, orig_params)
                 self.set_params(sample_params_dict)
-                self.set_det_model(sample_params_dict)
                 map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                             obs0, fltr[0])
                 l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
@@ -2344,7 +2334,6 @@ cdef class SIR_type:
             print('x0 not consistent with obs0. '
                   'Using x0 in the calculation of logp...')
         self.set_params(parameters)
-        self.set_det_model(parameters)
         minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
         return minus_logp
 
@@ -2491,7 +2480,7 @@ cdef class SIR_type:
         -----
         Can use `fill_params_dict` to generate the full dictionary if only a few parameters are changed
         '''
-
+        self.set_det_model(parameters)
         self.beta = pyross.utils.age_dep_rates(parameters['beta'], self.M, 'beta')
         self.gIa = pyross.utils.age_dep_rates(parameters['gIa'], self.M, 'gIa')
         self.gIs = pyross.utils.age_dep_rates(parameters['gIs'], self.M, 'gIs')
@@ -3595,6 +3584,7 @@ cdef class Spp(SIR_type):
         return list(indices)
 
     def set_params(self, parameters):
+        self.set_det_model(parameters)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
@@ -4379,6 +4369,7 @@ cdef class SppQ(SIR_type):
         return list(indices)
 
     def set_params(self, parameters):
+        self.set_det_model(parameters)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
