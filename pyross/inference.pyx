@@ -3584,7 +3584,8 @@ cdef class Spp(SIR_type):
         return list(indices)
 
     def set_params(self, parameters):
-        self.set_det_model(parameters)
+        if self.det_model is not None:
+            self.set_det_model(parameters)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
@@ -4369,7 +4370,8 @@ cdef class SppQ(SIR_type):
         return list(indices)
 
     def set_params(self, parameters):
-        self.set_det_model(parameters)
+        if self.det_model is not None:
+            self.set_det_model(parameters)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
         try:
