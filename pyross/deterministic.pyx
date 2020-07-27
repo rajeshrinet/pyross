@@ -2942,7 +2942,7 @@ cdef class SppSparse(CommonMethods):
         }
     """
 
-    def __init__(self, model_spec, contactMatrixt, parameters, M, Ni, time_dep_param_mapping=None):
+    def __init__(self, model_spec, contactMatrixt, threshold, parameters, M, Ni, time_dep_param_mapping=None):
 
         self.N = DTYPE(np.sum(Ni))
         self.M = DTYPE(M)
@@ -2976,7 +2976,7 @@ cdef class SppSparse(CommonMethods):
             for j in range(M):
                 if (i * M + j) % check == 0:
                     print ("Processed",(i * M + j) * 100/( M * M ),"%, 1/2")
-                if contactMatrixt[i,j] > 0.001:
+                if contactMatrixt[i,j] > threshold:
                     self.intCounter += int(1)
                     
         self.interactingMP = np.zeros((self.intCounter,2), dtype = np.int32)
@@ -2986,7 +2986,7 @@ cdef class SppSparse(CommonMethods):
             for j in range(M):
                 if (i * M + j) % check == 0:
                     print ("Processed",(i * M + j) * 100/( M * M ),"%, 2/2")
-                if contactMatrixt[i,j] > 0.001:
+                if contactMatrixt[i,j] > threshold:
                     self.interactingMP[counter] = [int(i),int(j)]
                     counter += int(1)
 
