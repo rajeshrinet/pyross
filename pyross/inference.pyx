@@ -58,7 +58,7 @@ cdef class SIR_type:
 
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
-        readonly double Omega
+        readonly double Omega, rtol_det, rtol_lyapunov
         readonly np.ndarray beta, gIa, gIs, fsa
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
@@ -68,7 +68,7 @@ cdef class SIR_type:
         readonly object contactMatrix
 
 
-    def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method):
+    def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov):
         self.Omega = Omega
         self.M = M
         self.fi = fi
@@ -77,6 +77,8 @@ cdef class SIR_type:
         self.set_params(parameters)
         self.det_method=det_method
         self.lyapunov_method=lyapunov_method
+        self.rtol_det = rtol_det
+        self.rtol_lyapunov = rtol_lyapunov
 
         self.dim = nClass*M
         self.nClass = nClass
@@ -106,7 +108,7 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        see `infer`
+            see `infer`
 
         Returns
         -------
@@ -183,7 +185,7 @@ cdef class SIR_type:
             A function that returns the contact matrix at time t (input).
         prior_dict: dict
             A dictionary for the priors for the parameters.
-            See `infer_parameters` for examples.
+            See `infer` for examples.
         tangent: bool, optional
             Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
         verbose: bool, optional
@@ -285,7 +287,7 @@ cdef class SIR_type:
             Output of `nested_sampling_inference`.
         param_priors: dict
             A dictionary for priors for the model parameters.
-            See `infer_parameters` for further explanations.
+            See `infer` for further explanations.
 
         Returns
         -------
@@ -374,7 +376,7 @@ cdef class SIR_type:
 
         Examples
         --------
-        For the structure of `prior_dict`, see the documentation of `infer_parameters`. To start sampling the posterior,
+        For the structure of `prior_dict`, see the documentation of `infer`. To start sampling the posterior,
         run
         >>> sampler = estimator.mcmc_inference(x, Tf, contactMatrix, prior_dict, verbose=True)
 
@@ -531,7 +533,7 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        see `infer`
+            see `infer`
 
         Returns
         -------
@@ -672,8 +674,8 @@ cdef class SIR_type:
         ----
         This function combines the functionality of `infer_parameters` and `infer_control`, 
         which will be deprecated. 
-        To infer model parameters only, specify a fixed contactMatrix function.
-        To infer control parameters only, specify a geneartor and do not specify priors for model parameters.
+        To infer model parameters only, specify a fixed `contactMatrix` function.
+        To infer control parameters only, specify a `generator` and do not specify priors for model parameters.
         
         Examples
         --------
@@ -706,6 +708,9 @@ cdef class SIR_type:
             
         if (intervention_fun is not None) and (generator is None):
             raise Exception('Specify a generator')
+            
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
             
         # Read in parameter priors
         keys, guess, stds, bounds, \
@@ -1280,7 +1285,7 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        see `latent_infer`
+            see `latent_infer`
 
         Returns
         -------
@@ -1826,7 +1831,7 @@ cdef class SIR_type:
 
         Parameters
         ----------
-        see `latent infer`
+            see `latent_infer`
 
         Returns
         -------
@@ -1976,8 +1981,8 @@ cdef class SIR_type:
         ----
         This function combines the functionality of `latent_infer_parameters` and `latent_infer_control`, 
         which will be deprecated. 
-        To infer model parameters only, specify a fixed contactMatrix function.
-        To infer control parameters only, specify a geneartor and do not specify priors for model parameters.
+        To infer model parameters only, specify a fixed `contactMatrix` function.
+        To infer control parameters only, specify a `generator` and do not specify priors for model parameters.
         
         Examples
         --------
@@ -2049,6 +2054,9 @@ cdef class SIR_type:
             
         if (intervention_fun is not None) and (generator is None):
             raise Exception('Specify a generator')
+            
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
         
         # Process fltr and obs
         
@@ -2071,6 +2079,7 @@ cdef class SIR_type:
 
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
+        
 
         minimize_args = {'generator':generator, 'intervention_fun':intervention_fun,
                        'param_keys':keys, 'param_guess_range':param_guess_range,
@@ -2184,7 +2193,7 @@ cdef class SIR_type:
         N: int
             The number of samples.
         map_estimate: dict
-            The MAP estimate, e.g. as computed by `inference.latent_infer_parameters`.
+            The MAP estimate, e.g. as computed by `inference.latent_infer`.
         cov: np.array
             The covariance matrix of the flat parameters.
         obs:  np.array
@@ -2198,7 +2207,7 @@ cdef class SIR_type:
             A function that returns the contact matrix at time t (input).
         param_priors: dict
             A dictionary that specifies priors for parameters.
-            See `infer_parameters` for examples.
+            See `infer` for examples.
         init_priors: dict
             A dictionary that specifies priors for initial conditions.
             See below for examples.
@@ -2343,7 +2352,7 @@ cdef class SIR_type:
         ----------
         init_priors: dict
             A dictionary for priors for initial conditions.
-            Same as the `init_priors` passed to `latent_infer_parameters`.
+            Same as the `init_priors` passed to `latent_infer`.
             In this function, only takes the mean.
         obs0: numpy.array
             Observed initial conditions.
@@ -2391,29 +2400,36 @@ cdef class SIR_type:
                 v = - v
             return v/np.linalg.norm(v, ord=1)
 
-    def set_lyapunov_method(self, lyapunov_method):
+    def set_lyapunov_method(self, lyapunov_method, rtol=1e-3):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
         lyapunov_method: str
             The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
+        rtol: double, otional
+            relative tolerance of the integrator (default 1e-3)
         '''
         if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
             raise Exception('{} not implemented. Choose between LSODA, RK45, RK2 and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
+        self.rtol_lyapunov = rtol
 
-    def set_det_method(self, det_method):
+    def set_det_method(self, det_method, rtol=1e-3):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
         det_method: str
             The name of the integration method. Choose between 'LSODA' and 'RK45'.
+        rtol: double, otional
+            relative tolerance of the integrator (default 1e-3)
         '''
         if det_method not in ['LSODA', 'RK45']:
             raise Exception('{} not implemented. Choose between LSODA and RK45'.format(det_method))
         self.det_method=det_method
+        self.rtol_det = rtol
+        
 
     def set_det_model(self, parameters):
         '''
@@ -2715,10 +2731,10 @@ cdef class SIR_type:
         if self.lyapunov_method=='euler':
             sol_vec = pyross.utils.forward_euler_integration(rhs, M0, t1, t2, steps)[steps-1]
         elif self.lyapunov_method=='RK45':
-            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps)
+            res = solve_ivp(rhs, (t1, t2), M0, method='RK45', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps, rtol=self.rtol_lyapunov)
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='LSODA':
-            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps)
+            res = solve_ivp(rhs, (t1, t2), M0, method='LSODA', t_eval=np.array([t2]), first_step=(t2-t1)/steps, max_step=(t2-t1)/steps, rtol=self.rtol_lyapunov)
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='RK2':
             sol_vec = pyross.utils.RK2_integration(rhs, M0, t1, t2, steps)[steps-1]
@@ -2770,7 +2786,7 @@ cdef class SIR_type:
             Final time of integrator
         steps: int
             Number of time steps for numerical integrator evaluation.
-        maxNumSteps:
+        maxNumSteps: int, optional
             The maximum number of steps taken by the integrator.
 
         Returns
@@ -2788,7 +2804,7 @@ cdef class SIR_type:
         time_points = np.linspace(t1, t2, steps)
         res = solve_ivp(rhs0, [t1,t2], x0, method=self.det_method,
                         t_eval=time_points, dense_output=dense_output,
-                        max_step=maxNumSteps, rtol=1e-4)
+                        max_step=maxNumSteps, rtol=self.rtol_det)
         y = np.divide(res.y.T, self.Omega)
 
         if dense_output:
@@ -2842,12 +2858,16 @@ cdef class SIR(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
     """
     cdef readonly pyross.deterministic.SIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
         self.param_keys = ['alpha', 'beta', 'gIa', 'gIs', 'fsa']
-        super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method)
+        super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.class_index_dict = {'S':0, 'Ia':1, 'Is':2}
         self.set_det_model(parameters)
 
@@ -2970,15 +2990,19 @@ cdef class SEIR(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
     """
 
     cdef:
         readonly np.ndarray gE
         readonly pyross.deterministic.SEIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
         self.param_keys = ['alpha', 'beta', 'gE', 'gIa', 'gIs', 'fsa']
-        super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method)
+        super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'Ia':2, 'Is':3}
         self.set_det_model(parameters)
 
@@ -3122,17 +3146,21 @@ cdef class SEAIRQ(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
     """
 
     cdef:
         readonly np.ndarray gE, gA, tE, tA, tIa, tIs
         readonly pyross.deterministic.SEAIRQ det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
         self.param_keys = ['alpha', 'beta', 'gE', 'gA', \
                            'gIa', 'gIs', 'fsa', \
                            'tE', 'tA', 'tIa', 'tIs']
-        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method)
+        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.set_det_model(parameters)
 
@@ -3304,6 +3332,10 @@ cdef class SEAIRQ_testing(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
     """
 
     cdef:
@@ -3311,11 +3343,11 @@ cdef class SEAIRQ_testing(SIR_type):
         readonly object testRate
         readonly pyross.deterministic.SEAIRQ_testing det_model
 
-    def __init__(self, parameters, testRate, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA'):
+    def __init__(self, parameters, testRate, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
         self.param_keys = ['alpha', 'beta', 'gE', 'gA', \
                            'gIa', 'gIs', 'fsa', \
                            'ars', 'kapE']
-        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method)
+        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.testRate=testRate
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.make_det_model(parameters)
@@ -3496,6 +3528,10 @@ cdef class Spp(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
     parameter_mapping: python function, optional
         A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
     time_dep_param_mapping: python function, optional
@@ -3538,7 +3574,7 @@ cdef class Spp(SIR_type):
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', parameter_mapping=None, time_dep_param_mapping=None):
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
         if parameter_mapping is not None and time_dep_param_mapping is not None:
             raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
         self.parameter_mapping = parameter_mapping
@@ -3558,7 +3594,7 @@ cdef class Spp(SIR_type):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
-        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method)
+        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
         if self.time_dep_param_mapping is not None:
@@ -4264,6 +4300,10 @@ cdef class SppQ(SIR_type):
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
     parameter_mapping: python function, optional
         A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
     time_dep_param_mapping: python function, optional
@@ -4312,7 +4352,7 @@ cdef class SppQ(SIR_type):
 
 
     def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', parameter_mapping=None, time_dep_param_mapping=None):
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
         if parameter_mapping is not None and time_dep_param_mapping is not None:
             raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
         self.parameter_mapping = parameter_mapping
@@ -4334,7 +4374,7 @@ cdef class SppQ(SIR_type):
         self.infection_terms = res[4]
         self.test_pos = res[5]
         self.test_freq = res[6]
-        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method)
+        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
         if self.time_dep_param_mapping is not None:
