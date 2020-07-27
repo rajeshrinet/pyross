@@ -145,7 +145,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         # Use derivative free local optimisation algorithm with support for boundary conditions
         # to converge to the next minimum (which is hopefully the global one).
         dim = len(guess)
-        local_opt = nlopt.opt(nlopt.LN_BOBYQA, guess.shape[0])
+        local_opt = nlopt.opt(nlopt.LN_NELDERMEAD, guess.shape[0])
         local_opt.set_min_objective(lambda x, grad: objective_fct(x, grad, **args_dict))
         local_opt.set_lower_bounds(bounds[:,0])
         local_opt.set_upper_bounds(bounds[:,1])
