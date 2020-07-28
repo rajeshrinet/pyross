@@ -136,10 +136,11 @@ cdef class SIR_type:
         
         # match old output dictionary key names (the new implementation of infer uses the same keys as latent_infer)
     
-        output_dict['map_dict'] = output_dict.pop('map_params_dict')
+        output_dict['map_dict'] = output_dict.pop('params_dict')
         output_dict['keys'] = output_dict.pop('param_keys')
         output_dict['flat_guess_range'] = output_dict.pop('param_guess_range')
         output_dict['scaled_guesses'] = output_dict.pop('scaled_param_guesses')
+        output_dict['flat_map'] = output_dict.pop('flat_params')
         
         return output_dict
         
@@ -557,9 +558,9 @@ cdef class SIR_type:
                       enable_global=enable_global, enable_local=enable_local,
                       cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
         
-        # match old output dictionary key names (the new implementation of infer uses the same keys as latent_infer)
-        del output_dict['map_params_dict']
-        output_dict['map_dict'] = output_dict.pop('map_control_params_dict')
+        # match old output dictionary key names
+        del output_dict['params_dict']
+        output_dict['map_dict'] = output_dict.pop('control_params_dict')
         output_dict['keys'] = output_dict.pop('param_keys')
         output_dict['flat_guess_range'] = output_dict.pop('param_guess_range')
         output_dict['scaled_guesses'] = output_dict.pop('scaled_param_guesses')
@@ -664,9 +665,9 @@ cdef class SIR_type:
         output_dict: dict
             Dictionary of MAP estimates, containing the following keys for users:
 
-            map_params_dict: dict
+            params_dict: dict
                 Dictionary for MAP estimates of the model parameters.
-            map_control_params_dict: dict
+            control_params_dict: dict
                 Dictionary for MAP estimates of the control parameters (if requested).
             -logp: float
                 Value of -logp at MAP.
@@ -746,7 +747,7 @@ cdef class SIR_type:
         l_prior = np.sum(lognorm.logpdf(res[0], s, scale=scale))
         l_like = l_post - l_prior
         output_dict = {
-            'map_params_dict': map_params_dict, 'flat_map': res[0], 'param_keys': keys,
+            'params_dict': map_params_dict, 'flat_params': res[0], 'param_keys': keys,
             'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
             'is_scale_parameter':is_scale_parameter,
             'param_guess_range':flat_guess_range,
@@ -754,7 +755,7 @@ cdef class SIR_type:
             's':s, 'scale':scale
         }
         if map_control_params_dict != {}:
-            output_dict['map_control_params_dict'] = map_control_params_dict
+            output_dict['control_params_dict'] = map_control_params_dict
         
         return output_dict
 
@@ -1311,6 +1312,10 @@ cdef class SIR_type:
                             local_max_iter=local_max_iter, global_atol=global_atol, enable_global=enable_global,
                             enable_local=enable_local, cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
 
+        # rename for backwards compatibility
+        output_dict['map_x0'] = output_dict.pop('x0')
+        output_dict['flat_map'] = output_dict.pop('flat_params')
+        output_dict['map_params_dict'] = output_dict.pop('params_dict')
         
         return output_dict
 
@@ -1855,8 +1860,9 @@ cdef class SIR_type:
                             verbose=verbose, ftol=ftol, global_max_iter=global_max_iter,
                             local_max_iter=local_max_iter, global_atol=global_atol, enable_global=enable_global,
                             enable_local=enable_local, cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
-        output_dict['map_params_dict']=output_dict['map_control_params_dict']  # Rename entry for backwards compatibility
-        del output_dict['map_control_params_dict']
+        del output_dict['params_dict']
+        output_dict['map_params_dict']=output_dict.pop('control_params_dict')  # Rename entry for backwards compatibility
+        
         return output_dict
 
     def _latent_infer_to_minimize(self, params, grad=0, generator=None,
@@ -1968,11 +1974,11 @@ cdef class SIR_type:
         output_dict: dict
             A dictionary containing the following keys for users:
 
-            map_x0: np.array
+            x0: np.array
                 MAP estimates for the initial conditions
-            map_params_dict: dict
+            params_dict: dict
                 dictionary for MAP estimates for model parameters 
-            map_control_params_dict: dict
+            control_params_dict: dict
                 dictionary for MAP estimates for control parameters (if requested) 
             -logp: float
                 Value of -logp at MAP.
@@ -2123,7 +2129,7 @@ cdef class SIR_type:
         l_prior = np.sum(lognorm.logpdf(estimates, s, scale=scale))
         l_like = l_post - l_prior
         output_dict = {
-            'map_params_dict':map_params_dict, 'map_x0':map_x0, 'flat_map':estimates,
+            'params_dict':map_params_dict, 'x0':map_x0, 'flat_params':estimates,
             'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
             'param_keys': keys, 'param_guess_range': param_guess_range,
             'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
@@ -2132,7 +2138,7 @@ cdef class SIR_type:
             's':s, 'scale': scale
         }
         if map_control_params_dict != {}:
-            output_dict['map_control_params_dict'] = map_control_params_dict
+            output_dict['control_params_dict'] = map_control_params_dict
             
         return output_dict
 
@@ -2400,7 +2406,7 @@ cdef class SIR_type:
                 v = - v
             return v/np.linalg.norm(v, ord=1)
 
-    def set_lyapunov_method(self, lyapunov_method, rtol=1e-3):
+    def set_lyapunov_method(self, lyapunov_method, rtol=None):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
@@ -2413,9 +2419,10 @@ cdef class SIR_type:
         if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
             raise Exception('{} not implemented. Choose between LSODA, RK45, RK2 and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
-        self.rtol_lyapunov = rtol
+        if rtol is not None:
+            self.rtol_lyapunov = rtol
 
-    def set_det_method(self, det_method, rtol=1e-3):
+    def set_det_method(self, det_method, rtol=None):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
@@ -2428,7 +2435,8 @@ cdef class SIR_type:
         if det_method not in ['LSODA', 'RK45']:
             raise Exception('{} not implemented. Choose between LSODA and RK45'.format(det_method))
         self.det_method=det_method
-        self.rtol_det = rtol
+        if rtol is not None:
+            self.rtol_det = rtol
         
 
     def set_det_model(self, parameters):
@@ -2859,13 +2867,13 @@ cdef class SIR(SIR_type):
         The integration method used for the integration of the Lyapunov equation for the covariance.
         Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
-        relative tolerance for the deterministic integrator (default 1e-3)
+        relative tolerance for the deterministic integrator (default 1e-4)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
     """
     cdef readonly pyross.deterministic.SIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-4, rtol_lyapunov=1e-3):
         self.param_keys = ['alpha', 'beta', 'gIa', 'gIs', 'fsa']
         super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.class_index_dict = {'S':0, 'Ia':1, 'Is':2}
