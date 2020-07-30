@@ -23,7 +23,7 @@ except ImportError:
     dynesty = None
 
 try:
-    # Optional support for nested sampling.
+    # Optional support for MCMC sampling.
     import emcee
 except ImportError:
     emcee = None
@@ -143,378 +143,80 @@ cdef class SIR_type:
         output_dict['flat_map'] = output_dict.pop('flat_params')
         
         return output_dict
-        
-
-    def _loglike(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
-                 flat_guess_range=None, x=None, Tf=None, tangent=None):
-        if bounds is not None:
-            # Check that params is within bounds. If not, return -np.inf.
-            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
-                return -np.Inf
-
-        orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
-                                             is_scale_parameter, scaled_guesses)
-        parameters = self.fill_params_dict(keys, orig_params)
-        self.set_params(parameters)
-        if tangent:
-            minus_loglike = self._obtain_logp_for_traj_tangent(x, Tf)
-        else:
-            minus_loglike = self._obtain_logp_for_traj(x, Tf)
-
-        if np.isnan(minus_loglike):
-            return -np.inf
-
-        return -minus_loglike
 
     def nested_sampling_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False,
                                   nprocesses=0, queue_size=None, maxiter=None, maxcall=None, dlogz=None,
                                   n_effective=None, add_live=True, sampler=None, **dynesty_args):
-        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
-        using nested sampling as implemented in the `dynesty` Python package. This function assumes that full data on
-        all classes is available.
+        """Run nested sampling for model parameters without latent variables.
 
-        Parameters
-        ----------
-        x: 2d numpy.array
-            Observed trajectory (number of data points x (age groups * model classes))
-        Tf: float
-            Total time of the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        prior_dict: dict
-            A dictionary for the priors for the parameters.
-            See `infer` for examples.
-        tangent: bool, optional
-            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the nested sampling procedure.
-        nprocesses: int, optional
-            The number of processes used for parallel evaluation of the likelihood.
-        queue_size: int, optional
-            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
-        maxiter: int, optional
-            The maximum number of iterations. Default is no limit.
-        maxcall:int, optional
-            The maximum number of calls to the likelihood function. Default no limit.
-        dlogz: float, optional
-            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
-            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
-        n_effective: float, optional
-            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
-        add_live: bool, optional
-            Determines whether to add the remaining set of live points to the set of samples. Default is True.
-        sampler: dynesty.NestedSampler, optional
-            Continue running an instance of a nested sampler until the termination criteria are met.
-        **dynesty_args
-            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
-            are (this is not comprehensive, for details see the documentation of dynesty):
-            nlive: int, optional
-                The number of live points. Default is 500.
-            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
-                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
-            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
-                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
-
-        Returns
-        -------
-        sampler: dynesty.NestedSampler
-            The state of the sampler after termination of the nested sampling run.
-        '''
-
-        if dynesty is None:
-            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if queue_size is None:
-            queue_size = nprocesses
-
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-        self.contactMatrix = contactMatrix
-
-        ndim = len(guess)
-        prior_transform_args = {'s':s, 'scale':scale}
-        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
-                       'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                       'x':x, 'Tf':Tf, 'tangent':tangent, 'bounds':bounds}
-
-        if sampler is None:
-            if nprocesses > 1:
-                pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = dynesty.NestedSampler(self._loglike, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                pool=pool, queue_size=queue_size, **dynesty_args)
-            else:
-                sampler = dynesty.NestedSampler(self._loglike, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                **dynesty_args)
-        else:
-            if nprocesses > 1:
-                # Restart the pool we closed at the end of the previous run.
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler.M = sampler.pool.map
-            elif sampler.pool is not None:
-                sampler.pool = None
-                sampler.M = map
-
-        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
-                           add_live=add_live, print_progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_nested_sampling` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
+        """
+        return self.infer_nested_sampling(x, Tf, prior_dict, contactMatrix=contactMatrix, generator=None, 
+                                          intervention_fun=None, tangent=tangent, verbose=verbose, nprocesses=nprocesses, 
+                                          queue_size=queue_size, maxiter=maxiter, maxcall=maxcall, dlogz=dlogz,
+                                          n_effective=n_effective, add_live=add_live, sampler=sampler, **dynesty_args)
 
     def nested_sampling_inference_process_result(self, sampler, prior_dict):
-        """
-        Take the sampler generated by `nested_sampling_inference` and produce output dictionaries for further use
+        """ Take the sampler generated by `nested_sampling_inference` and produce output dictionaries for further use
         in the pyross framework.
 
-        Parameters
-        ----------
-        sampler: dynesty.NestedSampler
-            Output of `nested_sampling_inference`.
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `infer` for further explanations.
-
-        Returns
-        -------
-        result: dynesty.Result
-            The result of the nested sampling iteration. Relevant entries include:
-            result.logz: list
-                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
-        output_samples: list
-            The processed weighted posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_nested_sampling_process_result` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         """
+        result, output_samples = self.infer_nested_sampling_process_result(sampler, prior_dict, contactMatrix=self.contactMatrix,
+                                                                           generator=None, intervention_fun=None)
 
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        result = sampler.results
-        output_samples = []
-        for i in range(len(result.samples)):
-            sample = result.samples[i]
-            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
-            l_like = result.logl[i]
-
-            orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
-                                             is_scale_parameter, scaled_guesses)
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-            l_post = l_like + l_prior
-            output_dict = {
-                'map_dict':self.fill_params_dict(keys, orig_sample),
-                'flat_map':sample, 'weight':weight, 'keys': keys,
-                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                'is_scale_parameter':is_scale_parameter,
-                'flat_guess_range':flat_guess_range,
-                'scaled_guesses':scaled_guesses,
-                's':s, 'scale':scale
-            }
-            output_samples.append(output_dict)
+        # Match old dictionary key names for backward compatibility.
+        for out_dict in output_samples:
+            out_dict['map_dict']         = out_dict.pop('params_dict')
+            out_dict['keys']             = out_dict.pop('param_keys')
+            out_dict['flat_guess_range'] = out_dict.pop('param_guess_range')
+            out_dict['scaled_guesses']   = out_dict.pop('scaled_param_guesses')
+            out_dict['flat_map']         = out_dict.pop('flat_params')
 
         return result, output_samples
-
-    def _logposterior_old(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
-                 flat_guess_range=None, x=None, Tf=None, s=None, scale=None, tangent=None):
-        logp = self._loglike(params, bounds, keys, is_scale_parameter, scaled_guesses,
-                             flat_guess_range, x, Tf, tangent)
-        logp += np.sum(lognorm.logpdf(params, s, scale=scale))
-
-        return logp
 
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None,
                        walker_pos=None, nsamples=1000, nprocesses=0):
         """ Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
 
-        Parameters
-        ----------
-        x:  np.array
-            The full trajectory.
-        Tf: float
-            The total time of the trajectory.
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        prior_dict: dict
-            A dictionary containing priors.
-        tangent: bool, optional
-            Set to True to use tangent space inference. Default is False.
-        verbose: bool, optional
-            Set to True to see a progress bar for the sample generation. Default is False.
-        sampler: emcee.EnsembleSampler, optional
-            Set to instance of the sampler (as returned by this function) to continue running the MCMC chains.
-            Default is None (i.e. run a new chain).
-        nwalkers:int, optional
-            The number of chains in the ensemble (should be at least 2*dim). Default is 2*dim.
-        walker_pos: np.array, optional
-            The initial position of the walkers. If not specified, it samples random positions from the prior.
-        nsamples:int, optional
-            The number of samples per walker. Default is 1000.
-        nprocesses: int, optional
-            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
-            the number of cpu cores if `pathos` is available, otherwise 1.
-
-        Returns
-        -------
-        sampler: emcee.EnsembleSampler
-            This function returns the interal state of the sampler. To look at the chain of the internal flattened paramters,
-            run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
-            `mcmc_inference(..., sampler=sampler) to continue the chain or `mcmc_inference_process_result(...)` to process
-            the result.
-
-        Examples
-        --------
-        For the structure of `prior_dict`, see the documentation of `infer`. To start sampling the posterior,
-        run
-        >>> sampler = estimator.mcmc_inference(x, Tf, contactMatrix, prior_dict, verbose=True)
-
-        To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
-        dimensions `dim`)
-        >>> fig, axes = plt.subplots(dim, sharex=True)
-        >>> samples = sampler.get_chain()
-        >>> for i in range(dim):
-                ax = axes[i]
-                ax.plot(samples[:, :, i], "k", alpha=0.3)
-                ax.set_xlim(0, len(samples))
-        >>> axes[-1].set_xlabel("step number");
-
-        For more detailed convergence metrics, see the documentation of `emcee`. To continue running this chain, we can
-        call this function again with the sampler as argument
-        >>> sampler = estimator.mcmc_inference(x, Tf, contactMatrix, prior_dict, verbose=True, sampler=sampler)
-
-        This procudes 1000 additional samples in each chain. To process the results, call `mcmc_inference_process_result`.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_mcmc` and will be deleted in a future version of pyross. 
+        See there for a documentation of the function parameters.
         """
-        if emcee is None:
-            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if nprocesses > 1 and pathos_mp is None:
-            raise Exception("The Python package `pathos` is needed for multiprocessing.")
-
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-        self.contactMatrix = contactMatrix
-
-        ndim = len(guess)
-        if nwalkers is None:
-            nwalkers = 2*ndim
-
-        logpost_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
-                'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
-        if walker_pos is None:
-             # If not specified, sample initial positions of walkers from prior.
-            p0 = lognorm.rvs(s, scale=scale, size=(nwalkers, ndim))
-        else:
-            p0 = walker_pos
-
-        if sampler is None:
-            # Start a new MCMC chain.
-            if nprocesses > 1:
-                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_old, kwargs=logpost_args,
-                                                pool=mcmc_pool)
-            else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_old, kwargs=logpost_args)
-
-            sampler.run_mcmc(p0, nsamples, progress=verbose)
-        else:
-            # Continue running an existing MCMC chain.
-            if nprocesses > 1:
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-            elif sampler.pool is not None:
-                sampler.pool = None
-
-            sampler.run_mcmc(None, nsamples, progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        return self.infer_mcmc(x, Tf, prior_dict, contactMatrix=contactMatrix, generator=None, intervention_fun=None,
+                               tangent=tangent, verbose=verbose, sampler=sampler, nwalkers=nwalkers,
+                               walker_pos=walker_pos, nsamples=nsamples, nprocesses=nprocesses)
 
     def mcmc_inference_process_result(self, sampler, prior_dict, flat=True, discard=0, thin=1):
-        """
-        Take the sampler generated by `mcmc_inference` and produce output dictionaries for further use in the
+        """ Take the sampler generated by `mcmc_inference` and produce output dictionaries for further use in the
         pyross framework.
 
-        Parameters
-        ----------
-        sampler: emcee.EnsembleSampler
-            Output of `mcmc_inference`.
-        prior_dict: dict
-            A dictionary containing priors.
-        flat: bool, optional
-            This decides whether to return the samples as for each chain separately (False) or as as a combined
-            list (True). Default is True.
-        discard: int, optional
-            The number of initial samples to discard in each chain (to account for burn-in). Default is 0.
-        thin: int, optional
-            Thin out the chain by taking only the n-tn element in each chain. Default is 1 (no thinning).
-
-        Returns
-        -------
-        output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
-            The processed posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_mcmc_process_result` and will be deleted in a future version
+        of pyross. See there for a documentation of the function parameters.
         """
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        output_samples = self.infer_mcmc_process_result(sampler, prior_dict, contactMatrix=self.contactMatrix, generator=None, 
+                                                        intervention_fun=None, flat=flat, discard=discard, thin=thin)
 
-        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
-        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
-        samples_per_chain = samples.shape[0]
-        nr_chains = 1 if flat else samples.shape[1]
+        # Match old dictionary key names for backward compatibility.
         if flat:
-            output_samples = []
+            flat_sample_list = output_samples
         else:
-            output_samples = [[] for _ in nr_chains]
-
-        for i in range(samples_per_chain):
-            for j in range(nr_chains):
-                if flat:
-                    sample = samples[i,:]
-                    l_post = log_posts[i]
-                else:
-                    sample = samples[i, j, :]
-                    l_post = log_posts[i, j]
-                weight = 1.0 / (samples_per_chain * nr_chains)
-
-                orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
-                                                is_scale_parameter, scaled_guesses)
-                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-                l_like = l_post - l_prior
-                output_dict = {
-                    'map_dict':self.fill_params_dict(keys, orig_sample),
-                    'flat_map':sample, 'weight':weight, 'keys': keys,
-                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                    'is_scale_parameter':is_scale_parameter,
-                    'flat_guess_range':flat_guess_range,
-                    'scaled_guesses':scaled_guesses,
-                    's':s, 'scale':scale
-                }
-                if flat:
-                    output_samples.append(output_dict)
-                else:
-                    output_samples[j].append(output_dict)
+            flat_sample_list = [item for sublist in output_samples for item in sublist]
+        for out_dict in flat_sample_list:
+            out_dict['map_dict']         = out_dict.pop('params_dict')
+            out_dict['keys']             = out_dict.pop('param_keys')
+            out_dict['flat_guess_range'] = out_dict.pop('param_guess_range')
+            out_dict['scaled_guesses']   = out_dict.pop('scaled_param_guesses')
+            out_dict['flat_map']         = out_dict.pop('flat_params')
 
         return output_samples
 
@@ -895,8 +597,8 @@ cdef class SIR_type:
 
         return sampler
 
-    def infer_nested_sampling_process_results(self, sampler, prior_dict, contactMatrix=None, generator=None, 
-                                              intervention_fun=None, **catchall_kwargs):
+    def infer_nested_sampling_process_result(self, sampler, prior_dict, contactMatrix=None, generator=None, 
+                                             intervention_fun=None, **catchall_kwargs):
         """
         Take the sampler generated by `pyross.inference.infer_nested_sampling` and produce output dictionaries for 
         further use in the pyross framework.
@@ -1769,255 +1471,44 @@ cdef class SIR_type:
         return output_dict
 
 
-    def _loglike_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
-                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
-                        obs0=None, init_flags=None, init_fltrs=None, tangent=None):
-        if bounds is not None:
-            # Check that params is within bounds. If not, return -np.inf.
-            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
-                return -np.Inf
-
-        inits =  np.copy(params[param_length:])
-
-        # Restore parameters from flattened parameters
-        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
-                          param_guess_range, is_scale_parameter, scaled_param_guesses)
-
-        parameters = self.fill_params_dict(param_keys, orig_params)
-        self.set_params(parameters)
-
-        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
-
-        minus_loglike = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
-
-        if np.isnan(minus_loglike):
-            return -np.inf
-
-        return -minus_loglike
-
     def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
                                          init_priors,tangent=False, verbose=False, nprocesses=0, queue_size=None, 
                                          maxiter=None, maxcall=None, dlogz=None, n_effective=None, add_live=True, 
                                          sampler=None, **dynesty_args):
-        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        """Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         with latent variables using nested sampling as implemented in the `dynesty` Python package.
 
-        Parameters
-        ----------
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        Tf: float
-            Total time of the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-        tangent: bool, optional
-            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the nested sampling procedure.
-        nprocesses: int, optional
-            The number of processes used for parallel evaluation of the likelihood.
-        queue_size: int, optional
-            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
-        maxiter: int, optional
-            The maximum number of iterations. Default is no limit.
-        maxcall:int, optional
-            The maximum number of calls to the likelihood function. Default no limit.
-        dlogz: float, optional
-            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
-            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
-        n_effective: float, optional
-            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
-        add_live: bool, optional
-            Determines whether to add the remaining set of live points to the set of samples. Default is True.
-        sampler: dynesty.NestedSampler, optional
-            Continue running an instance of a nested sampler until the termination criteria are met.
-        **dynesty_args
-            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
-            are (this is not comprehensive, for details see the documentation of dynesty):
-            nlive: int, optional
-                The number of live points. Default is 500.
-            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
-                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
-            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
-                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
-
-        Returns
-        -------
-        sampler: dynesty.NestedSampler
-            The state of the sampler after termination of the nested sampling run.
-        '''
-
-        if dynesty is None:
-            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if queue_size is None:
-            queue_size = nprocesses
-
-        self.contactMatrix = contactMatrix
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        ndim = len(guess)
-
-        prior_transform_args = {'s':s, 'scale':scale}
-        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 'tangent':tangent, 'bounds':bounds}
-
-        if sampler is None:
-            if nprocesses > 1:
-                pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = dynesty.NestedSampler(self._loglike_latent, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                pool=pool, queue_size=queue_size, **dynesty_args)
-            else:
-                sampler = dynesty.NestedSampler(self._loglike_latent, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                **dynesty_args)
-        else:
-            if nprocesses > 1:
-                # Restart the pool we closed at the end of the previous run.
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler.M = sampler.pool.map
-            elif sampler.pool is not None:
-                sampler.pool = None
-                sampler.M = map
-
-        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
-                           add_live=add_live, print_progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_nested_sampling` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
+        """
+        return self.latent_infer_nested_sampling(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix,
+                                                 generator=None, intervention_fun=None, tangent=tangent, verbose=verbose, 
+                                                 nprocesses=nprocesses, queue_size=queue_size, maxiter=maxiter, maxcall=maxcall, 
+                                                 dlogz=dlogz, n_effective=n_effective, add_live=add_live, sampler=sampler, 
+                                                 **dynesty_args )
 
     def nested_sampling_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors):
         """
         Take the sampler generated by `nested_sampling_latent_inference` and produce output dictionaries for further use
         in the pyross framework.
 
-        Parameters
-        ----------
-        sampler: dynesty.NestedSampler
-            Output of `nested_sampling_latent_inference`.
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `latent_infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-
-        Returns
-        -------
-        result: dynesty.Result
-            The result of the nested sampling iteration. Relevant entries include:
-            result.logz: list
-                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
-        output_samples: list
-            The processed weighted posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_nested_sampling_process_result` and will be 
+        deleted in a future version of pyross. See there for a documentation of the function parameters.
         """
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        result, output_samples = self.latent_infer_nested_sampling_process_result(sampler, obs, fltr, param_priors, init_priors, 
+                                                                                  contactMatrix=self.contactMatrix)
 
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        result = sampler.results
-        output_samples = []
-        for i in range(len(result.samples)):
-            sample = result.samples[i]
-            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
-            l_like = result.logl[i]
-            param_estimates = sample[:param_length]
-            orig_params = pyross.utils.unflatten_parameters(param_estimates,
-                                                            param_guess_range,
-                                                            is_scale_parameter,
-                                                            scaled_param_guesses)
-
-            init_estimates = sample[param_length:]
-            sample_params_dict = self.fill_params_dict(keys, orig_params)
-            self.set_params(sample_params_dict)
-            map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
-                                        obs0, fltr[0])
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-            l_post = l_prior + l_like
-            output_dict = {
-                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
-                'flat_map':sample, 'weight':weight,
-                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                'is_scale_parameter':is_scale_parameter,
-                'flat_param_guess_range':param_guess_range,
-                'scaled_param_guesses':scaled_param_guesses,
-                'init_flags': init_flags, 'init_fltrs': init_fltrs
-            }
-            output_samples.append(output_dict)
+        # Match old dictionary key names for backward compatibility.
+        for out_dict in output_samples:
+            out_dict['map_x0']          = out_dict.pop('x0')
+            out_dict['flat_map']        = out_dict.pop('flat_params')
+            out_dict['map_params_dict'] = out_dict.pop('params_dict')
 
         return result, output_samples
-
-
-    def _logposterior_latent_old(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
-                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
-                        obs0=None, init_flags=None, init_fltrs=None, s=None, scale=None, tangent=None):
-        logp = self._loglike_latent(params, bounds, param_keys, param_guess_range, is_scale_parameter,
-                    scaled_param_guesses, param_length, obs, fltr, Tf, obs0, init_flags, init_fltrs,
-                    tangent)
-        logp += np.sum(lognorm.logpdf(params, s, scale=scale))
-        return logp
 
 
     def mcmc_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
@@ -2025,152 +1516,15 @@ cdef class SIR_type:
                               nsamples=1000, nprocesses=0):
         """ Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
 
-        Parameters
-        ----------
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        Tf: float
-            Total time of the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `latent_infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-        tangent: bool, optional
-            Set to True to use tangent space inference. Default is False.
-        verbose: bool, optional
-            Set to True to see a progress bar for the sample generation. Default is False.
-        sampler: emcee.EnsembleSampler, optional
-            Set to instance of the sampler (as returned by this function) to continue running the MCMC chains.
-            Default is None (i.e. run a new chain).
-        nwalkers:int, optional
-            The number of chains in the ensemble (should be at least 2*dim). Default is 2*dim.
-        walker_pos: np.array, optional
-            The initial position of the walkers. If not specified, the function samples random positions from the prior.
-        nsamples:int, optional
-            The number of samples per walker. Default is 1000.
-        nprocesses: int, optional
-            The number of processes used to compute the likelihood for the walkers, needs `pathos` for values > 1.
-            Default is the number of cpu cores if `pathos` is available, otherwise 1.
-
-        Returns
-        -------
-        sampler: emcee.EnsembleSampler
-            This function returns the state of the sampler. To look at the chain of the internal flattened parameters,
-            run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
-            `mcmc_latent_inference(..., sampler=sampler) to continue the chain or `mcmc_latent_inference_process_result(...)`
-            to process the result.
-
-        Examples
-        --------
-        For the structure of the model input paramters, in particular `param_priors, init_priors`, see the documentation
-        of `latent_infer_parameters`. To start sampling the posterior, run
-        >>> sampler = estimator.mcmc_latent_inference(obs, fltr, Tf, contactMatrix, param_priors, init_priors, verbose=True)
-
-        To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
-        dimensions `dim`)
-        >>> fig, axes = plt.subplots(dim, sharex=True)
-        >>> samples = sampler.get_chain()
-        >>> for i in range(dim):
-                ax = axes[i]
-                ax.plot(samples[:, :, i], "k", alpha=0.3)
-                ax.set_xlim(0, len(samples))
-        >>> axes[-1].set_xlabel("step number");
-
-        For more detailed convergence metrics, see the documentation of `emcee`. To continue running this chain, we can
-        call this function again with the sampler as argument
-        >>> sampler = estimator.mcmc_latent_inference(obs, fltr, Tf, contactMatrix, param_priors, init_priors,
-                                                      verbose=True, sampler=sampler)
-
-        This procudes 1000 additional samples in each chain. To process the results, call
-        `mcmc_latent_inference_process_result`.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_mcmc` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         """
-        if emcee is None:
-            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if nprocesses > 1 and pathos_mp is None:
-            raise Exception("The Python package `pathos` is needed for multiprocessing.")
-
-        self.contactMatrix = contactMatrix
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        ndim = len(guess)
-
-        if nwalkers is None:
-            nwalkers = 2*ndim
-
-        loglike_args = {'bounds':bounds, 'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale,
-                        'tangent':tangent}
-
-        if walker_pos is None:
-             # If not specified, sample initial positions of walkers from prior.
-            p0 = lognorm.rvs(s, scale=scale, size=(nwalkers, ndim))
-        else:
-            p0 = walker_pos
-
-        if sampler is None:
-            # Start a new MCMC chain.
-            if nprocesses > 1:
-                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent_old,
-                                                kwargs=loglike_args, pool=mcmc_pool)
-            else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent_old,
-                                                kwargs=loglike_args)
-
-            sampler.run_mcmc(p0, nsamples, progress=verbose)
-        else:
-            # Continue running an existing MCMC chain.
-            if nprocesses > 1:
-                # Restart the pool we closed at the end of the previous run.
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-            elif sampler.pool is not None:
-                # If the user decided to not have multiprocessing in a subsequent run, we need
-                # to reset the pool in the emcee.EnsembleSampler.
-                sampler.pool = None
-
-            sampler.run_mcmc(None, nsamples, progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        return self.latent_infer_mcmc(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix, 
+                                      generator=None, intervention_fun=None, tangent=tangent, verbose=verbose, 
+                                      sampler=sampler, nwalkers=nwalkers, walker_pos=walker_pos,
+                                      nsamples=nsamples, nprocesses=nprocesses)
 
     def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors,
                                             flat=True, discard=0, thin=1):
@@ -2178,98 +1532,24 @@ cdef class SIR_type:
         Take the sampler generated by `mcmc_latent_inference` and produce output dictionaries for further use
         in the pyross framework.
 
-        Parameters
-        ----------
-        sampler: emcee.EnsembleSampler
-            Output of `mcmc_latent_inference`.
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-        flat: bool, optional
-            This decides whether to return the samples as for each chain separately (False) or as as a combined
-            list (True). Default is True.
-        discard: int, optional
-            The number of initial samples to discard in each chain (to account for burn-in). Default is 0.
-        thin: int, optional
-            Thin out the chain by taking only the n-tn element in each chain. Default is 1 (no thinning).
-
-        Returns
-        -------
-        output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
-            The processed posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_mcmc_process_results` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         """
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        output_samples = self.latent_infer_mcmc_process_result(sampler, obs, fltr, param_priors, init_priors, 
+                                                               contactMatrix=self.contactMatrix, flat=flat, 
+                                                               discard=discard, thin=thin)
 
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
-        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
-        samples_per_chain = samples.shape[0]
-        nr_chains = 1 if flat else samples.shape[1]
+        # Match old dictionary key names for backward compatibility.
         if flat:
-            output_samples = []
+            flat_sample_list = output_samples
         else:
-            output_samples = [[] for _ in nr_chains]
-
-        for i in range(samples_per_chain):
-            for j in range(nr_chains):
-                if flat:
-                    sample = samples[i,:]
-                    l_post = log_posts[i]
-                else:
-                    sample = samples[i, j, :]
-                    l_post = log_posts[i]
-                weight = 1.0 / (samples_per_chain * nr_chains)
-                param_estimates = sample[:param_length]
-                orig_params = pyross.utils.unflatten_parameters(param_estimates,
-                                                                param_guess_range,
-                                                                is_scale_parameter,
-                                                                scaled_param_guesses)
-
-                init_estimates = sample[param_length:]
-                sample_params_dict = self.fill_params_dict(keys, orig_params)
-                self.set_params(sample_params_dict)
-                map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
-                                            obs0, fltr[0])
-                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-                l_like = l_post - l_prior
-                output_dict = {
-                    'map_params_dict':sample_params_dict, 'map_x0':map_x0,
-                    'flat_map':sample, 'weight':weight,
-                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                    'is_scale_parameter':is_scale_parameter,
-                    'flat_param_guess_range':param_guess_range,
-                    'scaled_param_guesses':scaled_param_guesses,
-                    'init_flags': init_flags, 'init_fltrs': init_fltrs
-                }
-                if flat:
-                    output_samples.append(output_dict)
-                else:
-                    output_samples[j].append(output_dict)
+            flat_sample_list = [item for sublist in output_samples for item in sublist]
+        for out_dict in flat_sample_list:
+            out_dict['map_x0']          = out_dict.pop('x0')
+            out_dict['flat_map']        = out_dict.pop('flat_params')
+            out_dict['map_params_dict'] = out_dict.pop('params_dict')
 
         return output_samples
 
