@@ -2724,7 +2724,7 @@ cdef class Spp(stochastic_integration):
         """
         X = data['X']
 
-        if model_class_key != 'R':
+        if model_class_key != 'R' or 'R' in self.class_index_dict.keys():
             class_index = self.class_index_dict[model_class_key]
             Os = X[:, class_index*self.M:(class_index+1)*self.M]
         else:
