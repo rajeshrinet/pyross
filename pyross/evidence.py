@@ -1,3 +1,8 @@
+# This file implements two methods to compute the evidence of an epidemiological model. These are an addition to nested sampling 
+# which can be used to estimate the evidence and which is already implemented in `pyross.inference`. However, for complicated, 
+# high-dimensional models, nested sampling can be very slow. The methods implemented here are applicable whenever MCMC sampling 
+# of the posterior is feasible and should work even for sophisticated epidemiological models. 
+
 import numpy as np
 from scipy.stats import lognorm
 try:
@@ -18,9 +23,10 @@ DTYPE = np.float
 
 def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, 
                    tangent=False):
-    """Process estimator to generate input arguments for the evidence computations `pyross.evidence.evidence_smc`
-    and `pyross.evidence.evidence_path_sampling` for estimation problems without latent variables. The input has the
-    same structure as the input of `pyross.inference.infer`, see there for a detailed documentation of the arguments.
+    """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
+    `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems without latent 
+    variables. The input has the same structure as the input of `pyross.inference.infer`, see there for a detailed 
+    documentation of the arguments.
 
     Parameters
     ----------
@@ -45,13 +51,13 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
     bounds:
         The bounds for the log-likelihood function.
     """
-    # Sanity checks of the intputs
+    # Sanity checks of the inputs
     if (contactMatrix is None) == (generator is None):
         raise Exception('Specify either a fixed contactMatrix or a generator')
     if (intervention_fun is not None) and (generator is None):
         raise Exception('Specify a generator')
     if contactMatrix is not None:
-        estimator.contactMatrix = contactMatrix
+        estimator.set_contact_matrix(contactMatrix)
 
     # Read in parameter priors
     keys, guess, stds, bounds, \
@@ -69,10 +75,10 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
 
 def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
                           intervention_fun=None, tangent=False):
-    """Process estimator to generate input arguments for the evidence computations `pyross.evidence.evidence_smc`
-    and `pyross.evidence.evidence_path_sampling` for estimation problems with latent variables. The input has the
-    same structure as the input of `pyross.inference.latent_infer`, see there for a detailed documentation of the 
-    arguments.
+    """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
+    `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems with latent 
+    variables. The input has the same structure as the input of `pyross.inference.latent_infer`, see there for a detailed 
+    documentation of the arguments.
 
     Parameters
     ----------
@@ -99,13 +105,13 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, c
     bounds:
         The bounds for the log-likelihood function.
     """
-    # Sanity checks of the intputs
+    # Sanity checks of the inputs
     if (contactMatrix is None) == (generator is None):
         raise Exception('Specify either a fixed contactMatrix or a generator')
     if (intervention_fun is not None) and (generator is None):
         raise Exception('Specify a generator')
     if contactMatrix is not None:
-        estimator.contactMatrix = contactMatrix
+        estimator.set_contact_matrix(contactMatrix)
     
     # Process fltr and obs
     fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
@@ -142,12 +148,14 @@ def compute_ess(weights):
 
 
 def compute_cess(old_weights, weights):
+    """Compute the conditional effective sample size as decribed in [Zhou, Johansen, Aston 2016]."""
     return np.sum(old_weights * weights)**2 / np.sum(old_weights * weights**2)
 
 
 def resample(N, particles, logl, probs):
-    # Implements the residual resampling scheme, see for example
-    # [Doucet, Johansen 2008], https://www.stats.ox.ac.uk/~doucet/doucet_johansen_tutorialPF2011.pdf
+    """ Implements the residual resampling scheme, see for example
+    [Doucet, Johansen 2008], https://www.stats.ox.ac.uk/~doucet/doucet_johansen_tutorialPF2011.pdf
+    """
     counts_det = np.floor(N * probs).astype('int')
     remaining_probs = probs - 1/N * counts_det
     remaining_probs /= np.sum(remaining_probs)
@@ -176,8 +184,8 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     starting at the prior distribution. We implement the method `SMC2` described in
     [Zhou, Johansen, Aston 2016], https://doi.org/10.1080/10618600.2015.1060885
 
-    We start by sampling `npopulation` particles from the prior distribution. The target distribution of the weighted set of 
-    particles gets transformed to the posterior distribution by a geometric annealing schedule. The step size is chosen adaptively
+    We start by sampling `npopulation` particles from the prior distribution with uniform weights. The target distribution of the weighted 
+    set of particles gets transformed to the posterior distribution by a geometric annealing schedule. The step size is chosen adaptively
     based on the target decay rate of the effective samples size `target_cess` in each step. Once the effective sample size of the 
     weighted particles goes below `min_cess * npopulation`, we replace the weighted set of samples by a resampled, unweighted set. 
     Between each step, the particles are decorrelated and equilibreated on the current level distribution by running an MCMC chain.
@@ -193,7 +201,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     bounds:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
     npopulation: int
-        The number of particles used for the SMC iteration. Higher particle numbers mean more accurate results.
+        The number of particles used for the SMC iteration. Higher number of particles increases the accuracy of the result.
     target_cess: float
         The target rate for the decay of the effective sample size (ess reduces by `1-target_cess` each step). Smaller
         values result in more iterations and a higher accuracy result.
@@ -201,17 +209,26 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
         The minimal effective sample size of the system. Low effective sample size imply many particles in low probability
         regions. However, resampling adds variance so it should not be done in every step.
     mcmc_iter: int
-        The number of MCMC iterations in each step of the algorithm. The number of iterations should be enough to equilibrate
+        The number of MCMC iterations in each step of the algorithm. The number of iterations should be large enough to equilibrate
         the particles with the current distribution, higher iteration numbers will typically not result in more accurate results.
         Oftentimes, it makes more sense to increase the number of steps (via `target_cess`) instead of increasing the number of 
         iterations. This decreases the difference in distribution between consecutive steps and reduced the error of the final result. 
-        This number should however be large enough to let equal-position particles (that occur via resampli) diverge from each other.
+        This number should however be large enough to allow equal-position particles (that occur via resampling) to diverge from each 
+        other.
     nprocesses: int
-        The number of processes passed to the `emcee` MCMC sampler. By default, the number of physical cores is chosen.
+        The number of processes passed to the `emcee` MCMC sampler. By default, the number of physical cores is used. 
     save_samples: bool
         If true, this function returns the interal state of each MCMC iteration.
     verbose: bool
         If true, this function displays the progress of each MCMC iteration in addition to basic progress information.
+
+    Returns
+    -------
+    log_evidence: float
+        The estimate of the log evidence.        
+    if save_samples=True:
+        result_samples: list of (float, emcee.EnsembleSampler)
+            The list of samplers and their corresponding step `alpha`.
     """
     if emcee is None:
         raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
@@ -244,7 +261,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     # each `emcee` run in this list.
     result_samples = []
 
-    #Sample initial points
+    # Sample initial points (truncated log-normal within boundaries)
     ppf_bounds = np.zeros((ndim, 2))
     ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], prior_s, scale=prior_scale)
     ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], prior_s, scale=prior_scale)
@@ -272,10 +289,12 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
         
         da_upper = delta_alpha
         da_lower = 0.0
+        # Increase da_upper until it is an upper bound
         while comp_cess(da_upper) > target_cess:
             da_lower = da_upper
             da_upper = 2*da_upper
-        
+
+        # Binary search for optimal delta_alpha
         delta_alpha = 1/2 * (da_upper + da_lower)
         while np.abs(comp_cess(delta_alpha) - target_cess) / target_cess > 1e-3:
             if comp_cess(delta_alpha) > target_cess:
@@ -287,7 +306,6 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
         if alpha + delta_alpha > 1:
             delta_alpha = 1 - alpha
         alpha = alpha + delta_alpha
-        print("alpha: ", alpha)
         
         # Compute reweighting from alpha -> alpha + delta_alpha:
         log_incr_weights = delta_alpha * logl_particles
@@ -297,8 +315,6 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
 
         ess = compute_ess(new_weights)
         cess = compute_cess(weights, np.exp(log_incr_weights))
-        print("ESS:  ", ess)
-        print("CESS: ", cess)
         if ess/npopulation < min_ess:
             # The effective samples size has become smaller than the minimal target. We resample the
             # the particles according to their weight to remove particles with low probability and
@@ -311,7 +327,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
             # The effective sample size is still acceptable, therefore we avoid resampling since it
             # introduces a small bias every time.
             log_evidence += np.log(np.sum(weights * np.exp(log_incr_weights)))
-        print("log_evidence: ", log_evidence)
+        print("Iteration {}: alpha = {}, ESS = {}, CESS = {}, log_evidence = {}".format(iters, alpha, ess, cess, log_evidence))
         
         if alpha == 1.0:
             # There is no need to run the chain for `alpha==1`, so we stop here.
@@ -329,8 +345,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
             result_samples.append((alpha, sampler))
 
         particles = sampler.get_last_sample().coords
-        logl_particles = 1/alpha * (sampler.get_last_sample().log_prob 
-                                            - np.array(mcmc_map(logp, particles)))
+        logl_particles = 1/alpha * (sampler.get_last_sample().log_prob - np.array(mcmc_map(logp, particles)))
         weights = new_weights
 
     if mcmc_pool is not None:
@@ -344,8 +359,60 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     return log_evidence
 
 
-def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulation=100, mcmc_iter=500, nprocesses=0,
-                           verbose=True, extend_step_list=None, extend_sampler_list=None):
+def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulation=100, mcmc_iter=1000, nprocesses=0,
+                           inital_samples=10, verbose=True, extend_step_list=None, extend_sampler_list=None):
+    """ Compute the evidence using path sampling (thermodynamic integration).
+
+    This function computes posterior samples for the distributions
+        p_s \propto prior * likelihood^s
+    for 0<s≤1, s ∈ steps, using ensemble MCMC. The samples can be used to estimate the evidence via
+        log_evidence = \int_0^1 \E_{p_s}[log_likelihood] ds
+    which is know as path sampling or thermodynamic integration.
+
+    This function starts with sampling `initial_samples * npopulation` samples from the (truncated log-normal) prior.
+    Afterwards, it runs an ensemble MCMC chain with `npopulation` ensemble members for `mcmc_iter` iterations. To 
+    minimise burn-in, the iteration is started with the last sample of the chain with the closest step `s` that
+    has already been computed. To extend the results of this function with additional steps, provide the to-be-extended 
+    result via the optional arguments `extend_step_list` and `extend_sampler_list`.
+
+    This function only returns the step list and the corresponding samplers. To compute the evidence estimate,
+    use `pyross.evidence.evidence_path_sampling_process_result`.
+
+    Parameters
+    ----------
+    logl:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    prior_s:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    prior_scale:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    bounds:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    steps: list of float
+        List of steps `s` for which the distribution `p_s` is explored using MCMC. Should be in ascending order
+        and not include 0.
+    npopulation: int
+        The population size of the MCMC ensemble sampler (see documentation of `emcee` for details).
+    mcmc_iters: int
+        The number of iterations of the MCMC chain for each s ∈ steps.
+    nprocesses: int
+        The number of processes passed to the `emcee` MCMC sampler. By default, the number of physical cores is used.
+    inital_samples: int
+        Compute `initial_samples * npopulation` independent samples as the result for s = 0.
+    verbose: bool
+        If true, this function displays the progress of each MCMC iteration in addition to basic progress information.
+    extend_step_list: list of float
+        Extends the result of an earlier run of this function if this argument and `extend_sampler_list` are provided.
+    extend_sampler_list: list of emcee.EnsembleSampler
+        Extends the result of an earlier run of this function if this argument and `extend_step_list` are provided.
+
+    Returns
+    -------
+    step_list: list of float
+        The steps `s` for which `p_s` has been sampled from (including 0). Always in ascending order. 
+    sampler_list: list
+        The list of emcee.EnsembleSamplers (and an array of prior samples at 0). 
+    """
     if emcee is None:
         raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
 
@@ -368,7 +435,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
 
     ndim = len(prior_s)
 
-    # Sample initial points
+    # Sample initial points (truncated log-normal within boundaries)
     ppf_bounds = np.zeros((ndim, 2))
     ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], prior_s, scale=prior_scale)
     ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], prior_s, scale=prior_scale)
@@ -379,7 +446,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     step_list = []
     sampler_list = []
     if extend_step_list is None:
-        points = np.random.rand(int(mcmc_iter/2*npopulation), ndim)
+        points = np.random.rand(inital_samples*npopulation, ndim)
         y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
         ext_init_positions = lognorm.ppf(y, prior_s, scale=prior_scale)
 
@@ -389,7 +456,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
         step_list = extend_step_list
         sampler_list = extend_sampler_list
 
-    for i, step in enumerate(schedule):
+    for i, step in enumerate(steps):
         logpost = lambda param, step: logp(param) + step * logl(param)
         
         # Find the closest init position:
@@ -402,7 +469,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
         
         # Use this init position as the starting point of the MCMC chain for the current step value.
         sampler = emcee.EnsembleSampler(npopulation, ndim, logpost, pool=mcmc_pool, kwargs={'step':step})
-        print("step: {} ({}/{})".format(step, i+1, len(schedule)))
+        print("step: {} ({}/{})".format(step, i+1, len(steps)))
         sampler.run_mcmc(init_positions, mcmc_iter, progress=verbose)
         
         step_list.append(step)
@@ -421,7 +488,39 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     return step_list, sampler_list
 
 
-def evidence_path_sampling_process_result(step_list, sampler_list, logl, prior_s, prior_scale, burn_in=0, nprocesses=0):
+def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, step_list, sampler_list, 
+                                          burn_in=0, nprocesses=0):
+    """ Compute the evidence estimate for the result of `pyross.evidence.evidence_path_sampling`.
+
+    Parameters
+    ----------
+    logl:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    prior_s:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    prior_scale:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    bounds:
+        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
+    step_list: list of float
+        Output of `pyross.evidence.evidence_path_sampling`. The steps `s` for which `p_s` has been 
+        sampled from (including 0). Always in ascending order. 
+    sampler_list: list
+        Output of `pyross.evidence.evidence_path_sampling`. The list of emcee.EnsembleSamplers 
+        (and an array of prior samples at 0). 
+    burn_in: float or np.array
+        The number of initial samples that are discarded before computing the Monte Carlo average.
+    nprocesses: int
+        The number of processes used to compute the prior likelihood. By default, the number of physical 
+        cores is used.
+
+    Returns
+    -------
+    log_evidence: float
+        The estimate of the log evidence.
+    vals: list of float
+        The Monte Carlo average of the log-likelihood for each s s ∈ step_list.
+    """
     if nprocesses == 0:
         if pathos_mp:
             # Optional dependecy for multiprocessing (pathos) is installed.
