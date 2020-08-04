@@ -4382,8 +4382,8 @@ cdef class SppQ(SIR_type):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
-        self.test_pos = res[5]
-        self.test_freq = res[6]
+        self.test_pos = res[7]
+        self.test_freq = res[8]
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)

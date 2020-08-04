@@ -2924,8 +2924,8 @@ cdef class SppQ(stochastic_integration):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
-        self.test_pos = res[5]
-        self.test_freq = res[6]
+        self.test_pos = res[7]
+        self.test_freq = res[8]
         if self.time_dep_param_mapping is None:
             self.update_model_parameters(parameters)
         else:
