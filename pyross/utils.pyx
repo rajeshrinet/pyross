@@ -173,16 +173,15 @@ def make_log_norm_dist(means, stds):
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
 
-cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
+cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps, Py_ssize_t inter_steps=1):
     cdef:
-        double dt=(t2-t1)/(steps-1),t=t1
+        double dt=(t2-t1)/(inter_steps*(steps-1)),t=t1
         double [:] fx
         Py_ssize_t i, j, size=x.shape[0]
-        double [:, :] sol=np.empty((steps, size), dtype=DTYPE)
-
+        double [:, :] sol=np.empty((inter_steps*steps, size), dtype=DTYPE)
     for j in range(size):
         sol[0, j] = x[j]
-    for i in range(1, steps):
+    for i in range(1, inter_steps*steps):
         fx = f(t, sol[i-1])
         for j in range(size):
             sol[i, j] = sol[i-1, j] + fx[j]*dt
