@@ -263,13 +263,14 @@ cdef class Spp(CommonMethods):
     """
 
     cdef:
-        readonly np.ndarray constant_terms, linear_terms, infection_terms
+        readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
         readonly np.ndarray parameters
         readonly list param_keys
         readonly dict param_dict
         readonly dict class_index_dict
         readonly np.ndarray _lambdas
         readonly object time_dep_param_mapping
+        readonly np.ndarray finres_pop
 
     cpdef rhs(self, rp, tt)
     

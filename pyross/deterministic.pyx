@@ -2668,11 +2668,14 @@ cdef class Spp(CommonMethods):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
+        self.finres_terms = res[5]
+        self.resource_list = res[6]
         if self.time_dep_param_mapping is None:
             self.update_model_parameters(parameters)
         else:
             self.update_time_dep_model_parameters(0)
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.finres_pop = np.zeros( len(self.resource_list), dtype=DTYPE)  # populations for finite-resource transitions
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
 
@@ -2713,12 +2716,16 @@ cdef class Spp(CommonMethods):
             int sign
             int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
             int [:, :]  infection_terms=self.infection_terms
+            int [:, :]  finres_terms=self.finres_terms
+            np.ndarray resource_list=self.resource_list
             double [:, :] parameters=self.parameters
             double term
             double [:] xt = xt_arr
             double [:] Ni   = self.Ni
+            double [:] finres_pop = self.finres_pop
             double [:,:] CM = self.CM
             double [:,:] lambdas = self._lambdas
+            
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)
@@ -2734,7 +2741,14 @@ cdef class Spp(CommonMethods):
                 for n in range(M):
                     index = n + M*infective_index
                     lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
-
+                    
+        # Calculate populations for finite resource transitions
+        for i in range(len(resource_list)):
+            finres_pop[i] = 0
+            for (class_index, priority_index) in resource_list[i][1:]:
+                for m in range(M):
+                    finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
+        
         # Reset dxdt
         self.dxdt = np.zeros(nClass*M, dtype=DTYPE)
         cdef double [:] dxdt = self.dxdt
@@ -2768,6 +2782,24 @@ cdef class Spp(CommonMethods):
                 dxdt[m+M*S_index] -= term
                 if product_index != -1:
                     dxdt[m+M*product_index] += term
+            
+            if self.finres_terms.size > 0:
+                for i in range(finres_terms.shape[0]):
+                    resource_index = finres_terms[i, 0]
+                    rate_index = resource_list[resource_index][0]
+                    priority_index = finres_terms[i, 1]
+                    probability_index = finres_terms[i, 2]
+                    class_index = finres_terms[i, 3]
+                    origin_index = finres_terms[i, 4]
+                    destination_index = finres_terms[i, 5]
+
+                    term = parameters[rate_index, m] * parameters[priority_index, m] \
+                           * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+
+                    if origin_index != -1:
+                        dxdt[m+M*origin_index] -= term
+                    if destination_index != -1:
+                        dxdt[m+M*destination_index] += term
 
 
     def simulate(self, x0, contactMatrix, Tf, Nf, Ti=0,
@@ -3034,6 +3066,7 @@ cdef class SppSparse(CommonMethods):
             double [:,:] CM = self.CM
             double [:,:] lambdas = self._lambdas
             int [:,:] intMPs = self.interactingMP
+            
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)

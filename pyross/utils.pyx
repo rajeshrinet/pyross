@@ -188,7 +188,7 @@ def parse_model_spec(model_spec, param_keys):
                                      np.array(linear_terms_list, dtype=np.intc, ndmin=2),
                                      np.array(infection_terms_list, dtype=np.intc, ndmin=2),
                                      np.array(finres_terms_list, dtype=np.intc, ndmin=2),
-                                     np.array(resource_list, dtype=object, ndmin=2),
+                                     np.array(resource_list, dtype=object),
                                      np.array(test_pos_list, dtype=np.intc, ndmin=1),
                                      np.array(test_freq_list, dtype=np.intc, ndmin=1))
     return res
