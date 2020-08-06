@@ -1798,7 +1798,10 @@ cdef class SIR_type:
     def _latent_infer_to_minimize(self, params, grad=0,
                                    **logp_kwargs):
         """Objective function for minimization call in latent_infer."""
-        logp = self._logposterior_latent(params, enable_penalty=True,  **logp_kwargs)
+        if 'disable_penalty' in logp_kwargs:
+            logp = self._logposterior_latent(params, enable_penalty=False,  **logp_kwargs)
+        else:
+            logp = self._logposterior_latent(params, enable_penalty=True,  **logp_kwargs)
         return -logp
 
     def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
@@ -2953,6 +2956,7 @@ cdef class SIR_type:
         kwargs['generator']=generator
         kwargs['intervention_fun']=intervention_fun
         kwargs['inter_steps']=inter_steps
+        kwargs['disable_penalty']=None
             
         if np.all(eps == None):
             eps = 10.*np.spacing(flat_params)**(0.25)
