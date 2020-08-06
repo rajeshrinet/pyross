@@ -1197,7 +1197,7 @@ cdef class SIR_type:
        
     def hessian(self, x, Tf, infer_result, contactMatrix=None, generator=None,
                 intervention_fun=None, tangent=False, eps=None,
-                fd_method="central", inter_steps=10):
+                fd_method="central", inter_steps=0):
         '''
         Computes the Hessian matrix for the MAP estimates of an SIR type model.
 
@@ -1230,7 +1230,7 @@ cdef class SIR_type:
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional 
-            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 10. 
+            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 0. 
         Returns
         -------
         hess: 2d numpy.array
@@ -1386,7 +1386,7 @@ cdef class SIR_type:
 
     def sensitivity(self, FIM):
         '''
-        Computes the normalized sensitivity measures for
+        Computes sensitivity measures (not normalised) for
         1) each individual parameter: from the diagonal elements of the FIM
         2) incorporating parametric interactions: from the standard deviations derived from the FIM
         More on these interpretations can be found here: https://doi.org/10.1529/biophysj.104.053405
@@ -1400,21 +1400,15 @@ cdef class SIR_type:
         Returns
         -------
         sensitivity_individual: numpy.array
-            Normalized sensitivity measure for individual parameters.
+            Sensitivity measure for individual parameters.
         sensitivity_correlated: numpy.array
-            Normalized sensitivity measure incorporating parametric interactions.
+            Sensitivity measure incorporating parametric interactions.
         '''
         if not np.all(np.linalg.eigvalsh(FIM)>0):
             raise Exception("FIM not positive definite - check for appropriate step-size `eps` in FIM computation and/or increase `inter_steps` for a more stable result")
         
-        ind = np.sqrt(np.diagonal(FIM))
-        cor = np.divide(1, np.sqrt(np.diagonal(np.linalg.inv(FIM))))
-        
-        ind_norm = np.sum(ind)
-        cor_norm = np.sum(cor)
-        
-        sensitivity_individual = np.divide(ind, ind_norm)
-        sensitivity_correlated = np.divide(cor, cor_norm)
+        sensitivity_individual = np.sqrt(np.diagonal(FIM))
+        sensitivity_correlated = np.divide(1, np.sqrt(np.diagonal(np.linalg.inv(FIM))))
         
         return sensitivity_individual, sensitivity_correlated
 
@@ -2887,7 +2881,7 @@ cdef class SIR_type:
     
     def latent_hessian(self, obs, fltr, Tf, infer_result, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
-                       eps=None, fd_method="central", inter_steps=100):
+                       eps=None, fd_method="central", inter_steps=0):
         '''
         Computes the Hessian matrix for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
         
@@ -2923,7 +2917,7 @@ cdef class SIR_type:
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
-            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
+            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 0. 
         Returns
         -------
         hess: 2d numpy.array
