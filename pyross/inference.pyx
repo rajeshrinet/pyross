@@ -975,7 +975,7 @@ cdef class SIR_type:
             else:
                 self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
                 
-        Nf = Tf+1 # not sure about this? 
+        Nf = Tf+1
         
         if tangent:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf,
