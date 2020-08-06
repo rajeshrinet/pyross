@@ -1033,16 +1033,17 @@ cdef class SIR_type:
         if contactMatrix is not None:
             self.contactMatrix = contactMatrix
             
+        infer_result_loc = infer_result.copy()
         # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map')
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
         
-        flat_params = np.copy(infer_result['flat_params'])
+        flat_params = np.copy(infer_result_loc['flat_params'])
         
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses']:
-            kwargs[key] = infer_result[key]
+            kwargs[key] = infer_result_loc[key]
             
         x0 = x[0]
         
@@ -1142,16 +1143,17 @@ cdef class SIR_type:
             raise Exception('Specify a generator')  
         if contactMatrix is not None:
             self.contactMatrix = contactMatrix
-            
-        # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map')
         
-        flat_params = np.copy(infer_result['flat_params'])
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses']:
-            kwargs[key] = infer_result[key]
+            kwargs[key] = infer_result_loc[key]
             
         x0 = x[0]
 
@@ -1242,19 +1244,20 @@ cdef class SIR_type:
         if contactMatrix is not None:
             self.contactMatrix = contactMatrix
             
+        infer_result_loc = infer_result.copy()
         # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map') 
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map') 
         
-        flat_params = np.copy(infer_result['flat_params'])
+        flat_params = np.copy(infer_result_loc['flat_params'])
         
         kwargs = {}
         for key in ['is_scale_parameter',
                     'scaled_param_guesses', 's', 'scale']:
-            kwargs[key] = infer_result[key]
+            kwargs[key] = infer_result_loc[key]
            
-        kwargs['keys'] = infer_result['param_keys']
-        kwargs['flat_guess_range'] = infer_result['param_guess_range']
+        kwargs['keys'] = infer_result_loc['param_keys']
+        kwargs['flat_guess_range'] = infer_result_loc['param_guess_range']
         kwargs['generator'] = generator
         kwargs['intervention_fun'] = intervention_fun
         kwargs['inter_steps'] = inter_steps
@@ -1267,7 +1270,29 @@ cdef class SIR_type:
             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
         hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
         return hess
-        
+    
+    
+    def compute_hessian(self, x, Tf, contactMatrix, map_dict, tangent=False,
+                         eps=1.e-3, fd_method="central"):
+        '''
+        Computes the Hessian of the MAP estimate.
+
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.hessian` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
+        '''
+        self.contactMatrix = contactMatrix
+        flat_maps = map_dict['flat_map']
+        kwargs = {}
+        for key in ['flat_guess_range', 'is_scale_parameter', 'scaled_guesses', \
+                    'keys', 's', 'scale']:
+            kwargs[key] = map_dict[key]
+        def minuslogp(y):
+             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
+        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
+        return hess
+             
         
     def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
                    range_1, range_2, resolution_1, resolution_2=None):
@@ -1326,11 +1351,12 @@ cdef class SIR_type:
         >>> plt.ylabel(r'$\beta$', fontsize=20, labelpad=10)
         >>> plt.show()
         '''
+        infer_result_loc = infer_result.copy()
         # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map')
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
         
-        flat_maps = infer_result['flat_params']
+        flat_maps = infer_result_loc['flat_params']
         if resolution_2 == None:
             resolution_2 = resolution_1
         def bilinear(param_1, param_2, det=True):
@@ -2685,17 +2711,18 @@ cdef class SIR_type:
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
         
+        infer_result_loc = infer_result.copy()
         # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map')
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
         
-        flat_params = np.copy(infer_result['flat_params'])
+        flat_params = np.copy(infer_result_loc['flat_params'])
         
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
                     'init_fltrs']:
-            kwargs[key] = infer_result[key]
+            kwargs[key] = infer_result_loc[key]
         
         def mean(y):
             return self._latent_mean(y, contactMatrix=contactMatrix,
@@ -2802,16 +2829,17 @@ cdef class SIR_type:
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
         
+        infer_result_loc = infer_result.copy()
         # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map')
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
         
-        flat_params = np.copy(infer_result['flat_params'])
+        flat_params = np.copy(infer_result_loc['flat_params'])
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
                     'init_fltrs']:
-            kwargs[key] = infer_result[key]
+            kwargs[key] = infer_result_loc[key]
 
         def mean(y):
             return self._latent_mean(y, contactMatrix=contactMatrix,
@@ -2909,17 +2937,18 @@ cdef class SIR_type:
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
         
+        infer_result_loc = infer_result.copy()
         # backwards compatibility
-        if 'flat_map' in infer_result:
-            infer_result['flat_params'] = infer_result.pop('flat_map')
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
         
-        flat_params = np.copy(infer_result['flat_params'])
+        flat_params = np.copy(infer_result_loc['flat_params'])
         
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
                     'init_fltrs', 's', 'scale']:
-            kwargs[key] = infer_result[key]
+            kwargs[key] = infer_result_loc[key]
             
         kwargs['generator']=generator
         kwargs['intervention_fun']=intervention_fun
