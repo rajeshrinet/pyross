@@ -13,6 +13,7 @@ from math import isclose
 import time, sympy
 from sympy import MutableDenseNDimArray as Array
 from sympy import Inverse, tensorcontraction, tensorproduct, permutedims
+from scipy import interpolate
 import dill
 import hashlib
 
@@ -23,7 +24,7 @@ except ImportError:
     dynesty = None
 
 try:
-    # Optional support for nested sampling.
+    # Optional support for MCMC sampling.
     import emcee
 except ImportError:
     emcee = None
@@ -59,12 +60,12 @@ cdef class SIR_type:
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
         readonly double Omega, rtol_det, rtol_lyapunov
-        readonly np.ndarray beta, gIa, gIs, fsa
+        readonly np.ndarray beta, gIa, gIs, fsa, _xm
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
         readonly str det_method, lyapunov_method
         readonly dict class_index_dict
-        readonly list param_keys
+        readonly list param_keys, _interp
         readonly object contactMatrix
 
 
@@ -97,6 +98,9 @@ cdef class SIR_type:
         r, c = np.triu_indices(self.dim, k=1)
         self.flat_indices1 = np.ravel_multi_index((r, c), (self.dim, self.dim))
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
+        
+        self._xm = None
+        self._interp = None
 
 
     def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
@@ -143,381 +147,80 @@ cdef class SIR_type:
         output_dict['flat_map'] = output_dict.pop('flat_params')
         
         return output_dict
-        
-
-    def _loglike(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
-                 flat_guess_range=None, x=None, Tf=None, tangent=None):
-        if bounds is not None:
-            # Check that params is within bounds. If not, return -np.inf.
-            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
-                return -np.Inf
-
-        orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range,
-                                             is_scale_parameter, scaled_guesses)
-        parameters = self.fill_params_dict(keys, orig_params)
-        self.set_params(parameters)
-        if tangent:
-            minus_loglike = self._obtain_logp_for_traj_tangent(x, Tf)
-        else:
-            minus_loglike = self._obtain_logp_for_traj(x, Tf)
-
-        if np.isnan(minus_loglike):
-            return -np.inf
-
-        return -minus_loglike
-
-    def _nested_sampling_prior_transform(self, x, s=None, scale=None):
-        return lognorm.ppf(x, s, scale=scale)
 
     def nested_sampling_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False,
                                   nprocesses=0, queue_size=None, maxiter=None, maxcall=None, dlogz=None,
                                   n_effective=None, add_live=True, sampler=None, **dynesty_args):
-        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
-        using nested sampling as implemented in the `dynesty` Python package. This function assumes that full data on
-        all classes is available.
+        """Run nested sampling for model parameters without latent variables.
 
-        Parameters
-        ----------
-        x: 2d numpy.array
-            Observed trajectory (number of data points x (age groups * model classes))
-        Tf: float
-            Total time of the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        prior_dict: dict
-            A dictionary for the priors for the parameters.
-            See `infer` for examples.
-        tangent: bool, optional
-            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the nested sampling procedure.
-        nprocesses: int, optional
-            The number of processes used for parallel evaluation of the likelihood.
-        queue_size: int, optional
-            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
-        maxiter: int, optional
-            The maximum number of iterations. Default is no limit.
-        maxcall:int, optional
-            The maximum number of calls to the likelihood function. Default no limit.
-        dlogz: float, optional
-            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
-            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
-        n_effective: float, optional
-            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
-        add_live: bool, optional
-            Determines whether to add the remaining set of live points to the set of samples. Default is True.
-        sampler: dynesty.NestedSampler, optional
-            Continue running an instance of a nested sampler until the termination criteria are met.
-        **dynesty_args
-            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
-            are (this is not comprehensive, for details see the documentation of dynesty):
-            nlive: int, optional
-                The number of live points. Default is 500.
-            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
-                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
-            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
-                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
-
-        Returns
-        -------
-        sampler: dynesty.NestedSampler
-            The state of the sampler after termination of the nested sampling run.
-        '''
-
-        if dynesty is None:
-            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if queue_size is None:
-            queue_size = nprocesses
-
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-        self.contactMatrix = contactMatrix
-
-        ndim = len(guess)
-        prior_transform_args = {'s':s, 'scale':scale}
-        loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
-                       'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                       'x':x, 'Tf':Tf, 'tangent':tangent, 'bounds':bounds}
-
-        if sampler is None:
-            if nprocesses > 1:
-                pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = dynesty.NestedSampler(self._loglike, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                pool=pool, queue_size=queue_size, **dynesty_args)
-            else:
-                sampler = dynesty.NestedSampler(self._loglike, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                **dynesty_args)
-        else:
-            if nprocesses > 1:
-                # Restart the pool we closed at the end of the previous run.
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler.M = sampler.pool.map
-            elif sampler.pool is not None:
-                sampler.pool = None
-                sampler.M = map
-
-        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
-                           add_live=add_live, print_progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_nested_sampling` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
+        """
+        return self.infer_nested_sampling(x, Tf, prior_dict, contactMatrix=contactMatrix, generator=None, 
+                                          intervention_fun=None, tangent=tangent, verbose=verbose, nprocesses=nprocesses, 
+                                          queue_size=queue_size, maxiter=maxiter, maxcall=maxcall, dlogz=dlogz,
+                                          n_effective=n_effective, add_live=add_live, sampler=sampler, **dynesty_args)
 
     def nested_sampling_inference_process_result(self, sampler, prior_dict):
-        """
-        Take the sampler generated by `nested_sampling_inference` and produce output dictionaries for further use
+        """ Take the sampler generated by `nested_sampling_inference` and produce output dictionaries for further use
         in the pyross framework.
 
-        Parameters
-        ----------
-        sampler: dynesty.NestedSampler
-            Output of `nested_sampling_inference`.
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `infer` for further explanations.
-
-        Returns
-        -------
-        result: dynesty.Result
-            The result of the nested sampling iteration. Relevant entries include:
-            result.logz: list
-                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
-        output_samples: list
-            The processed weighted posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_nested_sampling_process_result` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         """
+        result, output_samples = self.infer_nested_sampling_process_result(sampler, prior_dict, contactMatrix=self.contactMatrix,
+                                                                           generator=None, intervention_fun=None)
 
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        result = sampler.results
-        output_samples = []
-        for i in range(len(result.samples)):
-            sample = result.samples[i]
-            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
-            l_like = result.logl[i]
-
-            orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
-                                             is_scale_parameter, scaled_guesses)
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-            l_post = l_like + l_prior
-            output_dict = {
-                'map_dict':self.fill_params_dict(keys, orig_sample),
-                'flat_map':sample, 'weight':weight, 'keys': keys,
-                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                'is_scale_parameter':is_scale_parameter,
-                'flat_guess_range':flat_guess_range,
-                'scaled_guesses':scaled_guesses,
-                's':s, 'scale':scale
-            }
-            output_samples.append(output_dict)
+        # Match old dictionary key names for backward compatibility.
+        for out_dict in output_samples:
+            out_dict['map_dict']         = out_dict.pop('params_dict')
+            out_dict['keys']             = out_dict.pop('param_keys')
+            out_dict['flat_guess_range'] = out_dict.pop('param_guess_range')
+            out_dict['scaled_guesses']   = out_dict.pop('scaled_param_guesses')
+            out_dict['flat_map']         = out_dict.pop('flat_params')
 
         return result, output_samples
-
-    def _logposterior(self, params, bounds=None, keys=None, is_scale_parameter=None, scaled_guesses=None,
-                 flat_guess_range=None, x=None, Tf=None, s=None, scale=None, tangent=None):
-        logp = self._loglike(self, params, bounds, keys, is_scale_parameter, scaled_guesses,
-                             flat_guess_range, x, Tf, tangent)
-        logp += np.sum(lognorm.logpdf(params, s, scale=scale))
-
-        return logp
 
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None,
                        walker_pos=None, nsamples=1000, nprocesses=0):
         """ Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
 
-        Parameters
-        ----------
-        x:  np.array
-            The full trajectory.
-        Tf: float
-            The total time of the trajectory.
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        prior_dict: dict
-            A dictionary containing priors.
-        tangent: bool, optional
-            Set to True to use tangent space inference. Default is False.
-        verbose: bool, optional
-            Set to True to see a progress bar for the sample generation. Default is False.
-        sampler: emcee.EnsembleSampler, optional
-            Set to instance of the sampler (as returned by this function) to continue running the MCMC chains.
-            Default is None (i.e. run a new chain).
-        nwalkers:int, optional
-            The number of chains in the ensemble (should be at least 2*dim). Default is 2*dim.
-        walker_pos: np.array, optional
-            The initial position of the walkers. If not specified, it samples random positions from the prior.
-        nsamples:int, optional
-            The number of samples per walker. Default is 1000.
-        nprocesses: int, optional
-            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
-            the number of cpu cores if `pathos` is available, otherwise 1.
-
-        Returns
-        -------
-        sampler: emcee.EnsembleSampler
-            This function returns the interal state of the sampler. To look at the chain of the internal flattened paramters,
-            run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
-            `mcmc_inference(..., sampler=sampler) to continue the chain or `mcmc_inference_process_result(...)` to process
-            the result.
-
-        Examples
-        --------
-        For the structure of `prior_dict`, see the documentation of `infer`. To start sampling the posterior,
-        run
-        >>> sampler = estimator.mcmc_inference(x, Tf, contactMatrix, prior_dict, verbose=True)
-
-        To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
-        dimensions `dim`)
-        >>> fig, axes = plt.subplots(dim, sharex=True)
-        >>> samples = sampler.get_chain()
-        >>> for i in range(dim):
-                ax = axes[i]
-                ax.plot(samples[:, :, i], "k", alpha=0.3)
-                ax.set_xlim(0, len(samples))
-        >>> axes[-1].set_xlabel("step number");
-
-        For more detailed convergence metrics, see the documentation of `emcee`. To continue running this chain, we can
-        call this function again with the sampler as argument
-        >>> sampler = estimator.mcmc_inference(x, Tf, contactMatrix, prior_dict, verbose=True, sampler=sampler)
-
-        This procudes 1000 additional samples in each chain. To process the results, call `mcmc_inference_process_result`.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_mcmc` and will be deleted in a future version of pyross. 
+        See there for a documentation of the function parameters.
         """
-        if emcee is None:
-            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if nprocesses > 1 and pathos_mp is None:
-            raise Exception("The Python package `pathos` is needed for multiprocessing.")
-
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-        self.contactMatrix = contactMatrix
-
-        ndim = len(guess)
-        if nwalkers is None:
-            nwalkers = 2*ndim
-
-        logpost_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
-                'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent}
-        if walker_pos is None:
-             # If not specified, sample initial positions of walkers from prior.
-            p0 = lognorm.rvs(s, scale=scale, size=(nwalkers, ndim))
-        else:
-            p0 = walker_pos
-
-        if sampler is None:
-            # Start a new MCMC chain.
-            if nprocesses > 1:
-                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior, kwargs=logpost_args,
-                                                pool=mcmc_pool)
-            else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior, kwargs=logpost_args)
-
-            sampler.run_mcmc(p0, nsamples, progress=verbose)
-        else:
-            # Continue running an existing MCMC chain.
-            if nprocesses > 1:
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-            elif sampler.pool is not None:
-                sampler.pool = None
-
-            sampler.run_mcmc(None, nsamples, progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        return self.infer_mcmc(x, Tf, prior_dict, contactMatrix=contactMatrix, generator=None, intervention_fun=None,
+                               tangent=tangent, verbose=verbose, sampler=sampler, nwalkers=nwalkers,
+                               walker_pos=walker_pos, nsamples=nsamples, nprocesses=nprocesses)
 
     def mcmc_inference_process_result(self, sampler, prior_dict, flat=True, discard=0, thin=1):
-        """
-        Take the sampler generated by `mcmc_inference` and produce output dictionaries for further use in the
+        """ Take the sampler generated by `mcmc_inference` and produce output dictionaries for further use in the
         pyross framework.
 
-        Parameters
-        ----------
-        sampler: emcee.EnsembleSampler
-            Output of `mcmc_inference`.
-        prior_dict: dict
-            A dictionary containing priors.
-        flat: bool, optional
-            This decides whether to return the samples as for each chain separately (False) or as as a combined
-            list (True). Default is True.
-        discard: int, optional
-            The number of initial samples to discard in each chain (to account for burn-in). Default is 0.
-        thin: int, optional
-            Thin out the chain by taking only the n-tn element in each chain. Default is 1 (no thinning).
-
-        Returns
-        -------
-        output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
-            The processed posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.infer_mcmc_process_result` and will be deleted in a future version
+        of pyross. See there for a documentation of the function parameters.
         """
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        output_samples = self.infer_mcmc_process_result(sampler, prior_dict, contactMatrix=self.contactMatrix, generator=None, 
+                                                        intervention_fun=None, flat=flat, discard=discard, thin=thin)
 
-        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
-        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
-        samples_per_chain = samples.shape[0]
-        nr_chains = 1 if flat else samples.shape[1]
+        # Match old dictionary key names for backward compatibility.
         if flat:
-            output_samples = []
+            flat_sample_list = output_samples
         else:
-            output_samples = [[] for _ in nr_chains]
-
-        for i in range(samples_per_chain):
-            for j in range(nr_chains):
-                if flat:
-                    sample = samples[i,:]
-                    l_post = log_posts[i]
-                else:
-                    sample = samples[i, j, :]
-                    l_post = log_posts[i, j]
-                weight = 1.0 / (samples_per_chain * nr_chains)
-
-                orig_sample = pyross.utils.unflatten_parameters(sample, flat_guess_range,
-                                                is_scale_parameter, scaled_guesses)
-                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-                l_like = l_post - l_prior
-                output_dict = {
-                    'map_dict':self.fill_params_dict(keys, orig_sample),
-                    'flat_map':sample, 'weight':weight, 'keys': keys,
-                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                    'is_scale_parameter':is_scale_parameter,
-                    'flat_guess_range':flat_guess_range,
-                    'scaled_guesses':scaled_guesses,
-                    's':s, 'scale':scale
-                }
-                if flat:
-                    output_samples.append(output_dict)
-                else:
-                    output_samples[j].append(output_dict)
+            flat_sample_list = [item for sublist in output_samples for item in sublist]
+        for out_dict in flat_sample_list:
+            out_dict['map_dict']         = out_dict.pop('params_dict')
+            out_dict['keys']             = out_dict.pop('param_keys')
+            out_dict['flat_guess_range'] = out_dict.pop('param_guess_range')
+            out_dict['scaled_guesses']   = out_dict.pop('scaled_param_guesses')
+            out_dict['flat_map']         = out_dict.pop('flat_params')
 
         return output_samples
 
@@ -567,19 +270,18 @@ cdef class SIR_type:
         
         return output_dict
     
+    def _loglikelihood(self, params, contactMatrix=None, generator=None, intervention_fun=None, keys=None,
+                       x=None, Tf=None, tangent=None,is_scale_parameter=None, flat_guess_range=None,
+                       scaled_guesses=None, bounds=None, inter_steps=0, **catchall_kwargs):
+        """Compute the log-likelihood of the model."""
+        if bounds is not None:
+            # Check that params is within bounds. If not, return -np.inf.
+            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
+                return -np.Inf
 
-    def _infer_to_minimize(self, params, grad=0, contactMatrix=None, generator=None,
-                                   intervention_fun=None, keys=None,
-                                   x=None, Tf=None, tangent=None,
-                                   is_scale_parameter=None, flat_guess_range=None,
-                                   scaled_guesses=None, s=None, scale=None):
-        """Objective function for minimization call in infer."""
-        
         # Restore parameters from flattened parameters
-        
         orig_params = pyross.utils.unflatten_parameters(params, flat_guess_range, 
                                                         is_scale_parameter, scaled_guesses)
-
         parameters, kwargs = self.fill_params_dict(keys, orig_params, return_additional_params=True)
         
         self.set_params(parameters)
@@ -594,12 +296,20 @@ cdef class SIR_type:
                 raise Exception('Key error or unspecified generator')
     
         if tangent:
-            minus_logp = self._obtain_logp_for_traj_tangent(x, Tf)
+            minus_logl = self._obtain_logp_for_traj_tangent(x, Tf)
         else:
-            minus_logp = self._obtain_logp_for_traj(x, Tf)
-        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
-        return minus_logp
-    
+            minus_logl = self._obtain_logp_for_traj(x, Tf, inter_steps)
+
+        return -minus_logl
+
+    def _logposterior(self, params, s=None, scale=None, **logl_kwargs):
+        """Compute the log-posterior (up to a constant) of the model."""
+        logl = self._loglikelihood(params, **logl_kwargs)
+        return logl + np.sum(lognorm.logpdf(params, s, scale=scale))
+
+    def _infer_to_minimize(self, params, grad=0, **logp_kwargs):
+        """Objective function for minimization call in infer."""
+        return -self._logposterior(params, **logp_kwargs)    
     
     def infer(self, x, Tf, prior_dict, contactMatrix=None, generator=None,
                       intervention_fun=None, tangent=False,
@@ -759,11 +469,15 @@ cdef class SIR_type:
         
         return output_dict
 
-    
-    def compute_hessian(self, x, Tf, contactMatrix, map_dict, tangent=False,
-                        eps=1.e-3, fd_method="central"):
-        '''
-        Computes the Hessian of the MAP estimate.
+    def _nested_sampling_prior_transform(self, x, s=None, scale=None):
+        return lognorm.ppf(x, s, scale=scale)
+
+    def infer_nested_sampling(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
+                              verbose=False, nprocesses=0, queue_size=None, maxiter=None, maxcall=None, dlogz=None,
+                              n_effective=None, add_live=True, sampler=None, **dynesty_args):
+        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        using nested sampling as implemented in the `dynesty` Python package. This function assumes that full data on
+        all classes is available.
 
         Parameters
         ----------
@@ -771,19 +485,802 @@ cdef class SIR_type:
             Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
             Total time of the trajectory
-        contactMatrix: callable
-            A function that takes time (t) as an argument and returns the contactMatrix
-        map_dict: dict
-            Dictionary returned by infer_parameters.
-        eps: float or numpy.array, optional
-            The step size of the Hessian calculation, default=1e-3
-        fd_method: str, optional
-            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
+        prior_dict: dict
+            A dictionary containing priors for parameters (can include both model and intervention parameters). See examples.
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is false.
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the nested sampling procedure.
+        nprocesses: int, optional
+            The number of processes used for parallel evaluation of the likelihood.
+        queue_size: int, optional
+            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
+        maxiter: int, optional
+            The maximum number of iterations. Default is no limit.
+        maxcall:int, optional
+            The maximum number of calls to the likelihood function. Default no limit.
+        dlogz: float, optional
+            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
+            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
+        n_effective: float, optional
+            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
+        add_live: bool, optional
+            Determines whether to add the remaining set of live points to the set of samples. Default is True.
+        sampler: dynesty.NestedSampler, optional
+            Continue running an instance of a nested sampler until the termination criteria are met.
+        **dynesty_args
+            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
+            are (this is not comprehensive, for details see the documentation of dynesty):
+            nlive: int, optional
+                The number of live points. Default is 500.
+            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
+                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
+            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
+                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
 
         Returns
         -------
+        sampler: dynesty.NestedSampler
+            The state of the sampler after termination of the nested sampling run.
+        '''
+        if dynesty is None:
+            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if queue_size is None:
+            queue_size = nprocesses
+
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+            
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+            
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+            
+        # Read in parameter priors
+        keys, guess, stds, bounds, \
+        flat_guess_range, is_scale_parameter, scaled_guesses  \
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        ndim = len(guess)
+        prior_transform_args = {'s':s, 'scale':scale}
+        loglike_args = {'keys':keys, 'x':x, 'Tf':Tf, 'flat_guess_range':flat_guess_range,
+                         'is_scale_parameter':is_scale_parameter, 'scaled_guesses': scaled_guesses,
+                         'generator':generator, 'intervention_fun': intervention_fun, 'tangent': tangent}
+
+        if sampler is None:
+            if nprocesses > 1:
+                pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = dynesty.NestedSampler(self._loglikelihood, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                pool=pool, queue_size=queue_size, **dynesty_args)
+            else:
+                sampler = dynesty.NestedSampler(self._loglikelihood, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                **dynesty_args)
+        else:
+            if nprocesses > 1:
+                # Restart the pool we closed at the end of the previous run.
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler.M = sampler.pool.map
+            elif sampler.pool is not None:
+                sampler.pool = None
+                sampler.M = map
+
+        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
+                           add_live=add_live, print_progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def infer_nested_sampling_process_result(self, sampler, prior_dict, contactMatrix=None, generator=None, 
+                                             intervention_fun=None, **catchall_kwargs):
+        """
+        Take the sampler generated by `pyross.inference.infer_nested_sampling` and produce output dictionaries for 
+        further use in the pyross framework.
+
+        Parameters
+        ----------
+        See `pyross.inference.infer_nested_sampling` for description of parameters. The necessary parameters are:
+
+        sampler: dynesty.NestedSampler
+            The output of `pyross.inference.infer_nested_sampling`.
+        prior_dict: dict
+        contactMatrix: callable, optional
+        generator: pyross.contactMatrix, optional
+        intervention_fun: callable, optional
+        **catchall_kwargs: dict
+            Catched further provided arguments and ignores them.
+
+        Returns
+        -------
+        result: dynesty.Result
+            The result of the nested sampling iteration. Relevant entries include:
+            result.logz: list
+                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
+        output_samples: list
+            The processed weighted posterior samples.
+        """
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        result = sampler.results
+        output_samples = []
+        for i in range(len(result.samples)):
+            sample = result.samples[i]
+            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
+            l_like = result.logl[i]
+
+            orig_params = pyross.utils.unflatten_parameters(sample, flat_guess_range,
+                                                            is_scale_parameter, scaled_guesses)
+            
+            map_params_dict, map_control_params_dict = self.fill_params_dict(keys, orig_params, return_additional_params=True)
+            self.set_params(map_params_dict)
+            
+            if generator is not None:
+                if intervention_fun is None:
+                    self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
+                else:
+                    self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
+            
+            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_post = l_like + l_prior
+            output_dict = {
+                'params_dict': map_params_dict, 'flat_params': sample, 'param_keys': keys,
+                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
+                'weight':weight, 'is_scale_parameter':is_scale_parameter,
+                'param_guess_range':flat_guess_range,
+                'scaled_param_guesses':scaled_guesses,
+                's':s, 'scale':scale
+            }
+            if map_control_params_dict != {}:
+                output_dict['control_params_dict'] = map_control_params_dict
+            
+            output_samples.append(output_dict)
+
+        return result, output_samples
+
+    def infer_mcmc(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False, 
+                   verbose=False, sampler=None, nwalkers=None, walker_pos=None, nsamples=1000, nprocesses=0):
+        """ Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+
+        Parameters
+        ----------
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        prior_dict: dict
+            A dictionary containing priors for parameters (can include both model and intervention parameters). See examples.
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        verbose: bool, optional
+            Set to True to see a progress bar for the sample generation. Default is False.
+        sampler: emcee.EnsembleSampler, optional
+            Set to instance of the sampler (as returned by this function) to continue running the MCMC chains.
+            Default is None (i.e. run a new chain).
+        nwalkers:int, optional
+            The number of chains in the ensemble (should be at least 2*dim). Default is 2*dim.
+        walker_pos: np.array, optional
+            The initial position of the walkers. If not specified, it samples random positions from the prior.
+        nsamples:int, optional
+            The number of samples per walker. Default is 1000.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
+
+        Returns
+        -------
+        sampler: emcee.EnsembleSampler
+            This function returns the interal state of the sampler. To look at the chain of the internal flattened paramters,
+            run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
+            `mcmc_inference(..., sampler=sampler) to continue the chain or `mcmc_inference_process_result(...)` to process
+            the result.
+
+        Examples
+        --------
+        For the structure of `prior_dict`, see the documentation of `infer`. To start sampling the posterior,
+        run for example
+        >>> sampler = estimator.infer_mcmc(x, Tf, prior_dict, contactMatrix=contactMatrix, verbose=True)
+
+        To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
+        dimensions `dim`)
+        >>> fig, axes = plt.subplots(dim, sharex=True)
+        >>> samples = sampler.get_chain()
+        >>> for i in range(dim):
+                ax = axes[i]
+                ax.plot(samples[:, :, i], "k", alpha=0.3)
+                ax.set_xlim(0, len(samples))
+        >>> axes[-1].set_xlabel("step number");
+
+        For more detailed convergence metrics, see the documentation of `emcee`. To continue running this chain, we can
+        call this function again with the sampler as argument
+        >>> sampler = estimator.infer_mcmc(x, Tf, prior_dict, contactMatrix=contactMatrix, verbose=True, sampler=sampler)
+
+        This procudes 1000 additional samples in each chain. To process the results, call `infer_mcmc_process_result`.
+        """
+        if emcee is None:
+            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if nprocesses > 1 and pathos_mp is None:
+            raise Exception("The Python package `pathos` is needed for multiprocessing.")
+
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+            
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+            
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+
+        # Read in parameter priors
+        keys, guess, stds, bounds, \
+        flat_guess_range, is_scale_parameter, scaled_guesses  \
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        ndim = len(guess)
+        if nwalkers is None:
+            nwalkers = 2*ndim
+
+        logpost_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
+                'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
+                'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent, 'generator':generator, 
+                'intervention_fun': intervention_fun}
+        if walker_pos is None:
+             # If not specified, sample initial positions of walkers from prior (within bounds).
+            ppf_bounds = np.zeros((ndim, 2))
+            ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
+            ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
+            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+            points = np.random.rand(nwalkers, ndim)
+            y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
+            p0 = lognorm.ppf(y, s, scale=scale)
+        else:
+            p0 = walker_pos
+
+        if sampler is None:
+            # Start a new MCMC chain.
+            if nprocesses > 1:
+                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior, kwargs=logpost_args,
+                                                pool=mcmc_pool)
+            else:
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior, kwargs=logpost_args)
+
+            sampler.run_mcmc(p0, nsamples, progress=verbose)
+        else:
+            # Continue running an existing MCMC chain.
+            if nprocesses > 1:
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+            elif sampler.pool is not None:
+                sampler.pool = None
+
+            sampler.run_mcmc(None, nsamples, progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def infer_mcmc_process_result(self, sampler, prior_dict, contactMatrix=None, generator=None, 
+                                  intervention_fun=None, flat=True, discard=0, thin=1, **catchall_kwargs):
+        """
+        Take the sampler generated by `pyross.inference.infer_mcmc` and produce output dictionaries for further use in the
+        pyross framework.
+
+        Parameters
+        ----------
+        See `pyross.inference.infer_mcmc` for additional description of parameters. The necessary parameters are:
+
+        sampler: emcee.EnsembleSampler
+            Output of `pyross.inference.infer_mcmc`.
+        prior_dict: dict
+        contactMatrix: callable, optional
+        generator: pyross.contactMatrix, optional
+        intervention_fun: callable, optional
+        flat: bool, optional
+            This decides whether to return the samples as for each chain separately (False) or as as a combined
+            list (True). Default is True.
+        discard: int, optional
+            The number of initial samples to discard in each chain (to account for burn-in). Default is 0.
+        thin: int, optional
+            Thin out the chain by taking only the n-tn element in each chain. Default is 1 (no thinning).
+        **catchall_kwargs: dict
+            Catched further provided arguments and ignores them.
+
+        Returns
+        -------
+        output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
+            The processed posterior samples.
+        """
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
+        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
+        samples_per_chain = samples.shape[0]
+        nr_chains = 1 if flat else samples.shape[1]
+        if flat:
+            output_samples = []
+        else:
+            output_samples = [[] for _ in nr_chains]
+
+        for i in range(samples_per_chain):
+            for j in range(nr_chains):
+                if flat:
+                    sample = samples[i,:]
+                    l_post = log_posts[i]
+                else:
+                    sample = samples[i, j, :]
+                    l_post = log_posts[i, j]
+                weight = 1.0 / (samples_per_chain * nr_chains)
+
+                orig_params = pyross.utils.unflatten_parameters(sample, flat_guess_range,
+                                                                is_scale_parameter, scaled_guesses)
+                
+                map_params_dict, map_control_params_dict = self.fill_params_dict(keys, orig_params, return_additional_params=True)
+                self.set_params(map_params_dict)
+                
+                if generator is not None:
+                    if intervention_fun is None:
+                        self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
+                    else:
+                        self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
+                
+                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+                l_like = l_post - l_prior
+                output_dict = {
+                    'params_dict': map_params_dict, 'flat_params': sample, 'param_keys': keys,
+                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
+                    'weight':weight, 'is_scale_parameter':is_scale_parameter,
+                    'param_guess_range':flat_guess_range,
+                    'scaled_param_guesses':scaled_guesses,
+                    's':s, 'scale':scale
+                }
+                if map_control_params_dict != {}:
+                    output_dict['control_params_dict'] = map_control_params_dict
+
+                if flat:
+                    output_samples.append(output_dict)
+                else:
+                    output_samples[j].append(output_dict)
+
+        return output_samples
+    
+    
+    def _mean(self, params, contactMatrix=None,
+                      generator=None, intervention_fun=None,
+              param_keys=None,
+                            param_guess_range=None, is_scale_parameter=None,
+                            scaled_param_guesses=None,
+                            x0=None, Tf=None, inter_steps=None):
+        """Objective function for differentiation call in FIM and FIM_det."""
+        param_estimates = np.copy(params)
+        
+        orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                      param_guess_range,
+                                                      is_scale_parameter,
+                                                      scaled_param_guesses)
+        
+        map_params_dict, map_control_params_dict = self.fill_params_dict(param_keys, orig_params, return_additional_params=True)
+        self.set_params(map_params_dict)
+        
+        if generator is not None:
+            if intervention_fun is None:
+                self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
+            else:
+                self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
+                
+        Nf = Tf+1
+                
+        if inter_steps:
+            x0 = np.multiply(x0, self.Omega)
+            xm = pyross.utils.forward_euler_integration(self._rhs0, x0, 0, Tf, Nf, inter_steps)
+            xm = xm[::inter_steps]
+            xm = np.divide(xm, self.Omega)
+        else:
+            xm = self.integrate(x0, 0, Tf, Nf)
+        return np.ravel(xm[1:])
+    
+    
+    def _cov(self, params, contactMatrix=None,
+             generator=None, intervention_fun=None,
+             param_keys=None,
+                            param_guess_range=None, is_scale_parameter=None,
+                            scaled_param_guesses=None,
+                            Tf=None, x0=None,
+                            inter_steps=None, tangent=False):
+        """Objective function for differentiation call in FIM."""
+        param_estimates = np.copy(params)
+        
+        orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                      param_guess_range,
+                                                      is_scale_parameter,
+                                                      scaled_param_guesses)
+        
+        map_params_dict, map_control_params_dict = self.fill_params_dict(param_keys, orig_params, return_additional_params=True)
+        self.set_params(map_params_dict)
+        
+        if generator is not None:
+            if intervention_fun is None:
+                self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
+            else:
+                self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
+                
+        Nf = Tf+1
+        
+        if tangent:
+            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf,
+                                                                  inter_steps)
+        else:
+            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps)
+        
+        return full_cov
+    
+    
+    def FIM(self, x, Tf, infer_result, contactMatrix=None, generator=None,
+            intervention_fun=None, tangent=False, eps=None, inter_steps=100):
+        '''
+        Computes the Fisher Information Matrix (FIM) for the MAP estimates of a stochastic SIR type model.
+
+        Parameters
+        ----------
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        eps: float or numpy.array, optional
+           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+        inter_steps: int, optional 
+            Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
+        Returns
+        -------
+        FIM: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')   
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+            
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
+        
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses']:
+            kwargs[key] = infer_result_loc[key]
+            
+        x0 = x[0]
+        
+        def mean(y):
+            return self._mean(y, contactMatrix=contactMatrix,
+                                      generator=generator,
+                              intervention_fun=intervention_fun, x0=x0,
+                              Tf=Tf, inter_steps=inter_steps,
+                              **kwargs)
+        
+        def covariance(y):
+            return self._cov(y, contactMatrix=contactMatrix,
+                                     generator=generator,
+                              intervention_fun=intervention_fun, x0=x0,
+                              Tf=Tf, tangent=tangent, inter_steps=inter_steps,
+                              **kwargs)
+        
+        if np.all(eps == None):
+            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_params))
+        print('eps-vector used for differentiation: ', eps)
+        
+        cov = covariance(flat_params)
+        invcov = np.linalg.inv(cov)
+
+        dim = len(flat_params)
+        FIM = np.empty((dim,dim))
+        dmu = []
+        dcov = []
+        
+        for i in range(dim):
+            dmu.append(pyross.utils.partial_derivative(mean, var=i, point=flat_params, dx=eps[i]))
+            dcov.append(pyross.utils.partial_derivative(covariance,  var=i, point=flat_params, dx=eps[i]))
+       
+        for i in range(dim):
+            t1 = dmu[i]@invcov@dmu[i]
+            t2 = np.multiply(0.5,np.trace(invcov@dcov[i]@invcov@dcov[i]))
+            FIM[i,i] = t1 + t2
+
+        rows,cols = np.triu_indices(dim,1)
+        
+        for i,j in zip(rows,cols):
+            t1 = dmu[i]@invcov@dmu[j]
+            t2 = np.multiply(0.5,np.trace(invcov@dcov[i]@invcov@dcov[j]))
+            FIM[i,j] = t1 + t2
+                      
+        i_lower = np.tril_indices(dim,-1)
+        FIM[i_lower] = FIM.T[i_lower]
+        return FIM
+    
+    
+    def FIM_det(self, x, Tf, infer_result, contactMatrix=None, generator=None,
+                intervention_fun=None, eps=None, measurement_error=1e-2,
+                inter_steps=100):
+        '''
+        Computes the Fisher Information Matrix (FIM) for the MAP estimates of a deterministic (ODE based, including a constant measurement error) SIR type model.
+
+        Parameters
+        ----------
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        eps: float or numpy.array, optional
+           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+        measurement_error: float, optional
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
+        inter_steps: int, optional 
+            Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
+        Returns
+        -------
+        FIM: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')  
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+        
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses']:
+            kwargs[key] = infer_result_loc[key]
+            
+        x0 = x[0]
+
+        def mean(y):
+            return self._mean(y, contactMatrix=contactMatrix,
+                                      generator=generator,
+                              intervention_fun=intervention_fun, x0=x0,
+                              Tf=Tf, inter_steps=inter_steps,
+                              **kwargs)
+        
+        if np.all(eps == None):
+            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_params))
+        print('eps-vector used for differentiation: ', eps)
+        
+        sigma_sq = measurement_error*measurement_error
+        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(x.shape[0]-1)))
+        cov = np.diag(cov_diag)
+        invcov = np.linalg.inv(cov)
+        
+        dim = len(flat_params)
+        FIM_det = np.empty((dim,dim))
+        dmu = []
+        
+        for i in range(dim):
+            dmu.append(pyross.utils.partial_derivative(mean, var=i, point=flat_params, dx=eps[i]))
+        
+        for i in range(dim):
+            FIM_det[i,i] = dmu[i]@invcov@dmu[i]
+
+        rows,cols = np.triu_indices(dim,1)
+        
+        for i,j in zip(rows,cols):
+            FIM_det[i,j] = dmu[i]@invcov@dmu[j]
+        
+        i_lower = np.tril_indices(dim,-1)
+        FIM_det[i_lower] = FIM_det.T[i_lower]
+        return FIM_det
+         
+       
+    def hessian(self, x, Tf, infer_result, contactMatrix=None, generator=None,
+                intervention_fun=None, tangent=False, eps=None,
+                fd_method="central", inter_steps=0):
+        '''
+        Computes the Hessian matrix for the MAP estimates of an SIR type model.
+
+        Parameters
+        ----------
+        x: 2d numpy.array
+            Observed trajectory (number of data points x (age groups * model classes))
+        Tf: float
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        eps: float or numpy.array, optional
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
+        inter_steps: int, optional 
+            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 0. 
+        Returns
+        -------
         hess: 2d numpy.array
-            The Hessian
+            The Hessian matrix
+        '''
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')   
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+            
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map') 
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
+        
+        kwargs = {}
+        for key in ['is_scale_parameter',
+                    'scaled_param_guesses', 's', 'scale']:
+            kwargs[key] = infer_result_loc[key]
+           
+        kwargs['keys'] = infer_result_loc['param_keys']
+        kwargs['flat_guess_range'] = infer_result_loc['param_guess_range']
+        kwargs['generator'] = generator
+        kwargs['intervention_fun'] = intervention_fun
+        kwargs['inter_steps'] = inter_steps
+        
+        if np.all(eps == None):
+            eps = 10.*np.spacing(flat_params)**(0.25)
+        print('epsilon used for differentiation: ', eps)
+        
+        def minuslogp(y):
+            return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
+        hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
+        return hess
+    
+    
+    def compute_hessian(self, x, Tf, contactMatrix, map_dict, tangent=False,
+                         eps=1.e-3, fd_method="central"):
+        '''
+        Computes the Hessian of the MAP estimate.
+
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.hessian` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         '''
         self.contactMatrix = contactMatrix
         flat_maps = map_dict['flat_map']
@@ -792,11 +1289,12 @@ cdef class SIR_type:
                     'keys', 's', 'scale']:
             kwargs[key] = map_dict[key]
         def minuslogp(y):
-            return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
+             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
         hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
         return hess
-
-    def robustness(self, FIM, FIM_det, map_dict, param_pos_1, param_pos_2,
+             
+        
+    def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
                    range_1, range_2, resolution_1, resolution_2=None):
         '''
         Robustness analysis in a two-dimensional slice of the parameter space, revealing neutral spaces as in https://doi.org/10.1073/pnas.1015814108.
@@ -807,8 +1305,8 @@ cdef class SIR_type:
             Fisher Information matrix of a stochastic model
         FIM_det: 2d numpy.array
             Fisher information matrix of the corresponding deterministic model
-        map_dict: dict
-            Dictionary returned by infer_parameters
+        infer_result: dict
+            Dictionary returned by `latent_infer`
         param_pos_1: int
             Position of 'parameter 1' in map_dict['flat_map'] for x-axis
         param_pos_2: int
@@ -837,7 +1335,7 @@ cdef class SIR_type:
         >>> from matplotlib import pyplot as plt
         >>> from matplotlib import cm
         >>>
-        >>> # positions 0 and 1 of map_dict['flat_map'] correspond to a scale parameter for alpha, and beta, respectively.
+        >>> # positions 0 and 1 of infer_result['flat_params'] correspond to a scale parameter for alpha, and beta, respectively.
         >>> ff, ss, Z_sto, Z_det = estimator.robustness(FIM, FIM_det, map_dict, 0, 1, 0.5, 0.01, 20)
         >>> cmap = plt.cm.PuBu_r
         >>> levels=11
@@ -846,14 +1344,19 @@ cdef class SIR_type:
         >>> c = plt.contourf(ff, ss, Z_sto, cmap=cmap, levels=levels) # heat map for the stochastic coefficient
         >>> plt.contour(ff, ss, Z_sto, colors='black', levels=levels, linewidths=0.25)
         >>> plt.contour(ff, ss, Z_det, colors=colors, levels=levels) # contour plot for the deterministic model
-        >>> plt.plot(map_dict['flat_map'][0], map_dict['flat_map'][1], 'o',
+        >>> plt.plot(infer_result['flat_params'][0], infer_result['flat_params'][1], 'o',
                     color="#A60628", markersize=6) # the MAP estimate
         >>> plt.colorbar(c)
         >>> plt.xlabel(r'$\alpha$ scale', fontsize=20, labelpad=10)
         >>> plt.ylabel(r'$\beta$', fontsize=20, labelpad=10)
         >>> plt.show()
         '''
-        flat_maps = map_dict['flat_map']
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_maps = infer_result_loc['flat_params']
         if resolution_2 == None:
             resolution_2 = resolution_1
         def bilinear(param_1, param_2, det=True):
@@ -881,256 +1384,33 @@ cdef class SIR_type:
             i_k += 1
         return ff, ss, Z_sto, Z_det
 
-    def sensitivity(self, FIM, rtol=1e-9, atol=1e-5):
+    def sensitivity(self, FIM):
         '''
-        Computes the normalized sensitivity measure as defined in https://doi.org/10.1073/pnas.1015814108.
+        Computes sensitivity measures (not normalised) for
+        1) each individual parameter: from the diagonal elements of the FIM
+        2) incorporating parametric interactions: from the standard deviations derived from the FIM
+        More on these interpretations can be found here: https://doi.org/10.1529/biophysj.104.053405
+        A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest. 
 
         Parameters
         ----------
         FIM: 2d numpy.array
             The Fisher Information Matrix
-        rtol: float, optional
-            The relative tolerance for the identifiability of an eigenvalue relative to the largest eigenvalue. Default is 1e-9.
-        atol: float, optional
-            The absolute tolerance for the identifiability of an eigenvalue. Default is 1e-5.
 
         Returns
         -------
-        T_j: numpy.array
-            Normalized sensitivity measure for parameters to be estimated. A larger entry translates into greater anticipated model sensitivity to changes in the parameter of interest.
+        sensitivity_individual: numpy.array
+            Sensitivity measure for individual parameters.
+        sensitivity_correlated: numpy.array
+            Sensitivity measure incorporating parametric interactions.
         '''
-        sign, eigvec = pyross.utils.largest_real_eig(FIM)
-        if not sign:
-            raise Exception("Largest eigenvalue of FIM is negative - check for appropriate step size eps in FIM computation ")
-
-        evals, evecs = eig(FIM)
-        evals = np.real(evals)
-        dim = len(evals)
-        max_eval = np.amax(evals)
-        buffer = np.zeros(dim)
-        i_k = 0
-        for i in evals:
-            if i>0 and i/max_eval <= rtol:
-                print("Relative size: Eigenvalue ", i_k, " is less than ", rtol, " times the largest eigenvalue and might not be identifiable.\n")
-            if i>0 and i <= atol:
-                print("Absolute size: Eigenvalue ", i_k, " is smaller than ", atol, " and might not be identifiable.\n")
-            if i<0 and abs(i/max_eval) > rtol:
-                raise Exception('Large negative eigenvalue ', i_k, ' - FIM is not positive definite. Check for appropriate step size eps in FIM computation or increase the relative tolerance rtol under which eigenvalues are treated as relatively small and potentially unidentifiable.')
-            elif i<0 and abs(i/max_eval) <= rtol:
-                print("Relative size + negative: Eigenvalue ", i_k, " is less than ", rtol, " times the largest eigenvalue AND NEGATIVE and might not be identifiable.")
-                print("Please ensure that the step size eps in the FIM computation is appropriate.")
-                print("CAUTION: Proceed with slightly modified FIM, shifting the small negative eigenvalue ", i_k, " into the positives. Thereby, all other eigenvalues and therefore sensitivities will be shifted slightly. This will have a larger relative effect on the above-mentioned small eigenvalues/sensitivities.\n")
-                buffer[i_k]=abs(i)
-            i_k +=1
-
-        max_neg = np.amax(buffer)
-        if max_neg > 0.:
-            FIM = FIM + np.diag(np.repeat(2*max_neg, repeats=dim))
-            evals, evecs = eig(FIM)
-            evals = np.real(evals)
-
-        L = np.diag(evals)
-        S_ij = np.sqrt(L)@evecs
-        S2_ij = S_ij**2
-        S2_j = np.sum(S2_ij, axis=0)
-        S2_norm = np.sum(S2_j)
-        T_j = np.divide(S2_j,S2_norm)
-        return T_j
-
-    def FIM(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False,
-            eps=None):
-        '''
-        Computes the Fisher Information Matrix (FIM) of the stochastic model.
-
-        Parameters
-        ----------
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        Tf: float
-           Total time of the trajectory
-        contactMatrix: callable
-           A function that takes time (t) as an argument and returns the contactMatrix
-        map_dict: dict
-           Dictionary returned by infer_parameters
-        tangent: bool, optional
-            Set to True to use tangent space inference. Default is False.
-        eps: float or numpy.array, optional
-            Step size for numerical differentiation of the process mean and its
-            full covariance matrix with respect to the parameters.
-            If not specified, the array of square roots of the machine epsilon of the MAP estimates is used.
-            Decreasing the step size too small can result in round-off error.
-        Returns
-        -------
-        FIM: 2d numpy.array
-            The Fisher Information Matrix
-        '''
-        self.contactMatrix = contactMatrix
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-        flat_maps = map_dict['flat_map']
-        kwargs = {}
-        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
-                    'scaled_param_guesses', 'param_length', 'init_flags',
-                    'init_fltrs']:
-            kwargs[key] = map_dict[key]
-
-        def mean(y):
-            return self._mean(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
-                              **kwargs)
-
-        def covariance(y):
-            return self._cov(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
-                             tangent=tangent, **kwargs)
-
-        cov = covariance(flat_maps)
-
-        if eps == None:
-            eps = np.sqrt(np.spacing(flat_maps))
-        elif np.isscalar(eps):
-            eps = np.repeat(eps, repeats=len(flat_maps))
-
-        print('eps-vector used for differentiation: ', eps)
-
-        invcov = np.linalg.inv(cov)
-
-        dim = len(flat_maps)
-        FIM = np.zeros((dim,dim))
-
-        rows,cols = np.triu_indices(dim)
-        for i,j in zip(rows,cols):
-            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps[i])
-            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps[j])
-            dcov_i = pyross.utils.partial_derivative(covariance, var=i, point=flat_maps, dx=eps[i])
-            dcov_j = pyross.utils.partial_derivative(covariance, var=j, point=flat_maps, dx=eps[j])
-            t1 = dmu_i@invcov@dmu_j
-            t2 = np.multiply(0.5,np.trace(invcov@dcov_i@invcov@dcov_j))
-            FIM[i,j] = t1 + t2
-        i_lower = np.tril_indices(dim,-1)
-        FIM[i_lower] = FIM.T[i_lower]
-        return FIM
-
-    def FIM_det(self, obs, fltr, Tf, contactMatrix, map_dict,
-                eps=None, measurement_error=1e-2):
-        '''
-        Computes the Fisher Information Matrix (FIM) of the deterministic model.
-
-        Parameters
-        ----------
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        Tf: float
-           Total time of the trajectory
-        contactMatrix: callable
-           A function that takes time (t) as an argument and returns the contactMatrix
-        map_dict: dict
-           Dictionary returned by infer_parameters
-        eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. If not specified, the array of square roots of the machine epsilon of the MAP estimates is used. Decreasing the step size too small can result in round-off error.
-        measurement_error: float, optional
-            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
-        Returns
-        -------
-        FIM_det: 2d numpy.array
-            The Fisher Information Matrix
-        '''
-        self.contactMatrix = contactMatrix
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-        flat_maps = map_dict['flat_map']
-        kwargs = {}
-        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
-                    'scaled_param_guesses', 'param_length', 'init_flags',
-                    'init_fltrs']:
-            kwargs[key] = map_dict[key]
-
-        def mean(y):
-            return self._mean(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
-                              **kwargs)
-
-        fltr_ = fltr[1:]
-        sigma_sq = measurement_error*measurement_error
-        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(fltr_.shape[0])))
-        cov = np.diag(cov_diag)
-        full_fltr = sparse.block_diag(fltr_)
-        cov_red = full_fltr@cov@np.transpose(full_fltr)
-        invcov = np.linalg.inv(cov_red)
-
-        if eps == None:
-            eps = np.sqrt(np.spacing(flat_maps))
-        elif np.isscalar(eps):
-            eps = np.repeat(eps, repeats=len(flat_maps))
-
-        print('eps-vector used for differentiation: ', eps)
-
-        dim = len(flat_maps)
-        FIM_det = np.zeros((dim,dim))
-
-        rows,cols = np.triu_indices(dim)
-        for i,j in zip(rows,cols):
-            dmu_i = pyross.utils.partial_derivative(mean, var=i, point=flat_maps, dx=eps[i])
-            dmu_j = pyross.utils.partial_derivative(mean, var=j, point=flat_maps, dx=eps[j])
-            FIM_det[i,j] = dmu_i@invcov@dmu_j
-        i_lower = np.tril_indices(dim,-1)
-        FIM_det[i_lower] = FIM_det.T[i_lower]
-        return FIM_det
-
-    def _mean(self, params, grad=0, param_keys=None,
-                            param_guess_range=None, is_scale_parameter=None,
-                            scaled_param_guesses=None, param_length=None,
-                            obs=None, fltr=None, Tf=None, obs0=None,
-                            init_flags=None, init_fltrs=None):
-        """Objective function for differentiation call in FIM and FIM_det."""
-        inits =  np.copy(params[param_length:])
-
-        # Restore parameters from flattened parameters
-        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
-                          param_guess_range, is_scale_parameter, scaled_param_guesses)
-
-        parameters = self.fill_params_dict(param_keys, orig_params)
-        self.set_params(parameters)
-        fltr_ = fltr[1:]
-        Nf=fltr_.shape[0]+1
-        full_fltr = sparse.block_diag(fltr_)
-
-        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
-        xm = self.integrate(x0, 0, Tf, Nf)
-        xm_red = full_fltr@(np.ravel(xm[1:]))
-        return xm_red
-
-    def _cov(self, params, grad=0, param_keys=None,
-                            param_guess_range=None, is_scale_parameter=None,
-                            scaled_param_guesses=None, param_length=None,
-                            obs=None, fltr=None, Tf=None, obs0=None,
-                            init_flags=None, init_fltrs=None, tangent=None):
-        """Objective function for differentiation call in FIM."""
-        inits =  np.copy(params[param_length:])
-
-        # Restore parameters from flattened parameters
-        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
-                          param_guess_range, is_scale_parameter, scaled_param_guesses)
-
-        parameters = self.fill_params_dict(param_keys, orig_params)
-        self.set_params(parameters)
-
-        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
-        fltr_ = fltr[1:]
-        Nf=fltr_.shape[0]+1
-        full_fltr = sparse.block_diag(fltr_)
-
-        if tangent:
-            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf)
-        else:
-            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf)
-
-        cov_red = full_fltr@full_cov@np.transpose(full_fltr)
-        return cov_red
+        if not np.all(np.linalg.eigvalsh(FIM)>0):
+            raise Exception("FIM not positive definite - check for appropriate step-size `eps` in FIM computation and/or increase `inter_steps` for a more stable result")
+        
+        sensitivity_individual = np.sqrt(np.diagonal(FIM))
+        sensitivity_correlated = np.divide(1, np.sqrt(np.diagonal(np.linalg.inv(FIM))))
+        
+        return sensitivity_individual, sensitivity_correlated
 
     # def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
     #                tangent=False, infer_scale_parameter=False, fd_method="central"):
@@ -1195,11 +1475,13 @@ cdef class SIR_type:
             samples.append(new_sample)
 
         return samples
-
-
-    def log_G_evidence(self, x, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3,
-                       fd_method="central"):
-        """Compute the evidence using a Laplace approximation at the MAP estimate.
+    
+    def evidence_laplace(self, x, Tf, infer_result, contactMatrix=None,
+                         generator=None,
+                intervention_fun=None, tangent=False, eps=None,
+                fd_method="central", inter_steps=10):
+        '''
+        Compute the evidence using a Laplace approximation at the MAP estimate.
 
         Parameters
         ----------
@@ -1207,25 +1489,44 @@ cdef class SIR_type:
             Observed trajectory (number of data points x (age groups * model classes))
         Tf: float
             Total time of the trajectory
-        contactMatrix: callable
-            A function that takes time (t) as an argument and returns the contactMatrix
-        map_dict: dict
-            MAP estimate returned by infer_parameters
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            The step size of the Hessian calculation, default=1e-3
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
-            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
-
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
+        inter_steps: int, optional 
+            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 10. 
         Returns
         -------
         log_evidence: float
-            The log-evidence computed via Laplace approximation at the MAP estimate."""
-        logP_MAPs = map_dict['log_posterior']
-        A = self.compute_hessian(x, Tf, contactMatrix, map_dict, tangent, eps, fd_method)
+            The log-evidence computed via Laplace approximation at the MAP estimate.
+        '''
+        logP_MAPs = infer_result['log_posterior']
+        A = self.hessian(x, Tf, infer_result, contactMatrix, generator,
+                         intervention_fun, tangent, eps, 
+                         fd_method, inter_steps)
         k = A.shape[0]
+        
+        return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + 0.5*k*np.log(2*np.pi)
 
-        return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
-
+    
     def obtain_minus_log_p(self, parameters, np.ndarray x, double Tf, contactMatrix, tangent=False):
         '''Computes -logp of a full trajectory
         Parameters
@@ -1320,255 +1621,44 @@ cdef class SIR_type:
         return output_dict
 
 
-    def _loglike_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
-                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
-                        obs0=None, init_flags=None, init_fltrs=None, tangent=None):
-        if bounds is not None:
-            # Check that params is within bounds. If not, return -np.inf.
-            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
-                return -np.Inf
-
-        inits =  np.copy(params[param_length:])
-
-        # Restore parameters from flattened parameters
-        orig_params = pyross.utils.unflatten_parameters(params[:param_length],
-                          param_guess_range, is_scale_parameter, scaled_param_guesses)
-
-        parameters = self.fill_params_dict(param_keys, orig_params)
-        self.set_params(parameters)
-
-        x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
-
-        minus_loglike = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
-
-        if np.isnan(minus_loglike):
-            return -np.inf
-
-        return -minus_loglike
-
     def nested_sampling_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
                                          init_priors,tangent=False, verbose=False, nprocesses=0, queue_size=None, 
                                          maxiter=None, maxcall=None, dlogz=None, n_effective=None, add_live=True, 
                                          sampler=None, **dynesty_args):
-        '''Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
+        """Compute the log-evidence and weighted samples of the a-posteriori distribution of the parameters of a SIR type model
         with latent variables using nested sampling as implemented in the `dynesty` Python package.
 
-        Parameters
-        ----------
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        Tf: float
-            Total time of the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-        tangent: bool, optional
-            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
-        verbose: bool, optional
-            Set to True to see intermediate outputs from the nested sampling procedure.
-        nprocesses: int, optional
-            The number of processes used for parallel evaluation of the likelihood.
-        queue_size: int, optional
-            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
-        maxiter: int, optional
-            The maximum number of iterations. Default is no limit.
-        maxcall:int, optional
-            The maximum number of calls to the likelihood function. Default no limit.
-        dlogz: float, optional
-            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
-            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
-        n_effective: float, optional
-            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
-        add_live: bool, optional
-            Determines whether to add the remaining set of live points to the set of samples. Default is True.
-        sampler: dynesty.NestedSampler, optional
-            Continue running an instance of a nested sampler until the termination criteria are met.
-        **dynesty_args
-            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
-            are (this is not comprehensive, for details see the documentation of dynesty):
-            nlive: int, optional
-                The number of live points. Default is 500.
-            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
-                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
-            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
-                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
-
-        Returns
-        -------
-        sampler: dynesty.NestedSampler
-            The state of the sampler after termination of the nested sampling run.
-        '''
-
-        if dynesty is None:
-            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if queue_size is None:
-            queue_size = nprocesses
-
-        self.contactMatrix = contactMatrix
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        ndim = len(guess)
-
-        prior_transform_args = {'s':s, 'scale':scale}
-        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 'tangent':tangent, 'bounds':bounds}
-
-        if sampler is None:
-            if nprocesses > 1:
-                pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = dynesty.NestedSampler(self._loglike_latent, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                pool=pool, queue_size=queue_size, **dynesty_args)
-            else:
-                sampler = dynesty.NestedSampler(self._loglike_latent, self._nested_sampling_prior_transform, ndim=ndim, 
-                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
-                                                **dynesty_args)
-        else:
-            if nprocesses > 1:
-                # Restart the pool we closed at the end of the previous run.
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler.M = sampler.pool.map
-            elif sampler.pool is not None:
-                sampler.pool = None
-                sampler.M = map
-
-        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
-                           add_live=add_live, print_progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_nested_sampling` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
+        """
+        return self.latent_infer_nested_sampling(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix,
+                                                 generator=None, intervention_fun=None, tangent=tangent, verbose=verbose, 
+                                                 nprocesses=nprocesses, queue_size=queue_size, maxiter=maxiter, maxcall=maxcall, 
+                                                 dlogz=dlogz, n_effective=n_effective, add_live=add_live, sampler=sampler, 
+                                                 **dynesty_args )
 
     def nested_sampling_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors):
         """
         Take the sampler generated by `nested_sampling_latent_inference` and produce output dictionaries for further use
         in the pyross framework.
 
-        Parameters
-        ----------
-        sampler: dynesty.NestedSampler
-            Output of `nested_sampling_latent_inference`.
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `latent_infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-
-        Returns
-        -------
-        result: dynesty.Result
-            The result of the nested sampling iteration. Relevant entries include:
-            result.logz: list
-                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
-        output_samples: list
-            The processed weighted posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_nested_sampling_process_result` and will be 
+        deleted in a future version of pyross. See there for a documentation of the function parameters.
         """
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        result, output_samples = self.latent_infer_nested_sampling_process_result(sampler, obs, fltr, param_priors, init_priors, 
+                                                                                  contactMatrix=self.contactMatrix)
 
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        result = sampler.results
-        output_samples = []
-        for i in range(len(result.samples)):
-            sample = result.samples[i]
-            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
-            l_like = result.logl[i]
-            param_estimates = sample[:param_length]
-            orig_params = pyross.utils.unflatten_parameters(param_estimates,
-                                                            param_guess_range,
-                                                            is_scale_parameter,
-                                                            scaled_param_guesses)
-
-            init_estimates = sample[param_length:]
-            sample_params_dict = self.fill_params_dict(keys, orig_params)
-            self.set_params(sample_params_dict)
-            map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
-                                        obs0, fltr[0])
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-            l_post = l_prior + l_like
-            output_dict = {
-                'map_params_dict':sample_params_dict, 'map_x0':map_x0,
-                'flat_map':sample, 'weight':weight,
-                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                'is_scale_parameter':is_scale_parameter,
-                'flat_param_guess_range':param_guess_range,
-                'scaled_param_guesses':scaled_param_guesses,
-                'init_flags': init_flags, 'init_fltrs': init_fltrs
-            }
-            output_samples.append(output_dict)
+        # Match old dictionary key names for backward compatibility.
+        for out_dict in output_samples:
+            out_dict['map_x0']          = out_dict.pop('x0')
+            out_dict['flat_map']        = out_dict.pop('flat_params')
+            out_dict['map_params_dict'] = out_dict.pop('params_dict')
 
         return result, output_samples
-
-
-    def _logposterior_latent(self, params, bounds=None, param_keys=None, param_guess_range=None, is_scale_parameter=None,
-                        scaled_param_guesses=None, param_length=None, obs=None, fltr=None, Tf=None,
-                        obs0=None, init_flags=None, init_fltrs=None, s=None, scale=None, tangent=None):
-        logp = self._loglike_latent(params, bounds, param_keys, param_guess_range, is_scale_parameter,
-                    scaled_param_guesses, param_length, obs, fltr, Tf, obs0, init_flags, init_fltrs,
-                    tangent)
-        logp += np.sum(lognorm.logpdf(params, s, scale=scale))
-        return logp
 
 
     def mcmc_latent_inference(self, np.ndarray obs, np.ndarray fltr, double Tf, contactMatrix, param_priors,
@@ -1576,152 +1666,15 @@ cdef class SIR_type:
                               nsamples=1000, nprocesses=0):
         """ Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
 
-        Parameters
-        ----------
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        Tf: float
-            Total time of the trajectory
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `latent_infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-        tangent: bool, optional
-            Set to True to use tangent space inference. Default is False.
-        verbose: bool, optional
-            Set to True to see a progress bar for the sample generation. Default is False.
-        sampler: emcee.EnsembleSampler, optional
-            Set to instance of the sampler (as returned by this function) to continue running the MCMC chains.
-            Default is None (i.e. run a new chain).
-        nwalkers:int, optional
-            The number of chains in the ensemble (should be at least 2*dim). Default is 2*dim.
-        walker_pos: np.array, optional
-            The initial position of the walkers. If not specified, the function samples random positions from the prior.
-        nsamples:int, optional
-            The number of samples per walker. Default is 1000.
-        nprocesses: int, optional
-            The number of processes used to compute the likelihood for the walkers, needs `pathos` for values > 1.
-            Default is the number of cpu cores if `pathos` is available, otherwise 1.
-
-        Returns
-        -------
-        sampler: emcee.EnsembleSampler
-            This function returns the state of the sampler. To look at the chain of the internal flattened parameters,
-            run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
-            `mcmc_latent_inference(..., sampler=sampler) to continue the chain or `mcmc_latent_inference_process_result(...)`
-            to process the result.
-
-        Examples
-        --------
-        For the structure of the model input paramters, in particular `param_priors, init_priors`, see the documentation
-        of `latent_infer_parameters`. To start sampling the posterior, run
-        >>> sampler = estimator.mcmc_latent_inference(obs, fltr, Tf, contactMatrix, param_priors, init_priors, verbose=True)
-
-        To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
-        dimensions `dim`)
-        >>> fig, axes = plt.subplots(dim, sharex=True)
-        >>> samples = sampler.get_chain()
-        >>> for i in range(dim):
-                ax = axes[i]
-                ax.plot(samples[:, :, i], "k", alpha=0.3)
-                ax.set_xlim(0, len(samples))
-        >>> axes[-1].set_xlabel("step number");
-
-        For more detailed convergence metrics, see the documentation of `emcee`. To continue running this chain, we can
-        call this function again with the sampler as argument
-        >>> sampler = estimator.mcmc_latent_inference(obs, fltr, Tf, contactMatrix, param_priors, init_priors,
-                                                      verbose=True, sampler=sampler)
-
-        This procudes 1000 additional samples in each chain. To process the results, call
-        `mcmc_latent_inference_process_result`.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_mcmc` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         """
-        if emcee is None:
-            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
-
-        if nprocesses == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                nprocesses = pathos_mp.cpu_count()
-            else:
-                nprocesses = 1
-
-        if nprocesses > 1 and pathos_mp is None:
-            raise Exception("The Python package `pathos` is needed for multiprocessing.")
-
-        self.contactMatrix = contactMatrix
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        ndim = len(guess)
-
-        if nwalkers is None:
-            nwalkers = 2*ndim
-
-        loglike_args = {'bounds':bounds, 'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter, 'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length, 'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 'scale':scale,
-                        'tangent':tangent}
-
-        if walker_pos is None:
-             # If not specified, sample initial positions of walkers from prior.
-            p0 = lognorm.rvs(s, scale=scale, size=(nwalkers, ndim))
-        else:
-            p0 = walker_pos
-
-        if sampler is None:
-            # Start a new MCMC chain.
-            if nprocesses > 1:
-                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent,
-                                                kwargs=loglike_args, pool=mcmc_pool)
-            else:
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent,
-                                                kwargs=loglike_args)
-
-            sampler.run_mcmc(p0, nsamples, progress=verbose)
-        else:
-            # Continue running an existing MCMC chain.
-            if nprocesses > 1:
-                # Restart the pool we closed at the end of the previous run.
-                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
-            elif sampler.pool is not None:
-                # If the user decided to not have multiprocessing in a subsequent run, we need
-                # to reset the pool in the emcee.EnsembleSampler.
-                sampler.pool = None
-
-            sampler.run_mcmc(None, nsamples, progress=verbose)
-
-        if sampler.pool is not None:
-            sampler.pool.close()
-            sampler.pool.join()
-            sampler.pool.clear()
-
-        return sampler
+        return self.latent_infer_mcmc(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix, 
+                                      generator=None, intervention_fun=None, tangent=tangent, verbose=verbose, 
+                                      sampler=sampler, nwalkers=nwalkers, walker_pos=walker_pos,
+                                      nsamples=nsamples, nprocesses=nprocesses)
 
     def mcmc_latent_inference_process_result(self, sampler, obs, fltr, param_priors, init_priors,
                                             flat=True, discard=0, thin=1):
@@ -1729,98 +1682,24 @@ cdef class SIR_type:
         Take the sampler generated by `mcmc_latent_inference` and produce output dictionaries for further use
         in the pyross framework.
 
-        Parameters
-        ----------
-        sampler: emcee.EnsembleSampler
-            Output of `mcmc_latent_inference`.
-        obs: 2d numpy.array
-            The observed trajectories with reduced number of variables
-            (number of data points, (age groups * observed model classes))
-        fltr: 2d numpy.array
-            A matrix of shape (no. observed variables, no. total variables),
-            such that obs_{ti} = fltr_{ij} * X_{tj}
-        param_priors: dict
-            A dictionary for priors for the model parameters.
-            See `infer_parameters` for further explanations.
-        init_priors: dict
-            A dictionary for priors for the initial conditions.
-            See `latent_infer_parameters` for further explanations.
-        flat: bool, optional
-            This decides whether to return the samples as for each chain separately (False) or as as a combined
-            list (True). Default is True.
-        discard: int, optional
-            The number of initial samples to discard in each chain (to account for burn-in). Default is 0.
-        thin: int, optional
-            Thin out the chain by taking only the n-tn element in each chain. Default is 1 (no thinning).
-
-        Returns
-        -------
-        output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
-            The processed posterior samples.
+        Deprecation warning
+        -------------------
+        This function has been replaced by `pyross.inference.latent_infer_mcmc_process_results` and will be deleted 
+        in a future version of pyross. See there for a documentation of the function parameters.
         """
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        output_samples = self.latent_infer_mcmc_process_result(sampler, obs, fltr, param_priors, init_priors, 
+                                                               contactMatrix=self.contactMatrix, flat=flat, 
+                                                               discard=discard, thin=thin)
 
-        # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
-
-        # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
-
-        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
-        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
-        samples_per_chain = samples.shape[0]
-        nr_chains = 1 if flat else samples.shape[1]
+        # Match old dictionary key names for backward compatibility.
         if flat:
-            output_samples = []
+            flat_sample_list = output_samples
         else:
-            output_samples = [[] for _ in nr_chains]
-
-        for i in range(samples_per_chain):
-            for j in range(nr_chains):
-                if flat:
-                    sample = samples[i,:]
-                    l_post = log_posts[i]
-                else:
-                    sample = samples[i, j, :]
-                    l_post = log_posts[i]
-                weight = 1.0 / (samples_per_chain * nr_chains)
-                param_estimates = sample[:param_length]
-                orig_params = pyross.utils.unflatten_parameters(param_estimates,
-                                                                param_guess_range,
-                                                                is_scale_parameter,
-                                                                scaled_param_guesses)
-
-                init_estimates = sample[param_length:]
-                sample_params_dict = self.fill_params_dict(keys, orig_params)
-                self.set_params(sample_params_dict)
-                map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
-                                            obs0, fltr[0])
-                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
-                l_like = l_post - l_prior
-                output_dict = {
-                    'map_params_dict':sample_params_dict, 'map_x0':map_x0,
-                    'flat_map':sample, 'weight':weight,
-                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
-                    'is_scale_parameter':is_scale_parameter,
-                    'flat_param_guess_range':param_guess_range,
-                    'scaled_param_guesses':scaled_param_guesses,
-                    'init_flags': init_flags, 'init_fltrs': init_fltrs
-                }
-                if flat:
-                    output_samples.append(output_dict)
-                else:
-                    output_samples[j].append(output_dict)
+            flat_sample_list = [item for sublist in output_samples for item in sublist]
+        for out_dict in flat_sample_list:
+            out_dict['map_x0']          = out_dict.pop('x0')
+            out_dict['flat_map']        = out_dict.pop('flat_params')
+            out_dict['map_params_dict'] = out_dict.pop('params_dict')
 
         return output_samples
 
@@ -1865,17 +1744,16 @@ cdef class SIR_type:
         
         return output_dict
 
-    def _latent_infer_to_minimize(self, params, grad=0, generator=None,
-                                            intervention_fun=None, param_keys=None,
-                                            param_guess_range=None, is_scale_parameter=None,
-                                            scaled_param_guesses=None, param_length=None,
-                                            obs=None, fltr=None, Tf=None, obs0=None,
-                                            init_flags=None, init_fltrs=None,
-                                            s=None, scale=None, tangent=None):
-        
-        
-        
-        """Objective function for minimization call in latent_infer."""
+    def _loglikelihood_latent(self, params, grad=0, generator=None, intervention_fun=None, param_keys=None,
+                              param_guess_range=None, is_scale_parameter=None, scaled_param_guesses=None, 
+                              param_length=None, obs=None, fltr=None, Tf=None, obs0=None, init_flags=None, 
+                              init_fltrs=None, tangent=None, enable_penalty=False, bounds=None, inter_steps=0,
+                              **catchall_kwargs):
+        if bounds is not None:
+            # Check that params is within bounds. If not, return -np.inf.
+            if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
+                return -np.Inf
+
         inits =  np.copy(params[param_length:])
 
         # Restore parameters from flattened parameters
@@ -1885,7 +1763,7 @@ cdef class SIR_type:
         parameters, kwargs = self.fill_params_dict(param_keys, orig_params, return_additional_params=True)
         
         self.set_params(parameters)
-        
+            
         if generator is not None:
             if intervention_fun is None:
                 self.contactMatrix = generator.constant_contactMatrix(**kwargs)
@@ -1896,19 +1774,30 @@ cdef class SIR_type:
                 raise Exception('Key error or unspecified generator')
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
-        penalty = self._penalty_from_negative_values(x0)
-        x0[x0<0] = 0.1/self.Omega # set to be small and positive
+        logl = 0
+        if enable_penalty:
+            penalty = self._penalty_from_negative_values(x0)
+            x0[x0<0] = 0.1/self.Omega # set to be small and positive
+            logl -= penalty*fltr.shape[0]
 
-        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
-        minus_logp -= np.sum(lognorm.logpdf(params, s, scale=scale))
-
-        # add penalty for being negative
-        minus_logp += penalty*fltr.shape[0]
-
-        return minus_logp
+        logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
+        return logl
     
+    def _logposterior_latent(self, params, s=None, scale=None,
+                             **logl_kwargs):
+        logl = self._loglikelihood_latent(params, **logl_kwargs) 
+        logp = logl + np.sum(lognorm.logpdf(params, s, scale=scale))
+        return logp
 
-            
+    def _latent_infer_to_minimize(self, params, grad=0,
+                                   **logp_kwargs):
+        """Objective function for minimization call in latent_infer."""
+        if 'disable_penalty' in logp_kwargs:
+            logp = self._logposterior_latent(params, enable_penalty=False,  **logp_kwargs)
+        else:
+            logp = self._logposterior_latent(params, enable_penalty=True,  **logp_kwargs)
+        return -logp
+
     def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
                             intervention_fun=None, tangent=False,
                             verbose=False, ftol=1e-5, global_max_iter=100,
@@ -2142,43 +2031,936 @@ cdef class SIR_type:
             
         return output_dict
 
-
-    def compute_hessian_latent(self, obs, fltr, Tf, contactMatrix, map_dict,
-                               tangent=False, eps=1.e-3, fd_method="central"):
-        '''Computes the Hessian over the parameters and initial conditions.
+    def latent_infer_nested_sampling(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, 
+                                      generator=None, intervention_fun=None, tangent=False, verbose=False, nprocesses=0, 
+                                      queue_size=None, maxiter=None, maxcall=None, dlogz=None, n_effective=None, add_live=True, 
+                                      sampler=None, **dynesty_args):
+        '''Compute the log-evidence and weighted samples for the initial conditions and all desired parameters, including control parameters, 
+        for a SIR type model with partially observed classes. This function uses nested sampling as implemented in the `dynesty` Python package.
 
         Parameters
         ----------
-        x: 2d numpy.array
-           Observed trajectory (number of data points x (age groups * model classes)).
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
         Tf: float
-           Total time of the trajectory.
+            Total time of the trajectory
         contactMatrix: callable
-           A function that takes time (t) as an argument and returns the contactMatrix.
-        map_dict: dict
-           Dictionary returned by `latent_infer_parameters`.
-        eps: float or numpy.array, optional
-           The step size of the Hessian calculation, default=1e-3.
-        fd_method: str, optional
-           The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
+            A function that returns the contact matrix at time t (input).
+        param_priors: dict
+            A dictionary for priors for the model parameters.
+            See `latent_infer` for further explanations.
+        init_priors: dict
+            A dictionary for priors for the initial conditions.
+            See `latent_infer` for further explanations.
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to do inference in tangent space (might be less robust but a lot faster). Default is False.
+        verbose: bool, optional
+            Set to True to see intermediate outputs from the nested sampling procedure.
+        nprocesses: int, optional
+            The number of processes used for parallel evaluation of the likelihood.
+        queue_size: int, optional
+            Size of internal queue of likelihood values, default is nprocesses if multiprocessing is used.
+        maxiter: int, optional
+            The maximum number of iterations. Default is no limit.
+        maxcall:int, optional
+            The maximum number of calls to the likelihood function. Default no limit.
+        dlogz: float, optional
+            The iteration terminates if the estimated contribution of the remaining prior volume to the total evidence 
+            falls below this threshold. Default value is `1e-3 * (nlive - 1) + 0.01` if `add_live==True`, 0.01 otherwise.
+        n_effective: float, optional
+            The iteration terminates if the number of effective posterior samples reaches this values. Default is no limit.
+        add_live: bool, optional
+            Determines whether to add the remaining set of live points to the set of samples. Default is True.
+        sampler: dynesty.NestedSampler, optional
+            Continue running an instance of a nested sampler until the termination criteria are met.
+        **dynesty_args
+            Arguments passed through to the construction of the dynesty.NestedSampler constructor. Relevant entries
+            are (this is not comprehensive, for details see the documentation of dynesty):
+            nlive: int, optional
+                The number of live points. Default is 500.
+            bound: {'none', 'single', 'multi', 'balls', 'cubes'}, optional
+                Method used to approximately bound the prior using the current set of live points. Default is 'multi'.
+            sample:  {'auto', 'unif', 'rwalk', 'rstagger', 'slice', 'rslice', 'hslice', callable}, optional
+                Method used to sample uniformly within the likelihood constraint, conditioned on the provided bounds.
 
         Returns
         -------
-        hess: numpy.array
-            The Hessian over (flat) parameters and initial conditions.
+        sampler: dynesty.NestedSampler
+            The state of the sampler after termination of the nested sampling run.
         '''
-        self.contactMatrix = contactMatrix
+
+        if dynesty is None:
+            raise Exception("Nested sampling needs optional dependency `dynesty` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if queue_size is None:
+            queue_size = nprocesses
+
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+        
+        # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-        flat_maps = map_dict['flat_map']
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        ndim = len(guess)
+
+        prior_transform_args = {'s':s, 'scale':scale}
+        loglike_args = {'generator':generator, 'intervention_fun':intervention_fun, 'param_keys':keys, 
+                        'param_guess_range':param_guess_range, 'is_scale_parameter':is_scale_parameter, 
+                        'scaled_param_guesses':scaled_param_guesses, 'param_length':param_length, 'obs':obs, 
+                        'fltr':fltr, 'Tf':Tf, 'obs0':obs0, 'init_flags':init_flags, 'init_fltrs': init_fltrs, 
+                        'tangent':tangent, 'bounds':bounds}
+
+        if sampler is None:
+            if nprocesses > 1:
+                pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = dynesty.NestedSampler(self._loglikelihood_latent, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                pool=pool, queue_size=queue_size, **dynesty_args)
+            else:
+                sampler = dynesty.NestedSampler(self._loglikelihood_latent, self._nested_sampling_prior_transform, ndim=ndim, 
+                                                logl_kwargs=loglike_args, ptform_kwargs=prior_transform_args, 
+                                                **dynesty_args)
+        else:
+            if nprocesses > 1:
+                # Restart the pool we closed at the end of the previous run.
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler.M = sampler.pool.map
+            elif sampler.pool is not None:
+                sampler.pool = None
+                sampler.M = map
+
+        sampler.run_nested(maxiter=maxiter, maxcall=maxcall, dlogz=dlogz, n_effective=n_effective, 
+                           add_live=add_live, print_progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def latent_infer_nested_sampling_process_result(self, sampler, obs, fltr, param_priors, init_priors, contactMatrix=None, 
+                                                     generator=None, intervention_fun=None, **catchall_kwargs):
+        """
+        Take the sampler generated by ``pyross.inference.latent_infer_nested_sampling` and produce output dictionaries for 
+        further use in the pyross framework.
+
+        Parameters
+        ----------
+        See `pyross.inference.latent_infer_nested_sampling` for additional description of parameters. The necessary parameters are:
+        sampler: dynesty.NestedSampler
+            Output of `pyross.inference.latent_infer_nested_sampling`.
+        obs: 2d numpy.array
+        fltr: 2d numpy.array
+        param_priors: dict
+        init_priors: dict
+        contactMatrix: callable, optional
+        generator: pyross.contactMatrix, optional
+        intervention_fun: callable, optional
+        **catchall_kwargs: dict
+            Catches further provided arguments and ignores them.
+
+        Returns
+        -------
+        result: dynesty.Result
+            The result of the nested sampling iteration. Relevant entries include:
+            result.logz: list
+                The progression of log-evidence estimates, use result.logz[-1] for the final estimate.
+        output_samples: list
+            The processed weighted posterior samples.
+        """
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        result = sampler.results
+        output_samples = []
+        for i in range(len(result.samples)):
+            sample = result.samples[i]
+            weight = np.exp(result.logwt[i] - result.logz[len(result.logz)-1])
+            l_like = result.logl[i]
+            # Get the parameters (in their original structure) from the flattened parameter vector.
+            param_sample = sample[:param_length]
+            orig_params = pyross.utils.unflatten_parameters(param_sample, param_guess_range,
+                                                            is_scale_parameter, scaled_param_guesses)
+            init_sample = sample[param_length:]
+
+            sample_params_dict, sample_control_params_dict = self.fill_params_dict(keys, orig_params, return_additional_params=True)
+            self.set_params(sample_params_dict)
+
+            if generator is not None:
+                if intervention_fun is None:
+                    self.contactMatrix = generator.constant_contactMatrix(**sample_control_params_dict)
+                else:
+                    self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **sample_control_params_dict)
+
+            sample_x0 = self._construct_inits(init_sample, init_flags, init_fltrs, obs0, fltr[0])
+            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_post = l_prior + l_like
+            output_dict = {
+                'params_dict':sample_params_dict, 'x0':sample_x0, 'flat_params':sample,
+                'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
+                'weight':weight, 'param_keys': keys, 'param_guess_range': param_guess_range,
+                'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
+                'scaled_param_guesses':scaled_param_guesses,
+                'init_flags': init_flags, 'init_fltrs': init_fltrs,
+                's':s, 'scale': scale
+            }
+
+            if sample_control_params_dict != {}:
+                output_dict['control_params_dict'] = sample_control_params_dict
+
+            output_samples.append(output_dict)
+
+        return result, output_samples
+
+    def latent_infer_mcmc(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
+                          intervention_fun=None, tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None,
+                          nsamples=1000, nprocesses=0):
+        """ Sample the posterior distribution of the initial conditions and all desired parameters, including control parameters, using 
+        ensemble MCMC. This requires the optional dependency `emcee`.
+
+        Parameters
+        ----------
+        obs: 2d numpy.array
+            The observed trajectories with reduced number of variables
+            (number of data points, (age groups * observed model classes))
+        fltr: 2d numpy.array
+            A matrix of shape (no. observed variables, no. total variables),
+            such that obs_{ti} = fltr_{ij} * X_{tj}
+        Tf: float
+            Total time of the trajectory
+        contactMatrix: callable
+            A function that returns the contact matrix at time t (input).
+        param_priors: dict
+            A dictionary for priors for the model parameters.
+            See `latent_infer_parameters` for further explanations.
+        init_priors: dict
+            A dictionary for priors for the initial conditions.
+            See `latent_infer_parameters` for further explanations.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        verbose: bool, optional
+            Set to True to see a progress bar for the sample generation. Default is False.
+        sampler: emcee.EnsembleSampler, optional
+            Set to instance of the sampler (as returned by this function) to continue running the MCMC chains.
+            Default is None (i.e. run a new chain).
+        nwalkers:int, optional
+            The number of chains in the ensemble (should be at least 2*dim). Default is 2*dim.
+        walker_pos: np.array, optional
+            The initial position of the walkers. If not specified, the function samples random positions from the prior.
+        nsamples:int, optional
+            The number of samples per walker. Default is 1000.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos` for values > 1.
+            Default is the number of cpu cores if `pathos` is available, otherwise 1.
+
+        Returns
+        -------
+        sampler: emcee.EnsembleSampler
+            This function returns the state of the sampler. To look at the chain of the internal flattened parameters,
+            run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
+            `latent_infer_mcmc(..., sampler=sampler) to continue the chain or `latent_infer_mcmc_process_result(...)`
+            to process the result.
+
+        Examples
+        --------
+        For the structure of the model input parameters, in particular `param_priors, init_priors`, see the documentation
+        of `latent_infer`. To start sampling the posterior, run for example
+        >>> sampler = estimator.latent_infer_mcmc(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix, 
+                                                  verbose=True)
+
+        To judge the convergence of this chain, we can look at the trace plot of all the chains (for a moderate number of
+        dimensions `dim`)
+        >>> fig, axes = plt.subplots(dim, sharex=True)
+        >>> samples = sampler.get_chain()
+        >>> for i in range(dim):
+                ax = axes[i]
+                ax.plot(samples[:, :, i], "k", alpha=0.3)
+                ax.set_xlim(0, len(samples))
+        >>> axes[-1].set_xlabel("step number");
+
+        For more detailed convergence metrics, see the documentation of `emcee`. To continue running this chain, we can
+        call this function again with the sampler as argument
+        >>> sampler = estimator.latent_infer_mcmc(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix,
+                                                  verbose=True, sampler=sampler)
+
+        This procudes 1000 additional samples in each chain. To process the results, call
+        `pyross.inference.latent_infer_mcmc_process_result`.
+        """
+        if emcee is None:
+            raise Exception("MCMC sampling needs optional dependency `emcee` which was not found.")
+
+        if nprocesses == 0:
+            if pathos_mp:
+                # Optional dependecy for multiprocessing (pathos) is installed.
+                nprocesses = pathos_mp.cpu_count()
+            else:
+                nprocesses = 1
+
+        if nprocesses > 1 and pathos_mp is None:
+            raise Exception("The Python package `pathos` is needed for multiprocessing.")
+
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+        
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        ndim = len(guess)
+
+        if nwalkers is None:
+            nwalkers = 2*ndim
+
+        logpost_args = {'generator':generator, 'intervention_fun':intervention_fun, 'bounds':bounds, 'param_keys':keys, 
+                        'param_guess_range':param_guess_range, 'is_scale_parameter':is_scale_parameter, 
+                        'scaled_param_guesses':scaled_param_guesses, 'param_length':param_length, 'obs':obs, 
+                        'fltr':fltr, 'Tf':Tf, 'obs0':obs0, 'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s, 
+                        'scale':scale, 'tangent':tangent}
+
+        if walker_pos is None:
+             # If not specified, sample initial positions of walkers from prior (within bounds).
+            ppf_bounds = np.zeros((ndim, 2))
+            ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
+            ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
+            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
+            points = np.random.rand(nwalkers, ndim)
+            y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
+            p0 = lognorm.ppf(y, s, scale=scale)
+        else:
+            p0 = walker_pos
+
+        if sampler is None:
+            # Start a new MCMC chain.
+            if nprocesses > 1:
+                mcmc_pool = pathos_mp.ProcessingPool(nprocesses)
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent,
+                                                kwargs=logpost_args, pool=mcmc_pool)
+            else:
+                sampler = emcee.EnsembleSampler(nwalkers, ndim, self._logposterior_latent,
+                                                kwargs=logpost_args)
+
+            sampler.run_mcmc(p0, nsamples, progress=verbose)
+        else:
+            # Continue running an existing MCMC chain.
+            if nprocesses > 1:
+                # Restart the pool we closed at the end of the previous run.
+                sampler.pool = pathos_mp.ProcessingPool(nprocesses)
+            elif sampler.pool is not None:
+                # If the user decided to not have multiprocessing in a subsequent run, we need
+                # to reset the pool in the emcee.EnsembleSampler.
+                sampler.pool = None
+
+            sampler.run_mcmc(None, nsamples, progress=verbose)
+
+        if sampler.pool is not None:
+            sampler.pool.close()
+            sampler.pool.join()
+            sampler.pool.clear()
+
+        return sampler
+
+    def latent_infer_mcmc_process_result(self, sampler, obs, fltr, param_priors, init_priors, contactMatrix=None, 
+                                         generator=None, intervention_fun=None, flat=True, discard=0, thin=1,
+                                         **catchall_kwargs):
+        """
+        Take the sampler generated by `pyross.inference.latent_infer_mcmc` and produce output dictionaries for 
+        further use in the pyross framework.
+
+        Parameters
+        ----------
+        sampler: emcee.EnsembleSampler
+            Output of `mcmc_latent_inference`.
+        obs: 2d numpy.array
+        fltr: 2d numpy.array
+        param_priors: dict
+        init_priors: dict
+        contactMatrix: callable, optional
+        generator: pyross.contactMatrix, optional
+        intervention_fun: callable, optional
+        flat: bool, optional
+            This decides whether to return the samples as for each chain separately (False) or as as a combined
+            list (True). Default is True.
+        discard: int, optional
+            The number of initial samples to discard in each chain (to account for burn-in). Default is 0.
+        thin: int, optional
+            Thin out the chain by taking only the n-tn element in each chain. Default is 1 (no thinning).
+        **catchall_kwargs: dict
+            Catches further provided arguments and ignores them.
+
+        Returns
+        -------
+        output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
+            The processed posterior samples.
+        """
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        # Read in parameter priors
+        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        is_scale_parameter, scaled_param_guesses \
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+
+        # Read in initial conditions priors
+        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+
+        # Concatenate the flattend parameter guess with init guess
+        param_length = param_guess.shape[0]
+        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+
+        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+
+        samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
+        log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
+        samples_per_chain = samples.shape[0]
+        nr_chains = 1 if flat else samples.shape[1]
+        if flat:
+            output_samples = []
+        else:
+            output_samples = [[] for _ in nr_chains]
+
+        for i in range(samples_per_chain):
+            for j in range(nr_chains):
+                if flat:
+                    sample = samples[i,:]
+                    l_post = log_posts[i]
+                else:
+                    sample = samples[i, j, :]
+                    l_post = log_posts[i]
+                weight = 1.0 / (samples_per_chain * nr_chains)
+                param_sample = sample[:param_length]
+                orig_params = pyross.utils.unflatten_parameters(param_sample, param_guess_range,
+                                                                is_scale_parameter, scaled_param_guesses)
+                init_sample = sample[param_length:]
+
+                sample_params_dict, sample_control_params_dict = self.fill_params_dict(keys, orig_params, return_additional_params=True)
+                self.set_params(sample_params_dict)
+
+                if generator is not None:
+                    if intervention_fun is None:
+                        self.contactMatrix = generator.constant_contactMatrix(**sample_control_params_dict)
+                    else:
+                        self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **sample_control_params_dict)
+
+                sample_x0 = self._construct_inits(init_sample, init_flags, init_fltrs, obs0, fltr[0])
+                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+                l_like = l_post - l_prior
+                output_dict = {
+                    'params_dict':sample_params_dict, 'x0':sample_x0, 'flat_params':sample,
+                    'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
+                    'weight':weight, 'param_keys': keys, 'param_guess_range': param_guess_range,
+                    'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
+                    'scaled_param_guesses':scaled_param_guesses,
+                    'init_flags': init_flags, 'init_fltrs': init_fltrs,
+                    's':s, 'scale': scale
+                }
+
+                if sample_control_params_dict != {}:
+                    output_dict['control_params_dict'] = sample_control_params_dict                
+
+                if flat:
+                    output_samples.append(output_dict)
+                else:
+                    output_samples[j].append(output_dict)
+
+        return output_samples
+    
+    def _latent_mean(self, params, contactMatrix=None,
+                      generator=None, intervention_fun=None,
+              param_keys=None,
+                            param_guess_range=None, is_scale_parameter=None,
+                            scaled_param_guesses=None, param_length=None,
+                            obs=None, fltr=None, Tf=None, obs0=None,
+                            inter_steps=None,
+                            init_flags=None, init_fltrs=None):
+        """Objective function for differentiation call in latent_FIM and latent_FIM_det."""
+        param_estimates = np.copy(params[:param_length])
+        
+        orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                      param_guess_range,
+                                                      is_scale_parameter,
+                                                      scaled_param_guesses)
+        
+        init_estimates =  np.copy(params[param_length:])
+        
+        map_params_dict, map_control_params_dict = self.fill_params_dict(param_keys, orig_params, return_additional_params=True)
+        self.set_params(map_params_dict)
+        
+        if generator is not None:
+            if intervention_fun is None:
+                self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
+            else:
+                self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
+                
+        fltr_ = fltr[1:]
+        Nf=fltr_.shape[0]+1
+        full_fltr = sparse.block_diag(fltr_)
+        
+        x0 = self._construct_inits(init_estimates, init_flags, init_fltrs, obs0, fltr[0])
+        
+        if inter_steps:
+            x0 = np.multiply(x0, self.Omega)
+            xm = pyross.utils.forward_euler_integration(self._rhs0, x0, 0, Tf, Nf, inter_steps)
+            xm = xm[::inter_steps]
+            xm = np.divide(xm, self.Omega)
+        else:
+            xm = self.integrate(x0, 0, Tf, Nf)
+        xm_red = full_fltr@(np.ravel(xm[1:]))
+        return xm_red  
+    
+    def _latent_cov(self, params, contactMatrix=None,
+             generator=None, intervention_fun=None,
+             param_keys=None,
+                            param_guess_range=None, is_scale_parameter=None,
+                            scaled_param_guesses=None, param_length=None,
+                            obs=None, fltr=None, Tf=None, obs0=None,
+                            inter_steps=None,
+                            init_flags=None, init_fltrs=None, tangent=False):
+        """Objective function for differentiation call in latent_FIM."""
+        param_estimates = np.copy(params[:param_length])
+        
+        orig_params = pyross.utils.unflatten_parameters(param_estimates,
+                                                      param_guess_range,
+                                                      is_scale_parameter,
+                                                      scaled_param_guesses)
+        
+        init_estimates =  np.copy(params[param_length:])
+        
+        map_params_dict, map_control_params_dict = self.fill_params_dict(param_keys, orig_params, return_additional_params=True)
+        self.set_params(map_params_dict)
+        
+        if generator is not None:
+            if intervention_fun is None:
+                self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
+            else:
+                self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
+                
+        x0 = self._construct_inits(init_estimates, init_flags, init_fltrs, obs0, fltr[0])
+        fltr_ = fltr[1:]
+        Nf=fltr_.shape[0]+1
+        full_fltr = sparse.block_diag(fltr_)
+        
+        if tangent:
+            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf,
+                                                                  inter_steps)
+        else:
+            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps)
+
+        cov_red = full_fltr@full_cov@np.transpose(full_fltr)
+        return cov_red
+    
+    def latent_FIM(self, obs, fltr, Tf, infer_result, contactMatrix=None,
+                   generator=None,
+                   intervention_fun=None, tangent=False, eps=None, 
+                   inter_steps=100):
+        '''
+        Computes the Fisher Information Matrix (FIM) of the stochastic model for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
+
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        eps: float or numpy.array, optional
+           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, 10*numpy.spacing(infer_result['flat_params'])**(1/3) is used. Decreasing the step size too small can result in round-off error.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
+        Returns
+        -------
+        FIM: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')   
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+            
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
+        
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
-                    'init_fltrs', 's', 'scale', ]:
-            kwargs[key] = map_dict[key]
+                    'init_fltrs']:
+            kwargs[key] = infer_result_loc[key]
+        
+        def mean(y):
+            return self._latent_mean(y, contactMatrix=contactMatrix,
+                                      generator=generator,
+                              intervention_fun=intervention_fun, obs=obs,
+                              fltr=fltr, Tf=Tf, obs0=obs0,
+                              inter_steps=inter_steps,
+                              **kwargs)
+        
+        def covariance(y):
+            return self._latent_cov(y, contactMatrix=contactMatrix,
+                                     generator=generator,
+                              intervention_fun=intervention_fun, obs=obs,
+                              fltr=fltr, Tf=Tf, obs0=obs0, tangent=tangent,
+                              inter_steps=inter_steps,
+                              **kwargs)
+        
+        if np.all(eps == None):
+            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_params))
+        print('eps-vector used for differentiation: ', eps)
+
+        cov = covariance(flat_params)
+        invcov = np.linalg.inv(cov)
+
+        dim = len(flat_params)
+        FIM = np.empty((dim,dim))
+        dmu = []
+        dcov = []
+        
+        for i in range(dim):
+            dmu.append(pyross.utils.partial_derivative(mean, var=i, point=flat_params, dx=eps[i]))
+            dcov.append(pyross.utils.partial_derivative(covariance,  var=i, point=flat_params, dx=eps[i]))
+       
+        for i in range(dim):
+            t1 = dmu[i]@invcov@dmu[i]
+            t2 = np.multiply(0.5,np.trace(invcov@dcov[i]@invcov@dcov[i]))
+            FIM[i,i] = t1 + t2
+
+        rows,cols = np.triu_indices(dim,1)
+        
+        for i,j in zip(rows,cols):
+            t1 = dmu[i]@invcov@dmu[j]
+            t2 = np.multiply(0.5,np.trace(invcov@dcov[i]@invcov@dcov[j]))
+            FIM[i,j] = t1 + t2
+                      
+        i_lower = np.tril_indices(dim,-1)
+        FIM[i_lower] = FIM.T[i_lower]
+        return FIM
+    
+    def latent_FIM_det(self, obs, fltr, Tf, infer_result, 
+                       contactMatrix=None, generator=None, 
+                       intervention_fun=None,
+                       eps=None, measurement_error=1e-2, inter_steps=100):
+        '''
+        Computes the Fisher Information Matrix (FIM) of the deterministic model (ODE based, including a constant measurement error) for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
+
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        eps: float or numpy.array, optional
+           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+        measurement_error: float, optional
+            Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting inter_steps=0 will fall back to the method accessible via det_method for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
+        Returns
+        -------
+        FIM_det: 2d numpy.array
+            The Fisher Information Matrix
+        '''
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')  
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+        
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs']:
+            kwargs[key] = infer_result_loc[key]
+
+        def mean(y):
+            return self._latent_mean(y, contactMatrix=contactMatrix,
+                                      generator=generator,
+                              intervention_fun=intervention_fun, obs=obs,
+                              fltr=fltr, Tf=Tf, obs0=obs0,
+                              inter_steps=inter_steps,
+                              **kwargs)
+        
+        if np.all(eps == None):
+            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+        elif np.isscalar(eps):
+            eps = np.repeat(eps, repeats=len(flat_params))
+        print('eps-vector used for differentiation: ', eps)
+        
+        fltr_ = fltr[1:]
+        sigma_sq = measurement_error*measurement_error
+        cov_diag = np.repeat(sigma_sq, repeats=(int(self.dim)*(fltr_.shape[0])))
+        cov = np.diag(cov_diag)
+        full_fltr = sparse.block_diag(fltr_)
+        cov_red = full_fltr@cov@np.transpose(full_fltr)
+        invcov = np.linalg.inv(cov_red)
+        
+        dim = len(flat_params)
+        FIM_det = np.empty((dim,dim))
+        dmu = []
+        
+        for i in range(dim):
+            dmu.append(pyross.utils.partial_derivative(mean, var=i, point=flat_params, dx=eps[i]))
+        
+        for i in range(dim):
+            FIM_det[i,i] = dmu[i]@invcov@dmu[i]
+
+        rows,cols = np.triu_indices(dim,1)
+        
+        for i,j in zip(rows,cols):
+            FIM_det[i,j] = dmu[i]@invcov@dmu[j]
+        
+        i_lower = np.tril_indices(dim,-1)
+        FIM_det[i_lower] = FIM_det.T[i_lower]
+        return FIM_det
+    
+    def latent_hessian(self, obs, fltr, Tf, infer_result, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False,
+                       eps=None, fd_method="central", inter_steps=0):
+        '''
+        Computes the Hessian matrix for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
+        
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        eps: float or numpy.array, optional
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+        fd_method: str, optional
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 0. 
+        Returns
+        -------
+        hess: 2d numpy.array
+            The Hessian matrix
+        '''
+        # Sanity checks of the intputs
+        if (contactMatrix is None) == (generator is None):
+            raise Exception('Specify either a fixed contactMatrix or a generator')
+        if (intervention_fun is not None) and (generator is None):
+            raise Exception('Specify a generator')   
+        if contactMatrix is not None:
+            self.contactMatrix = contactMatrix
+            
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+        
+        infer_result_loc = infer_result.copy()
+        # backwards compatibility
+        if 'flat_map' in infer_result_loc:
+            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
+        
+        flat_params = np.copy(infer_result_loc['flat_params'])
+        
+        kwargs = {}
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs', 's', 'scale']:
+            kwargs[key] = infer_result_loc[key]
+            
+        kwargs['generator']=generator
+        kwargs['intervention_fun']=intervention_fun
+        kwargs['inter_steps']=inter_steps
+        kwargs['disable_penalty']=None
+            
+        if np.all(eps == None):
+            eps = 10.*np.spacing(flat_params)**(0.25)
+        print('epsilon used for differentiation: ', eps)
+            
         def minuslogp(y):
             return self._latent_infer_to_minimize(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
                                            tangent=tangent, **kwargs)
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
+        
+        hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
         return hess
 
     # def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
@@ -2278,36 +3060,60 @@ cdef class SIR_type:
             samples.append(new_sample)
 
         return samples
-
-
-    def log_G_evidence_latent(self, obs, fltr, Tf, contactMatrix, map_dict, tangent=False, eps=1.e-3,
-                              fd_method="central"):
-        """Compute the evidence using a Laplace approximation at the MAP estimate.
-
+    
+    
+    def latent_evidence_laplace(self, obs, fltr, Tf, infer_result, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False,
+                       eps=None, fd_method="central", inter_steps=100):
+        '''
+        Compute the evidence using a Laplace approximation at the MAP estimate for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
+        
         Parameters
         ----------
-        x: 2d numpy.array
-           Observed trajectory (number of data points x (age groups * model classes))
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
         Tf: float
-           Total time of the trajectory
-        contactMatrix: callable
-           A function that takes time (t) as an argument and returns the contactMatrix
-        map_dict: dict
-           MAP estimate returned by infer_parameters
+            Total time of the trajectory
+        infer_result: dict
+            Dictionary returned by latent_infer
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           The step size of the Hessian calculation, default=1e-3
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
-           The type of finite-difference scheme used to compute the hessian, supports "forward" and "central".
-
+            The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
         Returns
         -------
         log_evidence: float
-            The log-evidence computed via Laplace approximation at the MAP estimate."""
-        logP_MAPs = map_dict['log_posterior']
-        A = self.compute_hessian_latent(obs, fltr, Tf, contactMatrix, map_dict, tangent, eps, fd_method)
+            The log-evidence computed via Laplace approximation at the MAP estimate.
+        '''
+        logP_MAPs = infer_result['log_posterior']
+        A = self.latent_hessian(obs, fltr, Tf, infer_result, contactMatrix,
+                generator, intervention_fun, tangent, eps, fd_method, 
+                inter_steps)
         k = A.shape[0]
-
-        return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + k/2*np.log(2*np.pi)
+        
+        return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + 0.5*k*np.log(2*np.pi)
+  
 
     def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
                             np.ndarray fltr, double Tf, contactMatrix, tangent=False):
@@ -2557,11 +3363,12 @@ cdef class SIR_type:
         x0[np.invert(init_fltr)] = unknown_inits
         return x0
 
-    cdef double _obtain_logp_for_traj(self, double [:, :] x, double Tf):
+    cdef double _obtain_logp_for_traj(self, double [:, :] x, double Tf,
+                                     Py_ssize_t inter_steps=0):
         cdef:
             double log_p = 0
             double [:] xi, xf, dev
-            double [:, :] cov, xm
+            double [:, :] cov, xm, _xm
             Py_ssize_t i, Nf=x.shape[0], steps=self.steps
             double [:] time_points = np.linspace(0, Tf, Nf)
         for i in range(Nf-1):
@@ -2569,23 +3376,39 @@ cdef class SIR_type:
             xf = x[i+1]
             ti = time_points[i]
             tf = time_points[i+1]
-            xm, sol = self.integrate(xi, ti, tf, steps, dense_output=True)
+            if inter_steps:
+                xi = np.multiply(xi, self.Omega)
+                _xm = pyross.utils.forward_euler_integration(self._rhs0, xi,
+                                                             ti, tf, 
+                                                             steps, inter_steps)
+                _xm = np.divide(_xm, self.Omega)
+                self._xm = np.copy(_xm)
+                self._interp = []
+                times = np.linspace(ti, tf, inter_steps*steps)
+                for i in range(_xm.shape[1]):
+                    self._interp.append(interpolate.interp1d(times, _xm[:,i],
+                                                             kind='linear'))
+                xm = _xm[::inter_steps]
+                sol = self.interpolate_euler
+            else:
+                xm, sol = self.integrate(xi, ti, tf, steps, dense_output=True)
             cov = self._estimate_cond_cov(sol, ti, tf)
             dev = np.subtract(xf, xm[steps-1])
             log_p += self._log_cond_p(dev, cov)
         return -log_p
 
     cdef double _obtain_logp_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
-                                            double Tf, tangent=False):
+                                            double Tf, tangent=False,
+                                         Py_ssize_t inter_steps=0):
         cdef:
             Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
             double [:, :] xm
             double [:] xm_red, dev
             np.ndarray[DTYPE_t, ndim=2] cov_red, full_cov
         if tangent:
-            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf)
+            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, inter_steps=inter_steps)
         else:
-            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf)
+            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
         full_fltr = sparse.block_diag(fltr)
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
         xm_red = full_fltr@(np.ravel(xm))
@@ -2643,16 +3466,32 @@ cdef class SIR_type:
         cov = self.convert_vec_to_mat(cov_vec)
         return cov
 
-    cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf):
+    cpdef obtain_full_mean_cov(self, double [:] x0, double Tf, Py_ssize_t Nf, Py_ssize_t inter_steps=0):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
+            double [:, :] _xm=np.empty((inter_steps*Nf, dim), dtype=DTYPE)
             double [:] time_points=np.linspace(0, Tf, Nf)
             double [:] xi, xf
             double [:, :] cond_cov, cov, temp
             double [:, :, :, :] full_cov
             double ti, tf
-        xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True,
+        if inter_steps:
+            x0 = np.multiply(x0, self.Omega)
+            _xm = pyross.utils.forward_euler_integration(self._rhs0, x0,
+                                                                0, Tf,
+                                                                Nf, inter_steps)
+            _xm = np.divide(_xm, self.Omega)
+            self._xm = np.copy(_xm)
+            self._interp = []
+            times = np.linspace(0, Nf, inter_steps*Nf)
+            for i in range(dim):
+                self._interp.append(interpolate.interp1d(times, _xm[:,i],
+                                                          kind='linear'))
+            xm = _xm[::inter_steps]
+            sol = self.interpolate_euler
+        else:
+            xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True,
                                            maxNumSteps=self.steps*Nf)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
@@ -2670,8 +3509,14 @@ cdef class SIR_type:
                     full_cov[i, :, j, :] = temp.T
         # returns mean and cov for all but first (fixed!) time point
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim))
+    
+    cpdef interpolate_euler(self, t):
+        ip = []
+        for i in range(self.dim):
+            ip.append(self._interp[i](t))
+        return np.asarray(ip).T 
 
-    cpdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf):
+    cpdef obtain_full_mean_cov_tangent_space(self, double [:] x0, double Tf, Py_ssize_t Nf, Py_ssize_t inter_steps=0):
         cdef:
             Py_ssize_t dim=self.dim, i
             double [:, :] xm=np.empty((Nf, dim), dtype=DTYPE)
@@ -2680,7 +3525,14 @@ cdef class SIR_type:
             double [:, :] cov, cond_cov, U, J_dt, temp
             double [:, :, :, :] full_cov
             double t, dt=time_points[1]
-        xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
+        if inter_steps: 
+            x0 = np.multiply(x0, self.Omega)
+            xm = pyross.utils.forward_euler_integration(self._rhs0, x0, 0, Tf,
+                                                        Nf, inter_steps)
+            xm = xm[::inter_steps] 
+            xm = np.divide(xm, self.Omega)
+        else:
+            xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -2698,6 +3550,11 @@ cdef class SIR_type:
                     full_cov[j, :, i, :] = temp
                     full_cov[i, :, j, :] = temp.T
         return xm[1:], np.reshape(full_cov, ((Nf-1)*dim, (Nf-1)*dim)) # returns mean and cov for all but first (fixed!) time point
+    
+    cpdef _rhs0(self, t, xt):
+        self.det_model.set_contactMatrix(t, self.contactMatrix)
+        self.det_model.rhs(xt, t)
+        return self.det_model.dxdt
 
     cpdef _obtain_time_evol_op_2(self, sol, double t1, double t2):
         cdef:

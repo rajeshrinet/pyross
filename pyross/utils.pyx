@@ -222,16 +222,15 @@ def make_log_norm_dist(means, stds):
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
 
-cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
+cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps, Py_ssize_t inter_steps=1):
     cdef:
-        double dt=(t2-t1)/(steps-1),t=t1
+        double dt=(t2-t1)/(inter_steps*(steps-1)),t=t1
         double [:] fx
         Py_ssize_t i, j, size=x.shape[0]
-        double [:, :] sol=np.empty((steps, size), dtype=DTYPE)
-
+        double [:, :] sol=np.empty((inter_steps*steps, size), dtype=DTYPE)
     for j in range(size):
         sol[0, j] = x[j]
-    for i in range(1, steps):
+    for i in range(1, inter_steps*steps):
         fx = f(t, sol[i-1])
         for j in range(size):
             sol[i, j] = sol[i-1, j] + fx[j]*dt
@@ -908,34 +907,30 @@ def posterior_mean(weighted_samples):
 
     sample = weighted_samples[0].copy()
     sample['weight'] = 1.0
+
+    # Set the parameter to averages.
+    potential_list_keys = {'params_dict', 'control_params_dict',  # Current keys
+                           'map_params_dict', 'map_dict' }        # Keys from deprecated interface (to be deleted)
+    potential_keys = {'flat_params', 'x0',   # Current keys
+                      'flat_map', 'map_x0'}  # Keys from deprecated interface (to be deleted)
+
+    # Select the keys that are actually in the result dictionaries.
+    list_keys = list(potential_list_keys & set(sample.keys()))
+    keys = list(potential_keys & set(sample.keys()))
+
     # Set the average parameters
-    try:
-        for key in sample['map_dict'].keys():
-            vals = [w['map_dict'][key] for w in weighted_samples]
+    for list_key in list_keys:
+        for key in sample[list_key].keys():
+            vals = [w[list_key][key] for w in weighted_samples]
             avg = sum([weights[i] * vals[i] for i in range(len(vals))])
-            sample['map_dict'][key] = avg
-    except KeyError:
-        # If this happens, the samples are from latent inference.
-        pass
+            sample[list_key][key] = avg
 
-    try:
-        for key in sample['map_params_dict'].keys():
-            vals = [w['map_params_dict'][key] for w in weighted_samples]
-            avg = sum([weights[i] * vals[i] for i in range(len(vals))])
-            sample['map_params_dict'][key] = avg
-    except KeyError:
-        pass
+    for key in keys:
+        vals = [w[key] for w in weighted_samples]
+        avg = sum([weights[i] * vals[i] for i in range(len(vals))])
+        sample[key] = avg
 
-    for key in ['map_x0', 'flat_map']:
-        try:
-            vals = [w[key] for w in weighted_samples]
-            avg = sum([weights[i] * vals[i] for i in range(len(vals))])
-            sample[key] = avg
-        except KeyError:
-            # Happens for non-latent samples since key `map_x0` doesn't exist then.
-            pass
-
-    # Reset the value of log-posterior
+    # Reset the value of log-posterior (we cannot compute this here)
     sample['log_posterior']  = None
     sample['log_prior']      = None
     sample['log_likelihood'] = None
