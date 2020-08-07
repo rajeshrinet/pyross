@@ -2519,12 +2519,15 @@ cdef class Spp(stochastic_integration):
         readonly double beta, gIa, gIs, fsa
         readonly np.ndarray xt0, Ni, dxtdt, lld, CC, alpha
         np.ndarray parameters
-        np.ndarray constant_terms, linear_terms, infection_terms
+        np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
+        readonly int n_constant_terms, n_linear_terms, n_infection_terms, n_finres_terms
         np.ndarray _lambdas
+        readonly np.ndarray finres_pop
         list param_keys
         readonly dict param_dict
         dict class_index_dict
         readonly object time_dep_param_mapping
+        
 
     def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
         cdef:
@@ -2553,6 +2556,31 @@ cdef class Spp(stochastic_integration):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
+        self.finres_terms = res[5]
+        self.resource_list = res[6]
+  
+        if self.constant_terms.size > 0:
+            self.n_constant_terms = len(self.constant_terms)
+        else:
+            self.n_constant_terms = 0
+     
+        if self.linear_terms.size > 0:
+            self.n_linear_terms = len(self.linear_terms)
+        else:
+            self.n_linear_terms = 0
+     
+        if self.infection_terms.size > 0:
+            self.n_infection_terms = len(self.infection_terms)
+        else:
+            self.n_infection_terms = 0
+       
+        if self.finres_terms.size > 0:
+            self.n_finres_terms = len(self.finres_terms)
+        else:
+            self.n_finres_terms = 0
+
+        
+            
         if self.time_dep_param_mapping is None:
             self.update_model_parameters(parameters)
         else:
@@ -2560,13 +2588,16 @@ cdef class Spp(stochastic_integration):
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
 
         #
-        self.nReactions_per_agegroup = len(self.constant_terms) + \
-                    + len(self.linear_terms) + \
-                    + len(self.infection_terms)
+        
+        self.nReactions_per_agegroup = self.n_constant_terms + \
+                    + self.n_linear_terms + \
+                    + self.n_infection_terms + \
+                    + self.n_finres_terms
         self.nReactions = self.M * self.nReactions_per_agegroup
         self.dim_state_vec = self.nClass * self.M
-
+        
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
+        self.finres_pop = np.zeros( len(self.resource_list), dtype=DTYPE)  # populations for finite-resource transitions
         self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate vector
         self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
         self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
@@ -2587,18 +2618,17 @@ cdef class Spp(stochastic_integration):
         S_index=self.class_index_dict['S']
         for m in range(M):
             #
-            if self.constant_terms.size > 0:
-                for i in range(self.constant_terms.shape[0]):
-                    #rate_index = constant_terms[i, 0]
-                    class_index = self.constant_terms[i, 1]
-                    sign = self.constant_terms[i, 2]
-                    #term = parameters[rate_index, m]*sign
-                    #
-                    self.vectors_of_change[i + m*nRpa,m + M*class_index] = sign
-                    self.vectors_of_change[i + m*nRpa,m + M*(nClass-1)] = sign
-
-            offset = len(self.constant_terms)
-            for i in range(self.linear_terms.shape[0]):
+            for i in range(self.n_constant_terms):
+                #rate_index = constant_terms[i, 0]
+                class_index = self.constant_terms[i, 1]
+                sign = self.constant_terms[i, 2]
+                #term = parameters[rate_index, m]*sign
+                #
+                self.vectors_of_change[i + m*nRpa,m + M*class_index] = sign
+                self.vectors_of_change[i + m*nRpa,m + M*(nClass-1)] = sign
+            
+            offset = self.n_constant_terms
+            for i in range(self.n_linear_terms):
                 #rate_index = linear_terms[i, 0]
                 reagent_index = self.linear_terms[i, 1]
                 product_index = self.linear_terms[i, 2]
@@ -2607,9 +2637,9 @@ cdef class Spp(stochastic_integration):
                 if product_index != -1:
                     self.vectors_of_change[offset + i + m*nRpa,m + M*product_index] += 1
                     #dxdt[m + M*product_index] += term
-
-            offset += len(self.linear_terms)
-            for i in range(self.infection_terms.shape[0]):
+        
+            offset += self.n_linear_terms
+            for i in range(self.n_infection_terms):
                 #rate_index = infection_terms[i, 0]
                 reagent_index = self.infection_terms[i, 1]
                 product_index = self.infection_terms[i, 2]
@@ -2617,6 +2647,16 @@ cdef class Spp(stochastic_integration):
                 self.vectors_of_change[offset + i + m*nRpa,m+M*S_index] -= 1
                 if product_index != -1:
                     self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
+  
+            offset += self.n_infection_terms
+            for i in range(self.n_finres_terms):
+                reagent_index = self.finres_terms[i, 4]
+                product_index = self.finres_terms[i, 5]
+                if reagent_index != -1:
+                    self.vectors_of_change[offset + i + m*nRpa,m+M*reagent_index] -= 1
+                if product_index != -1:
+                    self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
+            
 
 
 
@@ -2631,19 +2671,22 @@ cdef class Spp(stochastic_integration):
             int [:, :] constant_terms=self.constant_terms
             int [:, :] linear_terms=self.linear_terms
             int [:, :] infection_terms=self.infection_terms
+            int [:, :] finres_terms=self.finres_terms
+            np.ndarray resource_list=self.resource_list
             double [:, :] parameters=self.parameters
             double [:,:] lambdas = self._lambdas
+            double [:] finres_pop = self.finres_pop
             int offset, nClass = self.nClass
             int S_index=self.class_index_dict['S']
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)            
-
+        
         # Compute lambda
         if constant_terms.size > 0:
             for i in range(M):
                 Ni[i] = xt[(nClass-1)*M + i]  # update Ni
-
+        
         for i in range(infection_terms.shape[0]):
             infective_index = infection_terms[i, 1]
             for m in range(M):
@@ -2651,29 +2694,45 @@ cdef class Spp(stochastic_integration):
                 for n in range(M):
                     index = n + M*infective_index
                     lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
+        
+        # Calculate populations for finite resource transitions
+        for i in range(len(resource_list)):
+            finres_pop[i] = 0
+            for (class_index, priority_index) in resource_list[i][1:]:
+                for m in range(M):
+                    finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
+        
+        for m in range(M):       
+            for i in range(self.n_constant_terms):
+                rate_index = constant_terms[i, 0]
+                rate = parameters[rate_index, m]
+                #
+                rates[i + m*nRpa] = rate
 
-
-        for m in range(M):
-            if constant_terms.size > 0:
-                for i in range(constant_terms.shape[0]):
-                    rate_index = constant_terms[i, 0]
-                    rate = parameters[rate_index, m]
-                    #
-                    rates[i + m*nRpa] = rate
-
-            offset = len(constant_terms)
-            for i in range(linear_terms.shape[0]):
+            offset = self.n_constant_terms
+            for i in range(self.n_linear_terms):
                 rate_index = linear_terms[i, 0]
                 reagent_index = linear_terms[i, 1]
                 rate = parameters[rate_index, m] * xt[m + M*reagent_index]
                 rates[offset + i + m*nRpa] = rate
-
-            offset += len(linear_terms)
-            for i in range(infection_terms.shape[0]):
+            
+            offset += self.n_linear_terms
+            for i in range(self.n_infection_terms):
                 rate_index = infection_terms[i, 0]
                 rate = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
                 rates[offset + i + m*nRpa] = rate
-
+           
+            offset += self.n_infection_terms
+            for i in range(self.n_finres_terms):
+                resource_index = finres_terms[i, 0]
+                rate_index = resource_list[resource_index][0]
+                priority_index = finres_terms[i, 1]
+                probability_index = finres_terms[i, 2]
+                class_index = finres_terms[i, 3]
+                rate = parameters[rate_index, m] * parameters[priority_index, m] \
+                       * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                rates[offset + i + m*nRpa] = rate
+                  
         return
     
             
@@ -2832,10 +2891,11 @@ cdef class Spp(stochastic_integration):
                                   tau_update_frequency=tau_update_frequency)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                     'Ni':self.Ni, 'M':self.M}
+                     'Ni':self.Ni, 'M':self.M, 'rates':self.rates, 'voc':self.vectors_of_change}
         param_dict = self.make_parameters_dict()
         out_dict.update(param_dict)
         return out_dict
+    
 cdef class SppQ(stochastic_integration):
     """
     Generic user-defined epidemic model with quarantine.
