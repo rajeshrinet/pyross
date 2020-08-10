@@ -2891,7 +2891,7 @@ cdef class Spp(stochastic_integration):
                                   tau_update_frequency=tau_update_frequency)
 
         out_dict = {'X':out_arr, 't':t_arr,
-                     'Ni':self.Ni, 'M':self.M, 'rates':self.rates, 'voc':self.vectors_of_change}
+                     'Ni':self.Ni, 'M':self.M}
         param_dict = self.make_parameters_dict()
         out_dict.update(param_dict)
         return out_dict
