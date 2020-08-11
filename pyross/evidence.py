@@ -360,7 +360,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
 
 
 def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulation=100, mcmc_iter=1000, nprocesses=0,
-                           inital_samples=10, verbose=True, extend_step_list=None, extend_sampler_list=None):
+                           initial_samples=10, verbose=True, extend_step_list=None, extend_sampler_list=None):
     """ Compute the evidence using path sampling (thermodynamic integration).
 
     This function computes posterior samples for the distributions
@@ -397,7 +397,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
         The number of iterations of the MCMC chain for each s ∈ steps.
     nprocesses: int
         The number of processes passed to the `emcee` MCMC sampler. By default, the number of physical cores is used.
-    inital_samples: int
+    initial_samples: int
         Compute `initial_samples * npopulation` independent samples as the result for s = 0.
     verbose: bool
         If true, this function displays the progress of each MCMC iteration in addition to basic progress information.
@@ -446,7 +446,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     step_list = []
     sampler_list = []
     if extend_step_list is None:
-        points = np.random.rand(inital_samples*npopulation, ndim)
+        points = np.random.rand(initial_samples*npopulation, ndim)
         y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
         ext_init_positions = lognorm.ppf(y, prior_s, scale=prior_scale)
 
