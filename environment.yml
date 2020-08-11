@@ -16,6 +16,7 @@ dependencies:
   - nbconvert
   - xlrd
   - dynesty
+  - emcee
   - pip
   - pip:
     - cma

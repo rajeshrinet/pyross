@@ -13,3 +13,4 @@ jupyter
 nbconvert
 pandas
 dynesty
+emcee
