@@ -14,6 +14,8 @@ In various degrees of `less robust but fast` to `more robust but slow`:
 Methods for full data
 ============================= ==========================================================
 infer                         Infers epidemiological and control parameters given all information.
+infer_mcmc                    Explore the posterior distribution given all information.
+infer_nested_sampling         Compute the model evidence (and generate posterior samples) given all information.
 obtain_minus_log_p            Computes -log(p) of a fully observed trajectory.
 compute_hessian               Computes the Hessian of -log(p).
 nested_sampling_inference     Compute the log-evidence and weighted samples.
@@ -23,6 +25,8 @@ nested_sampling_inference     Compute the log-evidence and weighted samples.
 Methods for partial data
 ================================ ===========================================================
 latent_infer                     Infers epidemiological and control parameters and initial conditions.
+latent_infer_mcmc                Explore the posterior distribution.
+latent_infer_nested_sampling     Compute the model evidence (and generate posterior samples).
 minus_logp_red                   Computes -log(p) of a partially observed trajectory.
 compute_hessian_latent           Computes the Hessian of -log(p).
 nested_sampling_latent_inference Compute the log-evidence and weighted samples.
