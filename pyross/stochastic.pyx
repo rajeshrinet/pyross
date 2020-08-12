@@ -2680,7 +2680,8 @@ cdef class Spp(stochastic_integration):
             int S_index=self.class_index_dict['S']
 
         if self.time_dep_param_mapping is not None:
-            self.update_time_dep_model_parameters(tt)            
+            self.update_time_dep_model_parameters(tt)
+            parameters = self.parameters
         
         # Compute lambda
         if constant_terms.size > 0:
@@ -3096,6 +3097,7 @@ cdef class SppQ(stochastic_integration):
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)  
+            parameters = self.parameters
         
         if constant_terms.size > 0:
             for i in range(M):

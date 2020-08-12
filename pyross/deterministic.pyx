@@ -3071,6 +3071,7 @@ cdef class SppSparse(CommonMethods):
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)
+            parameters = self.parameters
          
         # Compute lambda
         if self.constant_terms.size > 0:
@@ -3387,6 +3388,7 @@ cdef class SppQ(CommonMethods):
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)
+            parameters = self.parameters
          
         # Compute lambda
         if self.constant_terms.size > 0:
