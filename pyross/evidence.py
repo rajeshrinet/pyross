@@ -227,6 +227,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     log_evidence: float
         The estimate of the log evidence.        
     if save_samples=True:
+
         result_samples: list of (float, emcee.EnsembleSampler)
             The list of samplers and their corresponding step `alpha`.
     """
@@ -364,9 +365,13 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     """ Compute the evidence using path sampling (thermodynamic integration).
 
     This function computes posterior samples for the distributions
+
         p_s \propto prior * likelihood^s
+
     for 0<s≤1, s ∈ steps, using ensemble MCMC. The samples can be used to estimate the evidence via
+
         log_evidence = \int_0^1 \E_{p_s}[log_likelihood] ds
+
     which is know as path sampling or thermodynamic integration.
 
     This function starts with sampling `initial_samples * npopulation` samples from the (truncated log-normal) prior.
@@ -569,6 +574,16 @@ def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, st
 
 
 def generate_traceplot(sampler, dims=None):
+    """
+    Generate a traceplot for an emcee.EnsembleSampler.
+
+    Parameters
+    ----------
+    sampler: emcee.EnsembleSampler
+        The sampler to plot the traceplot for.
+    dims: list of float, optional
+        Select the dimensions that are plotted. By default, all dimensions are selected.
+    """
     if dims is None:
         dims = [i for i in range(sampler.ndim)]
 
