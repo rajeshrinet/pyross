@@ -4396,15 +4396,17 @@ cdef class Spp(SIR_type):
     """
 
     cdef:
-        readonly np.ndarray constant_terms, linear_terms, infection_terms
+        readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
         readonly np.ndarray parameters
         readonly np.ndarray model_parameters
+        readonly np.ndarray finres_pop
         readonly pyross.deterministic.Spp det_model
         readonly dict model_spec
         readonly dict param_dict
         readonly list model_param_keys
         readonly object parameter_mapping
         readonly object time_dep_param_mapping
+        
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
@@ -4428,6 +4430,9 @@ cdef class Spp(SIR_type):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
+        self.finres_terms = res[5]
+        self.resource_list = res[6]
+        self.finres_pop = np.empty(len(self.resource_list), dtype=DTYPE)
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
@@ -4514,6 +4519,8 @@ cdef class Spp(SIR_type):
         cdef:
             np.ndarray r
             np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
+        if 'R' in self.class_index_dict.keys():
+            r = xrs[self.class_index_dict['R'],:]
         if self.constant_terms.size > 0:
             r = xrs[-1,:] - np.sum(xrs[:-1,:], axis=0)
         else:
@@ -4533,6 +4540,7 @@ cdef class Spp(SIR_type):
         if self.constant_terms.size > 0:
             fi = x[(nClass-1)*M:]
         self.fill_lambdas(x, l)
+        self.fill_finres_pop(x)
         if b_matrix:
             self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
             self.noise_correlation(x, l)
@@ -4553,17 +4561,31 @@ cdef class Spp(SIR_type):
                 for n in range(M):
                     index = n + M*infective_index
                     l[i, m] += CM[m,n]*x[index]/fi[n]
+                    
+    cdef fill_finres_pop(self, double [:] x):
+        # Calculate populations for finite resource transitions
+        for i in range(len(self.resource_list)):
+            self.finres_pop[i] = 0
+            for (class_index, priority_index) in self.resource_list[i][1:]:
+                for m in range(self.M):
+                    self.finres_pop[i] += x[m + self.M*class_index] * self.parameters[priority_index, m]
 
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, dim=self.dim
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            Py_ssize_t resource_index, priority_index, probability_index
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
             double [:, :] parameters=self.model_parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
+            int [:, :] finres_terms=self.finres_terms
+            np.ndarray resource_list=self.resource_list
+            double [:] finres_pop = self.finres_pop
             double [:] rate
+            double term, term2
             double [:] fi=self.fi
+            
         # infection terms
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
@@ -4578,6 +4600,8 @@ cdef class Spp(SIR_type):
                     J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
                     if product_index>-1:
                         J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
+        
+        # linear terms
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
             reagent_index = linear_terms[i, 1]
@@ -4587,17 +4611,48 @@ cdef class Spp(SIR_type):
                 J[reagent_index, m, reagent_index, m] -= rate[m]
                 if product_index>-1:
                     J[product_index, m, reagent_index, m] += rate[m]
+        
+        # finite-resource terms
+        if finres_terms.size > 0:
+            for i in range(finres_terms.shape[0]):
+                resource_index = finres_terms[i, 0]
+                rate_index = resource_list[resource_index][0]
+                priority_index = finres_terms[i, 1]
+                probability_index = finres_terms[i, 2]
+                class_index = finres_terms[i, 3]
+                reagent_index = self.finres_terms[i, 4]
+                product_index = self.finres_terms[i, 5]
+                for m in range(M):
+                    term = parameters[rate_index, m] * parameters[priority_index, m] \
+                           * parameters[probability_index, m] / (finres_pop[resource_index] * self.Omega)
+                    if reagent_index>-1:
+                        J[reagent_index, m, class_index, m] -= term
+                    if product_index>-1:
+                        J[product_index, m, class_index, m] += term
+                    term *= - x[class_index*M+m] / finres_pop[resource_index]
+                    for (res_class_index, res_priority_index) in resource_list[resource_index][1:]:
+                        for n in range(M):
+                            term2 = term * parameters[res_priority_index, m]
+                            if reagent_index>-1:
+                                J[reagent_index, m, res_class_index, n] -= term2 
+                            if product_index>-1:
+                                J[product_index, m, res_class_index, n] += term2
+                                                
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, nClass=self.nClass, class_index
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            Py_ssize_t resource_index, priority_index, probability_index
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
             double [:, :] parameters=self.model_parameters
             int [:, :] constant_terms=self.constant_terms
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
+            int [:, :] finres_terms=self.finres_terms
+            np.ndarray resource_list=self.resource_list
+            double [:] finres_pop = self.finres_pop
             double [:] s, reagent, rate
             double Omega=self.Omega
         s = x[S_index*M:(S_index+1)*M]
@@ -4635,6 +4690,27 @@ cdef class Spp(SIR_type):
                     B[product_index, m, product_index, m] += rate[m]*reagent[m]
                     B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
+                    
+        if finres_terms.size > 0:
+            for i in range(finres_terms.shape[0]):
+                resource_index = finres_terms[i, 0]
+                rate_index = resource_list[resource_index][0]
+                priority_index = finres_terms[i, 1]
+                probability_index = finres_terms[i, 2]
+                class_index = finres_terms[i, 3]
+                reagent_index = self.finres_terms[i, 4]
+                product_index = self.finres_terms[i, 5]
+                for m in range(M):
+                    term = parameters[rate_index, m] * parameters[priority_index, m] \
+                           * parameters[probability_index, m] * x[class_index*M+m] / (finres_pop[resource_index] * self.Omega)
+                    if reagent_index>-1:
+                        B[reagent_index, m, reagent_index, m] += term
+                        if product_index>-1:
+                            B[reagent_index, m, product_index, m] -= term
+                            B[product_index, m, reagent_index, m] -= term
+                    if product_index>-1:
+                        B[product_index, m, product_index, m] += term
+                    
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
 
@@ -5206,8 +5282,8 @@ cdef class SppQ(SIR_type):
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
-        self.test_pos = res[5]
-        self.test_freq = res[6]
+        self.test_pos = res[7]
+        self.test_freq = res[8]
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)

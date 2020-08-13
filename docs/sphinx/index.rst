@@ -57,4 +57,5 @@ API Reference
    control
    contactMatrix
    forecast
+   evidence
    utils

@@ -227,6 +227,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     log_evidence: float
         The estimate of the log evidence.        
     if save_samples=True:
+
         result_samples: list of (float, emcee.EnsembleSampler)
             The list of samplers and their corresponding step `alpha`.
     """
@@ -364,9 +365,13 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     """ Compute the evidence using path sampling (thermodynamic integration).
 
     This function computes posterior samples for the distributions
+
         p_s \propto prior * likelihood^s
+
     for 0<s≤1, s ∈ steps, using ensemble MCMC. The samples can be used to estimate the evidence via
+
         log_evidence = \int_0^1 \E_{p_s}[log_likelihood] ds
+
     which is know as path sampling or thermodynamic integration.
 
     This function starts with sampling `initial_samples * npopulation` samples from the (truncated log-normal) prior.
@@ -459,21 +464,29 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     for i, step in enumerate(steps):
         logpost = lambda param, step: logp(param) + step * logl(param)
         
+        print("step: {} ({}/{})".format(step, i+1, len(steps)))
+
         # Find the closest init position:
         diff_to_step = np.abs(np.array(step_list) - step)
         pos = np.argmin(diff_to_step)
-        if pos == 0:
-            init_positions = first_init_positions
+
+        if diff_to_step[pos] == 0.0 and step != 0.0:
+            # There is already an MCMC chain for this step. In this situation, we extend the existing
+            # chain by mcmc_iter iterations.
+            sampler_list[pos].run_mcmc(None, mcmc_iter, progress=verbose)
         else:
-            init_positions = sampler_list[pos].get_last_sample().coords
+            # Find a good starting point for the new MCMC chain. We use the last sample of the closest
+            # chain.
+            if pos == 0:
+                init_positions = first_init_positions
+            else:
+                init_positions = sampler_list[pos].get_last_sample().coords
         
-        # Use this init position as the starting point of the MCMC chain for the current step value.
-        sampler = emcee.EnsembleSampler(npopulation, ndim, logpost, pool=mcmc_pool, kwargs={'step':step})
-        print("step: {} ({}/{})".format(step, i+1, len(steps)))
-        sampler.run_mcmc(init_positions, mcmc_iter, progress=verbose)
-        
-        step_list.append(step)
-        sampler_list.append(sampler)
+            sampler = emcee.EnsembleSampler(npopulation, ndim, logpost, pool=mcmc_pool, kwargs={'step':step})        
+            sampler.run_mcmc(init_positions, mcmc_iter, progress=verbose)
+            
+            step_list.append(step)
+            sampler_list.append(sampler)
 
     if mcmc_pool is not None:
         mcmc_pool.close()
@@ -542,6 +555,8 @@ def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, st
 
     if np.size(burn_in) == 1:
         local_burn_in = burn_in * np.ones(len(step_list)-1, 'int')
+    else:
+        local_burn_in = burn_in
 
     vals = np.zeros(len(step_list))
     # step == 0 (special case because we sampled these positions directly from the prior):
@@ -569,6 +584,16 @@ def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, st
 
 
 def generate_traceplot(sampler, dims=None):
+    """
+    Generate a traceplot for an emcee.EnsembleSampler.
+
+    Parameters
+    ----------
+    sampler: emcee.EnsembleSampler
+        The sampler to plot the traceplot for.
+    dims: list of int, optional
+        Select the dimensions that are plotted. By default, all dimensions are selected.
+    """
     if dims is None:
         dims = [i for i in range(sampler.ndim)]
 

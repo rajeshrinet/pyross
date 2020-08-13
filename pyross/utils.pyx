@@ -27,6 +27,7 @@ def parse_model_spec(model_spec, param_keys):
         constant_dict = {}
         linear_dict = {}
         infection_dict = {}
+        finres_dict = {}
 
         for class_name in class_list:
             reaction_dict = model_spec[class_name]
@@ -36,6 +37,8 @@ def parse_model_spec(model_spec, param_keys):
                 linear_dict[class_name] = reaction_dict['linear']
             if 'infection' in reaction_dict.keys():
                 infection_dict[class_name] = reaction_dict['infection']
+            if 'finite-resource' in reaction_dict.keys():
+                finres_dict[class_name] = reaction_dict['finite-resource']
 
         # parse the constant term
         constant_term_set = set() # used to check for duplicates
@@ -98,6 +101,50 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         rate_index = params_index_dict[rate]
                         infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        
+                        
+        # parse the finite resource-terms into 
+        #  1) a list resource_list = [rate_index, (class_index0, priority_index0), (class_index1, priority_index1), ...] 
+        #  2) a list finres_terms_list = [resource_index, priority_index, positivity_index, class_index, origin_class_index, destination_class_index]
+                           
+        finres_terms_set = set() # used to check to duplicates
+        finres_terms_dict = {} # collect all finite-resource terms
+        finres_terms_list = [] # collect all finite-resource terms
+        resource_list = []
+        resource_dict = {}
+        resource_count = 0
+        for (k, val) in finres_dict.items():
+            for (reagent, rate, priority, prob) in val:
+                if (reagent, rate, priority, prob) in finres_terms_set:
+                    raise Exception('Duplicates finite-resource terms: {}, {}, {}, {}'.format(reagent, rate, priority, prob))
+                else:
+                    finres_terms_set.add((reagent, rate, priority, prob))
+                    class_index = class_index_dict[reagent]
+                    neg_rate = rate.startswith('-')
+                    if neg_rate:
+                        rate = rate[1:]
+                    rate_index = params_index_dict[rate]
+                    priority_index = params_index_dict[priority]
+                    prob_index = params_index_dict[prob]
+                    if rate not in resource_dict.keys():
+                        resource_dict[rate] = resource_count
+                        resource_list.append([rate_index])
+                        resource_count += 1
+                    resource_index = resource_dict[rate]
+                    if (class_index, priority_index) not in resource_list[resource_index]:
+                        resource_list[resource_index].append((class_index, priority_index))
+                    dict_key = (resource_index, priority_index, prob_index, class_index)
+                    if dict_key not in finres_terms_dict.keys():
+                        finres_terms_dict[dict_key] = [-1,-1]
+                    if neg_rate:
+                        finres_terms_dict[dict_key][0] = class_index_dict[k]
+                    else:
+                        finres_terms_dict[dict_key][1] = class_index_dict[k]
+        for (k,val) in finres_terms_dict.items():
+            finres_terms_list.append(list(k) + val)           
+                        
+                    
+                    
 
         # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
         test_pos_list = []
@@ -140,6 +187,8 @@ def parse_model_spec(model_spec, param_keys):
     res = (nClass, class_index_dict, np.array(constant_term_list, dtype=np.intc, ndmin=2),
                                      np.array(linear_terms_list, dtype=np.intc, ndmin=2),
                                      np.array(infection_terms_list, dtype=np.intc, ndmin=2),
+                                     np.array(finres_terms_list, dtype=np.intc, ndmin=2),
+                                     np.array(resource_list, dtype=object),
                                      np.array(test_pos_list, dtype=np.intc, ndmin=1),
                                      np.array(test_freq_list, dtype=np.intc, ndmin=1))
     return res
