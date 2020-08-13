@@ -464,21 +464,29 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     for i, step in enumerate(steps):
         logpost = lambda param, step: logp(param) + step * logl(param)
         
+        print("step: {} ({}/{})".format(step, i+1, len(steps)))
+
         # Find the closest init position:
         diff_to_step = np.abs(np.array(step_list) - step)
         pos = np.argmin(diff_to_step)
-        if pos == 0:
-            init_positions = first_init_positions
+
+        if diff_to_step[pos] == 0.0 and step != 0.0:
+            # There is already an MCMC chain for this step. In this situation, we extend the existing
+            # chain by mcmc_iter iterations.
+            sampler_list[pos].run_mcmc(None, mcmc_iter, progress=verbose)
         else:
-            init_positions = sampler_list[pos].get_last_sample().coords
+            # Find a good starting point for the new MCMC chain. We use the last sample of the closest
+            # chain.
+            if pos == 0:
+                init_positions = first_init_positions
+            else:
+                init_positions = sampler_list[pos].get_last_sample().coords
         
-        # Use this init position as the starting point of the MCMC chain for the current step value.
-        sampler = emcee.EnsembleSampler(npopulation, ndim, logpost, pool=mcmc_pool, kwargs={'step':step})
-        print("step: {} ({}/{})".format(step, i+1, len(steps)))
-        sampler.run_mcmc(init_positions, mcmc_iter, progress=verbose)
-        
-        step_list.append(step)
-        sampler_list.append(sampler)
+            sampler = emcee.EnsembleSampler(npopulation, ndim, logpost, pool=mcmc_pool, kwargs={'step':step})        
+            sampler.run_mcmc(init_positions, mcmc_iter, progress=verbose)
+            
+            step_list.append(step)
+            sampler_list.append(sampler)
 
     if mcmc_pool is not None:
         mcmc_pool.close()
