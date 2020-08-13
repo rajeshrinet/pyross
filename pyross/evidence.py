@@ -555,6 +555,8 @@ def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, st
 
     if np.size(burn_in) == 1:
         local_burn_in = burn_in * np.ones(len(step_list)-1, 'int')
+    else:
+        local_burn_in = burn_in
 
     vals = np.zeros(len(step_list))
     # step == 0 (special case because we sampled these positions directly from the prior):
@@ -589,7 +591,7 @@ def generate_traceplot(sampler, dims=None):
     ----------
     sampler: emcee.EnsembleSampler
         The sampler to plot the traceplot for.
-    dims: list of float, optional
+    dims: list of int, optional
         Select the dimensions that are plotted. By default, all dimensions are selected.
     """
     if dims is None:
