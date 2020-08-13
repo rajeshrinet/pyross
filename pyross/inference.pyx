@@ -3084,7 +3084,7 @@ cdef class SIR_type:
         fltr, obs, _ = pyross.utils.process_latent_data(fltr, obs)
         self.set_params(infer_result['params_dict'])
         mean, cov, null_space, known_space = self._mean_cov_for_lat_endpoint(x0, obs, fltr[1:], Tf)
-        partial_inits = np.random.multivariate_normal(mean, cov, nsamples)
+        partial_inits = np.random.multivariate_normal(mean, cov/self.Omega, nsamples)
         inits = (null_space.T@partial_inits.T).T + known_space
         return inits
 
@@ -4406,7 +4406,7 @@ cdef class Spp(SIR_type):
         readonly list model_param_keys
         readonly object parameter_mapping
         readonly object time_dep_param_mapping
-        
+
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
@@ -4561,7 +4561,7 @@ cdef class Spp(SIR_type):
                 for n in range(M):
                     index = n + M*infective_index
                     l[i, m] += CM[m,n]*x[index]/fi[n]
-                    
+
     cdef fill_finres_pop(self, double [:] x):
         # Calculate populations for finite resource transitions
         for i in range(len(self.resource_list)):
@@ -4585,7 +4585,7 @@ cdef class Spp(SIR_type):
             double [:] rate
             double term, term2
             double [:] fi=self.fi
-            
+
         # infection terms
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
@@ -4600,7 +4600,7 @@ cdef class Spp(SIR_type):
                     J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
                     if product_index>-1:
                         J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
-        
+
         # linear terms
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
@@ -4611,7 +4611,7 @@ cdef class Spp(SIR_type):
                 J[reagent_index, m, reagent_index, m] -= rate[m]
                 if product_index>-1:
                     J[product_index, m, reagent_index, m] += rate[m]
-        
+
         # finite-resource terms
         if finres_terms.size > 0:
             for i in range(finres_terms.shape[0]):
@@ -4634,10 +4634,10 @@ cdef class Spp(SIR_type):
                         for n in range(M):
                             term2 = term * parameters[res_priority_index, m]
                             if reagent_index>-1:
-                                J[reagent_index, m, res_class_index, n] -= term2 
+                                J[reagent_index, m, res_class_index, n] -= term2
                             if product_index>-1:
                                 J[product_index, m, res_class_index, n] += term2
-                                                
+
         self.J_mat = self.J.reshape((dim, dim))
 
     cdef noise_correlation(self, double [:] x, double [:, :] l):
@@ -4690,7 +4690,7 @@ cdef class Spp(SIR_type):
                     B[product_index, m, product_index, m] += rate[m]*reagent[m]
                     B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
                     B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
-                    
+
         if finres_terms.size > 0:
             for i in range(finres_terms.shape[0]):
                 resource_index = finres_terms[i, 0]
@@ -4710,7 +4710,7 @@ cdef class Spp(SIR_type):
                             B[product_index, m, reagent_index, m] -= term
                     if product_index>-1:
                         B[product_index, m, product_index, m] += term
-                    
+
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
 
