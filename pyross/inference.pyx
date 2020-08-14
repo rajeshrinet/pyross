@@ -1531,6 +1531,10 @@ cdef class SIR_type:
         dev = - (np.sum(R_init[R_init<0]) + np.sum(x0[x0<0]))
         return (dev/eps)**2 + (dev/eps)**8
 
+    def _all_positive(self, np.ndarray x0):
+        r = self._get_r_from_x(x0)
+        return (x0>0).all() and (r>0).all()
+
     def latent_infer_parameters(self, np.ndarray obs, np.ndarray fltr, double Tf,
                             contactMatrix, param_priors, init_priors,
                             tangent=False, verbose=False,
@@ -3079,13 +3083,18 @@ cdef class SIR_type:
     def sample_endpoints(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
                        inter_steps=100):
+        cdef Py_ssize_t i
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         x0 = infer_result['x0'].copy()
         fltr, obs, _ = pyross.utils.process_latent_data(fltr, obs)
         self.set_params(infer_result['params_dict'])
         mean, cov, null_space, known_space = self._mean_cov_for_lat_endpoint(x0, obs, fltr[1:], Tf)
-        partial_inits = np.random.multivariate_normal(mean, cov/self.Omega, nsamples)
+        partial_inits = np.random.multivariate_normal(mean, cov, nsamples)
         inits = (null_space.T@partial_inits.T).T + known_space
+        for i in range(nsamples):
+            while not self._all_positive(inits[i]):
+                partial_inits = np.random.multivariate_normal(mean, cov)
+                inits[i] = (null_space.T@partial_inits) + known_space
         return inits
 
     def get_mean_inits(self, init_priors, np.ndarray obs0, np.ndarray fltr0):
@@ -3376,7 +3385,7 @@ cdef class SIR_type:
         invcov = np.linalg.inv(cov_red)
         cov_last_red = np.linalg.inv(invcov[reduced_dim:, reduced_dim:])
         xm_last_red = xm_red[reduced_dim:] - cov_last_red@invcov[reduced_dim:, :reduced_dim]@dev
-        return xm_last_red, cov_last_red, null_space, known_space
+        return xm_last_red, cov_last_red/self.Omega, null_space, known_space
 
     cdef double _obtain_logp_for_traj_tangent(self, double [:, :] x, double Tf):
         cdef:
@@ -5393,6 +5402,11 @@ cdef class SppQ(SIR_type):
             np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
         r = xrs[-1,:] - np.sum(xrs[self.nClassU:-1,:], axis=0) # subtract all quarantined classes
         return r
+
+    def _all_positive(self, np.ndarray x0):
+        r = self._get_r_from_x(x0)
+        rq = self._get_rq_from_x(x0)
+        return (x0 >0).all() and (r > 0).all() and (rq > 0).all()
 
     cdef double _penalty_from_negative_values(self, np.ndarray x0):
         cdef:
