@@ -3097,6 +3097,23 @@ cdef class SIR_type:
                 inits[i] = (null_space.T@partial_inits) + known_space
         return inits
 
+    def sample_trajs(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False,
+                       inter_steps=100):
+       cdef Py_ssize_t i, Nf=obs.shape[0]
+       self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+       x0 = infer_result['x0'].copy()
+       fltr = pyross.utils.process_fltr(fltr, Nf)
+       self.set_params(infer_result['params_dict'])
+       mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
+       trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
+       for i in range(nsamples):
+           while not all(map(self._all_positive, trajs[i])):
+               partial_trajs = np.random.multivariate_normal(mean, cov)
+               trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+       return trajs
+
+
     def get_mean_inits(self, init_priors, np.ndarray obs0, np.ndarray fltr0):
         '''Construct full initial conditions from the prior dict
 
@@ -3367,13 +3384,9 @@ cdef class SIR_type:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, inter_steps=inter_steps)
         else:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
-        last_cov = full_cov[(Nf-2)*self.dim:, (Nf-2)*self.dim:]
         last_fltr = fltr[Nf-2]
-        m, n = last_fltr.shape
-        last_obs = obs_flattened[reduced_dim-m:]
-        r, q = rq(last_fltr)
-        null_space = q[:n-m]
-        known_space = (q[n-m:]).T  @ solve_triangular(r[:, n-m:], last_obs)
+        last_obs = obs_flattened[reduced_dim-last_fltr.shape[0]:]
+        null_space, known_space = self._split_spaces(last_fltr, last_obs)
 
         last_full_fltr = np.vstack((fltr[Nf-2], null_space))
         full_fltr = sparse.block_diag([*fltr[:Nf-2], last_full_fltr])
@@ -3386,6 +3399,46 @@ cdef class SIR_type:
         cov_last_red = np.linalg.inv(invcov[reduced_dim:, reduced_dim:])
         xm_last_red = xm_red[reduced_dim:] - cov_last_red@invcov[reduced_dim:, :reduced_dim]@dev
         return xm_last_red, cov_last_red/self.Omega, null_space, known_space
+
+    def _mean_cov_for_lat_traj(self, double [:] x0, np.ndarray obs, np.ndarray fltr,
+                                            double Tf, tangent=False, Py_ssize_t inter_steps=0):
+        cdef:
+            Py_ssize_t Nf=fltr.shape[0]+1, i, dim=self.dim
+        if tangent:
+            xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, inter_steps=inter_steps)
+        else:
+            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
+        known_spaces = np.empty((Nf-1, dim), dtype=DTYPE)
+        mask = np.zeros((Nf-1)*dim, dtype='bool')
+        null_spaces = []
+        full_fltrs = []
+
+        for i in range(Nf-1):
+            null_space, known_spaces[i] = self._split_spaces(fltr[i], obs[i])
+            null_spaces.append(null_space)
+            full_fltrs.append(np.vstack((fltr[i], null_space)))
+            mask[i*dim:i*dim+len(obs[i])] = True
+
+        full_fltr_mat = sparse.block_diag(full_fltrs)
+        full_null_space = sparse.block_diag(null_spaces)
+        full_cov = full_fltr_mat@full_cov@(full_fltr_mat.T)
+        xm  = full_fltr_mat@np.ravel(xm)
+
+        xm_known = xm[mask]
+        obs_flattened = pyross.utils.process_obs(obs, Nf-1)
+        dev=np.subtract(obs_flattened, xm_known)
+        invcov = np.linalg.inv(full_cov)
+        cov_red = np.linalg.inv(invcov[np.invert(mask)][:, np.invert(mask)])
+        xm_red = xm[np.invert(mask)] - cov_red@invcov[np.invert(mask)][:, mask]@dev
+        return xm_red, cov_red/self.Omega, full_null_space, known_spaces.flatten()
+
+    def _split_spaces(self, fltr, obs):
+        m, n = fltr.shape
+        r, q = rq(fltr)
+        null_space = q[:n-m]
+        known_space = (q[n-m:]).T  @ solve_triangular(r[:, n-m:], obs)
+        return null_space, known_space
+
 
     cdef double _obtain_logp_for_traj_tangent(self, double [:, :] x, double Tf):
         cdef:
