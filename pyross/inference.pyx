@@ -4667,13 +4667,17 @@ cdef class Spp(SIR_type):
                 reagent_index = self.finres_terms[i, 4]
                 product_index = self.finres_terms[i, 5]
                 for m in range(M):
-                    term = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] / (finres_pop[resource_index] * self.Omega)
+                    if finres_pop[resource_index] > 0:
+                        term = parameters[rate_index, m] * parameters[priority_index, m] \
+                               * parameters[probability_index, m] / (finres_pop[resource_index] * self.Omega)
+                    else:
+                        term = 0
                     if reagent_index>-1:
                         J[reagent_index, m, class_index, m] -= term
                     if product_index>-1:
                         J[product_index, m, class_index, m] += term
-                    term *= - x[class_index*M+m] / finres_pop[resource_index]
+                    if finres_pop[resource_index] > 0:
+                        term *= - x[class_index*M+m] / finres_pop[resource_index]
                     for (res_class_index, res_priority_index) in resource_list[resource_index][1:]:
                         for n in range(M):
                             term2 = term * parameters[res_priority_index, m]

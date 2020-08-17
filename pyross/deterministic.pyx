@@ -2794,8 +2794,11 @@ cdef class Spp(CommonMethods):
                     origin_index = finres_terms[i, 4]
                     destination_index = finres_terms[i, 5]
 
-                    term = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                    if finres_pop[resource_index] > 0:
+                        term = parameters[rate_index, m] * parameters[priority_index, m] \
+                               * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                    else:
+                        term = 0
 
                     if origin_index != -1:
                         dxdt[m+M*origin_index] -= term

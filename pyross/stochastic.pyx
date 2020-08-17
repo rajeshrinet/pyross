@@ -2730,8 +2730,11 @@ cdef class Spp(stochastic_integration):
                 priority_index = finres_terms[i, 1]
                 probability_index = finres_terms[i, 2]
                 class_index = finres_terms[i, 3]
-                rate = parameters[rate_index, m] * parameters[priority_index, m] \
-                       * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                if finres_pop[resource_index] > 0:
+                    rate = parameters[rate_index, m] * parameters[priority_index, m] \
+                           * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                else:
+                    rate = 0
                 rates[offset + i + m*nRpa] = rate
                   
         return
