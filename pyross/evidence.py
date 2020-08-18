@@ -297,7 +297,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
 
         # Binary search for optimal delta_alpha
         delta_alpha = 1/2 * (da_upper + da_lower)
-        while np.abs(comp_cess(delta_alpha) - target_cess) / target_cess > 1e-3:
+        while np.abs(comp_cess(delta_alpha) - target_cess) / target_cess > 1e-4:
             if comp_cess(delta_alpha) > target_cess:
                 da_lower = delta_alpha
             else:

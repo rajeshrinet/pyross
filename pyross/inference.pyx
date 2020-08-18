@@ -1710,7 +1710,7 @@ cdef class SIR_type:
     def _loglikelihood_latent(self, params, grad=0, generator=None, intervention_fun=None, param_keys=None,
                               param_guess_range=None, is_scale_parameter=None, scaled_param_guesses=None,
                               param_length=None, obs=None, fltr=None, Tf=None, obs0=None, init_flags=None,
-                              init_fltrs=None, tangent=None, enable_penalty=False, bounds=None, inter_steps=0,
+                              init_fltrs=None, tangent=None, smooth_penalty=False, bounds=None, inter_steps=0,
                               **catchall_kwargs):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
@@ -1738,10 +1738,15 @@ cdef class SIR_type:
 
         x0 = self._construct_inits(inits, init_flags, init_fltrs, obs0, fltr[0])
         logl = 0
-        if enable_penalty:
+        if smooth_penalty:
+            # Steer the global optimiser away from regions with negative initial values.
             penalty = self._penalty_from_negative_values(x0)
             x0[x0<0] = 0.1/self.Omega # set to be small and positive
             logl -= penalty*fltr.shape[0]
+        else:
+            # Return -Inf if one of the initial values is negative.
+            if not self._all_positive(x0):
+                return -np.Inf
 
         logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
         return logl
@@ -1756,9 +1761,9 @@ cdef class SIR_type:
                                    **logp_kwargs):
         """Objective function for minimization call in latent_infer."""
         if 'disable_penalty' in logp_kwargs:
-            logp = self._logposterior_latent(params, enable_penalty=False,  **logp_kwargs)
+            logp = self._logposterior_latent(params, smooth_penalty=False,  **logp_kwargs)
         else:
-            logp = self._logposterior_latent(params, enable_penalty=True,  **logp_kwargs)
+            logp = self._logposterior_latent(params, smooth_penalty=True,  **logp_kwargs)
         return -logp
 
     def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None,
