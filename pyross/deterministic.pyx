@@ -2713,6 +2713,8 @@ cdef class Spp(CommonMethods):
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
             Py_ssize_t S_index=self.class_index_dict['S'], infection_index
             Py_ssize_t reagent_index, product_index, rate_index
+            Py_ssize_t resource_index, probability_index, priority_index 
+            Py_ssize_t origin_index, destination_index
             int sign
             int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
             int [:, :]  infection_terms=self.infection_terms
@@ -3059,7 +3061,7 @@ cdef class SppSparse(CommonMethods):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
             Py_ssize_t S_index=self.class_index_dict['S'], infection_index
-            Py_ssize_t reagent_index, product_index, rate_index
+            Py_ssize_t reagent_index, product_index, rate_index, morig, mpoint
             int sign
             int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
             int [:, :]  infection_terms=self.infection_terms

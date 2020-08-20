@@ -10,5 +10,5 @@ import pyross.utils_python
 import pyross.evidence
 
 ## current version of PyRoss
-__version__="1.2.8"
+__version__="1.2.9"
 

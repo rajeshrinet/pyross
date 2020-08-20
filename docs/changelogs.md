@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.2.9 
+* Updates to Spp classes in deterministic and stochastic and changes to inference 
+
 ## 1.2.8 
 * Use dynesty in place of nestle 
 

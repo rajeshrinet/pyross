@@ -37,6 +37,10 @@ setup(
     name='pyross',
     version=version,
     url='https://github.com/rajeshrinet/pyross',
+	project_urls={
+            "Documentation": "https://pyross.readthedocs.io",
+            "Source": "https://github.com/rajeshrinet/pyross",
+			},
     author='The PyRoss team',
     author_email = 'pyross@googlegroups.com',
     license='MIT',
@@ -60,5 +64,9 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
+		'Topic :: Scientific/Engineering',
+		'Topic :: Scientific/Engineering :: Mathematics',
+		'Intended Audience :: Science/Research',
+        'Intended Audience :: Education',
         ],
 )
