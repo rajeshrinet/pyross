@@ -2796,7 +2796,7 @@ cdef class Spp(CommonMethods):
                     origin_index = finres_terms[i, 4]
                     destination_index = finres_terms[i, 5]
 
-                    if finres_pop[resource_index] > 0:
+                    if finres_pop[resource_index] >= 0.5:  # only if population does not round to zero
                         term = parameters[rate_index, m] * parameters[priority_index, m] \
                                * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
                     else:
