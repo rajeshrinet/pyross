@@ -1182,25 +1182,18 @@ cdef class SIR_type:
         # Sanity checks of the intputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
-        infer_result_loc = infer_result.copy()
-        # backwards compatibility
-        if 'flat_map' in infer_result_loc:
-            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
-            infer_result_loc['prior'] = lognorm(s=infer_result['s'], scale=infer_result['scale'])
-
-        flat_params = np.copy(infer_result_loc['flat_params'])
+        flat_params = np.copy(infer_result['flat_params'])
 
         kwargs = {}
         for key in ['is_scale_parameter',
-                    'scaled_param_guesses', 's', 'scale']:
-            kwargs[key] = infer_result_loc[key]
+                    'scaled_param_guesses', 'prior']:
+            kwargs[key] = infer_result[key]
 
-        kwargs['keys'] = infer_result_loc['param_keys']
-        kwargs['flat_guess_range'] = infer_result_loc['param_guess_range']
+        kwargs['keys'] = infer_result['param_keys']
+        kwargs['flat_guess_range'] = infer_result['param_guess_range']
         kwargs['generator'] = generator
         kwargs['intervention_fun'] = intervention_fun
         kwargs['inter_steps'] = inter_steps
-        kwargs['prior'] = infer_result_loc['prior']
 
         if np.all(eps == None):
             eps = 10.*np.spacing(flat_params)**(0.25)
@@ -1210,29 +1203,6 @@ cdef class SIR_type:
             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
         hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
         return hess
-
-
-    def compute_hessian(self, x, Tf, contactMatrix, map_dict, tangent=False,
-                         eps=1.e-3, fd_method="central"):
-        '''
-        Computes the Hessian of the MAP estimate.
-
-        Note
-        ----
-        This function has been replaced by `pyross.inference.hessian` and will be deleted
-        in a future version of pyross. See there for a documentation of the function parameters.
-        '''
-        self.contactMatrix = contactMatrix
-        flat_maps = map_dict['flat_map']
-        kwargs = {}
-        for key in ['flat_guess_range', 'is_scale_parameter', 'scaled_guesses', \
-                    'keys', 's', 'scale']:
-            kwargs[key] = map_dict[key]
-        def minuslogp(y):
-             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
-        return hess
-
 
     def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
                    range_1, range_2, resolution_1, resolution_2=None):
@@ -1351,13 +1321,6 @@ cdef class SIR_type:
         sensitivity_correlated = np.divide(1, np.sqrt(np.diagonal(np.linalg.inv(FIM))))
 
         return sensitivity_individual, sensitivity_correlated
-
-    # def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
-    #                tangent=False, infer_scale_parameter=False, fd_method="central"):
-    #     hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,eps,
-    #                                    tangent, infer_scale_parameter, fd_method=fd_method)
-    #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
-
 
     def sample_gaussian(self, N, map_estimate, cov, x, Tf, contactMatrix, prior_dict, tangent=False):
         """
@@ -2828,25 +2791,18 @@ cdef class SIR_type:
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
-        infer_result_loc = infer_result.copy()
-        # backwards compatibility
-        if 'flat_map' in infer_result_loc:
-            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
-            infer_result_loc['prior'] = lognorm(s=infer_result['s'], scale=infer_result['scale'])
-
-        flat_params = np.copy(infer_result_loc['flat_params'])
+        flat_params = np.copy(infer_result['flat_params'])
 
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
-                    'init_fltrs']:
-            kwargs[key] = infer_result_loc[key]
+                    'init_fltrs', 'prior']:
+            kwargs[key] = infer_result[key]
 
         kwargs['generator']=generator
         kwargs['intervention_fun']=intervention_fun
         kwargs['inter_steps']=inter_steps
         kwargs['disable_penalty']=None
-        kwargs['prior']=infer_result_loc['prior']
 
         if np.all(eps == None):
             eps = 10.*np.spacing(flat_params)**(0.25)
@@ -2858,13 +2814,6 @@ cdef class SIR_type:
 
         hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
         return hess
-
-    # def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-    #                       tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
-    #     hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
-    #                                           contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
-    #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
-
 
     def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors,
                                tangent=False):
