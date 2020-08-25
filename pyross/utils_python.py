@@ -5,6 +5,7 @@ import multiprocessing
 import numpy as np
 import nlopt
 import cma
+from scipy.stats import truncnorm, lognorm
 
 try:
     # Optional support for multiprocessing in the minimization function.
@@ -170,3 +171,33 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             print('Optimal value (local minimisation): ', y_result)
 
     return x_result, y_result
+
+
+def parse_prior_fun(name, bounds, mean, std):
+    if name == 'lognorm':
+        return lognorm_prior(bounds, mean, std)
+    elif name == 'truncnorm':
+        return truncnorm_prior(bounds, mean, std)
+    else:
+        raise Exception('Invalid prior_fun. Choose between lognorm and truncnorm')
+
+class truncnorm_prior:
+    def __init__(self, bounds, mean, std):
+        a = (bounds[:, 0] - mean)/std
+        b = (bounds[:, 1] - mean)/std
+        self.rv = truncnorm(a, b, loc=mean, scale=std)
+
+    def logpdf(self, x):
+        return self.rv.logpdf(x)
+
+class lognorm_prior:
+    def __init__(self, bounds, mean, std):
+        var = std**2
+        means_sq = mean**2
+        scale = means_sq/np.sqrt(means_sq+var)
+        s = np.sqrt(np.log(1+var/means_sq))
+        self.rv = lognorm(s, scale=scale)
+        self.norm = np.log(self.rv.cdf(bounds[:, 1]) - self.rv.cdf(bounds[:, 0]))
+
+    def logpdf(self, x):
+        return self.rv.logpdf(x) - self.norm

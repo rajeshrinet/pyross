@@ -101,12 +101,12 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         rate_index = params_index_dict[rate]
                         infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
-                        
-                        
-        # parse the finite resource-terms into 
-        #  1) a list resource_list = [rate_index, (class_index0, priority_index0), (class_index1, priority_index1), ...] 
+
+
+        # parse the finite resource-terms into
+        #  1) a list resource_list = [rate_index, (class_index0, priority_index0), (class_index1, priority_index1), ...]
         #  2) a list finres_terms_list = [resource_index, priority_index, positivity_index, class_index, origin_class_index, destination_class_index]
-                           
+
         finres_terms_set = set() # used to check to duplicates
         finres_terms_dict = {} # collect all finite-resource terms
         finres_terms_list = [] # collect all finite-resource terms
@@ -141,10 +141,10 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         finres_terms_dict[dict_key][1] = class_index_dict[k]
         for (k,val) in finres_terms_dict.items():
-            finres_terms_list.append(list(k) + val)           
-                        
-                    
-                    
+            finres_terms_list.append(list(k) + val)
+
+
+
 
         # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
         test_pos_list = []
@@ -211,6 +211,9 @@ def age_dep_rates(rate, int M, str name):
         return rate
     else:
         raise Exception('{} can be a number or an array of size M'.format(name))
+
+
+
 
 def make_log_norm_dist(means, stds):
     var = stds**2
@@ -624,9 +627,9 @@ def plotSIR(data, showPlot=True):
     sumS = S.sum(axis=1)
     sumI = Is.sum(axis=1)
     sumR = R.sum(axis=1)
-    
+
     try:
-        import matplotlib.pyplot as plt	
+        import matplotlib.pyplot as plt
         plt.fill_between(t, 0, sumS/N, color="#348ABD", alpha=0.3)
         plt.plot(t, sumS/N, '-', color="#348ABD", label='$S$', lw=4)
 
@@ -645,7 +648,7 @@ def plotSIR(data, showPlot=True):
             pass
         else:
             plt.show()
-    
+
     except ImportError:
         print('Please install matplotlib to use this method')
 
@@ -819,7 +822,7 @@ class GPR:
 
     def plotResults(self):
         try:
-            import matplotlib.pyplot as plt	
+            import matplotlib.pyplot as plt
             plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
             plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
             plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')

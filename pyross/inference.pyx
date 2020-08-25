@@ -38,7 +38,7 @@ except ImportError:
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
-from pyross.utils_python import minimization
+from pyross.utils_python import *
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -103,11 +103,7 @@ cdef class SIR_type:
         self._interp = None
 
 
-    def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
-                        tangent=False, verbose=False,
-                        enable_global=True, global_max_iter=100, global_atol=1,
-                        enable_local=True, local_max_iter=200, ftol=1e-6,
-                        cma_processes=0, cma_population=16, cma_random_seed=None):
+    def infer_parameters(self, x, Tf, contactMatrix, prior_dict, **kwargs):
         """Infers the MAP estimates for epidemiological parameters
 
         Parameters
@@ -132,19 +128,15 @@ cdef class SIR_type:
 
 
         output_dict = self.infer(x, Tf, prior_dict, contactMatrix=contactMatrix, generator=None,
-                      intervention_fun=None, tangent=tangent,
-                      verbose=verbose, ftol=ftol,
-                      global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
-                      enable_global=enable_global, enable_local=enable_local,
-                      cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+                      intervention_fun=None, **kwargs)
 
         # match old output dictionary key names (the new implementation of infer uses the same keys as latent_infer)
 
-        output_dict['map_dict'] = output_dict.pop('params_dict')
-        output_dict['keys'] = output_dict.pop('param_keys')
-        output_dict['flat_guess_range'] = output_dict.pop('param_guess_range')
-        output_dict['scaled_guesses'] = output_dict.pop('scaled_param_guesses')
-        output_dict['flat_map'] = output_dict.pop('flat_params')
+        output_dict['map_dict'] = output_dict['params_dict']
+        output_dict['keys'] = output_dict['param_keys']
+        output_dict['flat_guess_range'] = output_dict['param_guess_range']
+        output_dict['scaled_guesses'] = output_dict['scaled_param_guesses']
+        output_dict['flat_map'] = output_dict['flat_params']
 
         return output_dict
 
@@ -229,12 +221,7 @@ cdef class SIR_type:
         return output_samples
 
 
-    def infer_control(self, x, Tf, generator, prior_dict,
-                      intervention_fun=None, tangent=False,
-                      verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_atol=1.,
-                      enable_global=True, enable_local=True,
-                      cma_processes=0, cma_population=16, cma_random_seed=None):
+    def infer_control(self, x, Tf, generator, prior_dict, **kwargs):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown.
@@ -259,18 +246,14 @@ cdef class SIR_type:
         """
 
         output_dict = self.infer(x, Tf, prior_dict, contactMatrix=None, generator=generator,
-                      intervention_fun=intervention_fun, tangent=tangent,
-                      verbose=verbose, ftol=ftol,
-                      global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
-                      enable_global=enable_global, enable_local=enable_local,
-                      cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+                      **kwargs)
 
         # match old output dictionary key names
         del output_dict['params_dict']
-        output_dict['map_dict'] = output_dict.pop('control_params_dict')
-        output_dict['keys'] = output_dict.pop('param_keys')
-        output_dict['flat_guess_range'] = output_dict.pop('param_guess_range')
-        output_dict['scaled_guesses'] = output_dict.pop('scaled_param_guesses')
+        output_dict['map_dict'] = output_dict['control_params_dict']
+        output_dict['keys'] = output_dict['param_keys']
+        output_dict['flat_guess_range'] = output_dict['param_guess_range']
+        output_dict['scaled_guesses'] = output_dict['scaled_param_guesses']
 
         return output_dict
 
@@ -306,21 +289,21 @@ cdef class SIR_type:
 
         return -minus_logl
 
-    def _logposterior(self, params, s=None, scale=None, **logl_kwargs):
+    def _logposterior(self, params, prior=None, **logl_kwargs):
         """Compute the log-posterior (up to a constant) of the model."""
         logl = self._loglikelihood(params, **logl_kwargs)
-        return logl + np.sum(lognorm.logpdf(params, s, scale=scale))
+        return logl + np.sum(prior.logpdf(params))
 
     def _infer_to_minimize(self, params, grad=0, **logp_kwargs):
         """Objective function for minimization call in infer."""
         return -self._logposterior(params, **logp_kwargs)
 
-    def infer(self, x, Tf, prior_dict, contactMatrix=None, generator=None,
-                      intervention_fun=None, tangent=False,
-                      verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_atol=1.,
-                      enable_global=True, enable_local=True,
-                      cma_processes=0, cma_population=16, cma_random_seed=None):
+    def infer(self, x, Tf, prior_dict, prior_fun='lognorm', contactMatrix=None,
+              generator=None, intervention_fun=None, tangent=False,
+              verbose=False, ftol=1e-6,
+              global_max_iter=100, local_max_iter=100, global_atol=1.,
+              enable_global=True, enable_local=True,
+              cma_processes=0, cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for all desired parameters, including control parameters, for an SIR type model
         with fully observed classes. If `generator` is specified, the lockdown is modelled by scaling the contact matrices for contact at work,
@@ -335,6 +318,8 @@ cdef class SIR_type:
             Total time of the trajectory
         prior_dict: dict
             A dictionary containing priors for parameters (can include both model and intervention parameters). See examples.
+        prior_fun: str, optional
+            The name of the function used for prior. Choose between "lognorm" and "truncnorm".
         contactMatrix: callable, optional
             A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
             Either a contactMatrix or a generator must be specified.
@@ -422,13 +407,13 @@ cdef class SIR_type:
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1] - bounds[:, 0])/3)
         minimize_args = {'keys':keys, 'x':x, 'Tf':Tf,
                          'flat_guess_range':flat_guess_range,
                          'is_scale_parameter':is_scale_parameter,
                          'scaled_guesses': scaled_guesses,
-                         'generator':generator, 's':s, 'scale':scale,
+                         'generator':generator, 'prior':prior,
                          'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_atol=global_atol,
@@ -448,7 +433,7 @@ cdef class SIR_type:
                 self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
 
         l_post = -res[1]
-        l_prior = np.sum(lognorm.logpdf(res[0], s, scale=scale))
+        l_prior = np.sum(prior.logpdf(res[0]))
         l_like = l_post - l_prior
         output_dict = {
             'params_dict': map_params_dict, 'flat_params': res[0], 'param_keys': keys,
@@ -456,7 +441,7 @@ cdef class SIR_type:
             'is_scale_parameter':is_scale_parameter,
             'param_guess_range':flat_guess_range,
             'scaled_param_guesses':scaled_guesses,
-            's':s, 'scale':scale
+            'prior': prior
         }
         if map_control_params_dict != {}:
             output_dict['control_params_dict'] = map_control_params_dict
@@ -590,7 +575,8 @@ cdef class SIR_type:
 
         return sampler
 
-    def infer_nested_sampling_process_result(self, sampler, prior_dict, contactMatrix=None, generator=None,
+    def infer_nested_sampling_process_result(self, sampler, prior_dict, prior_fun='lognorm',
+                                             contactMatrix=None, generator=None,
                                              intervention_fun=None, **catchall_kwargs):
         """
         Take the sampler generated by `pyross.inference.infer_nested_sampling` and produce output dictionaries for
@@ -620,7 +606,7 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
 
         result = sampler.results
         output_samples = []
@@ -641,7 +627,7 @@ cdef class SIR_type:
                 else:
                     self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
 
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             output_dict = {
                 'params_dict': map_params_dict, 'flat_params': sample, 'param_keys': keys,
@@ -649,7 +635,7 @@ cdef class SIR_type:
                 'weight':weight, 'is_scale_parameter':is_scale_parameter,
                 'param_guess_range':flat_guess_range,
                 'scaled_param_guesses':scaled_guesses,
-                's':s, 'scale':scale
+                'prior': prior
             }
             if map_control_params_dict != {}:
                 output_dict['control_params_dict'] = map_control_params_dict
@@ -1536,12 +1522,7 @@ cdef class SIR_type:
         return (x0>0).all() and (r>0).all()
 
     def latent_infer_parameters(self, np.ndarray obs, np.ndarray fltr, double Tf,
-                            contactMatrix, param_priors, init_priors,
-                            tangent=False, verbose=False,
-                            double ftol=1e-5,
-                            global_max_iter=100, local_max_iter=100, global_atol=1,
-                            enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16, cma_random_seed=None):
+                            contactMatrix, param_priors, init_priors, **kwargs):
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
@@ -1569,15 +1550,12 @@ cdef class SIR_type:
         """
 
         output_dict = self.latent_infer(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix, generator=None,
-                            intervention_fun=None, tangent=tangent,
-                            verbose=verbose, ftol=ftol, global_max_iter=global_max_iter,
-                            local_max_iter=local_max_iter, global_atol=global_atol, enable_global=enable_global,
-                            enable_local=enable_local, cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+                            intervention_fun=None, **kwargs)
 
         # rename for backwards compatibility
-        output_dict['map_x0'] = output_dict.pop('x0')
-        output_dict['flat_map'] = output_dict.pop('flat_params')
-        output_dict['map_params_dict'] = output_dict.pop('params_dict')
+        output_dict['map_x0'] = output_dict['x0']
+        output_dict['flat_map'] = output_dict['flat_params']
+        output_dict['map_params_dict'] = output_dict['params_dict']
 
         return output_dict
 
@@ -1668,10 +1646,7 @@ cdef class SIR_type:
 
 
     def latent_infer_control(self, obs, fltr, Tf, generator, param_priors, init_priors,
-                            intervention_fun=None, tangent=False,
-                            verbose=False, ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_atol=1., enable_global=True,
-                            enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
+                            **kwargs):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown with partially observed classes.
@@ -1697,13 +1672,11 @@ cdef class SIR_type:
         This function just calls `latent_infer` (with the specified `generator`), will be deprecated.
         """
 
-        output_dict = self.latent_infer(obs, fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=generator,
-                            intervention_fun=intervention_fun, tangent=tangent,
-                            verbose=verbose, ftol=ftol, global_max_iter=global_max_iter,
-                            local_max_iter=local_max_iter, global_atol=global_atol, enable_global=enable_global,
-                            enable_local=enable_local, cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+        output_dict = self.latent_infer(obs, fltr, Tf, param_priors, init_priors,
+                                        contactMatrix=None, generator=generator,
+                                        **kwargs)
         del output_dict['params_dict']
-        output_dict['map_params_dict']=output_dict.pop('control_params_dict')  # Rename entry for backwards compatibility
+        output_dict['map_params_dict']=output_dict['control_params_dict']  # Rename entry for backwards compatibility
 
         return output_dict
 
@@ -1752,10 +1725,10 @@ cdef class SIR_type:
         logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
         return logl
 
-    def _logposterior_latent(self, params, s=None, scale=None,
+    def _logposterior_latent(self, params, prior=None,
                              **logl_kwargs):
         logl = self._loglikelihood_latent(params, **logl_kwargs)
-        logp = logl + np.sum(lognorm.logpdf(params, s, scale=scale))
+        logp = logl + np.sum(prior.logpdf(params))
         return logp
 
     def _latent_infer_to_minimize(self, params, grad=0,
@@ -1767,11 +1740,12 @@ cdef class SIR_type:
             logp = self._logposterior_latent(params, smooth_penalty=True,  **logp_kwargs)
         return -logp
 
-    def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None,
-                            intervention_fun=None, tangent=False,
-                            verbose=False, ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_atol=1., enable_global=True,
-                            enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
+    def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors,
+                     prior_fun='lognorm', contactMatrix=None, generator=None,
+                     intervention_fun=None, tangent=False,
+                     verbose=False, ftol=1e-5, global_max_iter=100,
+                     local_max_iter=100, global_atol=1., enable_global=True,
+                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1931,7 +1905,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
 
@@ -1942,7 +1916,7 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       's':s, 'scale':scale, 'tangent':tangent}
+                       'prior':prior, 'tangent':tangent}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
@@ -1965,7 +1939,6 @@ cdef class SIR_type:
         map_params_dict, map_control_params_dict = self.fill_params_dict(keys, orig_params, return_additional_params=True)
         self.set_params(map_params_dict)
 
-
         if generator is not None:
             if intervention_fun is None:
                 self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
@@ -1974,7 +1947,7 @@ cdef class SIR_type:
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                     obs0, fltr[0])
         l_post = -res[1]
-        l_prior = np.sum(lognorm.logpdf(estimates, s, scale=scale))
+        l_prior = np.sum(prior.logpdf(res[0]))
         l_like = l_post - l_prior
         output_dict = {
             'params_dict':map_params_dict, 'x0':map_x0, 'flat_params':estimates,
@@ -1983,7 +1956,7 @@ cdef class SIR_type:
             'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
             'scaled_param_guesses':scaled_param_guesses,
             'init_flags': init_flags, 'init_fltrs': init_fltrs,
-            's':s, 'scale': scale
+            'prior': prior,
         }
         if map_control_params_dict != {}:
             output_dict['control_params_dict'] = map_control_params_dict
