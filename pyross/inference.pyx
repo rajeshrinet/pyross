@@ -2327,7 +2327,7 @@ cdef class SIR_type:
         logpost_args = {'generator':generator, 'intervention_fun':intervention_fun, 'bounds':bounds, 'param_keys':keys,
                         'param_guess_range':param_guess_range, 'is_scale_parameter':is_scale_parameter,
                         'scaled_param_guesses':scaled_param_guesses, 'param_length':param_length, 'obs':obs,
-                        'fltr':fltr, 'Tf':Tf, 'obs0':obs0, 'init_flags':init_flags, 'init_fltrs': init_fltrs, 
+                        'fltr':fltr, 'Tf':Tf, 'obs0':obs0, 'init_flags':init_flags, 'init_fltrs': init_fltrs,
                         'prior':prior, 'tangent':tangent}
 
         if walker_pos is None:
@@ -3243,22 +3243,21 @@ cdef class SIR_type:
 
     def _construct_inits(self, init_guess, flags, fltrs, obs0, fltr0):
         cdef:
-            np.ndarray x0=np.empty(self.dim, dtype=DTYPE), x0_lin_mode, x0_ind
-            np.ndarray [BOOL_t, ndim=1] mask, init_fltr
+            np.ndarray [DTYPE_t, ndim=1] x0
+            np.ndarray [DTYPE_t, ndim=2] F
             Py_ssize_t start=0
+        x0 = obs0
+        F = fltr0
         if flags[0]: # lin mode
             coeff = init_guess[0]
-            x0_lin_mode = self._lin_mode_inits(coeff)
-            mask = fltrs[0].astype('bool')
-            x0[mask] = x0_lin_mode[mask]
+            x0 = np.concatenate((x0, fltrs[0]@self._lin_mode_inits(coeff)))
+            F = np.concatenate((F, fltrs[0]), axis=0)
             start += 1
         if flags[1]: # independent guesses
-            x0_ind = init_guess[start:]
-            mask = fltrs[1].astype('bool')
-            x0[mask] = x0_ind
-        init_fltr = np.logical_or(fltrs[0], fltrs[1])
-        partial_inits = x0[init_fltr]
-        return self._fill_initial_conditions(partial_inits, obs0, init_fltr, fltr0)
+            x0 = np.concatenate((x0, init_guess[start:]))
+            F = np.concatenate((F, fltrs[1]), axis=0)
+        assert np.linalg.matrix_rank(F) == self.dim, 'Conflicts in initial conditions'
+        return np.linalg.solve(F, x0)
 
     def _lin_mode_inits(self, double coeff):
         cdef double [:] v, x0, fi=self.fi
@@ -3267,18 +3266,6 @@ cdef class SIR_type:
         x0 = np.zeros((self.dim), dtype=DTYPE)
         x0[:self.M] = fi
         return np.add(x0, v)
-
-    def _fill_initial_conditions(self, np.ndarray partial_inits, double [:] obs_inits,
-                                        np.ndarray init_fltr, np.ndarray fltr):
-        cdef:
-            np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
-            double [:] z, unknown_inits, partial_inits_memview=partial_inits.astype(DTYPE)
-        z = np.subtract(obs_inits, np.dot(fltr[:, init_fltr], partial_inits_memview))
-        q, r = np.linalg.qr(fltr[:, np.invert(init_fltr)])
-        unknown_inits = solve_triangular(r, q.T @ z)
-        x0[init_fltr] = partial_inits_memview
-        x0[np.invert(init_fltr)] = unknown_inits
-        return x0
 
     cdef double _obtain_logp_for_traj(self, double [:, :] x, double Tf,
                                      Py_ssize_t inter_steps=0):

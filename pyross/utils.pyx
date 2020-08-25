@@ -222,6 +222,7 @@ def make_log_norm_dist(means, stds):
     s = np.sqrt(np.log(1+var/means_sq))
     return s, scale
 
+
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
 
@@ -550,7 +551,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     stds = []
     bounds = []
     flags = [False, False]
-    fltrs = np.zeros((2, dim), dtype='bool')
+    fltrs = [None, None]
     count = 0
     if 'lin_mode_coeff' in prior_dict.keys():
         sub_dict = prior_dict['lin_mode_coeff']
@@ -558,43 +559,56 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
             guess.append(sub_dict['mean'])
             stds.append(sub_dict['std'])
             bounds.append(sub_dict['bounds'])
-            fltrs[0] = sub_dict['fltr']
+            fltrs[0] = _process_init_fltr(sub_dict['fltr'], dim)
         except KeyError:
             raise Exception('Sub dict of "lin_mode_coeff" must have'
                             ' "mean", "std", "bounds" and "fltr" as keys')
-        assert len(fltrs[0]) == dim
         flags[0] = True
-        count += np.sum(fltrs[0])
+        count += fltrs[0].shape[0]
 
     if 'independent' in prior_dict.keys():
         sub_dict = prior_dict['independent']
         try:
-            fltrs[1] = sub_dict['fltr']
+            fltrs[1] = _process_init_fltr(sub_dict['fltr'], dim)
             guess.extend(sub_dict['mean'])
             stds.extend(sub_dict['std'])
             bounds.extend(sub_dict['bounds'])
         except KeyError:
             raise Exception('Sub dict of "independent" must have'
                             ' "mean", "std", "bounds" and "fltr" as keys')
-        assert len(fltrs[1]) == dim
-        assert np.sum(fltrs[1]) == len(sub_dict['mean'])
+        assert fltrs[1].shape[0] == len(sub_dict['mean'])
         assert len(sub_dict['std']) == len(sub_dict['mean'])
         assert len(sub_dict['bounds']) == len(sub_dict['mean'])
         flags[1] = True
-        count += np.sum(fltrs[1])
+        count += fltrs[1].shape[0]
 
     # make sure that there are some priors
     if np.sum(flags) == 0:
         raise Exception('Prior for inits must have at least one of "independent"'
                         ' and "coeff" as keys')
-    # check for overlapping guesses
-    if flags[0] and flags[1]:
-        assert np.sum(np.logical_or(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
     # check that the total number of guesses is correct
-    assert count == dim - obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
+    assert count == dim - obs_dim, 'Total No. of guessed values must be dim - obs_dim'
 
     return np.array(guess), np.array(stds), np.array(bounds), \
            flags, fltrs
+
+def _process_init_fltr(fltr, dim):
+    fltr = np.array(fltr).astype('bool')
+    if fltr.ndim == 1:
+        assert len(fltr) == dim, 'init_fltr has wrong shape'
+        l = np.sum(fltr)
+        fltr_mat = np.zeros((l, dim), dtype=DTYPE)
+        row = 0
+        for i in range(dim):
+            if fltr[i]:
+                fltr_mat[row, i] = 1
+                row += 1
+        return fltr_mat
+    elif fltr.ndim == 2:
+        assert fltr.shape[1] == dim, 'init_fltr has wrong shape'
+        return fltr.astype('float')
+    else:
+        raise Exception('init_fltr must either be 1D or 2D')
 
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
