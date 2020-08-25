@@ -190,6 +190,9 @@ class truncnorm_prior:
     def logpdf(self, x):
         return self.rv.logpdf(x)
 
+    def ppf(self, x):
+        return self.rv.ppf(x)
+
 class lognorm_prior:
     def __init__(self, bounds, mean, std):
         var = std**2
@@ -199,5 +202,15 @@ class lognorm_prior:
         self.rv = lognorm(s, scale=scale)
         self.norm = np.log(self.rv.cdf(bounds[:, 1]) - self.rv.cdf(bounds[:, 0]))
 
+        # For inverse transform sampling of the truncated log-normal distribution.
+        self.ppf_bounds = np.zeros((len(mean), 2))
+        self.ppf_bounds[:,0] = self.rv.cdf(bounds[:,0])
+        self.ppf_bounds[:,1] = self.rv.cdf(bounds[:,1])
+        self.ppf_bounds[:,1] = self.ppf_bounds[:,1] - self.ppf_bounds[:,0]
+
     def logpdf(self, x):
         return self.rv.logpdf(x) - self.norm
+
+    def ppf(self, x):
+        y = self.ppf_bounds[:,0] + x * self.ppf_bounds[:,1]
+        return self.rv.ppf(y)
