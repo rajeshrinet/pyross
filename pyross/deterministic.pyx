@@ -2743,7 +2743,8 @@ cdef class Spp(CommonMethods):
                 lambdas[i, m] = 0
                 for n in range(M):
                     index = n + M*infective_index
-                    lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
+                    if Ni[n]>0:
+                        lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
                     
         # Calculate populations for finite resource transitions
         for i in range(len(resource_list)):
@@ -3407,7 +3408,8 @@ cdef class SppQ(CommonMethods):
                 lambdas[i, m] = 0
                 for n in range(M):
                     index = n + M*infective_index
-                    lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
+                    if Ni[n]>0:
+                        lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
 
         # Compute non-quarantined recovered
         Ri = Ni.copy() 
