@@ -3007,6 +3007,8 @@ cdef class SppSparse(CommonMethods):
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
+
+        contactMatrixtt = contactMatrixt(0)
         
         print("Preprocessing sparse contact matrix\n")
         check = int(M*M/20)
@@ -3014,7 +3016,7 @@ cdef class SppSparse(CommonMethods):
             for j in range(M):
                 if (i * M + j) % check == 0:
                     print ("Processed",(i * M + j) * 100/( M * M ),"%, 1/2")
-                if contactMatrixt[i,j] > threshold:
+                if contactMatrixtt[i,j] > threshold:
                     self.intCounter += int(1)
                     
         self.interactingMP = np.zeros((self.intCounter,2), dtype = np.int32)
@@ -3024,7 +3026,7 @@ cdef class SppSparse(CommonMethods):
             for j in range(M):
                 if (i * M + j) % check == 0:
                     print ("Processed",(i * M + j) * 100/( M * M ),"%, 2/2")
-                if contactMatrixt[i,j] > threshold:
+                if contactMatrixtt[i,j] > threshold:
                     self.interactingMP[counter] = [int(i),int(j)]
                     counter += int(1)
 
