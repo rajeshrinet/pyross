@@ -4615,7 +4615,8 @@ cdef class Spp(SIR_type):
             for m in range(M):
                 for n in range(M):
                     index = n + M*infective_index
-                    l[i, m] += CM[m,n]*x[index]/fi[n]
+                    if fi[n]>0:
+                        l[i, m] += CM[m,n]*x[index]/fi[n]
 
     cdef fill_finres_pop(self, double [:] x):
         # Calculate populations for finite resource transitions
@@ -5062,7 +5063,8 @@ cdef class SppQ(SIR_type):
             for m in range(M):
                 for n in range(M):
                     index = n + M*infective_index
-                    l[i, m] += CM[m,n]*x[index]/fi[n]
+                    if fi[n]>0:
+                        l[i, m] += CM[m,n]*x[index]/fi[n]
 
     cdef jacobian(self, double [:] x, double [:, :] l, double [:] r, double ntestpop, double tau0):
         cdef:
