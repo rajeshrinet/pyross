@@ -67,6 +67,7 @@ cdef class SIR_type:
         readonly dict class_index_dict
         readonly list param_keys, _interp
         readonly object contactMatrix
+        readonly bint param_mapping_enabled
 
 
     def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov):
@@ -101,6 +102,8 @@ cdef class SIR_type:
 
         self._xm = None
         self._interp = None
+        
+        self.param_mapping_enabled = False
 
 
     def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
@@ -420,8 +423,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M,
-                                                     check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
 
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1] - bounds[:, 0])/3)
@@ -553,8 +555,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M,
-                                                     check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M,  check_length=(not self.param_mapping_enabled))
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         ndim = len(guess)
@@ -621,8 +622,7 @@ cdef class SIR_type:
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         result = sampler.results
@@ -757,8 +757,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M,
-                                                     check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         ndim = len(guess)
@@ -838,8 +837,7 @@ cdef class SIR_type:
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
@@ -1411,8 +1409,7 @@ cdef class SIR_type:
             N samples of the Gaussian distribution.
         """
         keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         s, scale = pyross.utils.make_log_norm_dist(guess, stds)
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
@@ -1925,8 +1922,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2097,8 +2093,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2189,8 +2184,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2344,8 +2338,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2454,8 +2447,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2953,8 +2945,7 @@ cdef class SIR_type:
         # Read in parameter priors
         keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M,
-                                                 check_length=((self.parameter_mapping is not None) and (self.time_dep_param_mapping is not None)))
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -4502,8 +4493,10 @@ cdef class Spp(SIR_type):
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
+            self.param_mapping_enabled = True
         if self.time_dep_param_mapping is not None:
             self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+            self.param_mapping_enabled = True
         else:
             self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
 
