@@ -4,7 +4,6 @@
 # of the posterior is feasible and should work even for sophisticated epidemiological models. 
 
 import numpy as np
-from scipy.stats import lognorm
 try:
     # Support for MCMC sampling.
     import emcee
@@ -18,10 +17,12 @@ except ImportError:
     pathos_mp = None
 
 import pyross.utils
+from pyross.utils_python import parse_prior_fun
+
 
 DTYPE = np.float
 
-def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, 
+def get_parameters(estimator, x, Tf, prior_dict, prior_fun='lognorm', contactMatrix=None, generator=None, intervention_fun=None, 
                    tangent=False):
     """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
     `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems without latent 
@@ -44,12 +45,10 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
     -------
     logl:
         The log-likelihood of the inference problem.
-    s:
-        The shape parameter of the prior lognormal distribution.
-    scale:
-        The scale parameter of the prior lognormal distribution.
-    bounds:
-        The bounds for the log-likelihood function.
+    prior:
+        The prior distribution of the parameters.
+    ndim:
+        The number of (flat) parameters.
     """
     # Sanity checks of the inputs
     if (contactMatrix is None) == (generator is None):
@@ -63,17 +62,17 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
     keys, guess, stds, bounds, \
     flat_guess_range, is_scale_parameter, scaled_guesses  \
             = pyross.utils.parse_param_prior_dict(prior_dict, estimator.M)
-    s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+    prior = parse_prior_fun(prior_fun, bounds, guess, stds)
 
     logl = lambda params: estimator._loglikelihood(params, contactMatrix=contactMatrix, generator=generator, 
                 intervention_fun=intervention_fun, keys=keys, x=x, Tf=Tf, tangent=tangent,
                 is_scale_parameter=is_scale_parameter, flat_guess_range=flat_guess_range,
                 scaled_guesses=scaled_guesses, bounds=bounds)
     
-    return logl, s, scale, bounds
+    return logl, prior, len(guess)
 
 
-def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
+def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, prior_fun='lognorm', contactMatrix=None, generator=None, 
                           intervention_fun=None, tangent=False):
     """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
     `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems with latent 
@@ -98,12 +97,10 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, c
     -------
     logl:
         The log-likelihood of the inference problem.
-    s:
-        The shape parameter of the prior lognormal distribution.
-    scale:
-        The scale parameter of the prior lognormal distribution.
-    bounds:
-        The bounds for the log-likelihood function.
+    prior:
+        The prior distribution of the parameters.
+    ndim:
+        The number of (flat) parameters.
     """
     # Sanity checks of the inputs
     if (contactMatrix is None) == (generator is None):
@@ -128,17 +125,18 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, c
     # Concatenate the flattend parameter guess with init guess
     param_length = param_guess.shape[0]
     guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+    ndim = len(guess)
     stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
     bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-    s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+    prior = parse_prior_fun(prior_fun, bounds, guess, stds)
 
     logl = lambda params: estimator._loglikelihood_latent(params, generator=generator, intervention_fun=intervention_fun, 
                 param_keys=keys, param_guess_range=param_guess_range, is_scale_parameter=is_scale_parameter, 
                 scaled_param_guesses=scaled_param_guesses, param_length=param_length, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
                 init_flags=init_flags, init_fltrs=init_fltrs, tangent=tangent, enable_penalty=False, bounds=bounds)
 
-    return logl, s, scale, bounds
+    return logl, prior, ndim
 
 
 def compute_ess(weights):
@@ -176,7 +174,7 @@ def resample(N, particles, logl, probs):
     return result_particles, result_logl
 
 
-def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_cess=0.9, min_ess=0.6, mcmc_iter=50, nprocesses=0, 
+def evidence_smc(logl, prior, ndim, npopulation=200, target_cess=0.9, min_ess=0.6, mcmc_iter=50, nprocesses=0, 
                  save_samples=True, verbose=True):
     """ Compute the evidence using an adaptive sequential Monte Carlo method.
 
@@ -194,11 +192,9 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     ----------
     logl:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    prior_s:
+    prior:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    prior_scale:
-        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    bounds:
+    ndim:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
     npopulation: int
         The number of particles used for the SMC iteration. Higher number of particles increases the accuracy of the result.
@@ -251,25 +247,19 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
         mcmc_pool = None
         mcmc_map = map
 
-    logp = lambda params: np.sum(lognorm.logpdf(params, prior_s, scale=prior_scale))
+    logp = lambda params: np.sum(prior.logpdf(params))
 
     alpha = 0.0
     delta_alpha = 0.0001  # Initial step should be small enough to avoid float overflows.
     log_evidence = 0.0
-    ndim = len(prior_s)
 
     # If `save_samples==True`, we save the initial position of the particles and the result of
     # each `emcee` run in this list.
     result_samples = []
 
     # Sample initial points (truncated log-normal within boundaries)
-    ppf_bounds = np.zeros((ndim, 2))
-    ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], prior_s, scale=prior_scale)
-    ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], prior_s, scale=prior_scale)
-    ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
     points = np.random.rand(npopulation, ndim)
-    y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
-    particles = lognorm.ppf(y, prior_s, scale=prior_scale)
+    particles = prior.ppf(points)
 
     if save_samples:
         result_samples.append((alpha, particles))
@@ -360,7 +350,7 @@ def evidence_smc(logl, prior_s, prior_scale, bounds, npopulation=200, target_ces
     return log_evidence
 
 
-def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulation=100, mcmc_iter=1000, nprocesses=0,
+def evidence_path_sampling(logl, prior, ndim, steps, npopulation=100, mcmc_iter=1000, nprocesses=0,
                            initial_samples=10, verbose=True, extend_step_list=None, extend_sampler_list=None):
     """ Compute the evidence using path sampling (thermodynamic integration).
 
@@ -387,11 +377,9 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     ----------
     logl:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    prior_s:
+    prior:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    prior_scale:
-        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    bounds:
+    ndim:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
     steps: list of float
         List of steps `s` for which the distribution `p_s` is explored using MCMC. Should be in ascending order
@@ -436,24 +424,17 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     else:
         mcmc_pool = None
 
-    logp = lambda params: np.sum(lognorm.logpdf(params, prior_s, scale=prior_scale))
-
-    ndim = len(prior_s)
+    logp = lambda params: np.sum(prior.logpdf(params))
 
     # Sample initial points (truncated log-normal within boundaries)
-    ppf_bounds = np.zeros((ndim, 2))
-    ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], prior_s, scale=prior_scale)
-    ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], prior_s, scale=prior_scale)
-    ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
     points = np.random.rand(npopulation, ndim)
-    y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
-    first_init_positions = lognorm.ppf(y, prior_s, scale=prior_scale)
+    first_init_positions = prior.ppf(points)
+
     step_list = []
     sampler_list = []
     if extend_step_list is None:
         points = np.random.rand(initial_samples*npopulation, ndim)
-        y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
-        ext_init_positions = lognorm.ppf(y, prior_s, scale=prior_scale)
+        ext_init_positions = prior.ppf(points)
 
         step_list = [0.0]
         sampler_list = [ext_init_positions]
@@ -501,7 +482,7 @@ def evidence_path_sampling(logl, prior_s, prior_scale, bounds, steps, npopulatio
     return step_list, sampler_list
 
 
-def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, step_list, sampler_list, 
+def evidence_path_sampling_process_result(logl, prior, ndim, step_list, sampler_list, 
                                           burn_in=0, nprocesses=0):
     """ Compute the evidence estimate for the result of `pyross.evidence.evidence_path_sampling`.
 
@@ -509,11 +490,9 @@ def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, st
     ----------
     logl:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    prior_s:
+    prior:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    prior_scale:
-        Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
-    bounds:
+    ndim:
         Input from `pyross.evidence.get_parameters` or `pyross.evidence.latent_get_parameters`.
     step_list: list of float
         Output of `pyross.evidence.evidence_path_sampling`. The steps `s` for which `p_s` has been 
@@ -551,7 +530,7 @@ def evidence_path_sampling_process_result(logl, prior_s, prior_scale, bounds, st
         mcmc_pool = None
         mcmc_map = map
 
-    logp = lambda params: np.sum(lognorm.logpdf(params, prior_s, scale=prior_scale))
+    logp = lambda params: np.sum(prior.logpdf(params))
 
     if np.size(burn_in) == 1:
         local_burn_in = burn_in * np.ones(len(step_list)-1, 'int')
