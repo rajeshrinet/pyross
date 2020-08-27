@@ -462,11 +462,17 @@ def process_latent_data(np.ndarray fltr, np.ndarray obs):
     obs = process_obs(obs[1:], Nf-1)
     return fltr, obs, obs0
 
-def _parse_prior_name(sub_dict):
+def _parse_prior_name(sub_dict, dim):
     if 'prior_fun' in sub_dict:
-        return sub_dict['prior_fun']
+        prior = sub_dict['prior_fun']
+        if np.size(prior) == 1:
+            return [prior]*dim
+        elif np.size(prior) == dim:
+            return prior
+        else:
+            raise Exception('prior_fun must be of length 1 or {}'.format(dim))
     else:
-        return 'lognorm'
+        return ['lognorm']*dim
 
 def parse_param_prior_dict(prior_dict, M):
     flat_guess = []
@@ -496,7 +502,7 @@ def parse_param_prior_dict(prior_dict, M):
                                 ' as keys'.format(key))
             flat_guess_range.append(count)
             is_scale_parameter.append(False)
-            names.append(_parse_prior_name(sub_dict))
+            names += _parse_prior_name(sub_dict, 1)
             count += 1
         else:
             infer_scale = False
@@ -514,7 +520,7 @@ def parse_param_prior_dict(prior_dict, M):
                 scaled_guesses.append(mean)
                 flat_guess_range.append(count)
                 is_scale_parameter.append(True)
-                names.append(_parse_prior_name(sub_dict))
+                names += _parse_prior_name(sub_dict, 1)
                 count += 1
             else:
                 assert len(mean) == M, 'length of mean must be either 1 or M'
@@ -530,7 +536,7 @@ def parse_param_prior_dict(prior_dict, M):
                 is_scale_parameter += [False]*M
                 flat_guess_range.append(list(range(count, count+M)))
                 prior_name = _parse_prior_name(sub_dict)
-                names += [prior_name] * M
+                names += _parse_prior_name(sub_dict, M)
                 count += M
     return names, key_list, np.array(flat_guess), np.array(flat_stds), \
           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
@@ -566,7 +572,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
             raise Exception('Sub dict of "lin_mode_coeff" must have'
                             ' "mean", "std", "bounds" and "fltr" as keys')
         flags[0] = True
-        names.append(_parse_prior_name(sub_dict))
+        names += _parse_prior_name(sub_dict, 1)
         count += fltrs[0].shape[0]
 
     if 'independent' in prior_dict.keys():
@@ -583,8 +589,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
         assert len(sub_dict['std']) == len(sub_dict['mean'])
         assert len(sub_dict['bounds']) == len(sub_dict['mean'])
         flags[1] = True
-        prior_name = _parse_prior_name(sub_dict)
-        names += [prior_name] * len(sub_dict['mean'])
+        names += _parse_prior_name(sub_dict, len(sub_dict['mean']))
         count += fltrs[1].shape[0]
 
     # make sure that there are some priors
