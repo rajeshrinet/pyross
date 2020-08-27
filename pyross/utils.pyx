@@ -535,7 +535,6 @@ def parse_param_prior_dict(prior_dict, M):
                                     ' as keys'.format(key))
                 is_scale_parameter += [False]*M
                 flat_guess_range.append(list(range(count, count+M)))
-                prior_name = _parse_prior_name(sub_dict)
                 names += _parse_prior_name(sub_dict, M)
                 count += M
     return names, key_list, np.array(flat_guess), np.array(flat_stds), \
