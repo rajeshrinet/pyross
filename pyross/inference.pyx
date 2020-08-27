@@ -5013,7 +5013,7 @@ cdef class SppQ(SIR_type):
             double [:] fi=self.fi
             double Omega = self.Omega
             double ntestpop=0, tau0=0
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             Py_ssize_t m, i
 
         # Compute non-quarantined recovered
@@ -5073,7 +5073,7 @@ cdef class SppQ(SIR_type):
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             int [:] test_pos=self.test_pos
             int [:] test_freq=self.test_freq
@@ -5156,7 +5156,7 @@ cdef class SppQ(SIR_type):
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             int [:, :] constant_terms=self.constant_terms
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             int [:] test_pos=self.test_pos
