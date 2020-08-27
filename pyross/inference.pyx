@@ -298,7 +298,7 @@ cdef class SIR_type:
         """Objective function for minimization call in infer."""
         return -self._logposterior(params, **logp_kwargs)
 
-    def infer(self, x, Tf, prior_dict, prior_fun='lognorm', contactMatrix=None,
+    def infer(self, x, Tf, prior_dict, contactMatrix=None,
               generator=None, intervention_fun=None, tangent=False,
               verbose=False, ftol=1e-6,
               global_max_iter=100, local_max_iter=100, global_atol=1.,
@@ -318,8 +318,6 @@ cdef class SIR_type:
             Total time of the trajectory
         prior_dict: dict
             A dictionary containing priors for parameters (can include both model and intervention parameters). See examples.
-        prior_fun: str, optional
-            The name of the function used for prior. Choose between "lognorm" and "truncnorm".
         contactMatrix: callable, optional
             A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
             Either a contactMatrix or a generator must be specified.
@@ -387,12 +385,14 @@ cdef class SIR_type:
                     'mean': [0.5, 0.2],
                     'infer_scale': True,
                     'scale_factor_std': 1,
-                    'scale_factor_bounds': [0.1, 10]
+                    'scale_factor_bounds': [0.1, 10],
+                    'prior_fun': 'truncnorm'
                 },
                 'beta':{
                     'mean': 0.02,
                     'std': 0.1,
-                    'bounds': [1e-4, 1]
+                    'bounds': [1e-4, 1],
+                    'prior_fun': 'lognorm'
                 }
             }
 
@@ -403,11 +403,10 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1] - bounds[:, 0])/3)
         minimize_args = {'keys':keys, 'x':x, 'Tf':Tf,
                          'flat_guess_range':flat_guess_range,
@@ -451,7 +450,7 @@ cdef class SIR_type:
     def _nested_sampling_prior_transform(self, x, prior=None):
         return prior.ppf(x)
 
-    def infer_nested_sampling(self, x, Tf, prior_dict, prior_fun='lognorm', contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
+    def infer_nested_sampling(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
                               verbose=False, nprocesses=0, queue_size=None, maxiter=None, maxcall=None, dlogz=None,
                               n_effective=None, add_live=True, sampler=None, **dynesty_args):
         """
@@ -535,10 +534,10 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         ndim = len(guess)
         prior_transform_args = {'prior':prior}
@@ -575,7 +574,7 @@ cdef class SIR_type:
 
         return sampler
 
-    def infer_nested_sampling_process_result(self, sampler, prior_dict, prior_fun='lognorm',
+    def infer_nested_sampling_process_result(self, sampler, prior_dict,
                                              contactMatrix=None, generator=None,
                                              intervention_fun=None, **catchall_kwargs):
         """
@@ -604,9 +603,9 @@ cdef class SIR_type:
             The processed weighted posterior samples.
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         result = sampler.results
         output_samples = []
@@ -644,7 +643,7 @@ cdef class SIR_type:
 
         return result, output_samples
 
-    def infer_mcmc(self, x, Tf, prior_dict, prior_fun='lognorm', contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
+    def infer_mcmc(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
                    verbose=False, sampler=None, nwalkers=None, walker_pos=None, nsamples=1000, nprocesses=0):
         """
         Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
@@ -738,10 +737,10 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         ndim = len(guess)
         if nwalkers is None:
@@ -784,7 +783,7 @@ cdef class SIR_type:
 
         return sampler
 
-    def infer_mcmc_process_result(self, sampler, prior_dict, prior_fun='lognorm', contactMatrix=None, generator=None,
+    def infer_mcmc_process_result(self, sampler, prior_dict, contactMatrix=None, generator=None,
                                   intervention_fun=None, flat=True, discard=0, thin=1, **catchall_kwargs):
         """
         Take the sampler generated by `pyross.inference.infer_mcmc` and produce output dictionaries for further use in the
@@ -814,9 +813,9 @@ cdef class SIR_type:
             The processed posterior samples.
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
         log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
@@ -1351,9 +1350,9 @@ cdef class SIR_type:
         samples: list of dict
             N samples of the Gaussian distribution.
         """
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                        'x':x, 'Tf':Tf, 'tangent':tangent}
@@ -1370,7 +1369,7 @@ cdef class SIR_type:
                 pyross.utils.unflatten_parameters(sample, map_estimate['flat_guess_range'],
                         map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
             l_like = self._loglike(sample, **loglike_args)
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             new_sample['log_posterior'] = l_post
             new_sample['log_prior'] = l_prior
@@ -1701,7 +1700,7 @@ cdef class SIR_type:
         return -logp
 
     def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors,
-                     prior_fun='lognorm', contactMatrix=None, generator=None,
+                     contactMatrix=None, generator=None,
                      intervention_fun=None, tangent=False,
                      verbose=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, global_atol=1., enable_global=True,
@@ -1851,12 +1850,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -1865,7 +1864,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
 
@@ -1923,7 +1922,7 @@ cdef class SIR_type:
 
         return output_dict
 
-    def latent_infer_nested_sampling(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, prior_fun='lognorm', contactMatrix=None,
+    def latent_infer_nested_sampling(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None,
                                       generator=None, intervention_fun=None, tangent=False, verbose=False, nprocesses=0,
                                       queue_size=None, maxiter=None, maxcall=None, dlogz=None, n_effective=None, add_live=True,
                                       sampler=None, **dynesty_args):
@@ -2021,12 +2020,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2035,7 +2034,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         ndim = len(guess)
 
@@ -2075,7 +2074,7 @@ cdef class SIR_type:
 
         return sampler
 
-    def latent_infer_nested_sampling_process_result(self, sampler, obs, fltr, param_priors, init_priors, prior_fun='lognorm', contactMatrix=None,
+    def latent_infer_nested_sampling_process_result(self, sampler, obs, fltr, param_priors, init_priors, contactMatrix=None,
                                                      generator=None, intervention_fun=None, **catchall_kwargs):
         """
         Take the sampler generated by `pyross.inference.latent_infer_nested_sampling` and produce output dictionaries for
@@ -2112,12 +2111,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2126,7 +2125,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         result = sampler.results
         output_samples = []
@@ -2169,7 +2168,7 @@ cdef class SIR_type:
 
         return result, output_samples
 
-    def latent_infer_mcmc(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, prior_fun='lognorm', contactMatrix=None, generator=None,
+    def latent_infer_mcmc(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None,
                           intervention_fun=None, tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None,
                           nsamples=1000, nprocesses=0):
         """ Sample the posterior distribution of the initial conditions and all desired parameters, including control parameters, using
@@ -2266,12 +2265,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2280,7 +2279,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         ndim = len(guess)
 
@@ -2330,7 +2329,7 @@ cdef class SIR_type:
 
         return sampler
 
-    def latent_infer_mcmc_process_result(self, sampler, obs, fltr, param_priors, init_priors, prior_fun='lognorm', contactMatrix=None,
+    def latent_infer_mcmc_process_result(self, sampler, obs, fltr, param_priors, init_priors, contactMatrix=None,
                                          generator=None, intervention_fun=None, flat=True, discard=0, thin=1,
                                          **catchall_kwargs):
         """
@@ -2370,12 +2369,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2384,7 +2383,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
         log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
@@ -2856,12 +2855,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M)
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2870,7 +2869,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
         loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
@@ -2897,7 +2896,7 @@ cdef class SIR_type:
             new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
                                       map_estimate['init_fltrs'], obs0, fltr[0])
             l_like = self._loglike_latent(sample, **loglike_args)
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             new_sample['log_posterior'] = l_post
             new_sample['log_prior'] = l_prior

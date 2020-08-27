@@ -175,16 +175,35 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
 
 def parse_prior_fun(name, bounds, mean, std):
     if name == 'lognorm':
-        return lognorm_prior(bounds, mean, std)
+        return lognorm_rv(bounds, mean, std)
     elif name == 'truncnorm':
-        return truncnorm_prior(bounds, mean, std)
+        return truncnorm_rv(bounds, mean, std)
     else:
         raise Exception('Invalid prior_fun. Choose between lognorm and truncnorm')
 
-class truncnorm_prior:
+class Prior:
+    def __init__(self, names, bounds, means, stds):
+        self.rvs = []
+        for (i, n) in enumerate(names):
+            rv = parse_prior_fun(n, bounds[i], means[i], stds[i])
+            self.rvs.append(rv)
+
+    def logpdf(self, x):
+        logpdfs = np.empty_like(x)
+        for (i, xi) in enumerate(x):
+            logpdfs[i] = self.rvs[i].logpdf(xi)
+        return logpdfs
+
+    def ppf(self, x):
+        ppfs = np.empty_like(x)
+        for (i, xi) in enumerate(x):
+            ppfs[i] = self.rvs[i].ppf(xi)
+        return ppfs
+
+class truncnorm_rv:
     def __init__(self, bounds, mean, std):
-        a = (bounds[:, 0] - mean)/std
-        b = (bounds[:, 1] - mean)/std
+        a = (bounds[0] - mean)/std
+        b = (bounds[1] - mean)/std
         self.rv = truncnorm(a, b, loc=mean, scale=std)
 
     def logpdf(self, x):
@@ -193,24 +212,24 @@ class truncnorm_prior:
     def ppf(self, x):
         return self.rv.ppf(x)
 
-class lognorm_prior:
+class lognorm_rv:
     def __init__(self, bounds, mean, std):
         var = std**2
         means_sq = mean**2
         scale = means_sq/np.sqrt(means_sq+var)
         s = np.sqrt(np.log(1+var/means_sq))
         self.rv = lognorm(s, scale=scale)
-        self.norm = np.log(self.rv.cdf(bounds[:, 1]) - self.rv.cdf(bounds[:, 0]))
+        self.norm = np.log(self.rv.cdf(bounds[1]) - self.rv.cdf(bounds[0]))
 
         # For inverse transform sampling of the truncated log-normal distribution.
-        self.ppf_bounds = np.zeros((len(mean), 2))
-        self.ppf_bounds[:,0] = self.rv.cdf(bounds[:,0])
-        self.ppf_bounds[:,1] = self.rv.cdf(bounds[:,1])
-        self.ppf_bounds[:,1] = self.ppf_bounds[:,1] - self.ppf_bounds[:,0]
+        self.ppf_bounds = np.zeros((2))
+        self.ppf_bounds[0] = self.rv.cdf(bounds[0])
+        self.ppf_bounds[1] = self.rv.cdf(bounds[1])
+        self.ppf_bounds[1] = self.ppf_bounds[1] - self.ppf_bounds[0]
 
     def logpdf(self, x):
         return self.rv.logpdf(x) - self.norm
 
     def ppf(self, x):
-        y = self.ppf_bounds[:,0] + x * self.ppf_bounds[:,1]
+        y = self.ppf_bounds[0] + x * self.ppf_bounds[1]
         return self.rv.ppf(y)
