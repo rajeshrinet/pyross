@@ -3054,7 +3054,7 @@ cdef class SIR_type:
         x0: numpy.array
             Full initial conditions.
         '''
-        init_mean, _, _, init_flags, init_fltrs \
+        _, init_mean, _, _, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
         x0 = self._construct_inits(init_mean, init_flags, init_fltrs, obs0, fltr0)
         return x0
