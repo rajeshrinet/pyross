@@ -17,12 +17,11 @@ except ImportError:
     pathos_mp = None
 
 import pyross.utils
-from pyross.utils_python import parse_prior_fun
-
+from pyross.utils_python import Prior
 
 DTYPE = np.float
 
-def get_parameters(estimator, x, Tf, prior_dict, prior_fun='lognorm', contactMatrix=None, generator=None, intervention_fun=None, 
+def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, 
                    tangent=False):
     """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
     `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems without latent 
@@ -59,10 +58,10 @@ def get_parameters(estimator, x, Tf, prior_dict, prior_fun='lognorm', contactMat
         estimator.set_contact_matrix(contactMatrix)
 
     # Read in parameter priors
-    keys, guess, stds, bounds, \
+    prior_names, keys, guess, stds, bounds, \
     flat_guess_range, is_scale_parameter, scaled_guesses  \
             = pyross.utils.parse_param_prior_dict(prior_dict, estimator.M)
-    prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+    prior = pyross.Prior(prior_names, bounds, guess, stds)
 
     logl = lambda params: estimator._loglikelihood(params, contactMatrix=contactMatrix, generator=generator, 
                 intervention_fun=intervention_fun, keys=keys, x=x, Tf=Tf, tangent=tangent,
@@ -72,7 +71,7 @@ def get_parameters(estimator, x, Tf, prior_dict, prior_fun='lognorm', contactMat
     return logl, prior, len(guess)
 
 
-def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, prior_fun='lognorm', contactMatrix=None, generator=None, 
+def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
                           intervention_fun=None, tangent=False):
     """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
     `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems with latent 
@@ -102,41 +101,35 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, p
     ndim:
         The number of (flat) parameters.
     """
-    # Sanity checks of the inputs
-    if (contactMatrix is None) == (generator is None):
-        raise Exception('Specify either a fixed contactMatrix or a generator')
-    if (intervention_fun is not None) and (generator is None):
-        raise Exception('Specify a generator')
-    if contactMatrix is not None:
-        estimator.set_contact_matrix(contactMatrix)
-    
+    # Sanity checks of the intputs
+    estimator._process_contact_matrix(contactMatrix, generator, intervention_fun)
+
     # Process fltr and obs
     fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
     # Read in parameter priors
-    keys, param_guess, param_stds, param_bounds, param_guess_range, \
+    param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
     is_scale_parameter, scaled_param_guesses \
         = pyross.utils.parse_param_prior_dict(param_priors, estimator.M)
 
     # Read in initial conditions priors
-    init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+    init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
         = pyross.utils.parse_init_prior_dict(init_priors, estimator.dim, len(obs0))
 
     # Concatenate the flattend parameter guess with init guess
     param_length = param_guess.shape[0]
     guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-    ndim = len(guess)
     stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
     bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-    prior = parse_prior_fun(prior_fun, bounds, guess, stds)
+    prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
     logl = lambda params: estimator._loglikelihood_latent(params, generator=generator, intervention_fun=intervention_fun, 
                 param_keys=keys, param_guess_range=param_guess_range, is_scale_parameter=is_scale_parameter, 
                 scaled_param_guesses=scaled_param_guesses, param_length=param_length, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
                 init_flags=init_flags, init_fltrs=init_fltrs, tangent=tangent, enable_penalty=False, bounds=bounds)
 
-    return logl, prior, ndim
+    return logl, prior, len(guess)
 
 
 def compute_ess(weights):

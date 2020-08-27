@@ -196,8 +196,8 @@ class Prior:
 
     def ppf(self, x):
         ppfs = np.empty_like(x)
-        for (i, xi) in enumerate(x):
-            ppfs[i] = self.rvs[i].ppf(xi)
+        for i in range(x.shape[-1]):
+            ppfs[...,i] = self.rvs[i].ppf(x[...,i])
         return ppfs
 
 class truncnorm_rv:
