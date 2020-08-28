@@ -3132,7 +3132,7 @@ cdef class SIR_type:
         obs0: numpy.array
             Observed initial conditions.
         fltr0: numpy.array
-            Filter for the observed initial conditons.
+            Filter for the observed initial conditions.
 
         Returns
         -------
