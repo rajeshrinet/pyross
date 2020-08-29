@@ -2931,326 +2931,6 @@ cdef class Spp(CommonMethods):
                 X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
                 Os = self.Ni - np.sum(X_reshaped, axis=1)
         return Os
-    
-    
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SppSparse(CommonMethods):
-    """
-    Generic user-defined epidemic model.
-
-    ...
-
-    Parameters
-    ----------
-    model_spec: dict
-        A dictionary specifying the model. See `Examples`.
-    parameters: dict
-        Contains the values for the parameters given in the model specification.
-        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
-    M: int
-        Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    Ni: np.array(M, )
-        Initial number in each compartment and class
-    time_dep_param_mapping: python function, optional
-        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
-        Default: Identical mapping of the dictionary at all times. 
-
-    Examples
-    --------
-    An example of model_spec and parameters for SIR class with a constant influx
-
-    >>> model_spec = {
-            "classes" : ["S", "I"],
-            "S" : {
-                "constant"  : [ ["k"] ],
-                "infection" : [ ["I", "-beta"] ]
-            },
-            "I" : {
-                "linear"    : [ ["I", "-gamma"] ],
-                "infection" : [ ["I", "beta"] ]
-            }
-        }
-    >>> parameters = {
-            'beta': 0.1,
-            'gamma': 0.1,
-            'k': 1,
-        }
-    """
-
-    def __init__(self, model_spec, contactMatrixt, threshold, parameters, M, Ni, time_dep_param_mapping=None):
-
-        self.N = DTYPE(np.sum(Ni))
-        self.M = DTYPE(M)
-        self.Ni = np.array(Ni, dtype=DTYPE)
-        
-        self.intCounter = int(0)
-        
-        self.time_dep_param_mapping = time_dep_param_mapping
-        if self.time_dep_param_mapping is not None:
-            self.param_dict = parameters.copy()
-            parameters = self.time_dep_param_mapping(parameters, 0)
-
-        self.param_keys = list(parameters.keys())
-        res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
-        self.nClass = res[0]
-        self.class_index_dict = res[1]
-        self.constant_terms = res[2]
-        self.linear_terms = res[3]
-        self.infection_terms = res[4]
-        if self.time_dep_param_mapping is None:
-            self.update_model_parameters(parameters)
-        else:
-            self.update_time_dep_model_parameters(0)
-        self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
-        self._lambdas = np.zeros((self.infection_terms.shape[0], M))
-        self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
-
-        contactMatrixtt = contactMatrixt(0)
-        
-        print("Preprocessing sparse contact matrix\n")
-        check = int(M*M/20)
-        for i in range(M):
-            for j in range(M):
-                if (i * M + j) % check == 0:
-                    print ("Processed",(i * M + j) * 100/( M * M ),"%, 1/2")
-                if contactMatrixtt[i,j] > threshold:
-                    self.intCounter += int(1)
-                    
-        self.interactingMP = np.zeros((self.intCounter,2), dtype = np.int32)
-        
-        counter = int(0)
-        for i in range(M):
-            for j in range(M):
-                if (i * M + j) % check == 0:
-                    print ("Processed",(i * M + j) * 100/( M * M ),"%, 2/2")
-                if contactMatrixtt[i,j] > threshold:
-                    self.interactingMP[counter] = [int(i),int(j)]
-                    counter += int(1)
-
-
-    def update_model_parameters(self, parameters):
-        if self.time_dep_param_mapping is None:
-            nParams = len(self.param_keys)
-            self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-
-            try:
-                for (i, key) in enumerate(self.param_keys):
-                    param = parameters[key]
-                    self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-            except KeyError:
-                raise Exception('The parameters passed do not contain certain keys.\
-                                 The keys are {}'.format(self.param_keys))
-        else:
-            self.param_dict = parameters.copy()
-            self.update_time_dep_model_parameters(0)
-
-    def update_time_dep_model_parameters(self, tt):
-        parameters = self.time_dep_param_mapping(self.param_dict, tt)
-        nParams = len(self.param_keys)
-        self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        try:
-            for (i, key) in enumerate(self.param_keys):
-                param = parameters[key]
-                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-        except KeyError:
-            raise Exception('The parameters passed do not contain certain keys.\
-                             The keys are {}'.format(self.param_keys))
-            
-    cpdef rhs(self, xt_arr, tt):
-        cdef:
-            Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
-            Py_ssize_t S_index=self.class_index_dict['S'], infection_index
-            Py_ssize_t reagent_index, product_index, rate_index, morig, mpoint
-            int sign
-            int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
-            int [:, :]  infection_terms=self.infection_terms
-            double [:, :] parameters=self.parameters
-            double term
-            double [:] xt = xt_arr
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:,:] lambdas = self._lambdas
-            int [:,:] intMPs = self.interactingMP
-            
-
-        if self.time_dep_param_mapping is not None:
-            self.update_time_dep_model_parameters(tt)
-            parameters = self.parameters
-         
-        # Compute lambda
-        if self.constant_terms.size > 0:
-            Ni = xt_arr[(nClass-1)*M:] # update Ni
-
-        for i in range(infection_terms.shape[0]):
-            infective_index = infection_terms[i, 1]
-            for m in range(M):
-                lambdas[i, m] = 0
-            for m in range(len(intMPs)):
-                morig = intMPs[m,0]
-                mpoint = intMPs[m,1]
-                index = mpoint + M*infective_index
-                lambdas[i, morig] += CM[morig,mpoint]*xt[index]/Ni[mpoint]
-
-        # Reset dxdt
-        self.dxdt = np.zeros(nClass*M, dtype=DTYPE)
-        cdef double [:] dxdt = self.dxdt
-
-        # Compute rhs
-        for m in range(M):
-            if self.constant_terms.size > 0:
-                for i in range(constant_terms.shape[0]):
-                    rate_index = constant_terms[i, 0]
-                    class_index = constant_terms[i, 1]
-                    sign = constant_terms[i, 2]
-                    term = parameters[rate_index, m]*sign
-                    dxdt[m + M*class_index] += term
-                    dxdt[m + M*(nClass-1)] += term
-
-            for i in range(linear_terms.shape[0]):
-                rate_index = linear_terms[i, 0]
-                reagent_index = linear_terms[i, 1]
-                product_index = linear_terms[i, 2]
-                term = parameters[rate_index, m] * xt[m + M*reagent_index]
-                dxdt[m + M*reagent_index] -= term
-                if product_index != -1:
-                    dxdt[m + M*product_index] += term
-
-            for i in range(infection_terms.shape[0]):
-                rate_index = infection_terms[i, 0]
-                reagent_index = infection_terms[i, 1]
-                product_index = infection_terms[i, 2]
-                term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
-                dxdt[m+M*S_index] -= term
-                if product_index != -1:
-                    dxdt[m+M*product_index] += term
-
-
-    def simulate(self, x0, contactMatrix, Tf, Nf, Ti=0,
-                     integrator='odeint', maxNumSteps=100000, **kwargs):
-        """
-        Simulates a compartment model given initial conditions,
-        choice of integrator and other parameters. 
-        Returns the time series data and parameters in a dict. 
-        Internally calls the method 'simulator' of CommonMethods
-        
-        ...
-
-        Parameters
-        ----------
-        x0: np.array or dict
-            Initial conditions. If it is an array it should have length
-            M*(model_dimension-1), where x0[i + j*M] should be the initial
-            value of model class i of age group j. The removed R class
-            must be left out. If it is a dict then
-            it should have a key corresponding to each model class,
-            with a 1D array containing the initial condition for each
-            age group as value. One of the classes may be left out,
-            in which case its initial values will be inferred from the
-            others.
-        contactMatrix: python function(t)
-             The social contact matrix C_{ij} denotes the
-             average number of contacts made per day by an
-             individual in class i with an individual in class j
-        Tf: float
-            Final time of integrator
-        Nf: Int
-            Number of time points to evaluate.
-        Ti: float, optional
-            Start time of integrator. The default is 0.
-        integrator: TYPE, optional
-            Integrator to use either from scipy.integrate or odespy.
-            The default is 'odeint'.
-        maxNumSteps: int, optional
-            maximum number of steps the integrator can take.
-            The default is 100000.
-        **kwargs: kwargs for integrator
-
-        Returns
-        -------
-        data: dict
-             X: output path from integrator,  t : time points evaluated at,
-            'param': input param to integrator.
-        """
-
-        if type(x0) == list:
-            x0 = np.array(x0)
-
-        if type(x0) == np.ndarray:
-
-            n_class_for_init = self.nClass
-            if self.constant_terms.size > 0:
-                n_class_for_init -= 1
-            if x0.size != n_class_for_init*self.M:
-                raise Exception("Initial condition x0 has the wrong dimensions. Expected x0.size=%s."
-                    % ( n_class_for_init*self.M) )
-        elif type(x0) == dict:
-            # Check if any classes are not included in x0
-
-            class_list = list(self.class_index_dict.keys())
-            if self.constant_terms.size > 0:
-                class_list.remove('Ni')
-
-            skipped_classes = []
-            for O in class_list:
-                if not O in x0:
-                    skipped_classes.append(O)
-            if len(skipped_classes) > 0:
-                raise Exception("Missing classes in initial conditions: %s" % skipped_classes)
-
-
-            # Construct initial condition array
-            x0_arr = np.zeros(0)
-
-            for O in class_list:
-                x0_arr = np.concatenate( [x0_arr, x0[O]] )
-            x0 = x0_arr
-
-        x0 = np.array(x0, dtype=DTYPE)
-
-        # add Ni to x0
-        if self.constant_terms.size > 0:
-            x0 = np.concatenate([x0, self.Ni])
-
-        self.paramList = self.make_parameters_dict()
-        data = self.simulator(x0, contactMatrix, Tf, Nf, 
-                              integrator, Ti, maxNumSteps, **kwargs)
-        return data
-
-
-    def make_parameters_dict(self):
-        param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
-        return param_dict
-
-
-    def model_class_data(self, model_class_key, data):
-        """
-        Parameters
-        ----------
-        data: dict
-            The object returned by `simulate`.
-
-        Returns
-        -------
-            The population of class `model_class_key` as a time series
-        """
-        X = data['X']
-
-        if model_class_key != 'R':
-            class_index = self.class_index_dict[model_class_key]
-            Os = X[:, class_index*self.M:(class_index+1)*self.M]
-        else:
-            if self.constant_terms.size > 0:
-                x = X[:, :(self.nClass-1)*self.M]
-                x_reshaped = x.reshape((X.shape[0], (self.nClass-1), self.M))
-                Os = X[:, (self.nClass-1)*self.M:] - np.sum(x_reshaped, axis=1)
-            else:
-                X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
-                Os = self.Ni - np.sum(X_reshaped, axis=1)
-        return Os
 
 
 @cython.wraparound(False)
@@ -4061,3 +3741,146 @@ cdef class SEAI5R(CommonMethods):
                               integrator, Ti, maxNumSteps, **kwargs)	
         self.population = (data['X'])[:,8*self.M:9*self.M]	
         return data	
+
+
+
+   
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SppSparse(Spp):
+    """
+    Generic user-defined epidemic model.
+
+    ...
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        Contains the values for the parameters given in the model specification.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
+        Default: Identical mapping of the dictionary at all times. 
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "constant"  : [ ["k"] ],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'k': 1,
+        }
+    """
+
+    def __init__(self, model_spec, contact_matrix0, threshold, parameters, M, Ni, time_dep_param_mapping=None, verbose=False):
+
+        super().__init__(model_spec, parameters, M, Ni, time_dep_param_mapping)
+        
+        if verbose:
+            print("Preprocessing sparse contact matrix\n")
+        check = int(M*M/20)
+        for i in range(M):
+            for j in range(M):
+                if verbose and (i * M + j) % check == 0:
+                    print ("Processed",(i * M + j) * 100/( M * M ),"%, 1/2")
+                if contact_matrix0[i,j] > threshold:
+                    self.intCounter += int(1)
+                    
+        self.interactingMP = np.zeros((self.intCounter,2), dtype = np.int32)
+        
+        counter = int(0)
+        for i in range(M):
+            for j in range(M):
+                if verbose and (i * M + j) % check == 0:
+                    print ("Processed",(i * M + j) * 100/( M * M ),"%, 2/2")
+                if contact_matrix0[i,j] > threshold:
+                    self.interactingMP[counter] = [int(i),int(j)]
+                    counter += int(1)
+            
+    cpdef rhs(self, xt_arr, tt):
+        cdef:
+            Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
+            Py_ssize_t S_index=self.class_index_dict['S'], infection_index
+            Py_ssize_t reagent_index, product_index, rate_index, morig, mpoint
+            int sign
+            int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
+            int [:, :]  infection_terms=self.infection_terms
+            double [:, :] parameters=self.parameters
+            double term
+            double [:] xt = xt_arr
+            double [:] Ni   = self.Ni
+            double [:,:] CM = self.CM
+            double [:,:] lambdas = self._lambdas
+            int [:,:] intMPs = self.interactingMP
+
+        if self.time_dep_param_mapping is not None:
+            self.update_time_dep_model_parameters(tt)
+            parameters = self.parameters
+         
+        # Compute lambda
+        if self.constant_terms.size > 0:
+            Ni = xt_arr[(nClass-1)*M:] # update Ni
+
+        for i in range(infection_terms.shape[0]):
+            infective_index = infection_terms[i, 1]
+            for m in range(M):
+                lambdas[i, m] = 0
+            for m in range(len(intMPs)):
+                morig = intMPs[m,0]
+                mpoint = intMPs[m,1]
+                index = mpoint + M*infective_index
+                lambdas[i, morig] += CM[morig,mpoint]*xt[index]/Ni[mpoint]
+
+        # Reset dxdt
+        self.dxdt = np.zeros(nClass*M, dtype=DTYPE)
+        cdef double [:] dxdt = self.dxdt
+
+        # Compute rhs
+        for m in range(M):
+            if self.constant_terms.size > 0:
+                for i in range(constant_terms.shape[0]):
+                    rate_index = constant_terms[i, 0]
+                    class_index = constant_terms[i, 1]
+                    sign = constant_terms[i, 2]
+                    term = parameters[rate_index, m]*sign
+                    dxdt[m + M*class_index] += term
+                    dxdt[m + M*(nClass-1)] += term
+
+            for i in range(linear_terms.shape[0]):
+                rate_index = linear_terms[i, 0]
+                reagent_index = linear_terms[i, 1]
+                product_index = linear_terms[i, 2]
+                term = parameters[rate_index, m] * xt[m + M*reagent_index]
+                dxdt[m + M*reagent_index] -= term
+                if product_index != -1:
+                    dxdt[m + M*product_index] += term
+
+            for i in range(infection_terms.shape[0]):
+                rate_index = infection_terms[i, 0]
+                reagent_index = infection_terms[i, 1]
+                product_index = infection_terms[i, 2]
+                term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
+                dxdt[m+M*S_index] -= term
+                if product_index != -1:
+                    dxdt[m+M*product_index] += term
