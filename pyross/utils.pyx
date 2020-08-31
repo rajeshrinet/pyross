@@ -204,10 +204,10 @@ def set_destination(term_list, destination_dict):
             product_index = destination_dict[(rate_index, reagent_index)]
             term[2] = product_index
 
-def age_dep_rates(rate, int M, str name):
+def age_dep_rates(rate, int M, str name, bint check_length=True):
     if np.size(rate)==1:
         return rate*np.ones(M)
-    elif np.size(rate)==M:
+    elif np.size(rate)==M or check_length==False:
         return rate
     else:
         raise Exception('{} can be a number or an array of size M'.format(name))
@@ -474,7 +474,7 @@ def _parse_prior_name(sub_dict, dim):
     else:
         return ['lognorm']*dim
 
-def parse_param_prior_dict(prior_dict, M):
+def parse_param_prior_dict(prior_dict, M, check_length=True):
     flat_guess = []
     flat_stds = []
     flat_bounds = []
@@ -523,7 +523,10 @@ def parse_param_prior_dict(prior_dict, M):
                 names += _parse_prior_name(sub_dict, 1)
                 count += 1
             else:
-                assert len(mean) == M, 'length of mean must be either 1 or M'
+                if check_length:
+                    assert len(mean) == M, 'length of mean must be either 1 or M'
+                else:
+                    M = len(mean)
                 flat_guess += list(mean)
                 try:
                     assert len(sub_dict['std']) == M

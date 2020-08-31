@@ -278,24 +278,14 @@ cdef class Spp(CommonMethods):
 @cython.boundscheck(True)
 @cython.cdivision(False)
 @cython.nonecheck(True)
-cdef class SppSparse(CommonMethods):
+cdef class SppSparse(Spp):
     """
     Given a model specification, the Spp class generates a custome-made compartment epidemic model.
     """
 
     cdef:
-        readonly np.ndarray constant_terms, linear_terms, infection_terms
-        readonly np.ndarray parameters
-        readonly list param_keys
-        readonly dict param_dict
-        readonly dict class_index_dict
-        readonly np.ndarray _lambdas
         readonly int intCounter
         readonly np.ndarray interactingMP
-        readonly object time_dep_param_mapping
-
-    cpdef rhs(self, rp, tt)
-
 
 
 

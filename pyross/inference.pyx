@@ -67,6 +67,7 @@ cdef class SIR_type:
         readonly dict class_index_dict
         readonly list param_keys, _interp
         readonly object contactMatrix
+        readonly bint param_mapping_enabled
 
 
     def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov):
@@ -101,6 +102,8 @@ cdef class SIR_type:
 
         self._xm = None
         self._interp = None
+
+        self.param_mapping_enabled = False
 
 
     def infer_parameters(self, x, Tf, contactMatrix, prior_dict, **kwargs):
@@ -405,7 +408,7 @@ cdef class SIR_type:
         # Read in parameter priors
         prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1] - bounds[:, 0])/3)
         minimize_args = {'keys':keys, 'x':x, 'Tf':Tf,
@@ -536,7 +539,7 @@ cdef class SIR_type:
         # Read in parameter priors
         prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
 
         ndim = len(guess)
@@ -604,7 +607,7 @@ cdef class SIR_type:
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
 
         result = sampler.results
@@ -739,7 +742,7 @@ cdef class SIR_type:
         # Read in parameter priors
         prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
 
         ndim = len(guess)
@@ -814,7 +817,7 @@ cdef class SIR_type:
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
@@ -1351,7 +1354,7 @@ cdef class SIR_type:
             N samples of the Gaussian distribution.
         """
         prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
-            = pyross.utils.parse_param_prior_dict(prior_dict, self.M)
+            = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
@@ -1852,7 +1855,7 @@ cdef class SIR_type:
         # Read in parameter priors
         param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2022,7 +2025,7 @@ cdef class SIR_type:
         # Read in parameter priors
         param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2113,7 +2116,7 @@ cdef class SIR_type:
         # Read in parameter priors
         param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2267,7 +2270,7 @@ cdef class SIR_type:
         # Read in parameter priors
         param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2371,7 +2374,7 @@ cdef class SIR_type:
         # Read in parameter priors
         param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -2857,7 +2860,7 @@ cdef class SIR_type:
         # Read in parameter priors
         param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M)
+            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
         init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
@@ -3047,7 +3050,7 @@ cdef class SIR_type:
         obs0: numpy.array
             Observed initial conditions.
         fltr0: numpy.array
-            Filter for the observed initial conditons.
+            Filter for the observed initial conditions.
 
         Returns
         -------
@@ -4354,7 +4357,6 @@ cdef class Spp(SIR_type):
 
     cdef:
         readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
-        readonly np.ndarray parameters
         readonly np.ndarray model_parameters
         readonly np.ndarray finres_pop
         readonly pyross.deterministic.Spp det_model
@@ -4393,8 +4395,10 @@ cdef class Spp(SIR_type):
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
+            self.param_mapping_enabled = True
         if self.time_dep_param_mapping is not None:
             self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+            self.param_mapping_enabled = True
         else:
             self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
 
@@ -4426,13 +4430,7 @@ cdef class Spp(SIR_type):
         if self.det_model is not None:
             self.set_det_model(parameters)
         nParams = len(self.param_keys)
-        self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        try:
-            for (i, key) in enumerate(self.param_keys):
-                param = parameters[key]
-                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-        except KeyError:
-            raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
+        self.param_dict = parameters.copy()
         if self.parameter_mapping is not None:
             model_parameters = self.parameter_mapping(parameters)
             nParams = len(self.model_param_keys)
@@ -4444,10 +4442,15 @@ cdef class Spp(SIR_type):
             except KeyError:
                 raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
         elif self.time_dep_param_mapping is not None:
-            self.param_dict = parameters.copy()
             self.set_time_dep_model_parameters(0)
         else:
-            self.model_parameters = self.parameters.copy()
+            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+            try:
+                for (i, key) in enumerate(self.param_keys):
+                    param = parameters[key]
+                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
 
     def set_time_dep_model_parameters(self, tt):
         model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
@@ -4469,7 +4472,7 @@ cdef class Spp(SIR_type):
 
 
     def make_params_dict(self):
-        param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
+        param_dict = self.param_dict.copy()
         return param_dict
 
     cdef np.ndarray _get_r_from_x(self, np.ndarray x):
@@ -4517,21 +4520,24 @@ cdef class Spp(SIR_type):
             for m in range(M):
                 for n in range(M):
                     index = n + M*infective_index
-                    l[i, m] += CM[m,n]*x[index]/fi[n]
+                    if fi[n]>0:
+                        l[i, m] += CM[m,n]*x[index]/fi[n]
 
     cdef fill_finres_pop(self, double [:] x):
         # Calculate populations for finite resource transitions
+        cdef:
+            Py_ssize_t class_index, priority_index, m, i
         for i in range(len(self.resource_list)):
             self.finres_pop[i] = 0
             for (class_index, priority_index) in self.resource_list[i][1:]:
                 for m in range(self.M):
-                    self.finres_pop[i] += x[m + self.M*class_index] * self.parameters[priority_index, m]
+                    self.finres_pop[i] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
 
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, dim=self.dim
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
-            Py_ssize_t resource_index, priority_index, probability_index
+            Py_ssize_t resource_index, priority_index, probability_index, class_index, res_class_index, res_priority_index
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
             double [:, :] parameters=self.model_parameters
@@ -4748,7 +4754,6 @@ cdef class SppQ(SIR_type):
 
     cdef:
         readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
-        readonly np.ndarray parameters
         readonly Py_ssize_t nClassU, nClassUwoN
         readonly np.ndarray model_parameters
         readonly pyross.deterministic.SppQ det_model
@@ -4829,13 +4834,7 @@ cdef class SppQ(SIR_type):
         if self.det_model is not None:
             self.set_det_model(parameters)
         nParams = len(self.param_keys)
-        self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        try:
-            for (i, key) in enumerate(self.param_keys):
-                param = parameters[key]
-                self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-        except KeyError:
-            raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
+        self.param_dict = parameters.copy()
         if self.parameter_mapping is not None:
             model_parameters = self.parameter_mapping(parameters)
             nParams = len(self.model_param_keys)
@@ -4847,10 +4846,16 @@ cdef class SppQ(SIR_type):
             except KeyError:
                 raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
         elif self.time_dep_param_mapping is not None:
-            self.param_dict = parameters.copy()
             self.set_time_dep_model_parameters(0)
         else:
-            self.model_parameters = self.parameters.copy()
+            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+            try:
+                for (i, key) in enumerate(self.param_keys):
+                    param = parameters[key]
+                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+            except KeyError:
+                raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
+
 
     def set_time_dep_model_parameters(self, tt):
         model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
@@ -4876,7 +4881,7 @@ cdef class SppQ(SIR_type):
         self.det_model.set_testRate(self.testRate)
 
     def make_params_dict(self):
-        param_dict = {k:self.parameters[i] for (i, k) in enumerate(self.param_keys)}
+        param_dict = self.param_dict.copy()
         return param_dict
 
     cdef np.ndarray _get_r_from_x(self, np.ndarray x):
@@ -4914,7 +4919,7 @@ cdef class SppQ(SIR_type):
             double [:] fi=self.fi
             double Omega = self.Omega
             double ntestpop=0, tau0=0
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             Py_ssize_t m, i
 
         # Compute non-quarantined recovered
@@ -4964,7 +4969,8 @@ cdef class SppQ(SIR_type):
             for m in range(M):
                 for n in range(M):
                     index = n + M*infective_index
-                    l[i, m] += CM[m,n]*x[index]/fi[n]
+                    if fi[n]>0:
+                        l[i, m] += CM[m,n]*x[index]/fi[n]
 
     cdef jacobian(self, double [:] x, double [:, :] l, double [:] r, double ntestpop, double tau0):
         cdef:
@@ -4973,7 +4979,7 @@ cdef class SppQ(SIR_type):
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             int [:] test_pos=self.test_pos
             int [:] test_freq=self.test_freq
@@ -5056,7 +5062,7 @@ cdef class SppQ(SIR_type):
             Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
-            double [:, :] parameters=self.parameters
+            double [:, :] parameters=self.model_parameters
             int [:, :] constant_terms=self.constant_terms
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             int [:] test_pos=self.test_pos
@@ -5125,3 +5131,22 @@ cdef class SppQ(SIR_type):
 
 
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
+
+cdef class SppSparse(Spp):
+
+    def __init__(self, model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi, Omega=1, steps=4,
+                det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3,
+                parameter_mapping=None, time_dep_param_mapping=None):
+
+        super().__init__(model_spec, parameters, M, fi, Omega, steps,
+                det_method, lyapunov_method, rtol_det, rtol_lyapunov,
+                parameter_mapping, time_dep_param_mapping)
+
+        if self.parameter_mapping is not None:
+            parameters = self.parameter_mapping(parameters)
+            self.param_mapping_enabled = True
+        if self.time_dep_param_mapping is not None:
+            self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+            self.param_mapping_enabled = True
+        else:
+            self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega)
