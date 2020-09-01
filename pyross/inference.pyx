@@ -972,7 +972,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
             to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
             Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
@@ -1078,7 +1078,7 @@ cdef class SIR_type:
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
             to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
@@ -2571,7 +2571,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
             to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
             Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
@@ -2685,7 +2685,7 @@ cdef class SIR_type:
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
             to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
