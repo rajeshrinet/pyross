@@ -4613,7 +4613,7 @@ cdef class Spp(SIR_type):
                         term *= - x[class_index*M+m] / finres_pop[resource_index]
                     for (res_class_index, res_priority_index) in resource_list[resource_index][1:]:
                         for n in range(M):
-                            term2 = term * parameters[res_priority_index, m]
+                            term2 = term * parameters[res_priority_index, n]
                             if reagent_index>-1:
                                 J[reagent_index, m, res_class_index, n] -= term2
                             if product_index>-1:
