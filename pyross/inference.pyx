@@ -973,7 +973,7 @@ cdef class SIR_type:
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
             Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
         Returns
@@ -1012,7 +1012,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -1076,7 +1079,7 @@ cdef class SIR_type:
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         inter_steps: int, optional
@@ -1110,7 +1113,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -1171,7 +1177,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -1198,7 +1204,10 @@ cdef class SIR_type:
         kwargs['inter_steps'] = inter_steps
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**(0.25)
+            xx = infer_result['flat_params']
+            fx = abs(infer_result['log_posterior'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**(0.25)
         print('epsilon used for differentiation: ', eps)
 
         def minuslogp(y):
@@ -1413,7 +1422,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -2563,7 +2572,7 @@ cdef class SIR_type:
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, 10*numpy.spacing(infer_result['flat_params'])**(1/3) is used. Decreasing the step size too small can result in round-off error.
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
             Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
         Returns
@@ -2607,7 +2616,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -2674,7 +2686,7 @@ cdef class SIR_type:
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
            Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         inter_steps: int, optional
@@ -2711,7 +2723,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -2777,7 +2792,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -2807,7 +2822,10 @@ cdef class SIR_type:
         kwargs['disable_penalty']=None
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**(0.25)
+            xx = infer_result['flat_params']
+            fx = abs(infer_result['log_posterior'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**(0.25)
         print('epsilon used for differentiation: ', eps)
 
         def minuslogp(y):
@@ -2943,7 +2961,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -3024,18 +3042,18 @@ cdef class SIR_type:
     def sample_trajs(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
                        inter_steps=100):
-       cdef Py_ssize_t i, Nf=obs.shape[0]
-       self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-       x0 = infer_result['x0'].copy()
-       fltr = pyross.utils.process_fltr(fltr, Nf)
-       self.set_params(infer_result['params_dict'])
-       mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
-       trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
-       for i in range(nsamples):
-           while not all(map(self._all_positive, trajs[i])):
-               partial_trajs = np.random.multivariate_normal(mean, cov)
-               trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
-       return trajs
+        cdef Py_ssize_t i, Nf=obs.shape[0]
+        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+        x0 = infer_result['x0'].copy()
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        self.set_params(infer_result['params_dict'])
+        mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
+        trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
+        for i in range(nsamples):
+            while not all(map(self._all_positive, trajs[i])):
+                partial_trajs = np.random.multivariate_normal(mean, cov)
+                trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        return trajs
 
 
     def get_mean_inits(self, init_priors, np.ndarray obs0, np.ndarray fltr0):
