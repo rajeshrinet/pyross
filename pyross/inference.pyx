@@ -38,7 +38,7 @@ except ImportError:
 import pyross.deterministic
 cimport pyross.deterministic
 import pyross.contactMatrix
-from pyross.utils_python import minimization
+from pyross.utils_python import *
 from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
@@ -102,15 +102,11 @@ cdef class SIR_type:
 
         self._xm = None
         self._interp = None
-        
+
         self.param_mapping_enabled = False
 
 
-    def infer_parameters(self, x, Tf, contactMatrix, prior_dict,
-                        tangent=False, verbose=False,
-                        enable_global=True, global_max_iter=100, global_atol=1,
-                        enable_local=True, local_max_iter=200, ftol=1e-6,
-                        cma_processes=0, cma_population=16, cma_random_seed=None):
+    def infer_parameters(self, x, Tf, contactMatrix, prior_dict, **kwargs):
         """Infers the MAP estimates for epidemiological parameters
 
         Parameters
@@ -135,19 +131,15 @@ cdef class SIR_type:
 
 
         output_dict = self.infer(x, Tf, prior_dict, contactMatrix=contactMatrix, generator=None,
-                      intervention_fun=None, tangent=tangent,
-                      verbose=verbose, ftol=ftol,
-                      global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
-                      enable_global=enable_global, enable_local=enable_local,
-                      cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+                      intervention_fun=None, **kwargs)
 
         # match old output dictionary key names (the new implementation of infer uses the same keys as latent_infer)
 
-        output_dict['map_dict'] = output_dict.pop('params_dict')
-        output_dict['keys'] = output_dict.pop('param_keys')
-        output_dict['flat_guess_range'] = output_dict.pop('param_guess_range')
-        output_dict['scaled_guesses'] = output_dict.pop('scaled_param_guesses')
-        output_dict['flat_map'] = output_dict.pop('flat_params')
+        output_dict['map_dict'] = output_dict['params_dict']
+        output_dict['keys'] = output_dict['param_keys']
+        output_dict['flat_guess_range'] = output_dict['param_guess_range']
+        output_dict['scaled_guesses'] = output_dict['scaled_param_guesses']
+        output_dict['flat_map'] = output_dict['flat_params']
 
         return output_dict
 
@@ -232,12 +224,7 @@ cdef class SIR_type:
         return output_samples
 
 
-    def infer_control(self, x, Tf, generator, prior_dict,
-                      intervention_fun=None, tangent=False,
-                      verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_atol=1.,
-                      enable_global=True, enable_local=True,
-                      cma_processes=0, cma_population=16, cma_random_seed=None):
+    def infer_control(self, x, Tf, generator, prior_dict, **kwargs):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown.
@@ -262,18 +249,14 @@ cdef class SIR_type:
         """
 
         output_dict = self.infer(x, Tf, prior_dict, contactMatrix=None, generator=generator,
-                      intervention_fun=intervention_fun, tangent=tangent,
-                      verbose=verbose, ftol=ftol,
-                      global_max_iter=global_max_iter, local_max_iter=local_max_iter, global_atol=global_atol,
-                      enable_global=enable_global, enable_local=enable_local,
-                      cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+                      **kwargs)
 
         # match old output dictionary key names
         del output_dict['params_dict']
-        output_dict['map_dict'] = output_dict.pop('control_params_dict')
-        output_dict['keys'] = output_dict.pop('param_keys')
-        output_dict['flat_guess_range'] = output_dict.pop('param_guess_range')
-        output_dict['scaled_guesses'] = output_dict.pop('scaled_param_guesses')
+        output_dict['map_dict'] = output_dict['control_params_dict']
+        output_dict['keys'] = output_dict['param_keys']
+        output_dict['flat_guess_range'] = output_dict['param_guess_range']
+        output_dict['scaled_guesses'] = output_dict['scaled_param_guesses']
 
         return output_dict
 
@@ -309,21 +292,21 @@ cdef class SIR_type:
 
         return -minus_logl
 
-    def _logposterior(self, params, s=None, scale=None, **logl_kwargs):
+    def _logposterior(self, params, prior=None, **logl_kwargs):
         """Compute the log-posterior (up to a constant) of the model."""
         logl = self._loglikelihood(params, **logl_kwargs)
-        return logl + np.sum(lognorm.logpdf(params, s, scale=scale))
+        return logl + np.sum(prior.logpdf(params))
 
     def _infer_to_minimize(self, params, grad=0, **logp_kwargs):
         """Objective function for minimization call in infer."""
         return -self._logposterior(params, **logp_kwargs)
 
-    def infer(self, x, Tf, prior_dict, contactMatrix=None, generator=None,
-                      intervention_fun=None, tangent=False,
-                      verbose=False, ftol=1e-6,
-                      global_max_iter=100, local_max_iter=100, global_atol=1.,
-                      enable_global=True, enable_local=True,
-                      cma_processes=0, cma_population=16, cma_random_seed=None):
+    def infer(self, x, Tf, prior_dict, contactMatrix=None,
+              generator=None, intervention_fun=None, tangent=False,
+              verbose=False, ftol=1e-6,
+              global_max_iter=100, local_max_iter=100, global_atol=1.,
+              enable_global=True, enable_local=True,
+              cma_processes=0, cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for all desired parameters, including control parameters, for an SIR type model
         with fully observed classes. If `generator` is specified, the lockdown is modelled by scaling the contact matrices for contact at work,
@@ -405,12 +388,14 @@ cdef class SIR_type:
                     'mean': [0.5, 0.2],
                     'infer_scale': True,
                     'scale_factor_std': 1,
-                    'scale_factor_bounds': [0.1, 10]
+                    'scale_factor_bounds': [0.1, 10],
+                    'prior_fun': 'truncnorm'
                 },
                 'beta':{
                     'mean': 0.02,
                     'std': 0.1,
-                    'bounds': [1e-4, 1]
+                    'bounds': [1e-4, 1],
+                    'prior_fun': 'lognorm'
                 }
             }
 
@@ -421,17 +406,16 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
-
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1] - bounds[:, 0])/3)
         minimize_args = {'keys':keys, 'x':x, 'Tf':Tf,
                          'flat_guess_range':flat_guess_range,
                          'is_scale_parameter':is_scale_parameter,
                          'scaled_guesses': scaled_guesses,
-                         'generator':generator, 's':s, 'scale':scale,
+                         'generator':generator, 'prior':prior,
                          'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_atol=global_atol,
@@ -451,7 +435,7 @@ cdef class SIR_type:
                 self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
 
         l_post = -res[1]
-        l_prior = np.sum(lognorm.logpdf(res[0], s, scale=scale))
+        l_prior = np.sum(prior.logpdf(res[0]))
         l_like = l_post - l_prior
         output_dict = {
             'params_dict': map_params_dict, 'flat_params': res[0], 'param_keys': keys,
@@ -459,15 +443,15 @@ cdef class SIR_type:
             'is_scale_parameter':is_scale_parameter,
             'param_guess_range':flat_guess_range,
             'scaled_param_guesses':scaled_guesses,
-            's':s, 'scale':scale
+            'prior': prior
         }
         if map_control_params_dict != {}:
             output_dict['control_params_dict'] = map_control_params_dict
 
         return output_dict
 
-    def _nested_sampling_prior_transform(self, x, s=None, scale=None):
-        return lognorm.ppf(x, s, scale=scale)
+    def _nested_sampling_prior_transform(self, x, prior=None):
+        return prior.ppf(x)
 
     def infer_nested_sampling(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
                               verbose=False, nprocesses=0, queue_size=None, maxiter=None, maxcall=None, dlogz=None,
@@ -553,13 +537,13 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
-                = pyross.utils.parse_param_prior_dict(prior_dict, self.M,  check_length=(not self.param_mapping_enabled))
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+                = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
+        prior = Prior(prior_names, bounds, guess, stds)
 
         ndim = len(guess)
-        prior_transform_args = {'s':s, 'scale':scale}
+        prior_transform_args = {'prior':prior}
         loglike_args = {'keys':keys, 'x':x, 'Tf':Tf, 'flat_guess_range':flat_guess_range,
                          'is_scale_parameter':is_scale_parameter, 'scaled_guesses': scaled_guesses,
                          'generator':generator, 'intervention_fun': intervention_fun, 'tangent': tangent}
@@ -593,7 +577,8 @@ cdef class SIR_type:
 
         return sampler
 
-    def infer_nested_sampling_process_result(self, sampler, prior_dict, contactMatrix=None, generator=None,
+    def infer_nested_sampling_process_result(self, sampler, prior_dict,
+                                             contactMatrix=None, generator=None,
                                              intervention_fun=None, **catchall_kwargs):
         """
         Take the sampler generated by `pyross.inference.infer_nested_sampling` and produce output dictionaries for
@@ -621,9 +606,9 @@ cdef class SIR_type:
             The processed weighted posterior samples.
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         result = sampler.results
         output_samples = []
@@ -644,7 +629,7 @@ cdef class SIR_type:
                 else:
                     self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
 
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             output_dict = {
                 'params_dict': map_params_dict, 'flat_params': sample, 'param_keys': keys,
@@ -652,7 +637,7 @@ cdef class SIR_type:
                 'weight':weight, 'is_scale_parameter':is_scale_parameter,
                 'param_guess_range':flat_guess_range,
                 'scaled_param_guesses':scaled_guesses,
-                's':s, 'scale':scale
+                'prior': prior
             }
             if map_control_params_dict != {}:
                 output_dict['control_params_dict'] = map_control_params_dict
@@ -755,10 +740,10 @@ cdef class SIR_type:
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         ndim = len(guess)
         if nwalkers is None:
@@ -766,17 +751,12 @@ cdef class SIR_type:
 
         logpost_args = {'bounds':bounds, 'keys':keys, 'is_scale_parameter':is_scale_parameter,
                 'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
-                'x':x, 'Tf':Tf, 's':s, 'scale':scale, 'tangent':tangent, 'generator':generator,
+                'x':x, 'Tf':Tf, 'prior':prior, 'tangent':tangent, 'generator':generator,
                 'intervention_fun': intervention_fun}
         if walker_pos is None:
              # If not specified, sample initial positions of walkers from prior (within bounds).
-            ppf_bounds = np.zeros((ndim, 2))
-            ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
-            ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
-            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
             points = np.random.rand(nwalkers, ndim)
-            y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
-            p0 = lognorm.ppf(y, s, scale=scale)
+            p0 = prior.ppf(points)
         else:
             p0 = walker_pos
 
@@ -836,9 +816,9 @@ cdef class SIR_type:
             The processed posterior samples.
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
         log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
@@ -871,7 +851,7 @@ cdef class SIR_type:
                     else:
                         self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
 
-                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+                l_prior = np.sum(prior.logpdf(sample))
                 l_like = l_post - l_prior
                 output_dict = {
                     'params_dict': map_params_dict, 'flat_params': sample, 'param_keys': keys,
@@ -879,7 +859,7 @@ cdef class SIR_type:
                     'weight':weight, 'is_scale_parameter':is_scale_parameter,
                     'param_guess_range':flat_guess_range,
                     'scaled_param_guesses':scaled_guesses,
-                    's':s, 'scale':scale
+                    'prior':prior
                 }
                 if map_control_params_dict != {}:
                     output_dict['control_params_dict'] = map_control_params_dict
@@ -992,8 +972,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
             Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
         Returns
@@ -1032,7 +1011,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -1095,8 +1077,7 @@ cdef class SIR_type:
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         inter_steps: int, optional
@@ -1130,7 +1111,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -1191,7 +1175,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -1204,55 +1188,30 @@ cdef class SIR_type:
         # Sanity checks of the intputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
-        infer_result_loc = infer_result.copy()
-        # backwards compatibility
-        if 'flat_map' in infer_result_loc:
-            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
-
-        flat_params = np.copy(infer_result_loc['flat_params'])
+        flat_params = np.copy(infer_result['flat_params'])
 
         kwargs = {}
         for key in ['is_scale_parameter',
-                    'scaled_param_guesses', 's', 'scale']:
-            kwargs[key] = infer_result_loc[key]
+                    'scaled_param_guesses', 'prior']:
+            kwargs[key] = infer_result[key]
 
-        kwargs['keys'] = infer_result_loc['param_keys']
-        kwargs['flat_guess_range'] = infer_result_loc['param_guess_range']
+        kwargs['keys'] = infer_result['param_keys']
+        kwargs['flat_guess_range'] = infer_result['param_guess_range']
         kwargs['generator'] = generator
         kwargs['intervention_fun'] = intervention_fun
         kwargs['inter_steps'] = inter_steps
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**(0.25)
+            xx = infer_result['flat_params']
+            fx = abs(infer_result['log_posterior'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**(0.25)
         print('epsilon used for differentiation: ', eps)
 
         def minuslogp(y):
             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
         hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
         return hess
-
-
-    def compute_hessian(self, x, Tf, contactMatrix, map_dict, tangent=False,
-                         eps=1.e-3, fd_method="central"):
-        '''
-        Computes the Hessian of the MAP estimate.
-
-        Note
-        ----
-        This function has been replaced by `pyross.inference.hessian` and will be deleted
-        in a future version of pyross. See there for a documentation of the function parameters.
-        '''
-        self.contactMatrix = contactMatrix
-        flat_maps = map_dict['flat_map']
-        kwargs = {}
-        for key in ['flat_guess_range', 'is_scale_parameter', 'scaled_guesses', \
-                    'keys', 's', 'scale']:
-            kwargs[key] = map_dict[key]
-        def minuslogp(y):
-             return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
-        hess = pyross.utils.hessian_finite_difference(flat_maps, minuslogp, eps, method=fd_method)
-        return hess
-
 
     def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
                    range_1, range_2, resolution_1, resolution_2=None):
@@ -1372,13 +1331,6 @@ cdef class SIR_type:
 
         return sensitivity_individual, sensitivity_correlated
 
-    # def error_bars(self, keys, maps, prior_mean, prior_stds, x, Tf, Nf, contactMatrix, eps=1.e-3,
-    #                tangent=False, infer_scale_parameter=False, fd_method="central"):
-    #     hessian = self.compute_hessian(keys, maps, prior_mean, prior_stds, x,Tf,eps,
-    #                                    tangent, infer_scale_parameter, fd_method=fd_method)
-    #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
-
-
     def sample_gaussian(self, N, map_estimate, cov, x, Tf, contactMatrix, prior_dict, tangent=False):
         """
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
@@ -1408,9 +1360,9 @@ cdef class SIR_type:
         samples: list of dict
             N samples of the Gaussian distribution.
         """
-        keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(prior_names, bounds, guess, stds)
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
                        'scaled_guesses':scaled_guesses, 'flat_guess_range':flat_guess_range,
                        'x':x, 'Tf':Tf, 'tangent':tangent}
@@ -1427,7 +1379,7 @@ cdef class SIR_type:
                 pyross.utils.unflatten_parameters(sample, map_estimate['flat_guess_range'],
                         map_estimate['is_scale_parameter'], map_estimate['scaled_guesses'])
             l_like = self._loglike(sample, **loglike_args)
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             new_sample['log_posterior'] = l_post
             new_sample['log_prior'] = l_prior
@@ -1468,7 +1420,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -1539,12 +1491,7 @@ cdef class SIR_type:
         return (x0>0).all() and (r>0).all()
 
     def latent_infer_parameters(self, np.ndarray obs, np.ndarray fltr, double Tf,
-                            contactMatrix, param_priors, init_priors,
-                            tangent=False, verbose=False,
-                            double ftol=1e-5,
-                            global_max_iter=100, local_max_iter=100, global_atol=1,
-                            enable_global=True, enable_local=True, cma_processes=0,
-                            cma_population=16, cma_random_seed=None):
+                            contactMatrix, param_priors, init_priors, **kwargs):
         """
         Compute the maximum a-posteriori (MAP) estimate of the parameters and the initial conditions of a SIR type model
         when the classes are only partially observed. Unobserved classes are treated as latent variables.
@@ -1572,15 +1519,12 @@ cdef class SIR_type:
         """
 
         output_dict = self.latent_infer(obs, fltr, Tf, param_priors, init_priors, contactMatrix=contactMatrix, generator=None,
-                            intervention_fun=None, tangent=tangent,
-                            verbose=verbose, ftol=ftol, global_max_iter=global_max_iter,
-                            local_max_iter=local_max_iter, global_atol=global_atol, enable_global=enable_global,
-                            enable_local=enable_local, cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+                            intervention_fun=None, **kwargs)
 
         # rename for backwards compatibility
-        output_dict['map_x0'] = output_dict.pop('x0')
-        output_dict['flat_map'] = output_dict.pop('flat_params')
-        output_dict['map_params_dict'] = output_dict.pop('params_dict')
+        output_dict['map_x0'] = output_dict['x0']
+        output_dict['flat_map'] = output_dict['flat_params']
+        output_dict['map_params_dict'] = output_dict['params_dict']
 
         return output_dict
 
@@ -1671,10 +1615,7 @@ cdef class SIR_type:
 
 
     def latent_infer_control(self, obs, fltr, Tf, generator, param_priors, init_priors,
-                            intervention_fun=None, tangent=False,
-                            verbose=False, ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_atol=1., enable_global=True,
-                            enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
+                            **kwargs):
         """
         Compute the maximum a-posteriori (MAP) estimate of the change of control parameters for a SIR type model in
         lockdown with partially observed classes.
@@ -1700,13 +1641,11 @@ cdef class SIR_type:
         This function just calls `latent_infer` (with the specified `generator`), will be deprecated.
         """
 
-        output_dict = self.latent_infer(obs, fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=generator,
-                            intervention_fun=intervention_fun, tangent=tangent,
-                            verbose=verbose, ftol=ftol, global_max_iter=global_max_iter,
-                            local_max_iter=local_max_iter, global_atol=global_atol, enable_global=enable_global,
-                            enable_local=enable_local, cma_processes=cma_processes, cma_population=cma_population, cma_random_seed=cma_random_seed)
+        output_dict = self.latent_infer(obs, fltr, Tf, param_priors, init_priors,
+                                        contactMatrix=None, generator=generator,
+                                        **kwargs)
         del output_dict['params_dict']
-        output_dict['map_params_dict']=output_dict.pop('control_params_dict')  # Rename entry for backwards compatibility
+        output_dict['map_params_dict']=output_dict['control_params_dict']  # Rename entry for backwards compatibility
 
         return output_dict
 
@@ -1755,10 +1694,10 @@ cdef class SIR_type:
         logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
         return logl
 
-    def _logposterior_latent(self, params, s=None, scale=None,
+    def _logposterior_latent(self, params, prior=None,
                              **logl_kwargs):
         logl = self._loglikelihood_latent(params, **logl_kwargs)
-        logp = logl + np.sum(lognorm.logpdf(params, s, scale=scale))
+        logp = logl + np.sum(prior.logpdf(params))
         return logp
 
     def _latent_infer_to_minimize(self, params, grad=0,
@@ -1770,11 +1709,12 @@ cdef class SIR_type:
             logp = self._logposterior_latent(params, smooth_penalty=True,  **logp_kwargs)
         return -logp
 
-    def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None,
-                            intervention_fun=None, tangent=False,
-                            verbose=False, ftol=1e-5, global_max_iter=100,
-                            local_max_iter=100, global_atol=1., enable_global=True,
-                            enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
+    def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors,
+                     contactMatrix=None, generator=None,
+                     intervention_fun=None, tangent=False,
+                     verbose=False, ftol=1e-5, global_max_iter=100,
+                     local_max_iter=100, global_atol=1., enable_global=True,
+                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1920,12 +1860,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -1934,7 +1874,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
 
@@ -1945,7 +1885,7 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       's':s, 'scale':scale, 'tangent':tangent}
+                       'prior':prior, 'tangent':tangent}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
@@ -1968,7 +1908,6 @@ cdef class SIR_type:
         map_params_dict, map_control_params_dict = self.fill_params_dict(keys, orig_params, return_additional_params=True)
         self.set_params(map_params_dict)
 
-
         if generator is not None:
             if intervention_fun is None:
                 self.contactMatrix = generator.constant_contactMatrix(**map_control_params_dict)
@@ -1977,7 +1916,7 @@ cdef class SIR_type:
         map_x0 = self._construct_inits(init_estimates, init_flags, init_fltrs,
                                     obs0, fltr[0])
         l_post = -res[1]
-        l_prior = np.sum(lognorm.logpdf(estimates, s, scale=scale))
+        l_prior = np.sum(prior.logpdf(res[0]))
         l_like = l_post - l_prior
         output_dict = {
             'params_dict':map_params_dict, 'x0':map_x0, 'flat_params':estimates,
@@ -1986,7 +1925,7 @@ cdef class SIR_type:
             'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
             'scaled_param_guesses':scaled_param_guesses,
             'init_flags': init_flags, 'init_fltrs': init_fltrs,
-            's':s, 'scale': scale
+            'prior': prior,
         }
         if map_control_params_dict != {}:
             output_dict['control_params_dict'] = map_control_params_dict
@@ -2091,12 +2030,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2105,11 +2044,11 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         ndim = len(guess)
 
-        prior_transform_args = {'s':s, 'scale':scale}
+        prior_transform_args = {'prior':prior}
         loglike_args = {'generator':generator, 'intervention_fun':intervention_fun, 'param_keys':keys,
                         'param_guess_range':param_guess_range, 'is_scale_parameter':is_scale_parameter,
                         'scaled_param_guesses':scaled_param_guesses, 'param_length':param_length, 'obs':obs,
@@ -2182,12 +2121,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2196,7 +2135,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         result = sampler.results
         output_samples = []
@@ -2220,7 +2159,7 @@ cdef class SIR_type:
                     self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **sample_control_params_dict)
 
             sample_x0 = self._construct_inits(init_sample, init_flags, init_fltrs, obs0, fltr[0])
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_prior + l_like
             output_dict = {
                 'params_dict':sample_params_dict, 'x0':sample_x0, 'flat_params':sample,
@@ -2229,7 +2168,7 @@ cdef class SIR_type:
                 'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
                 'scaled_param_guesses':scaled_param_guesses,
                 'init_flags': init_flags, 'init_fltrs': init_fltrs,
-                's':s, 'scale': scale
+                'prior':prior
             }
 
             if sample_control_params_dict != {}:
@@ -2336,12 +2275,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2350,7 +2289,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         ndim = len(guess)
 
@@ -2360,18 +2299,13 @@ cdef class SIR_type:
         logpost_args = {'generator':generator, 'intervention_fun':intervention_fun, 'bounds':bounds, 'param_keys':keys,
                         'param_guess_range':param_guess_range, 'is_scale_parameter':is_scale_parameter,
                         'scaled_param_guesses':scaled_param_guesses, 'param_length':param_length, 'obs':obs,
-                        'fltr':fltr, 'Tf':Tf, 'obs0':obs0, 'init_flags':init_flags, 'init_fltrs': init_fltrs, 's':s,
-                        'scale':scale, 'tangent':tangent}
+                        'fltr':fltr, 'Tf':Tf, 'obs0':obs0, 'init_flags':init_flags, 'init_fltrs': init_fltrs,
+                        'prior':prior, 'tangent':tangent}
 
         if walker_pos is None:
              # If not specified, sample initial positions of walkers from prior (within bounds).
-            ppf_bounds = np.zeros((ndim, 2))
-            ppf_bounds[:,0] = lognorm.cdf(bounds[:,0], s, scale=scale)
-            ppf_bounds[:,1] = lognorm.cdf(bounds[:,1], s, scale=scale)
-            ppf_bounds[:,1] = ppf_bounds[:,1] - ppf_bounds[:,0]
             points = np.random.rand(nwalkers, ndim)
-            y = ppf_bounds[:,0] + points * ppf_bounds[:,1]
-            p0 = lognorm.ppf(y, s, scale=scale)
+            p0 = prior.ppf(points)
         else:
             p0 = walker_pos
 
@@ -2445,12 +2379,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2459,7 +2393,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
 
         samples = sampler.get_chain(flat=flat, thin=thin, discard=discard)
         log_posts = sampler.get_log_prob(flat=flat, thin=thin, discard=discard)
@@ -2494,7 +2428,7 @@ cdef class SIR_type:
                         self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **sample_control_params_dict)
 
                 sample_x0 = self._construct_inits(init_sample, init_flags, init_fltrs, obs0, fltr[0])
-                l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+                l_prior = np.sum(prior.logpdf(sample))
                 l_like = l_post - l_prior
                 output_dict = {
                     'params_dict':sample_params_dict, 'x0':sample_x0, 'flat_params':sample,
@@ -2503,7 +2437,7 @@ cdef class SIR_type:
                     'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
                     'scaled_param_guesses':scaled_param_guesses,
                     'init_flags': init_flags, 'init_fltrs': init_fltrs,
-                    's':s, 'scale': scale
+                    'prior':prior
                 }
 
                 if sample_control_params_dict != {}:
@@ -2635,8 +2569,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, 10*numpy.spacing(infer_result['flat_params'])**(1/3) is used. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
             Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
         Returns
@@ -2680,7 +2613,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -2746,8 +2682,7 @@ cdef class SIR_type:
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
-           Step size for numerical differentiation of the process mean and its full covariance matrix with respect
-            to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. It is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/3)`. If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/3)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         inter_steps: int, optional
@@ -2784,7 +2719,10 @@ cdef class SIR_type:
                               **kwargs)
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**np.divide(1,3)
+            xx = infer_result_loc['flat_params']
+            fx = abs(infer_result_loc['log_likelihood'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**np.divide(1,3)
         elif np.isscalar(eps):
             eps = np.repeat(eps, repeats=len(flat_params))
         print('eps-vector used for differentiation: ', eps)
@@ -2850,7 +2788,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -2866,18 +2804,13 @@ cdef class SIR_type:
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
-        infer_result_loc = infer_result.copy()
-        # backwards compatibility
-        if 'flat_map' in infer_result_loc:
-            infer_result_loc['flat_params'] = infer_result_loc.pop('flat_map')
-
-        flat_params = np.copy(infer_result_loc['flat_params'])
+        flat_params = np.copy(infer_result['flat_params'])
 
         kwargs = {}
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
-                    'init_fltrs', 's', 'scale']:
-            kwargs[key] = infer_result_loc[key]
+                    'init_fltrs', 'prior']:
+            kwargs[key] = infer_result[key]
 
         kwargs['generator']=generator
         kwargs['intervention_fun']=intervention_fun
@@ -2885,7 +2818,10 @@ cdef class SIR_type:
         kwargs['disable_penalty']=None
 
         if np.all(eps == None):
-            eps = 10.*np.spacing(flat_params)**(0.25)
+            xx = infer_result['flat_params']
+            fx = abs(infer_result['log_posterior'])
+            eps = 100 * xx * np.divide(np.spacing(fx),fx)**(0.25)
+            #eps = 10.*np.spacing(flat_params)**(0.25)
         print('epsilon used for differentiation: ', eps)
 
         def minuslogp(y):
@@ -2894,13 +2830,6 @@ cdef class SIR_type:
 
         hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
         return hess
-
-    # def error_bars_latent(self, param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf, contactMatrix,
-    #                       tangent=False, infer_scale_parameter=False, eps=1.e-3, obs0=None, fltr0=None, fd_method="central"):
-    #     hessian = self.compute_hessian_latent(param_keys, init_fltr, maps, prior_mean, prior_stds, obs, fltr, Tf, Nf,
-    #                                           contactMatrix, tangent, infer_scale_parameter, eps, obs0, fltr0, fd_method=fd_method)
-    #     return np.sqrt(np.diagonal(np.linalg.inv(hessian)))
-
 
     def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors,
                                tangent=False):
@@ -2943,12 +2872,12 @@ cdef class SIR_type:
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2957,7 +2886,7 @@ cdef class SIR_type:
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        s, scale = pyross.utils.make_log_norm_dist(guess, stds)
+        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
         loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
@@ -2984,7 +2913,7 @@ cdef class SIR_type:
             new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
                                       map_estimate['init_fltrs'], obs0, fltr[0])
             l_like = self._loglike_latent(sample, **loglike_args)
-            l_prior = np.sum(lognorm.logpdf(sample, s, scale=scale))
+            l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             new_sample['log_posterior'] = l_post
             new_sample['log_prior'] = l_prior
@@ -3028,7 +2957,7 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. For `fd_method="central"` it is recommended to use a step-size greater or equal to `numpy.spacing(infer_result['flat_params'])**(1/4)`.If not specified, `10*numpy.spacing(infer_result['flat_params'])**(1/4)` is used. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
@@ -3109,18 +3038,18 @@ cdef class SIR_type:
     def sample_trajs(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
                        inter_steps=100):
-       cdef Py_ssize_t i, Nf=obs.shape[0]
-       self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-       x0 = infer_result['x0'].copy()
-       fltr = pyross.utils.process_fltr(fltr, Nf)
-       self.set_params(infer_result['params_dict'])
-       mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
-       trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
-       for i in range(nsamples):
-           while not all(map(self._all_positive, trajs[i])):
-               partial_trajs = np.random.multivariate_normal(mean, cov)
-               trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
-       return trajs
+        cdef Py_ssize_t i, Nf=obs.shape[0]
+        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+        x0 = infer_result['x0'].copy()
+        fltr = pyross.utils.process_fltr(fltr, Nf)
+        self.set_params(infer_result['params_dict'])
+        mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
+        trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
+        for i in range(nsamples):
+            while not all(map(self._all_positive, trajs[i])):
+                partial_trajs = np.random.multivariate_normal(mean, cov)
+                trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        return trajs
 
 
     def get_mean_inits(self, init_priors, np.ndarray obs0, np.ndarray fltr0):
@@ -3142,7 +3071,7 @@ cdef class SIR_type:
         x0: numpy.array
             Full initial conditions.
         '''
-        init_mean, _, _, init_flags, init_fltrs \
+        _, init_mean, _, _, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
         x0 = self._construct_inits(init_mean, init_flags, init_fltrs, obs0, fltr0)
         return x0
@@ -3279,22 +3208,21 @@ cdef class SIR_type:
 
     def _construct_inits(self, init_guess, flags, fltrs, obs0, fltr0):
         cdef:
-            np.ndarray x0=np.empty(self.dim, dtype=DTYPE), x0_lin_mode, x0_ind
-            #np.ndarray [BOOL_t, ndim=1] mask, init_fltr
+            np.ndarray [DTYPE_t, ndim=1] x0
+            np.ndarray [DTYPE_t, ndim=2] F
             Py_ssize_t start=0
+        x0 = obs0
+        F = fltr0
         if flags[0]: # lin mode
             coeff = init_guess[0]
-            x0_lin_mode = self._lin_mode_inits(coeff)
-            mask = fltrs[0].astype('bool')
-            x0[mask] = x0_lin_mode[mask]
+            x0 = np.concatenate((x0, fltrs[0]@self._lin_mode_inits(coeff)))
+            F = np.concatenate((F, fltrs[0]), axis=0)
             start += 1
         if flags[1]: # independent guesses
-            x0_ind = init_guess[start:]
-            mask = fltrs[1].astype('bool')
-            x0[mask] = x0_ind
-        init_fltr = np.logical_or(fltrs[0], fltrs[1])
-        partial_inits = x0[init_fltr]
-        return self._fill_initial_conditions(partial_inits, obs0, init_fltr, fltr0)
+            x0 = np.concatenate((x0, init_guess[start:]))
+            F = np.concatenate((F, fltrs[1]), axis=0)
+        assert np.linalg.matrix_rank(F) == self.dim, 'Conflicts in initial conditions'
+        return np.linalg.solve(F, x0)
 
     def _lin_mode_inits(self, double coeff):
         cdef double [:] v, x0, fi=self.fi
@@ -3303,18 +3231,6 @@ cdef class SIR_type:
         x0 = np.zeros((self.dim), dtype=DTYPE)
         x0[:self.M] = fi
         return np.add(x0, v)
-
-    def _fill_initial_conditions(self, np.ndarray partial_inits, double [:] obs_inits,
-                                        np.ndarray init_fltr, np.ndarray fltr):
-        cdef:
-            np.ndarray x0=np.empty(self.dim, dtype=DTYPE)
-            double [:] z, unknown_inits, partial_inits_memview=partial_inits.astype(DTYPE)
-        z = np.subtract(obs_inits, np.dot(fltr[:, init_fltr], partial_inits_memview))
-        q, r = np.linalg.qr(fltr[:, np.invert(init_fltr)])
-        unknown_inits = solve_triangular(r, q.T @ z)
-        x0[init_fltr] = partial_inits_memview
-        x0[np.invert(init_fltr)] = unknown_inits
-        return x0
 
     cdef double _obtain_logp_for_traj(self, double [:, :] x, double Tf,
                                      Py_ssize_t inter_steps=0):
@@ -4965,7 +4881,7 @@ cdef class SppQ(SIR_type):
                     temp.remove(i)
             linear_terms_indices = temp
         return list(indices)
-    
+
     def set_params(self, parameters):
         if self.det_model is not None:
             self.set_det_model(parameters)
@@ -5277,7 +5193,7 @@ cdef class SppSparse(Spp):
         super().__init__(model_spec, parameters, M, fi, Omega, steps,
                 det_method, lyapunov_method, rtol_det, rtol_lyapunov,
                 parameter_mapping, time_dep_param_mapping)
-        
+
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
             self.param_mapping_enabled = True
@@ -5286,4 +5202,3 @@ cdef class SppSparse(Spp):
             self.param_mapping_enabled = True
         else:
             self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega)
-

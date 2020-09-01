@@ -5,6 +5,7 @@ import multiprocessing
 import numpy as np
 import nlopt
 import cma
+from scipy.stats import truncnorm, lognorm
 
 try:
     # Optional support for multiprocessing in the minimization function.
@@ -170,3 +171,81 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             print('Optimal value (local minimisation): ', y_result)
 
     return x_result, y_result
+
+
+def parse_prior_fun(name, bounds, mean, std):
+    if name == 'lognorm':
+        return lognorm_rv(bounds, mean, std)
+    elif name == 'truncnorm':
+        return truncnorm_rv(bounds, mean, std)
+    else:
+        raise Exception('Invalid prior_fun. Choose between lognorm and truncnorm')
+
+class Prior:
+    def __init__(self, names, bounds, means, stds):
+        bounds = np.array(bounds)
+        means = np.array(means)
+        stds = np.array(stds)
+        
+        self.dim = len(names)
+        self.rv_names = np.unique(names)
+        self.N = len(self.rv_names)
+        self.masks = [np.array([name == rv_name for name in names]) for rv_name in self.rv_names]
+        
+        self.rvs = []
+        for i in range(self.N):
+            mask = self.masks[i]
+            name = self.rv_names[i]
+            rv = parse_prior_fun(name, bounds[mask,:], means[mask], stds[mask])
+            self.rvs.append(rv)
+
+    def logpdf(self, x):
+        logpdfs = np.empty_like(x)
+        for i in range(self.N):
+            mask = self.masks[i]
+            logpdfs[mask] = self.rvs[i].logpdf(x[mask])
+        return logpdfs
+
+    def ppf(self, x):
+        ppfs = np.empty_like(x)
+        for i in range(self.N):
+            mask = self.masks[i]
+            ppfs[...,mask] = self.rvs[i].ppf(x[...,mask])
+        return ppfs
+
+class truncnorm_rv:
+    def __init__(self, bounds, mean, std):
+        a = (bounds[:,0] - mean)/std
+        b = (bounds[:,1] - mean)/std
+        self.rv = truncnorm(a, b, loc=mean, scale=std)
+
+    def logpdf(self, x):
+        return self.rv.logpdf(x)
+
+    def ppf(self, x):
+        return self.rv.ppf(x)
+
+class lognorm_rv:
+    def __init__(self, bounds, mean, std):
+        ndim = len(mean)
+        
+        var = std**2
+        means_sq = mean**2
+        scale = means_sq/np.sqrt(means_sq+var)
+        s = np.sqrt(np.log(1+var/means_sq))
+        self.rv = lognorm(s, scale=scale)
+        self.norm = np.log(self.rv.cdf(bounds[:,1]) - self.rv.cdf(bounds[:,0]))
+
+        # For inverse transform sampling of the truncated log-normal distribution.
+        self.ppf_bounds = np.zeros((ndim, 2))
+        self.ppf_bounds[:,0] = self.rv.cdf(bounds[:,0])
+        self.ppf_bounds[:,1] = self.rv.cdf(bounds[:,1])
+        self.ppf_bounds[:,1] = self.ppf_bounds[:,1] - self.ppf_bounds[:,0]
+
+    def logpdf(self, x):
+        return self.rv.logpdf(x) - self.norm
+
+    def ppf(self, x):
+        y = self.ppf_bounds[:,0] + x * self.ppf_bounds[:,1]
+        return self.rv.ppf(y)
+

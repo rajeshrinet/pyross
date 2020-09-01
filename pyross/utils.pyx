@@ -101,12 +101,12 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         rate_index = params_index_dict[rate]
                         infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
-                        
-                        
-        # parse the finite resource-terms into 
-        #  1) a list resource_list = [rate_index, (class_index0, priority_index0), (class_index1, priority_index1), ...] 
+
+
+        # parse the finite resource-terms into
+        #  1) a list resource_list = [rate_index, (class_index0, priority_index0), (class_index1, priority_index1), ...]
         #  2) a list finres_terms_list = [resource_index, priority_index, positivity_index, class_index, origin_class_index, destination_class_index]
-                           
+
         finres_terms_set = set() # used to check to duplicates
         finres_terms_dict = {} # collect all finite-resource terms
         finres_terms_list = [] # collect all finite-resource terms
@@ -141,10 +141,10 @@ def parse_model_spec(model_spec, param_keys):
                     else:
                         finres_terms_dict[dict_key][1] = class_index_dict[k]
         for (k,val) in finres_terms_dict.items():
-            finres_terms_list.append(list(k) + val)           
-                        
-                    
-                    
+            finres_terms_list.append(list(k) + val)
+
+
+
 
         # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
         test_pos_list = []
@@ -212,12 +212,6 @@ def age_dep_rates(rate, int M, str name, bint check_length=True):
     else:
         raise Exception('{} can be a number or an array of size M'.format(name))
 
-def make_log_norm_dist(means, stds):
-    var = stds**2
-    means_sq = means**2
-    scale = means_sq/np.sqrt(means_sq+var)
-    s = np.sqrt(np.log(1+var/means_sq))
-    return s, scale
 
 DTYPE = np.float
 ctypedef np.float_t DTYPE_t
@@ -468,6 +462,18 @@ def process_latent_data(np.ndarray fltr, np.ndarray obs):
     obs = process_obs(obs[1:], Nf-1)
     return fltr, obs, obs0
 
+def _parse_prior_name(sub_dict, dim):
+    if 'prior_fun' in sub_dict:
+        prior = sub_dict['prior_fun']
+        if np.size(prior) == 1:
+            return [prior]*dim
+        elif np.size(prior) == dim:
+            return prior
+        else:
+            raise Exception('prior_fun must be of length 1 or {}'.format(dim))
+    else:
+        return ['lognorm']*dim
+
 def parse_param_prior_dict(prior_dict, M, check_length=True):
     flat_guess = []
     flat_stds = []
@@ -476,6 +482,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
     key_list = []
     scaled_guesses = []
     is_scale_parameter = []
+    names = []
 
     count = 0
     for key in prior_dict:
@@ -495,6 +502,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                                 ' as keys'.format(key))
             flat_guess_range.append(count)
             is_scale_parameter.append(False)
+            names += _parse_prior_name(sub_dict, 1)
             count += 1
         else:
             infer_scale = False
@@ -512,6 +520,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                 scaled_guesses.append(mean)
                 flat_guess_range.append(count)
                 is_scale_parameter.append(True)
+                names += _parse_prior_name(sub_dict, 1)
                 count += 1
             else:
                 if check_length:
@@ -529,9 +538,10 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                                     ' as keys'.format(key))
                 is_scale_parameter += [False]*M
                 flat_guess_range.append(list(range(count, count+M)))
+                names += _parse_prior_name(sub_dict, M)
                 count += M
-    return key_list, np.array(flat_guess), np.array(flat_stds), \
-           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
+    return names, key_list, np.array(flat_guess), np.array(flat_stds), \
+          np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
 
 def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses):
     # Restore parameters from flattened parameters
@@ -549,8 +559,9 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     guess = []
     stds = []
     bounds = []
+    names = []
     flags = [False, False]
-    fltrs = np.zeros((2, dim), dtype='bool')
+    fltrs = [None, None]
     count = 0
     if 'lin_mode_coeff' in prior_dict.keys():
         sub_dict = prior_dict['lin_mode_coeff']
@@ -558,43 +569,58 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
             guess.append(sub_dict['mean'])
             stds.append(sub_dict['std'])
             bounds.append(sub_dict['bounds'])
-            fltrs[0] = sub_dict['fltr']
+            fltrs[0] = _process_init_fltr(sub_dict['fltr'], dim)
         except KeyError:
             raise Exception('Sub dict of "lin_mode_coeff" must have'
                             ' "mean", "std", "bounds" and "fltr" as keys')
-        assert len(fltrs[0]) == dim
         flags[0] = True
-        count += np.sum(fltrs[0])
+        names += _parse_prior_name(sub_dict, 1)
+        count += fltrs[0].shape[0]
 
     if 'independent' in prior_dict.keys():
         sub_dict = prior_dict['independent']
         try:
-            fltrs[1] = sub_dict['fltr']
+            fltrs[1] = _process_init_fltr(sub_dict['fltr'], dim)
             guess.extend(sub_dict['mean'])
             stds.extend(sub_dict['std'])
             bounds.extend(sub_dict['bounds'])
         except KeyError:
             raise Exception('Sub dict of "independent" must have'
                             ' "mean", "std", "bounds" and "fltr" as keys')
-        assert len(fltrs[1]) == dim
-        assert np.sum(fltrs[1]) == len(sub_dict['mean'])
+        assert fltrs[1].shape[0] == len(sub_dict['mean'])
         assert len(sub_dict['std']) == len(sub_dict['mean'])
         assert len(sub_dict['bounds']) == len(sub_dict['mean'])
         flags[1] = True
-        count += np.sum(fltrs[1])
+        names += _parse_prior_name(sub_dict, len(sub_dict['mean']))
+        count += fltrs[1].shape[0]
 
     # make sure that there are some priors
     if np.sum(flags) == 0:
         raise Exception('Prior for inits must have at least one of "independent"'
                         ' and "coeff" as keys')
-    # check for overlapping guesses
-    if flags[0] and flags[1]:
-        assert np.sum(np.logical_or(fltrs[0], fltrs[1])) == count, 'Overlapping guesses.'
     # check that the total number of guesses is correct
-    assert count == dim - obs_dim, 'Total No. of "True"s in fltrs must be dim - obs_dim'
+    assert count == dim - obs_dim, 'Total No. of guessed values must be dim - obs_dim'
 
-    return np.array(guess), np.array(stds), np.array(bounds), \
+    return names, np.array(guess), np.array(stds), np.array(bounds), \
            flags, fltrs
+
+def _process_init_fltr(fltr, dim):
+    fltr = np.array(fltr).astype('bool')
+    if fltr.ndim == 1:
+        assert len(fltr) == dim, 'init_fltr has wrong shape'
+        l = np.sum(fltr)
+        fltr_mat = np.zeros((l, dim), dtype=DTYPE)
+        row = 0
+        for i in range(dim):
+            if fltr[i]:
+                fltr_mat[row, i] = 1
+                row += 1
+        return fltr_mat
+    elif fltr.ndim == 2:
+        assert fltr.shape[1] == dim, 'init_fltr has wrong shape'
+        return fltr.astype('float')
+    else:
+        raise Exception('init_fltr must either be 1D or 2D')
 
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
@@ -627,9 +653,9 @@ def plotSIR(data, showPlot=True):
     sumS = S.sum(axis=1)
     sumI = Is.sum(axis=1)
     sumR = R.sum(axis=1)
-    
+
     try:
-        import matplotlib.pyplot as plt	
+        import matplotlib.pyplot as plt
         plt.fill_between(t, 0, sumS/N, color="#348ABD", alpha=0.3)
         plt.plot(t, sumS/N, '-', color="#348ABD", label='$S$', lw=4)
 
@@ -648,7 +674,7 @@ def plotSIR(data, showPlot=True):
             pass
         else:
             plt.show()
-    
+
     except ImportError:
         print('Please install matplotlib to use this method')
 
@@ -822,7 +848,7 @@ class GPR:
 
     def plotResults(self):
         try:
-            import matplotlib.pyplot as plt	
+            import matplotlib.pyplot as plt
             plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
             plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
             plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')

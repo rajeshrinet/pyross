@@ -2686,6 +2686,7 @@ cdef class Spp(stochastic_integration):
             double frp
             int offset, nClass = self.nClass
             int S_index=self.class_index_dict['S']
+            int class_index, priority_index, resource_index, probability_index
 
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)
