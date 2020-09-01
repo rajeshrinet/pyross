@@ -4456,6 +4456,7 @@ cdef class Spp(SIR_type):
     cdef:
         readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
         readonly np.ndarray model_parameters
+        readonly np.ndarray model_parameters_length
         readonly np.ndarray finres_pop
         readonly pyross.deterministic.Spp det_model
         readonly dict model_spec
@@ -4489,7 +4490,6 @@ cdef class Spp(SIR_type):
         self.infection_terms = res[4]
         self.finres_terms = res[5]
         self.resource_list = res[6]
-        self.finres_pop = np.empty(len(self.resource_list), dtype=DTYPE)
         super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
@@ -4499,6 +4499,14 @@ cdef class Spp(SIR_type):
             self.param_mapping_enabled = True
         else:
             self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
+        
+        self.finres_pop = np.empty( len(self.resource_list), dtype='object')  # populations for finite-resource transitions
+        for i in range(len(self.resource_list)):
+            ndx = self.resource_list[i][0]
+            if self.model_parameters_length[ndx] == 1:
+                self.finres_pop[i] = 0
+            else:
+                self.finres_pop[i] = np.zeros(self.M, dtype=DTYPE)
 
     def infection_indices(self):
         cdef Py_ssize_t a = 100
@@ -4533,20 +4541,24 @@ cdef class Spp(SIR_type):
             model_parameters = self.parameter_mapping(parameters)
             nParams = len(self.model_param_keys)
             self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+            self.model_parameters_length = np.empty(nParams, dtype=np.intp)
             try:
                 for (i, key) in enumerate(self.model_param_keys):
                     param = model_parameters[key]
                     self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                    self.model_parameters_length[i] = len(param)
             except KeyError:
                 raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
         elif self.time_dep_param_mapping is not None:
             self.set_time_dep_model_parameters(0)
         else:
             self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+            self.model_parameters_length = np.empty(nParams, dtype=np.intp)
             try:
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
                     self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                    self.model_parameters_length[i] = len(param)
             except KeyError:
                 raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
 
@@ -4554,10 +4566,13 @@ cdef class Spp(SIR_type):
         model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.model_param_keys)
         self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        self.model_parameters_length = np.empty(nParams, dtype=np.intp)
+        
         try:
             for (i, key) in enumerate(self.model_param_keys):
                 param = model_parameters[key]
                 self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                self.model_parameters_length[i] = len(param)
         except KeyError:
             raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
@@ -4626,10 +4641,16 @@ cdef class Spp(SIR_type):
         cdef:
             Py_ssize_t class_index, priority_index, m, i
         for i in range(len(self.resource_list)):
-            self.finres_pop[i] = 0
+            if np.size(self.finres_pop[i]) == 1:
+                self.finres_pop[i] = 0
+            else:
+                self.finres_pop[i] = np.zeros(np.size(self.finres_pop[i]))
             for (class_index, priority_index) in self.resource_list[i][1:]:
                 for m in range(self.M):
-                    self.finres_pop[i] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
+                    if np.size(self.finres_pop[i]) == 1:
+                        self.finres_pop[i] += x[m + self.M*class_index] * self.parameters[priority_index, m]
+                    else:
+                        self.finres_pop[i][m] += x[m + self.M*class_index] * self.parameters[priority_index, m]
 
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
@@ -4642,9 +4663,9 @@ cdef class Spp(SIR_type):
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             int [:, :] finres_terms=self.finres_terms
             np.ndarray resource_list=self.resource_list
-            double [:] finres_pop = self.finres_pop
+            np.ndarray finres_pop = self.finres_pop
             double [:] rate
-            double term, term2
+            double term, term2, frp
             double [:] fi=self.fi
 
         # infection terms
@@ -4684,9 +4705,13 @@ cdef class Spp(SIR_type):
                 reagent_index = self.finres_terms[i, 4]
                 product_index = self.finres_terms[i, 5]
                 for m in range(M):
-                    if finres_pop[resource_index] > 0.5 / self.Omega:
+                    if np.size(finres_pop[resource_index]) == 1:
+                        frp = finres_pop[resource_index]
+                    else:
+                        frp = finres_pop[resource_index][m]
+                    if frp > 0.5 / self.Omega:
                         term = parameters[rate_index, m] * parameters[priority_index, m] \
-                               * parameters[probability_index, m] / (finres_pop[resource_index] * self.Omega)
+                               * parameters[probability_index, m] / (frp * self.Omega)
                     else:
                         term = 0
                     if reagent_index>-1:
@@ -4694,14 +4719,22 @@ cdef class Spp(SIR_type):
                     if product_index>-1:
                         J[product_index, m, class_index, m] += term
                     if finres_pop[resource_index] > 0:
-                        term *= - x[class_index*M+m] / finres_pop[resource_index]
+                        term *= - x[class_index*M+m] / frp
                     for (res_class_index, res_priority_index) in resource_list[resource_index][1:]:
-                        for n in range(M):
+                        if np.size(finres_pop[resource_index]) == 1:
+                            for n in range(M):
+                                term2 = term * parameters[res_priority_index, n]
+                                if reagent_index>-1:
+                                    J[reagent_index, m, res_class_index, n] -= term2
+                                if product_index>-1:
+                                    J[product_index, m, res_class_index, n] += term2
+                        else:
                             term2 = term * parameters[res_priority_index, m]
                             if reagent_index>-1:
-                                J[reagent_index, m, res_class_index, n] -= term2
+                                J[reagent_index, m, res_class_index, m] -= term2
                             if product_index>-1:
-                                J[product_index, m, res_class_index, n] += term2
+                                J[product_index, m, res_class_index, m] += term2
+                                
 
         self.J_mat = self.J.reshape((dim, dim))
 
@@ -4717,7 +4750,8 @@ cdef class Spp(SIR_type):
             int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
             int [:, :] finres_terms=self.finres_terms
             np.ndarray resource_list=self.resource_list
-            double [:] finres_pop = self.finres_pop
+            np.ndarray finres_pop = self.finres_pop
+            double frp
             double [:] s, reagent, rate
             double Omega=self.Omega
         s = x[S_index*M:(S_index+1)*M]
@@ -4766,8 +4800,12 @@ cdef class Spp(SIR_type):
                 reagent_index = self.finres_terms[i, 4]
                 product_index = self.finres_terms[i, 5]
                 for m in range(M):
+                    if np.size(finres_pop[resource_index]) == 1:
+                        frp = finres_pop[resource_index]
+                    else:
+                        frp = finres_pop[resource_index][m]
                     term = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] * x[class_index*M+m] / (finres_pop[resource_index] * self.Omega)
+                           * parameters[probability_index, m] * x[class_index*M+m] / (frp * self.Omega)
                     if reagent_index>-1:
                         B[reagent_index, m, reagent_index, m] += term
                         if product_index>-1:

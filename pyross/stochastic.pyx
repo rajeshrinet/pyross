@@ -2523,6 +2523,7 @@ cdef class Spp(stochastic_integration):
         readonly int n_constant_terms, n_linear_terms, n_infection_terms, n_finres_terms
         np.ndarray _lambdas
         readonly np.ndarray finres_pop
+        readonly np.ndarray parameters_length
         list param_keys
         readonly dict param_dict
         dict class_index_dict
@@ -2597,7 +2598,13 @@ cdef class Spp(stochastic_integration):
         self.dim_state_vec = self.nClass * self.M
         
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
-        self.finres_pop = np.zeros( len(self.resource_list), dtype=DTYPE)  # populations for finite-resource transitions
+        self.finres_pop = np.empty( len(self.resource_list), dtype='object')  # populations for finite-resource transitions
+        for i in range(len(self.resource_list)):
+            ndx = self.resource_list[i][0]
+            if self.parameters_length[ndx] == 1:
+                self.finres_pop[i] = 0
+            else:
+                self.finres_pop[i] = np.zeros(self.M, dtype=DTYPE)
         self.rates = np.zeros( self.nReactions , dtype=DTYPE)  # rate vector
         self.xt = np.zeros([self.dim_state_vec],dtype=long) # state
         self.xtminus1 = np.zeros([self.dim_state_vec],dtype=long) # previous state
@@ -2672,10 +2679,11 @@ cdef class Spp(stochastic_integration):
             int [:, :] linear_terms=self.linear_terms
             int [:, :] infection_terms=self.infection_terms
             int [:, :] finres_terms=self.finres_terms
+            np.ndarray finres_pop = self.finres_pop
             np.ndarray resource_list=self.resource_list
             double [:, :] parameters=self.parameters
             double [:,:] lambdas = self._lambdas
-            double [:] finres_pop = self.finres_pop
+            double frp
             int offset, nClass = self.nClass
             int S_index=self.class_index_dict['S']
 
@@ -2699,10 +2707,16 @@ cdef class Spp(stochastic_integration):
         
         # Calculate populations for finite resource transitions
         for i in range(len(resource_list)):
-            finres_pop[i] = 0
+            if np.size(finres_pop[i]) == 1:
+                finres_pop[i] = 0
+            else:
+                finres_pop[i] = np.zeros(np.size(finres_pop[i]))
             for (class_index, priority_index) in resource_list[i][1:]:
                 for m in range(M):
-                    finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
+                    if np.size(finres_pop[i]) == 1:
+                        finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
+                    else:
+                        finres_pop[i][m] += xt[m + M*class_index] * parameters[priority_index, m]
         
         for m in range(M):       
             for i in range(self.n_constant_terms):
@@ -2731,9 +2745,13 @@ cdef class Spp(stochastic_integration):
                 priority_index = finres_terms[i, 1]
                 probability_index = finres_terms[i, 2]
                 class_index = finres_terms[i, 3]
-                if finres_pop[resource_index] > 0:
+                if np.size(finres_pop[resource_index]) == 1:
+                        frp = finres_pop[resource_index]
+                else:
+                        frp = finres_pop[resource_index][m]
+                if frp > 0:
                     rate = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                           * parameters[probability_index, m] * xt[m+M*class_index] / frp
                 else:
                     rate = 0
                 rates[offset + i + m*nRpa] = rate
@@ -2745,11 +2763,13 @@ cdef class Spp(stochastic_integration):
         if self.time_dep_param_mapping is None:
             nParams = len(self.param_keys)
             self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-
+            self.parameters_length = np.empty(nParams, dtype=np.intp)
+            
             try:
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
                     self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                    self.parameters_length[i] = len(param)
             except KeyError:
                 raise Exception('The parameters passed do not contain certain keys.\
                                  The keys are {}'.format(self.param_keys))
@@ -2762,10 +2782,12 @@ cdef class Spp(stochastic_integration):
         parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        self.parameters_length = np.empty(nParams, dtype=np.intp)
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                self.parameters_length[i] = len(param)
         except KeyError:
             raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))

@@ -2675,7 +2675,14 @@ cdef class Spp(CommonMethods):
         else:
             self.update_time_dep_model_parameters(0)
         self.CM = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
-        self.finres_pop = np.zeros( len(self.resource_list), dtype=DTYPE)  # populations for finite-resource transitions
+        self.finres_pop = np.empty( len(self.resource_list), dtype='object')  # populations for finite-resource transitions
+        for i in range(len(self.resource_list)):
+            ndx = self.resource_list[i][0]
+            if self.parameters_length[ndx] == 1:
+                self.finres_pop[i] = 0
+            else:
+                self.finres_pop[i] = np.zeros(self.M, dtype=DTYPE)
+            
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
         self.dxdt = np.zeros(self.nClass*self.M, dtype=DTYPE)
 
@@ -2684,11 +2691,12 @@ cdef class Spp(CommonMethods):
         if self.time_dep_param_mapping is None:
             nParams = len(self.param_keys)
             self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-
+            self.parameters_length = np.empty(nParams, dtype=np.intp)
             try:
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
                     self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                    self.parameters_length[i] = len(param)
             except KeyError:
                 raise Exception('The parameters passed do not contain certain keys.\
                                  The keys are {}'.format(self.param_keys))
@@ -2700,10 +2708,12 @@ cdef class Spp(CommonMethods):
         parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
+        self.parameters_length = np.empty(nParams, dtype=np.intp)
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
+                self.parameters_length[i] = len(param)
         except KeyError:
             raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
@@ -2720,11 +2730,11 @@ cdef class Spp(CommonMethods):
             int [:, :]  infection_terms=self.infection_terms
             int [:, :]  finres_terms=self.finres_terms
             np.ndarray resource_list=self.resource_list
+            np.ndarray finres_pop = self.finres_pop
             double [:, :] parameters=self.parameters
-            double term
+            double term, frp
             double [:] xt = xt_arr
             double [:] Ni   = self.Ni
-            double [:] finres_pop = self.finres_pop
             double [:,:] CM = self.CM
             double [:,:] lambdas = self._lambdas
             
@@ -2748,10 +2758,16 @@ cdef class Spp(CommonMethods):
                     
         # Calculate populations for finite resource transitions
         for i in range(len(resource_list)):
-            finres_pop[i] = 0
+            if np.size(finres_pop[i]) == 1:
+                finres_pop[i] = 0
+            else:
+                finres_pop[i] = np.zeros(np.size(finres_pop[i]))
             for (class_index, priority_index) in resource_list[i][1:]:
                 for m in range(M):
-                    finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
+                    if np.size(finres_pop[i]) == 1:
+                        finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
+                    else:
+                        finres_pop[i][m] += xt[m + M*class_index] * parameters[priority_index, m]
         
         # Reset dxdt
         self.dxdt = np.zeros(nClass*M, dtype=DTYPE)
@@ -2797,9 +2813,13 @@ cdef class Spp(CommonMethods):
                     origin_index = finres_terms[i, 4]
                     destination_index = finres_terms[i, 5]
 
-                    if finres_pop[resource_index] >= 0.5:  # only if population does not round to zero
+                    if np.size(finres_pop[resource_index]) == 1:
+                        frp = finres_pop[resource_index]
+                    else:
+                        frp = finres_pop[resource_index][m]
+                    if frp >= 0.5:  # only if population does not round to zero
                         term = parameters[rate_index, m] * parameters[priority_index, m] \
-                               * parameters[probability_index, m] * xt[m+M*class_index] / finres_pop[resource_index]
+                               * parameters[probability_index, m] * xt[m+M*class_index] / frp
                     else:
                         term = 0
 

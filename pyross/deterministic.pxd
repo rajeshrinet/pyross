@@ -265,6 +265,7 @@ cdef class Spp(CommonMethods):
     cdef:
         readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
         readonly np.ndarray parameters
+        readonly np.ndarray parameters_length
         readonly list param_keys
         readonly dict param_dict
         readonly dict class_index_dict
