@@ -2770,7 +2770,7 @@ cdef class Spp(stochastic_integration):
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
                     self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-                    self.parameters_length[i] = len(param)
+                    self.parameters_length[i] = np.size(param)
             except KeyError:
                 raise Exception('The parameters passed do not contain certain keys.\
                                  The keys are {}'.format(self.param_keys))
@@ -2788,7 +2788,7 @@ cdef class Spp(stochastic_integration):
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
                 self.parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-                self.parameters_length[i] = len(param)
+                self.parameters_length[i] = np.size(param)
         except KeyError:
             raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
