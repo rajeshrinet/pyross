@@ -1,6 +1,7 @@
 import  numpy as np
 import scipy as sp
 import scipy.linalg
+import copy
 cimport numpy as np
 cimport cython
 from libc.math cimport sqrt, pow, log, sin, cos, atan2, sqrt
@@ -964,3 +965,70 @@ def posterior_mean(weighted_samples):
     sample['log_prior']      = None
     sample['log_likelihood'] = None
     return sample
+
+
+def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
+    """
+    Adds a quarantined version of every state and automatically specifies finite-resource 
+    transtions for testing. If not yet specified, an explicit R-class is added. 
+
+    Parameters
+    inout_model_spec: dict
+        Model specification of the model without quarantine (Spp syntax)
+  
+    Returns
+    -------
+    model_spec: dict
+        Full model specification with quarantine.
+    """
+    
+    model_spec = copy.deepcopy(input_model_spec)
+    
+    # collect all terms
+    terms = list()
+    for name in model_spec['classes']:
+        for key, listval in model_spec[name].items():
+            for val in listval:
+                terms.append((key,val))
+            
+    
+    # Add R-class, if not yet specified
+    if "R" not in model_spec['classes']:
+        model_spec['classes'].append("R")
+        model_spec['R'] = dict()
+        # check if transition is balanced, otherwise add to R
+        for term in terms:
+            term2 = copy.deepcopy(term)
+            if term[1][1].startswith('-'):
+                term2[1][1] = term[1][1][1:]
+                if term2 not in terms:
+                    if term2[0] not in model_spec['R'].keys():
+                        model_spec['R'][term2[0]] = list()
+                    model_spec['R'][term2[0]].append(term2[1])
+    n_class = len(model_spec['classes'])
+                    
+    # add Q-classes
+    for class_name in model_spec['classes'].copy():
+        classQ = class_name + 'Q'
+        model_spec['classes'].append(classQ)
+        model_spec[classQ] = copy.deepcopy(model_spec[class_name])
+        for terms in model_spec[classQ].values():
+            for term in terms:
+                term[0] += 'Q'
+        if 'infection' in model_spec[classQ]:
+            del model_spec[classQ]['infection'] # no infection in quarantine
+    
+    # add testing transitions
+    test_pos = model_spec.pop('test_pos')
+    assert len(test_pos) == n_class, "number of elements of test_pos must match number of classes (incl. R)"
+    test_freq = model_spec.pop('test_freq')
+    assert len(test_freq) == n_class, "number of elements of test_freq must match number of classes (incl. R)"
+    
+    for i in range(n_class):
+        class_name = model_spec['classes'][i]
+        class_nameQ = model_spec['classes'][i+n_class]
+        model_spec[class_name]['finite-resource'] = [ [class_name, "-"+testRate_name, test_freq[i], test_pos[i]] ]
+        model_spec[class_nameQ]['finite-resource'] = [ [class_name, testRate_name, test_freq[i], test_pos[i]] ]
+        
+                
+    return model_spec
