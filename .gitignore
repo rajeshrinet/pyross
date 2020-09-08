@@ -9,6 +9,10 @@ pyross/*.html
 pyross/*.c
 pyross/*.so
 pyross/*.cpp
+pyross/tsi/*.html
+pyross/tsi/*.c
+pyross/tsi/*.so
+pyross/tsi/*.cpp
 *.c
 *egg-info*
 dist
