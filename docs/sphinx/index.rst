@@ -59,3 +59,4 @@ API Reference
    forecast
    evidence
    utils
+   tsi
