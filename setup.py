@@ -7,13 +7,25 @@ Cython.Compiler.Options.annotate=True
 
 
 if 'darwin'==(sys.platform).lower():
-    extension = Extension('pyross/*', ['pyross/*.pyx'],
+    extension1 = Extension('pyross/*', ['pyross/*.pyx'],
         include_dirs=[numpy.get_include()],
         extra_compile_args=['-mmacosx-version-min=10.9'],
         extra_link_args=['-mmacosx-version-min=10.9'],
     )
 else:
-    extension = Extension('pyross/*', ['pyross/*.pyx'],
+    extension1 = Extension('pyross/*', ['pyross/*.pyx'],
+        include_dirs=[numpy.get_include()],
+    )
+
+
+if 'darwin'==(sys.platform).lower():
+    extension2 = Extension('pyross/tsi/*', ['pyross/tsi/*.pyx'],
+        include_dirs=[numpy.get_include()],
+        extra_compile_args=['-mmacosx-version-min=10.9'],
+        extra_link_args=['-mmacosx-version-min=10.9'],
+    )
+else:
+    extension2 = Extension('pyross/tsi/*', ['pyross/tsi/*.pyx'],
         include_dirs=[numpy.get_include()],
     )
 
@@ -49,7 +61,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     platforms='tested on Linux, macOS, and windows',
-    ext_modules=cythonize([ extension ],
+    ext_modules=cythonize([extension1, extension2],
         compiler_directives={'language_level': sys.version_info[0]},
         ),
     libraries=[],
