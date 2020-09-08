@@ -8,7 +8,6 @@ import pyross.stochastic
 import pyross.utils
 import pyross.utils_python
 import pyross.evidence
-import pyross.tsi.contactMatrix
 import pyross.tsi.deterministic
 import pyross.tsi.utils
 
