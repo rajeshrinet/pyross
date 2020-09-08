@@ -54,3 +54,7 @@ jobs:
         shell: bash -l {0}
         run: |
           make nbtest -e path="examples/forecast/nbtests/" recursive=False
+      - name: testing-tsi
+        shell: bash -l {0}
+        run: |
+          make nbtest -e path="examples/tsi/" recursive=False
