@@ -8,7 +8,9 @@ import pyross.stochastic
 import pyross.utils
 import pyross.utils_python
 import pyross.evidence
+import pyross.tsi.deterministic
+import pyross.tsi.utils
 
 ## current version of PyRoss
-__version__="1.2.9"
+__version__="1.3.0"
 

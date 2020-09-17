@@ -7,13 +7,25 @@ Cython.Compiler.Options.annotate=True
 
 
 if 'darwin'==(sys.platform).lower():
-    extension = Extension('pyross/*', ['pyross/*.pyx'],
+    extension1 = Extension('pyross/*', ['pyross/*.pyx'],
         include_dirs=[numpy.get_include()],
         extra_compile_args=['-mmacosx-version-min=10.9'],
         extra_link_args=['-mmacosx-version-min=10.9'],
     )
 else:
-    extension = Extension('pyross/*', ['pyross/*.pyx'],
+    extension1 = Extension('pyross/*', ['pyross/*.pyx'],
+        include_dirs=[numpy.get_include()],
+    )
+
+
+if 'darwin'==(sys.platform).lower():
+    extension2 = Extension('pyross/tsi/*', ['pyross/tsi/*.pyx'],
+        include_dirs=[numpy.get_include()],
+        extra_compile_args=['-mmacosx-version-min=10.9'],
+        extra_link_args=['-mmacosx-version-min=10.9'],
+    )
+else:
+    extension2 = Extension('pyross/tsi/*', ['pyross/tsi/*.pyx'],
         include_dirs=[numpy.get_include()],
     )
 
@@ -49,8 +61,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     platforms='tested on Linux, macOS, and windows',
-    ext_modules=cythonize([ extension ],
-        compiler_directives={'language_level': sys.version_info[0]},
+    ext_modules=cythonize([extension1, extension2],
+        compiler_directives={'language_level': 3},
         ),
     libraries=[],
     packages=['pyross'],
@@ -60,13 +72,11 @@ setup(
     include_package_data=True,
     classifiers=[
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
-		'Topic :: Scientific/Engineering',
-		'Topic :: Scientific/Engineering :: Mathematics',
-		'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Intended Audience :: Science/Research',
         'Intended Audience :: Education',
         ],
 )

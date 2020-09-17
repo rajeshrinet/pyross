@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.3.0 
+* Merge PyRossTSI with PyRoss
+
 ## 1.2.9 
 * Updates to Spp classes in deterministic and stochastic and changes to inference 
 
