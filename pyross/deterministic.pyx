@@ -2952,12 +2952,11 @@ cdef class Spp(CommonMethods):
                 Os = self.Ni - np.sum(X_reshaped, axis=1)
         return Os
 
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SppQ(CommonMethods):
+cdef class SppQ(Spp):
     """
     Generic user-defined epidemic model with quarantine.
     ...
@@ -3002,6 +3001,113 @@ cdef class SppQ(CommonMethods):
             'p_truepos': 1
             'tf': 1
         }
+    """
+    
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
+        self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec) 
+        self.input_time_dep_param_mapping = time_dep_param_mapping
+        self.testRate = None
+        super().__init__(self.full_model_spec, parameters, M, Ni, time_dep_param_mapping=self.full_time_dep_param_mapping)
+    
+    cpdef set_testRate(self, testRate):
+        self.testRate = testRate
+        
+    cpdef full_time_dep_param_mapping(self, input_parameters, t):
+        cdef dict output_param_dict
+        if self.input_time_dep_param_mapping is not None:
+            output_param_dict = self.input_time_dep_param_mapping(input_parameters, t).copy()
+        else:
+            output_param_dict = input_parameters.copy()
+        if self.testRate is not None:
+            output_param_dict['tau'] = self.testRate(t)
+        else:
+            output_param_dict['tau'] = 0
+        return output_param_dict
+    
+    def model_class_data(self, model_class_key, data):
+        """
+        Parameters
+        ----------
+        data: dict
+            The object returned by `simulate`.
+
+        Returns
+        -------
+            The population of class `model_class_key` as a time series
+        """
+        X = data['X']
+
+        if model_class_key == 'Ni':
+            X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+            Os = np.sum(X_reshaped, axis=1)
+        elif model_class_key == 'NiQ':
+            X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+            Os = np.sum(X_reshaped[:, (self.nClass//2):, :], axis=1)
+        else:
+            class_index = self.class_index_dict[model_class_key]
+            Os = X[:, class_index*self.M:(class_index+1)*self.M]
+        return Os
+    
+    def simulate(self, x0, contactMatrix, testRate, Tf, Nf, Ti=0,
+                     integrator='odeint', maxNumSteps=100000, **kwargs):
+        """
+        Simulates a compartment model given initial conditions,
+        choice of integrator and other parameters. 
+        Returns the time series data and parameters in a dict. 
+        Internally calls the method 'simulator' of CommonMethods
+        
+        ...
+
+        Parameters
+        ----------
+        x0: np.array or dict
+            Initial conditions. If it is an array it should have length
+            M*(model_dimension-1), where x0[i + j*M] should be the initial
+            value of model class i of age group j. The removed R class
+            must be left out. If it is a dict then
+            it should have a key corresponding to each model class,
+            with a 1D array containing the initial condition for each
+            age group as value. One of the classes may be left out,
+            in which case its initial values will be inferred from the
+            others.
+        contactMatrix: python function(t)
+            The social contact matrix C_{ij} denotes the
+            average number of contacts made per day by an
+            individual in class i with an individual in class j
+        testRate: python function(t)
+            The total number of PCR tests performed per day
+        Tf: float
+            Final time of integrator
+        Nf: Int
+            Number of time points to evaluate.
+        Ti: float, optional
+            Start time of integrator. The default is 0.
+        integrator: TYPE, optional
+            Integrator to use either from scipy.integrate or odespy.
+            The default is 'odeint'.
+        maxNumSteps: int, optional
+            maximum number of steps the integrator can take.
+            The default value is 100000.
+        **kwargs: kwargs for integrator
+
+        Returns
+        -------
+        data: dict
+             X: output path from integrator,  t : time points evaluated at,
+            'param': input param to integrator.
+        """
+        self.testRate = testRate
+        return super().simulate(x0, contactMatrix, Tf, Nf, Ti,
+                                integrator, maxNumSteps, **kwargs)
+    
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SppQ_old(CommonMethods):
+    """
+    No longer maintained, will be deprecated.
+
     """
 
     def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):

@@ -289,12 +289,29 @@ cdef class SppSparse(Spp):
         readonly np.ndarray interactingMP
 
 
-
 @cython.wraparound(False)
 @cython.boundscheck(True)
 @cython.cdivision(False)
 @cython.nonecheck(True)
-cdef class SppQ(CommonMethods):
+cdef class SppQ(Spp):
+    """
+    Given a model specification, the SppQ class generates a custome-made model just like Spp, but automatically adds a quarantined version of every compartment
+    """
+
+    cdef:
+        readonly dict full_model_spec
+        readonly object input_time_dep_param_mapping
+        readonly object testRate
+    
+    cpdef set_testRate(self, testRate)
+    cpdef full_time_dep_param_mapping(self, input_parameters, t)
+        
+        
+@cython.wraparound(False)
+@cython.boundscheck(True)
+@cython.cdivision(False)
+@cython.nonecheck(True)
+cdef class SppQ_old(CommonMethods):
     """
     Given a model specification, the SppQ class generates a custome-made model just like Spp, but automatically adds a quarantined version of every compartment
     """

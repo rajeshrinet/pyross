@@ -2825,7 +2825,7 @@ cdef class Spp(stochastic_integration):
         return Os
 
 
-    cpdef simulate(self, x0, contactMatrix, Tf, Nf,
+    def simulate(self, x0, contactMatrix, Tf, Nf,
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
                 int tau_update_frequency = 1,
@@ -2923,8 +2923,8 @@ cdef class Spp(stochastic_integration):
         param_dict = self.make_parameters_dict()
         out_dict.update(param_dict)
         return out_dict
-    
-cdef class SppQ(stochastic_integration):
+
+cdef class SppQ(Spp):
     """
     Generic user-defined epidemic model with quarantine.
 
@@ -2969,6 +2969,102 @@ cdef class SppQ(stochastic_integration):
             'p_truepos': 1
             'tf': 1
         }
+    """
+    
+    cdef:
+        readonly dict full_model_spec
+        readonly object input_time_dep_param_mapping
+        readonly object testRate
+        
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
+        self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec) 
+        self.input_time_dep_param_mapping = time_dep_param_mapping
+        self.testRate = None
+        super().__init__(self.full_model_spec, parameters, M, Ni, time_dep_param_mapping=self.full_time_dep_param_mapping)
+        
+    cpdef set_testRate(self, testRate):
+        self.testRate = testRate 
+        
+    cpdef full_time_dep_param_mapping(self, input_parameters, t):
+        cdef dict output_param_dict
+        if self.input_time_dep_param_mapping is not None:
+            output_param_dict = self.input_time_dep_param_mapping(input_parameters, t).copy()
+        else:
+            output_param_dict = input_parameters.copy()
+        if self.testRate is not None:
+            output_param_dict['tau'] = self.testRate(t)
+        else:
+            output_param_dict['tau'] = 0
+        return output_param_dict
+    
+    def model_class_data(self, model_class_key, data):
+        """
+        Parameters
+        ----------
+        data: dict
+            The object returned by `simulate`.
+
+        Returns
+        -------
+            The population of class `model_class_key` as a time series
+        """
+        X = data['X']
+
+        if model_class_key == 'Ni':
+            X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+            Os = np.sum(X_reshaped, axis=1)
+        elif model_class_key == 'NiQ':
+            X_reshaped = X.reshape((X.shape[0], (self.nClass), self.M))
+            Os = np.sum(X_reshaped[:, (self.nClass//2):, :], axis=1)
+        else:
+            class_index = self.class_index_dict[model_class_key]
+            Os = X[:, class_index*self.M:(class_index+1)*self.M]
+        return Os
+    
+    def simulate(self, x0, contactMatrix, testRate, Tf, Nf,
+                method='gillespie',
+                int nc=30, double epsilon = 0.03,
+                int tau_update_frequency = 1):
+        """
+        Performs the Stochastic Simulation Algorithm (SSA)
+
+        Parameters
+        ----------
+        x0: np.array
+            Initial condition.
+        contactMatrix: python function(t)
+            The social contact matrix C_{ij} denotes the
+            average number of contacts made per day by an
+            individual in class i with an individual in class j
+        testRate: python function(t)
+            The total number of PCR tests performed per day
+        Tf: float
+            Final time of integrator
+        Nf: Int
+            Number of time points to evaluate.
+        method: str, optional
+            SSA to use, either 'gillespie' or 'tau_leaping'.
+            The default is 'gillespie'.
+        nc: TYPE, optional
+        epsilon: TYPE, optional
+        tau_update_frequency: TYPE, optional
+
+        Returns
+        -------
+        dict
+             X: output path from integrator,  t : time points evaluated at,
+            'event_occured' , 'param': input param to integrator.
+
+        """
+        self.testRate = testRate
+        return super().simulate(x0, contactMatrix, Tf, Nf,
+                method, nc, epsilon, tau_update_frequency)
+
+
+
+cdef class SppQ_old(stochastic_integration):
+    """
+    No longer maintained, will be deprecated.
     """
 
     cdef:
@@ -3259,8 +3355,7 @@ cdef class SppQ(stochastic_integration):
     cpdef simulate(self, x0, contactMatrix, testRate, Tf, Nf,
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
-                int tau_update_frequency = 1,
-                ):
+                int tau_update_frequency = 1):
         """
         Performs the Stochastic Simulation Algorithm (SSA)
 

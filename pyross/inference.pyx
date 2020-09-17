@@ -4564,9 +4564,9 @@ cdef class Spp(SIR_type):
             for (class_index, priority_index) in self.resource_list[i][1:]:
                 for m in range(self.M):
                     if np.size(self.finres_pop[i]) == 1:
-                        self.finres_pop[i] += x[m + self.M*class_index] * self.parameters[priority_index, m]
+                        self.finres_pop[i] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
                     else:
-                        self.finres_pop[i][m] += x[m + self.M*class_index] * self.parameters[priority_index, m]
+                        self.finres_pop[i][m] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
 
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
@@ -4736,7 +4736,7 @@ cdef class Spp(SIR_type):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SppQ(SIR_type):
+cdef class SppQ(Spp):
     """User-defined epidemic model with quarantine stage.
 
     To initialise the SppQ model,
@@ -4803,12 +4803,57 @@ cdef class SppQ(SIR_type):
             'tf': 1
         }
     """
+    cdef:
+        readonly dict full_model_spec
+        readonly object input_time_dep_param_mapping
+        readonly object input_param_mapping
+        readonly object testRate
+        
+    def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
+        if parameter_mapping is not None and time_dep_param_mapping is not None:
+            raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
+        self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec) 
+        self.input_time_dep_param_mapping = time_dep_param_mapping
+        self.input_param_mapping = parameter_mapping
+        self.testRate = testRate
+        super().__init__(self.full_model_spec, parameters, M, fi, Omega, steps,
+                                    det_method, lyapunov_method, rtol_det, rtol_lyapunov, parameter_mapping=None, time_dep_param_mapping=self.full_time_dep_param_mapping)
+        
+    
+    cpdef full_time_dep_param_mapping(self, input_parameters, t):
+        cdef dict output_param_dict
+        if self.input_time_dep_param_mapping is not None:
+            output_param_dict = self.input_time_dep_param_mapping(input_parameters, t).copy()
+        elif self.input_param_mapping is not None:
+            output_param_dict = self.input_param_mapping(input_parameters).copy()   
+        else:
+            output_param_dict = input_parameters.copy()
+        if self.testRate is not None:
+            output_param_dict['tau'] = self.testRate(t)
+        else:
+            output_param_dict['tau'] = 0
+        return output_param_dict
+    
+    def set_testRate(self, testRate):
+        self.testRate = testRate
+        self.set_det_model(self.param_dict)
+        
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class SppQ_old(SIR_type):
+    """
+    No longer maintained, will be deprecated.
+
+    """
     cdef:
         readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
         readonly Py_ssize_t nClassU, nClassUwoN
         readonly np.ndarray model_parameters
-        readonly pyross.deterministic.SppQ det_model
+        readonly pyross.deterministic.SppQ_old det_model
         readonly dict model_spec
         readonly dict param_dict
         readonly list model_param_keys
@@ -4844,9 +4889,9 @@ cdef class SppQ(SIR_type):
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
         if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.SppQ(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+            self.det_model = pyross.deterministic.SppQ_old(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
         else:
-            self.det_model = pyross.deterministic.SppQ(model_spec, parameters, M, fi*Omega)
+            self.det_model = pyross.deterministic.SppQ_old(model_spec, parameters, M, fi*Omega)
         self.testRate =  testRate
         self.det_model.set_testRate(testRate)
 
