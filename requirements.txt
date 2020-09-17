@@ -14,3 +14,4 @@ nbconvert
 pandas
 dynesty
 emcee
+copy
