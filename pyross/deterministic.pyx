@@ -2721,7 +2721,7 @@ cdef class Spp(CommonMethods):
     cpdef rhs(self, xt_arr, tt):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
-            Py_ssize_t S_index=self.class_index_dict['S'], infection_index
+            Py_ssize_t susceptible_index, infection_index
             Py_ssize_t reagent_index, product_index, rate_index
             Py_ssize_t resource_index, probability_index, priority_index 
             Py_ssize_t origin_index, destination_index
@@ -2797,9 +2797,10 @@ cdef class Spp(CommonMethods):
             for i in range(infection_terms.shape[0]):
                 rate_index = infection_terms[i, 0]
                 reagent_index = infection_terms[i, 1]
-                product_index = infection_terms[i, 2]
-                term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
-                dxdt[m+M*S_index] -= term
+                susceptible_index = infection_terms[i, 2]
+                product_index = infection_terms[i, 3]
+                term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*susceptible_index]
+                dxdt[m+M*susceptible_index] -= term
                 if product_index != -1:
                     dxdt[m+M*product_index] += term
             

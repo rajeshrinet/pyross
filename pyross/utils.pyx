@@ -81,27 +81,25 @@ def parse_model_spec(model_spec, param_keys):
                         rate_index = params_index_dict[rate]
                         linear_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
 
-        # parse the infection terms into a list of [rate_index, reagent_index] and a dictionary for the product
+        # parse the infection terms into a list of [rate_index, reagent_index, susceptible_index] and a dictionary for the product
         infection_terms_set = set() # used to check to duplicates
         infection_terms_list = [] # collect all infection terms
         infection_terms_destination_dict = {} # a dictionary for the product
         for (k, val) in infection_dict.items():
-            for (reagent, rate) in val:
-                if (reagent, rate) in infection_terms_set:
-                    raise Exception('Duplicates infection terms: {}, {}'.format(reagent, rate))
+            for (reagent, susceptible, rate) in val:
+                if (reagent, susceptible, rate) in infection_terms_set:
+                    raise Exception('Duplicates infection terms: {}, {}'.format(reagent, susceptible, rate))
                 else:
-                    infection_terms_set.add((reagent, rate))
+                    infection_terms_set.add((reagent, susceptible, rate))
                     reagent_index = class_index_dict[reagent]
+                    susceptible_index = class_index_dict[susceptible]
                     if rate.startswith('-'):
                         rate = rate[1:]
-                        if k != 'S':
-                            raise Exception('A susceptible group that is not S: {}'.format(k))
-                        else:
-                            rate_index = params_index_dict[rate]
-                            infection_terms_list.append([rate_index, reagent_index, -1])
+                        rate_index = params_index_dict[rate]
+                        infection_terms_list.append([rate_index, reagent_index, susceptible_index, -1])
                     else:
                         rate_index = params_index_dict[rate]
-                        infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        infection_terms_destination_dict[(rate_index, reagent_index, susceptible_index)] = class_index_dict[k]
 
 
         # parse the finite resource-terms into
@@ -143,7 +141,6 @@ def parse_model_spec(model_spec, param_keys):
                         finres_terms_dict[dict_key][1] = class_index_dict[k]
         for (k,val) in finres_terms_dict.items():
             finres_terms_list.append(list(k) + val)
-
 
 
 
@@ -199,11 +196,10 @@ def set_destination(term_list, destination_dict):
     A function used by parse_model_spec that sets the product_index
     '''
     for term in term_list:
-        rate_index = term[0]
-        reagent_index = term[1]
-        if (rate_index, reagent_index) in destination_dict.keys():
-            product_index = destination_dict[(rate_index, reagent_index)]
-            term[2] = product_index
+        indices = tuple(term[:-1])
+        if indices in destination_dict.keys():
+            product_index = destination_dict[indices]
+            term[-1] = product_index
 
 def age_dep_rates(rate, int M, str name, bint check_length=True):
     if np.size(rate)==1:
