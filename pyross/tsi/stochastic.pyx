@@ -47,39 +47,95 @@ class SIR:
         Initial number in each compartment and class
     """
     
-    def __init__(self, parameters, M, Ni):
-        self.parameters = parameters
-        self.beta   = self.parameters['beta']     # Infection rates 
-        self.gI     = self.parameters['gI']       # Removal rates of I
-        self.kI     = self.parameters['kI']       # Number of stages (discretisation tsi)
-        self.nClass = self.kI + 1            # Total number of stages
+    def __init__(self, parameters, beta_fun, gI_fun):
+        # self.beta  = parameters['beta']  # Infection rate
+        # self.gI    = parameters['gI']    # Removal rate of I
+        self.kI          = parameters['kI']    # Number of compartments
+        self.Ttsi        = parameters['Ttsi']  # tsi cut-off
+        self.M           = parameters['M']     # Number of age classes
+        self.N           = parameters['N']
+        self.Ni          = np.zeros( self.M, dtype=DTYPE)
+        self.Ni          = parameters['Ni']    # Array of total number of people per age class
 
-        self.N     = np.sum(Ni)             # Population size
-        self.M     = M                      # Number of age group
-        self.Ni    = np.zeros(self.M, dtype=DTYPE)  # people in each age group
-        self.Ni    = Ni
+        self.beta_params = parameters['beta'] # Parameters for beta_fun
+        self.gI_params   = parameters['gI']   # Parameters for gI_fun
+ 
+        self.beta_fun = beta_fun              # beta FUNCTION
+        self.gI_fun   = gI_fun                # gI FUNCTION
+        
+        self.nClass = self.kI + 1        # Total number of stages
 
+        self.N     = np.sum(self.Ni)             # Population size
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dtsi  = self.Ttsi/float(self.kI) # tsi time step
 
-
-    def check_beta_gI_size(self):
+    def set_IC(self, I_list):
         """
-        method to check that beta and gI have proper sizes
-        Parameters
-        ----------
-        None.
-
-        Returns
+        Set Initial Conditions from a list of infectives
+        
+        Argument:
+        --------
+        - I_list: list of tuples (int, int, float)
+           Elements of the list are: (# infectives, age_class, tsi) 
+        Returns:
         -------
-        mge: string
-           Confirmation that beta and gI have the good shape
+        - S0: np.array(M)
+        - I0: np.array(M*kI)
         """
-        if self.beta.shape != (self.M, self.kI):
-            raise Exception("beta should be an np.array(M, kI)")
-        elif self.gI.shape != (self.M, self.kI):
-            raise Exception("gI should be an np.array(M,kI)")
-        mge = "beta and gI have a shape (M={}, kI={})".format(self.M, self.kI)
-        return mge
+        S0 = np.zeros(self.M)
+        I0 = np.zeros((self.M,self.kI))
+        for tup in I_list:
+            if tup[2]<self.Ttsi:
+                k = int(tup[2]/self.dtsi)
+            else:
+                k = self.kI-1
+            I0[tup[1],k] = tup[0] # should be a distribution
+        for i in range(self.M):
+            S0[i] = self.Ni[i] - np.sum(I0[i,:])
+        return S0, I0
+        
+    def set_beta(self):
+        """
+        Method to set beta(t, Ttsi, **args) as an array of size kI
+        """
+        beta = np.zeros((self.M, self.kI))
+        beta_i = []
+        for i in range(self.M):
+            for k in range(self.kI):
+                beta_i.append(self.beta_fun(k*self.dtsi, self.Ttsi, self.beta_params))
+            beta[i,:] = beta_i
+        return beta
+
+    def set_gI(self):
+        """
+        Method to set gI(t, Ttsi, **args) as an array of size kI
+        """
+        gI = np.zeros((self.M, self.kI))
+        gI_i = []
+        for i in range(self.M):
+            for k in range(self.kI):
+                gI_i.append(self.gI_fun(k*self.dtsi, self.Ttsi, self.gI_params))
+            gI[i,:] = gI_i
+        return gI
+            
+    # def check_beta_gI_size(self):
+    #     """
+    #     method to check that beta and gI have proper sizes
+    #     Parameters
+    #     ----------
+    #     None.
+
+    #     Returns
+    #     -------
+    #     mge: string
+    #        Confirmation that beta and gI have the good shape
+    #     """
+    #     if self.beta.shape != (self.M, self.kI):
+    #         raise Exception("beta should be an np.array(M, kI)")
+    #     elif self.gI.shape != (self.M, self.kI):
+    #         raise Exception("gI should be an np.array(M,kI)")
+    #     mge = "beta and gI have a shape (M={}, kI={})".format(self.M, self.kI)
+    #     return mge
     
     def advection(self, x):
         """
@@ -111,17 +167,17 @@ class SIR:
         lbda_rate: np.array(M)
            List of the lambda_i (for each i (age class))
         """
-        
+        beta = self.set_beta()        
         lbda_rate = np.zeros(self.M)
         for i in range(self.M):
             lbda_rate_i = 0
             for j in range(self.M):
-                infectiousness_j = np.sum( [ (self.beta[j,k]*I[j,k] + self.beta[j,k+1]*I[j,k+1])/(2*self.Ni[j]) for k in range(0, self.kI-1) ] )
+                infectiousness_j = np.sum( [ (beta[j,k]*I[j,k] + beta[j,k+1]*I[j,k+1])/(2*self.Ni[j]) for k in range(0, self.kI-1) ] )
                 lbda_rate_i += self.CM[i,j]*infectiousness_j
             lbda_rate[i] = lbda_rate_i
         return lbda_rate
             
-    def binomial_tau_leaping_step(self, S, I, dt):
+    def binomial_tau_leaping_step(self, S, I):
         """
         Do ONE time step with binomial tau-leaping for the SIR
         We use the stochastic Predictor/Corrector from Joe's notes:
@@ -138,8 +194,6 @@ class SIR:
            The social contact matrix C_{ij} denotes the
            average number of contacts made per day by an 
            individual in class i with an individual in class j
-        dt: float
-           fixed time step
 
         Returns
         -------
@@ -148,16 +202,24 @@ class SIR:
         Inext: np.array(M, kI)
            Infectives at the next time step     
         """
-                
+
+        # Set beta and gI arrays with good size !
+        beta = self.set_beta()
+        gI   = self.set_gI()
+
+        dt = self.dtsi # Enforce that tsi time step and real time step be the same !
+        
         ### STEP 1: How many infected will recover ? ###
         # Compute the survival probability for each tsi
         # + Draw random numbers from binomial
+
         psi_I= np.zeros((self.M, self.kI))
         firings_IR = np.zeros((self.M, self.kI))
         Ipredict = np.zeros((self.M, self.kI))
+        
         for i in range(self.M):
             for k in range(self.kI):
-                psi_I[i,k] = np.exp(-self.gI[i,k]*dt)
+                psi_I[i,k] = np.exp(-gI[i,k]*dt)
                 firings_IR[i,k] = np.random.binomial(I[i,k], 1-psi_I[i,k])
                 Ipredict[i,k] = I[i,k] - firings_IR[i,k]
         for i in range(self.M): # Advection
@@ -183,7 +245,7 @@ class SIR:
             rate_Snew_i = 0
             for j in range(self.M):
                 rate_Snew_i += self.CM[i,j]*(firings_SI[j]/float(self.Ni[j]))
-            rate_Snew_i = self.beta[i,0]*rate_Snew_i     
+            rate_Snew_i = beta[i,0]*rate_Snew_i     
             psi_Snew[i] = np.exp(-rate_Snew_i*(dt/2.))
             firings_SInew[i] = np.random.binomial(Spredict[i], 1 - psi_Snew[i])
 
@@ -194,7 +256,7 @@ class SIR:
         psi_Inew = np.zeros(self.M)
         firings_IRnew = np.zeros(self.M)
         for i in range(self.M):
-            psi_Inew[i] = np.exp(-self.gI[i,0]*dt/2.)
+            psi_Inew[i] = np.exp(-gI[i,0]*dt/2.)
             firings_IRnew[i] = np.random.binomial(firings_SI[i], 1 - psi_Inew[i])
 
         
@@ -206,7 +268,7 @@ class SIR:
 
         return Snext, Inext
 
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, supplied_seed=-1):
+    def simulate(self, S0, I0, contactMatrix, Tf, Ti=0, supplied_seed=-1):
         """
         Method that runs the Monte-Carlo binomial tau-leaping for the TSI-SIR model
 
@@ -222,8 +284,6 @@ class SIR:
              individual in class i with an individual in class j
         Tf: float
             Final time of integrator
-        Nf: Int
-            Number of time points to evaluate.
         Ti: float, optional
             Start time of integrator. The default is 0.
         supplied_seed: float (long), optional
@@ -246,9 +306,6 @@ class SIR:
             seed = supplied_seed % max_long
         rd.seed(seed)
 
-        ### PARAMS ###
-        dt = float(Tf/Nf) # time step
-
         ### INIT VARIABLES ###
         t=Ti # initial time
         S = S0 # initial state
@@ -256,30 +313,31 @@ class SIR:
         self.CM = contactMatrix(t) # initial contact Matrix
 
         # We store the full trajectory in lists:
-        S_list = []
-        S_list.append(S)
-        I_list = []
-        I_list.append(I)
-        t_list = []
-        t_list.append(t)
+        S_traj = []
+        S_traj.append(S)
+        I_traj = []
+        I_traj.append(I)
+        t_traj = []
+        t_traj.append(t)
 
         ### MAIN LOOP ###
-        for step in range(Nf):
+        while t <= Tf:
             # Compute next step state
-            Snext, Inext = self.binomial_tau_leaping_step(S, I, dt)
+            Snext, Inext = self.binomial_tau_leaping_step(S, I)
             # Update state
             S = np.copy(Snext)
             I = np.copy(Inext)
-            t += dt
+            t += self.dtsi
             self.CM = contactMatrix(t) # update contact Matrix
             # Store data
-            S_list.append(Snext)
-            I_list.append(Inext)
-            t_list.append(t)
+            S_traj.append(Snext)
+            I_traj.append(Inext)
+            t_traj.append(t)
 
         # Store the trajectories within a dictionary
-        data = {'S': S_list,
-                'I': I_list}
+        data = {'S': S_traj,
+                'I': I_traj,
+                't': t_traj}
 
         return data
 

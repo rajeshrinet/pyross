@@ -21,9 +21,10 @@ cdef class CommonMethods:
     """
     cdef:
         readonly int N, M, kI, kE, nClass
+        readonly float Ttsi, dtsi, beta_params, gI_params
         readonly np.ndarray population, beta, gI, Ni, CM
         readonly dict paramList, readData
-
+    
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
         Ti=0, maxNumSteps=100000, **kwargs):
         """
@@ -134,7 +135,8 @@ cdef class CommonMethods:
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIR(CommonMethods):
+# cdef class SIR(CommonMethods):
+class SIR:
     """
     Parameters
     ----------
@@ -147,116 +149,215 @@ cdef class SIR(CommonMethods):
             Rate of removal from infectives.
         kI: int
             number of stages of infection.
-    M: int
-        Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    Ni: np.array(M, )
-        Initial number in each compartment and class
+        Ttsi: float
+            tsi cut-off
+        M: int
+            Number of compartments of individual for each class.
+            ==len(contactMatrix)
+        Ni: np.array(M, )
+            Initial number in each compartment and class
     """
 
-    def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']              # Infection rate
-        self.gI    = parameters['gI']                # Removal rate of I
-        self.kI    = parameters['kI']
-        self.N     = np.sum(Ni)
-        self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
-        self.Ni    = Ni
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+    def __init__(self, parameters, beta_fun, gI_fun):
+        # self.beta  = parameters['beta']  # Infection rate
+        # self.gI    = parameters['gI']    # Removal rate of I
+        self.kI          = parameters['kI']    # Number of compartments
+        self.Ttsi        = parameters['Ttsi']  # tsi cut-off
+        self.M           = parameters['M']     # Number of age classes$
+        self.N           = parameters['N']     # Full population size
+        self.Ni          = np.zeros( self.M, dtype=DTYPE)
+        self.Ni          = parameters['Ni']    # Array of total number of people per age class
 
-    
-    
-    cpdef trajectory(self, s, I, beta, gamma, kI, tsi_max):
+        self.beta_params = parameters['beta'] # Parameters for beta_fun
+        self.gI_params   = parameters['gI']   # Parameters for gI_fun
+ 
+        self.beta_fun = beta_fun              # beta FUNCTION
+        self.gI_fun   = gI_fun                # gI FUNCTION
+        
+        self.nClass = self.kI + 1        # Total number of stages
+
+        self.N     = np.sum(self.Ni)             # Population size
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dtsi  = self.Ttsi/float(self.kI) # tsi time step
+
+    def set_IC(self, I_list):
+        """
+        Set Initial Conditions from a list of infectives
+        
+        Argument:
+        --------
+        - I_list: list of tuples (int, int, float)
+           Elements of the list are: (# infectives, age_class, tsi) 
+        Returns:
+        -------
+        - S0: np.array(M)
+        - I0: np.array(M*kI)
+        """
+        S0 = np.zeros(self.M)
+        I0 = np.zeros(self.M*self.kI)
+        for tup in I_list:
+            if tup[2]<self.Ttsi:
+                k = int(tup[2]/self.dtsi)
+            else:
+                k = self.kI-1
+            I0[k + tup[1]*self.M] = tup[0]/float(self.N)/self.dtsi # should be a distribution
+        for i in range(self.M):
+            S0[i] = self.Ni[i] - np.sum([I0[k+i*self.M]*self.N*self.dtsi for k in range(self.kI)])
+        S0 = S0/float(self.N)
+        return S0, I0
+            
+    def set_beta(self):
+        """
+        Method to set beta(t, Ttsi, **args) as an array of size kI
+        """
+        beta = []
+        for k in range(self.kI):
+            beta.append(self.beta_fun(k*self.dtsi, self.Ttsi, self.beta_params))
+        return beta
+
+    def set_gI(self):
+        """
+        Method to set gI(t, Ttsi, **args) as an array of size kI
+        """
+        gI = []
+        for k in range(self.kI):
+            gI.append(self.gI_fun(k*self.dtsi, self.Ttsi, self.gI_params))
+        return gI
+            
+        
+    # cpdef trajectory(self, S, I):
+    def trajectory(self, S, I):
         """
         Function to go one step forward using the deterministic integrator.
         We use a RK2/Crank-Nicolson finite difference scheme
         
         Parameters
         ----------
-        s: float
+        S: np.array(M)
            Number of susceptibles
-        i: np.array(kI, dtype=float)
+        I: np.array(kI*M, dtype=float)
            Infected population
-        beta: np.array(kI)
-           Infectiousness
-        gamma: np.randge(kI))
-           Recovery rate with respect to tsi  
-        dtsi: float 
-           the time since infection step (tsi discretisation)
-        kI: int
-           Number of discretisation points for tsi
        
         Returns
         -------
-        snext: np.array(M, dtype=float)
+        Snext: np.array(M, dtype=float)
            Updated number of susceptibles
-        inext: np.array(kI*M, dtype=float)
+        Inext: np.array(kI*M, dtype=float)
            Updated infected population
         """
-        M=self.M 
-        Ip = np.zeros(kI*M)
-        didt_p = np.zeros(M*(kI-1))
-        didt_c = np.zeros(M*(kI-1))
-        inext = np.zeros(M*kI)
-        snext = np.zeros(M)
+        CM = self.CM
         
-        dtsi = tsi_max/float(kI)
-        dt = dtsi
+        beta = self.set_beta()
+        gI   = self.set_gI()
+        
+        Ip = np.zeros(self.kI*self.M)
+        didt_p = np.zeros(self.M*(self.kI-1))
+        didt_c = np.zeros(self.M*(self.kI-1))
+        Inext = np.zeros(self.M*self.kI)
+        lbda = np.zeros(self.M)
+        lbda_p = np.zeros(self.M)
+        Snext = np.zeros(self.M)
+        
+        dtsi = self.dtsi
+        dt = dtsi # Enforce that tsi-discretisation
+                  # and time-discretisation are the same!
        
         # 1. Explicit time step 
-        lbda = 0 
-        for k in range(kI-1):
-            for l in range(M):
-                lbda += 0.5*(beta[k]*I[k+l*M] + beta[k+1]*I[k+1])*dtsi
-        dsdt_p = - s * lbda 
-        s_p = s + dsdt_p * dt
-        Ip[0] = - dsdt_p
-        for k in range(1,kI): # Advection
-            for l in range(M):
-                Ip[k] = I[k-1+l*M]
-        for k in range(1, kI): # Recovery
-            for l in range(M):
-                didt_p[k-1+l*M] = - gamma[k] * Ip[k+l*M] 
-                Ip[k+l*M] = Ip[k+l*M] + didt_p[k-1+l*M]*dt
+        for j in range(self.M):
+            lbda[j] = 0 
+            for k in range(self.kI-1):
+                for l in range(self.M):
+                    lbda[j] += CM[j,l]*0.5*(beta[k]*I[k+l*self.M] + beta[k+1]*I[k+1+l*self.M])*dtsi
+        dsdt_p = - S*lbda 
+        Sp = S + dsdt_p*dt
+        Ip[0:self.M] = - dsdt_p
+        for k in range(1,self.kI): # Advection
+            for l in range(self.M):
+                Ip[k] = I[k-1+l*self.M]
+        for k in range(1, self.kI): # Recovery
+            for l in range(self.M):
+                didt_p[k-1+l*self.M] = - gI[k] * Ip[k+l*self.M] 
+                Ip[k+l*self.M] = Ip[k+l*self.M] + didt_p[k-1+l*self.M]*dt
     
         # 2. Correction 
-        lbda_p = 0 
-        for k in range(kI-1):
-            for l in range(M):
-                lbda_p += 0.5*(beta[k]*I[k+l*M] + beta[k+1]*I[k+1+l*M])*dtsi
-        dsdt_c = - s_p * lbda_p
+        for j in range(self.M):
+            lbda_p[j] = 0 
+            for k in range(self.kI-1):
+                for l in range(self.M):
+                    lbda_p[j] += 0.5*CM[j,l]*(beta[k]*I[k+l*self.M] + beta[k+1]*I[k+1+l*self.M])*dtsi
+        dsdt_c = - Sp * lbda_p
         
-        snext = s + 0.5*dt*(dsdt_p + dsdt_c)
+        Snext = S + 0.5*dt*(dsdt_p + dsdt_c)
         
-        inext[0] = - 0.5*(dsdt_c + dsdt_p)
-        for k in range(1, kI): # Advection
-            for l in range(M):
-                inext[k+l*M] = I[k-1+l*M] 
-        for k in range(1,kI):  # Recovery 
-            for l in range(M):
-                didt_c[k-1+l*M] = - gamma[k+l*M] * Ip[k+l*M]
-                inext[k+l*M] = inext[k+l*M] + 0.5*dt*(didt_p[k-1+l*M] + didt_c[k-1+l*M])
-        return snext, inext 
+        Inext[0:self.M] = - 0.5*(dsdt_c + dsdt_p)
+        for k in range(1, self.kI): # Advection
+            for l in range(self.M):
+                Inext[k+l*self.M] = I[k-1+l*self.M] 
+        for k in range(1,self.kI):  # Recovery 
+            for l in range(self.M):
+                didt_c[k-1+l*self.M] = - gI[k] * Ip[k+l*self.M]
+                Inext[k+l*self.M] = Inext[k+l*self.M] + 0.5*dt*(didt_p[k-1+l*self.M] + didt_c[k-1+l*self.M])
+        return Snext, Inext 
 
     
-    def simulate(self, S0, I0, beta, gamma, kI, tsi_max, Tf):
-        M=self.M 
-        dtsi = tsi_max/float(kI-1)
-        Nf = int(Tf/dtsi)
-        S_traj = np.zeros((Nf, M))
-        I_traj = np.zeros((Nf, M*kI))
+    def simulate(self, S0, I0, contactMatrix, Tf, Ti=0):
+        """
+        Function to go one step forward using the deterministic integrator.
+        We use a RK2/Crank-Nicolson finite difference scheme
+        
+        Parameters
+        ----------
+        S0: np.array(M)
+           Initial number of susceptibles
+        I0: np.array(kI*M, dtype=float)
+           Initial Infected population
+        contactMatrix: python function(t)
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
+             individual in class i with an individual in class j       
+        Tf: float
+            Final time of integrator
+        Ti: float
+            Initial time of integrator
+
+        Returns
+        -------
+        S_traj: np.array((Nf, M), dtype=float)
+           Time series of susceptibles
+        I_traj: np.array((Nf, kI*M), dtype=float)
+           Time series infected population
+        """
     
         # Initialise:
-        S_traj[0] = S0
-        I_traj[0] = I0
-    
+        S = np.copy(S0)
+        I = np.copy(I0)
+        t = Ti
+              
+        S_traj = []
+        I_traj = []
+        t_traj = []
         
-        for t in range(1,Nf):
-            S_traj[t], I_traj[t] = self.trajectory(S_traj[t-1], I_traj[t-1], beta, gamma, kI, tsi_max)
+        S_traj.append(S0)
+        I_traj.append(I0*self.dtsi) # distribution -> population (dimensionless)
+        t_traj.append(t)
     
-        return S_traj, I_traj
+        ### MAIN LOOP ###
+        while t<=Tf:
+            self.CM = contactMatrix(t)
+            Snext, Inext = self.trajectory(S, I)
+            S = np.copy(Snext)
+            I = np.copy(Inext)
+            t += self.dtsi
+            S_traj.append(Snext)
+            I_traj.append(Inext*self.dtsi) # distribution -> population (dimensionless)
+            t_traj.append(t)
 
-
+        # Store trajectory within a dictionary
+        data = {'S': S_traj,
+                'I': I_traj,
+                't': t_traj}
+            
+        return data
 
 cdef class Simulator:
     """
