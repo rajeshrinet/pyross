@@ -624,7 +624,7 @@ cdef class stochastic_integration:
             double t, dt, W
             double [:] rates = self.rates
             long [:] xt = self.xt
-            double cur_tau
+            double cur_tau = 0
             int SSA_steps_left = 0
             int steps_until_tau_update = 0
             double verbose = 1.
