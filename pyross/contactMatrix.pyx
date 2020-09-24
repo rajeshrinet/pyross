@@ -7,6 +7,7 @@ cimport cython
 import warnings
 from types import ModuleType
 import os
+from cython.parallel import prange
 
 
 DTYPE   = np.float
@@ -278,7 +279,10 @@ cdef class CustomTemporalProtocol(Protocol):
 
 
 
-
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SpatialContactMatrix:
     '''A class for generating a spatial compartmental model with commute data
 
@@ -306,6 +310,7 @@ cdef class SpatialContactMatrix:
         readonly np.ndarray density_factor, norm_factor, local_contacts
         readonly Py_ssize_t n_loc, M
         readonly double work_ratio
+        readonly np.ndarray spatial_CM
 
     def __init__(self, double b, double work_ratio, np.ndarray populations,
                     np.ndarray areas, np.ndarray commutes):
@@ -340,28 +345,34 @@ cdef class SpatialContactMatrix:
         rho = np.sum(populations)/np.sum(areas)
         self._compute_density_factor(b, rho, areas.astype('float'))
 
-    def spatial_contact_matrix(self, np.ndarray CM):
+        self.spatial_CM = np.zeros((self.n_loc, self.M, self.n_loc, self.M))
+
+    def spatial_contact_matrix(self, np.ndarray[DTYPE_t, ndim=2] CM):
         self._compute_local_contacts(CM.astype('float'))
         cdef:
-            Py_ssize_t mu, nu, i, j, M=self.M, n_loc=self.n_loc
+            Py_ssize_t mu, nu, eta, i, j, M=self.M, n_loc=self.n_loc
             double [:, :, :] f=self.commute_fraction,
             double [:, :, :] C=self.local_contacts[0], CC=self.local_contacts[1]
             double [:, :] pop=self.pops[0], commute_time_pop=self.pops[1]
-            np.ndarray spatial_CM
-            double p, cc, work_ratio=self.work_ratio
-        spatial_CM = np.zeros((n_loc, M, n_loc, M))
-        for i in range(M):
+            #np.ndarray spatial_CM
+            #double [:,:,:,:] spatial_CM=self.spatial_CM
+            np.ndarray[DTYPE_t, ndim=4] spatial_CM = np.zeros((n_loc, M, n_loc, M))
+            double p, cc, work_ratio=self.work_ratio, f1, f2
+        #spatial_CM = np.zeros((n_loc, M, n_loc, M))
+        for i in prange(M, nogil=True):
+        #for i in range(M):
             for j in range(M):
                 for mu in range(n_loc):
                     p = pop[mu, i]
                     spatial_CM[mu, i, mu, j] = C[mu, i, j]*(1-work_ratio)
-                    for nu in range(n_loc):
-                        for eta in range(n_loc):
-                            cc = CC[eta, i, j]
-                            f1 = f[mu, eta, i]
-                            f2 = f[nu, eta, j]
-                            spatial_CM[mu, i, nu, j] += f1*f2*cc*work_ratio
-                        spatial_CM[mu, i, nu, j] /= p
+                    if p >= 1.0:
+                        for nu in range(n_loc):
+                            for eta in range(n_loc):
+                                cc = CC[eta, i, j]
+                                f1 = f[mu, eta, i]
+                                f2 = f[nu, eta, j]
+                                spatial_CM[mu, i, nu, j] += f1*f2*cc*work_ratio
+                            spatial_CM[mu, i, nu, j] /= p
         return spatial_CM
 
     cdef _process_commute(self, double [:, :] pop, double [:, :, :] commutes):
@@ -379,7 +390,9 @@ cdef class SpatialContactMatrix:
                 commute_fraction[mu, mu, i] = 1
                 for nu in range(self.n_loc):
                     if nu != mu:
-                        f = commutes[nu, mu, i]/p
+                        f = 0.0
+                        if p >= 1.0:
+                            f = commutes[nu, mu, i]/p
                         commute_fraction[nu, mu, i] = f
                         commute_fraction[mu, mu, i] -= f
 
@@ -391,34 +404,33 @@ cdef class SpatialContactMatrix:
             double [:, :, :] pops=self.pops
             double [:, :, :, :] density_factor=self.density_factor
             double [:, :, :] norm_factor=self.norm_factor
-        for mu in range(self.n_loc):
+        for mu in prange(self.n_loc, nogil=True):
             for i in range(self.M):
                 for j in range(self.M):
                     for a in range(2):
                         rhoi = pops[a, mu, i]/areas[mu]
                         rhoj = pops[a, mu, j]/areas[mu]
-                        density_factor[a, mu, i, j] = pow(rhoi*rhoj/rho**2, b)
+                        density_factor[a, mu, i, j] = pow(rhoi*rhoj, b)
                         norm_factor[a, i, j] += density_factor[a, mu, i, j]
 
 
     cdef _compute_local_contacts(self, double [:, :] CM):
         cdef:
-            Py_ssize_t mu, i, j, M=self.M, n_loc=self.n_loc
+            Py_ssize_t mu, i, j, a, M=self.M, n_loc=self.n_loc
             double [:] Ni = self.Ni
             double [:, :, :, :] local_contacts=self.local_contacts
             double [:, :, :] norm=self.norm_factor
             double [:, :, :, :] density_factor=self.density_factor
             double c, d
-        for mu in range(n_loc):
+        for mu in prange(n_loc, nogil=True):
             for i in range(M):
                 for j in range(M):
                     c = CM[i, j] * Ni[i]
                     for a in range(2):
                         d = density_factor[a, mu, i, j]
-                        local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
-
-
-
+                        local_contacts[a, mu, i, j] = 0.0
+                        if norm[a, i, j] != 0.0:
+                            local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
 
 cdef class MinimalSpatialContactMatrix:
     '''A class for generating a minimal spatial compartmental model
