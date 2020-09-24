@@ -410,7 +410,7 @@ cdef class SpatialContactMatrix:
                     for a in range(2):
                         rhoi = pops[a, mu, i]/areas[mu]
                         rhoj = pops[a, mu, j]/areas[mu]
-                        density_factor[a, mu, i, j] = pow(rhoi*rhoj/rho**0, b)
+                        density_factor[a, mu, i, j] = pow(rhoi*rhoj, b)
                         norm_factor[a, i, j] += density_factor[a, mu, i, j]
 
 
