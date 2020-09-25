@@ -10,7 +10,6 @@ import nlopt
 
 DTYPE   = np.float
 
-
 cdef class CommonMethods:
     """
     Parent class used for all classes listed below. 
@@ -19,6 +18,7 @@ cdef class CommonMethods:
     b) Method to get time series of S, etc by passing a dict of data.
     c) Method to set the contactMatrix array, CM
     """
+    
     cdef:
         readonly int N, M, kI, kE, nClass
         readonly float Ttsi, dtsi, beta_params, gI_params
