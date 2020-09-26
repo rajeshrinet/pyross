@@ -166,16 +166,16 @@ cdef class SIR(CommonMethods):
 
     
     
-    cpdef trajectory(self, s, I, beta, gamma, kI, tsi_max):
+    cpdef trajectory(self, S, I, beta, gamma, kI, tsi_max):
         """
         Function to go one step forward using the deterministic integrator.
         We use a RK2/Crank-Nicolson finite difference scheme
         
         Parameters
         ----------
-        s: float
+        S: np.array(M)
            Number of susceptibles
-        i: np.array(kI, dtype=float)
+        I: np.array(kI*M, dtype=float)
            Infected population
         beta: np.array(kI)
            Infectiousness
@@ -188,29 +188,33 @@ cdef class SIR(CommonMethods):
        
         Returns
         -------
-        snext: np.array(M, dtype=float)
+        Snext: np.array(M, dtype=float)
            Updated number of susceptibles
-        inext: np.array(kI*M, dtype=float)
+        Inext: np.array(kI*M, dtype=float)
            Updated infected population
         """
         M=self.M 
+        CM = self.CM
         Ip = np.zeros(kI*M)
         didt_p = np.zeros(M*(kI-1))
         didt_c = np.zeros(M*(kI-1))
-        inext = np.zeros(M*kI)
-        snext = np.zeros(M)
+        Inext = np.zeros(M*kI)
+        lbda = np.zeros(M)
+        lbda_p = np.zeros(M)
+        Snext = np.zeros(M)
         
         dtsi = tsi_max/float(kI)
         dt = dtsi
        
         # 1. Explicit time step 
-        lbda = 0 
-        for k in range(kI-1):
-            for l in range(M):
-                lbda += 0.5*(beta[k]*I[k+l*M] + beta[k+1]*I[k+1])*dtsi
-        dsdt_p = - s * lbda 
-        s_p = s + dsdt_p * dt
-        Ip[0] = - dsdt_p
+        for j in range(M):
+            lbda[j] = 0 
+            for k in range(kI-1):
+                for l in range(M):
+                    lbda[j] += CM[j,l]*0.5*(beta[k]*I[k+l*M] + beta[k+1]*I[k+1])*dtsi
+        dsdt_p = - S*lbda 
+        Sp = S + dsdt_p*dt
+        Ip[0:M] = - dsdt_p
         for k in range(1,kI): # Advection
             for l in range(M):
                 Ip[k] = I[k-1+l*M]
@@ -220,26 +224,58 @@ cdef class SIR(CommonMethods):
                 Ip[k+l*M] = Ip[k+l*M] + didt_p[k-1+l*M]*dt
     
         # 2. Correction 
-        lbda_p = 0 
-        for k in range(kI-1):
-            for l in range(M):
-                lbda_p += 0.5*(beta[k]*I[k+l*M] + beta[k+1]*I[k+1+l*M])*dtsi
-        dsdt_c = - s_p * lbda_p
+        for j in range(M):
+            lbda_p[j] = 0 
+            for k in range(kI-1):
+                for l in range(M):
+                    lbda_p[j] += 0.5*CM[j,l]*(beta[k]*I[k+l*M] + beta[k+1]*I[k+1+l*M])*dtsi
+        dsdt_c = - Sp * lbda_p
         
-        snext = s + 0.5*dt*(dsdt_p + dsdt_c)
+        Snext = S + 0.5*dt*(dsdt_p + dsdt_c)
         
-        inext[0] = - 0.5*(dsdt_c + dsdt_p)
+        Inext[0:M] = - 0.5*(dsdt_c + dsdt_p)
         for k in range(1, kI): # Advection
             for l in range(M):
-                inext[k+l*M] = I[k-1+l*M] 
+                Inext[k+l*M] = I[k-1+l*M] 
         for k in range(1,kI):  # Recovery 
             for l in range(M):
-                didt_c[k-1+l*M] = - gamma[k+l*M] * Ip[k+l*M]
-                inext[k+l*M] = inext[k+l*M] + 0.5*dt*(didt_p[k-1+l*M] + didt_c[k-1+l*M])
-        return snext, inext 
+                didt_c[k-1+l*M] = - gamma[k] * Ip[k+l*M]
+                Inext[k+l*M] = Inext[k+l*M] + 0.5*dt*(didt_p[k-1+l*M] + didt_c[k-1+l*M])
+        return Snext, Inext 
 
     
-    def simulate(self, S0, I0, beta, gamma, kI, tsi_max, Tf):
+    def simulate(self, S0, I0, beta, gamma, kI, tsi_max, Tf, contactMatrix):
+        """
+        Function to go one step forward using the deterministic integrator.
+        We use a RK2/Crank-Nicolson finite difference scheme
+        
+        Parameters
+        ----------
+        S0: np.array(M)
+           Initial number of susceptibles
+        I0: np.array(kI*M, dtype=float)
+           Initial Infected population
+        beta: np.array(kI)
+           Infectiousness
+        gamma: np.randge(kI))
+           Recovery rate with respect to tsi  
+        tsi_max: float 
+        kI: int
+           Number of discretisation points for tsi
+        contactMatrix: python function(t)
+             The social contact matrix C_{ij} denotes the
+             average number of contacts made per day by an
+             individual in class i with an individual in class j
+        Tf: float
+            Final time of integrator
+       
+        Returns
+        -------
+        S_traj: np.array((Nf, M), dtype=float)
+           Time series of susceptibles
+        I_traj: np.array((Nf, kI*M), dtype=float)
+           Time series infected population
+        """
         M=self.M 
         dtsi = tsi_max/float(kI-1)
         Nf = int(Tf/dtsi)
@@ -247,14 +283,16 @@ cdef class SIR(CommonMethods):
         I_traj = np.zeros((Nf, M*kI))
     
         # Initialise:
-        S_traj[0] = S0
-        I_traj[0] = I0
+        S_traj[0, 0:M] = S0
+        I_traj[0, 0:M*kI] = I0
     
         
         for t in range(1,Nf):
+            self.CM = contactMatrix(t)
             S_traj[t], I_traj[t] = self.trajectory(S_traj[t-1], I_traj[t-1], beta, gamma, kI, tsi_max)
-    
         return S_traj, I_traj
+
+
 
 
 
