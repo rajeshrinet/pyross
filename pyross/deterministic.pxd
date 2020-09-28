@@ -263,6 +263,7 @@ cdef class Spp(CommonMethods):
     """
 
     cdef:
+        readonly int constant_CM,	
         readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
         readonly np.ndarray parameters
         readonly np.ndarray parameters_length
@@ -272,6 +273,7 @@ cdef class Spp(CommonMethods):
         readonly np.ndarray _lambdas
         readonly object time_dep_param_mapping
         readonly np.ndarray finres_pop
+        readonly np.ndarray nonzero_index_n
 
     cpdef rhs(self, rp, tt)
     
