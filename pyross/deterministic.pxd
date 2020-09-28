@@ -263,7 +263,7 @@ cdef class Spp(CommonMethods):
     """
 
     cdef:
-        readonly int constant_CM,	
+        readonly int constant_CM
         readonly np.ndarray constant_terms, linear_terms, infection_terms, finres_terms, resource_list
         readonly np.ndarray parameters
         readonly np.ndarray parameters_length
