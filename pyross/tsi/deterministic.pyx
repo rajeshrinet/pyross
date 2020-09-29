@@ -233,7 +233,7 @@ cdef class SIR(CommonMethods):
         
         Snext = S + 0.5*dt*(dsdt_p + dsdt_c)
         
-        Inext[0:M] = - 0.5*(dsdt_c + dsdt_p)
+        Inext[0:M] = - dsdt_c
         for k in range(1, kI): # Advection
             for l in range(M):
                 Inext[k+l*M] = I[k-1+l*M] 
