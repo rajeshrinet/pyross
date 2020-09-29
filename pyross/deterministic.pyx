@@ -3,7 +3,6 @@ cimport numpy as np
 cimport cython
 import pyross.utils
 import warnings
-from cython.parallel import prange
 
 DTYPE   = np.float
 from libc.stdlib cimport malloc, free
@@ -2752,7 +2751,7 @@ cdef class Spp(CommonMethods):
             Ni = xt_arr[(nClass-1)*M:] # update Ni
 
         if self.constant_CM == 1:
-            for m in prange(M, nogil=True):
+            for m in range(M):
                 for i in range(infection_terms.shape[0]):
                     infective_index = infection_terms[i, 1]
                     lambdas[i, m] = 0
@@ -2762,7 +2761,7 @@ cdef class Spp(CommonMethods):
                         if Ni[nn]>0:
                             lambdas[i, m] += CM[m,nn]*xt[index]/Ni[nn]
         else:
-            for m in prange(M, nogil=True):
+            for m in range(M):
                 for i in range(infection_terms.shape[0]):
                     infective_index = infection_terms[i, 1]
                     lambdas[i, m] = 0
