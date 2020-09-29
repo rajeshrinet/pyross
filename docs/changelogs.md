@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.3.1 
+* Update contact matrix calculations  - see https://github.com/rajeshrinet/pyross/pull/35
+
 ## 1.3.0 
 * Merge PyRossTSI with PyRoss
 
