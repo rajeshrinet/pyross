@@ -289,7 +289,7 @@ class SIR:
         
         Snext = S + 0.5*dt*(dsdt_p + dsdt_c)
         
-        Inext[0:self.M] = - 0.5*(dsdt_c + dsdt_p)
+        Inext[0:self.M] = - dsdt_c
         for k in range(1, self.kI): # Advection
             for l in range(self.M):
                 Inext[k+l*self.M] = I[k-1+l*self.M] 
