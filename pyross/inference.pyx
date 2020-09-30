@@ -185,7 +185,7 @@ cdef class SIR_type:
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None,
                        walker_pos=None, nsamples=1000, nprocesses=0):
         """
-        Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+        Sample the posterior distribution of the epidemiological parameters using ensemble MCMC.
 
         Note
         ----
@@ -649,7 +649,7 @@ cdef class SIR_type:
     def infer_mcmc(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
                    verbose=False, sampler=None, nwalkers=None, walker_pos=None, nsamples=1000, nprocesses=0):
         """
-        Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+        Sample the posterior distribution of the epidemiological parameters using ensemble MCMC.
 
         Parameters
         ----------
@@ -1574,7 +1574,7 @@ cdef class SIR_type:
                               init_priors, tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None,
                               nsamples=1000, nprocesses=0):
         """
-        Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+        Sample the posterior distribution of the epidemiological parameters using ensemble MCMC.
 
         Note
         ----
