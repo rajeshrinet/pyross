@@ -19,10 +19,6 @@ cdef class CommonMethods:
     b) Method to get time series of S, etc by passing a dict of data.
     c) Method to set the contactMatrix array, CM
     """
-    cdef:
-        readonly int N, M, nClass
-        readonly np.ndarray population, Ni, CM, dxdt
-        readonly dict paramList, readData
 
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint',
         Ti=0, maxNumSteps=100000, **kwargs):
@@ -128,8 +124,6 @@ cdef class CommonMethods:
     cpdef set_contactMatrix(self, double t, contactMatrix):
         self.CM=contactMatrix(t)
 
-
-
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -153,37 +147,36 @@ cdef class SIR(CommonMethods):
     Ni: np.array(M, )
         Initial number in each compartment and class
     """
-    cdef:
-        readonly int kI, kE
-        readonly np.ndarray gI, beta
-        readonly double tsi_max, dt
 
-
-    def __init__(self, parameters, M, Ni, tsi_max):
+    def __init__(self, parameters, M, Ni, kI, tsi_max):
         self.beta  = parameters['beta']              # Infection rate (M*kI)
         self.gI    = parameters['gI']                # Removal rate of I (M*kI)
-        self.kI    = parameters['kI']               # number of compartments of I
-        self.N     = np.sum(Ni)
+        self.kI    = int(kI)              # number of compartments of I
+        self.N     = np.float(np.sum(Ni))
         self.M     = M
-        self.tsi_max = tsi_max # maximum length of infection
+        self.tsi_max = float(tsi_max) # maximum length of infection
         self.dt = tsi_max/float(self.kI)
         self.Ni    = np.array(Ni, dtype=DTYPE)
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
         self.nClass = self.kI+1
         self.dxdt = np.zeros((self.M*self.nClass), dtype=DTYPE)
 
+    def update_model_parameters(self, parameters):
+        self.beta = parameters['beta']
+        self.gI = parameters['gI']
+
     cpdef rhs(self, xt, t): # predictor timestep
         cdef:
             Py_ssize_t M=self.M, j, l, k, kI=self.kI
             double [:, :] CM=self.CM
-            double [:] gI=self.gI, beta=self.beta, lbda, I=xt[M:]
+            double [:] gI=self.gI, beta=self.beta, lbda, I=xt[M:], Ni=self.Ni
             double [:] dIdt=self.dxdt[M:], dSdt=self.dxdt[:M]
             double dt=self.dt
         lbda = np.zeros((M), dtype=DTYPE)
         for j in range(M):
             for k in range(kI-1):
                 for l in range(M):
-                    lbda[j] += CM[j,l]*0.5*(beta[k]*I[k*M+l] + beta[k+1]*I[(k+1)*M+l])
+                    lbda[j] += CM[j,l]*0.5*(beta[k]*I[k*M+l] + beta[k+1]*I[(k+1)*M+l])/Ni[l]
         for l in range(M):
             dSdt[l] = - xt[l]*lbda[l]
 

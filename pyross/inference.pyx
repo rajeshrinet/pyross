@@ -57,19 +57,6 @@ cdef class SIR_type:
     All subclasses use the same functions to perform inference, which are documented below.
     '''
 
-    cdef:
-        readonly Py_ssize_t nClass, M, steps, dim, vec_size
-        readonly double Omega, rtol_det, rtol_lyapunov
-        readonly np.ndarray beta, gIa, gIs, fsa, _xm
-        readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
-        readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
-        readonly str det_method, lyapunov_method
-        readonly dict class_index_dict
-        readonly list param_keys, _interp
-        readonly object contactMatrix
-        readonly bint param_mapping_enabled
-
-
     def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov):
         self.Omega = Omega
         self.M = M
@@ -3490,24 +3477,6 @@ cdef class SIR_type:
         self.det_model.rhs(xt, t)
         return self.det_model.dxdt
 
-    cpdef _obtain_time_evol_op_2(self, sol, double t1, double t2):
-        cdef:
-            double [:, :] U=self.U
-            double [:] xi, xf
-            double epsilon=1./self.Omega
-            Py_ssize_t i, j, steps=self.steps
-        if isclose(t1, t2):
-            U = np.eye(self.dim)
-        else:
-            xi = sol(t1)/self.Omega
-            xf = sol(t2)/self.Omega
-            for i in range(self.dim):
-                xi[i] += epsilon
-                pos = self.integrate(xi, t1, t2, steps)[steps-1]
-                for j in range(self.dim):
-                    U[j, i] = (pos[j]-xf[j])/(epsilon)
-                xi[i] -= epsilon
-
     def _obtain_time_evol_op(self, sol, double t1, double t2):
         cdef:
             Py_ssize_t steps=self.steps
@@ -3682,9 +3651,6 @@ cdef class SIR(SIR_type):
     def set_det_model(self, parameters):
         self.det_model = pyross.deterministic.SIR(parameters, self.M, self.fi*self.Omega)
 
-    def infection_indices(self):
-        return [1, 2]
-
     def make_params_dict(self):
         parameters = {'alpha':self.alpha, 'beta':self.beta, 'gIa':self.gIa, 'gIs':self.gIs, 'fsa':self.fsa}
         return parameters
@@ -3813,9 +3779,6 @@ cdef class SEIR(SIR_type):
         super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'Ia':2, 'Is':3}
         self.set_det_model(parameters)
-
-    def infection_indices(self):
-        return [1, 2, 3]
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -3971,10 +3934,6 @@ cdef class SEAIRQ(SIR_type):
         super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.set_det_model(parameters)
-
-    def infection_indices(self):
-        return [1, 2, 3, 4]
-
 
     def set_det_model(self, parameters):
         self.det_model = pyross.deterministic.SEAIRQ(parameters, self.M, self.fi*self.Omega)
@@ -4159,9 +4118,6 @@ cdef class SEAIRQ_testing(SIR_type):
         self.testRate=testRate
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.make_det_model(parameters)
-
-    def infection_indices(self):
-        return (1, 2, 3, 4)
 
     def set_params(self, parameters):
         super().set_params(parameters)
@@ -4399,7 +4355,7 @@ cdef class Spp(SIR_type):
         self.model_spec=model_spec
         res = pyross.utils.parse_model_spec(model_spec, self.model_param_keys)
         self.nClass = res[0]
-        self.class_index_dict = res[1]
+        self.det_model = res[1]
         self.constant_terms = res[2]
         self.linear_terms = res[3]
         self.infection_terms = res[4]
@@ -4415,30 +4371,6 @@ cdef class Spp(SIR_type):
             self.param_mapping_enabled = True
         else:
             self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
-
-    def infection_indices(self):
-        cdef Py_ssize_t a = 100
-        indices = set()
-        linear_terms_indices = list(range(self.linear_terms.shape[0]))
-
-        # Find all the infection terms
-        for term in self.infection_terms:
-            infective_index = term[1]
-            indices.add(infective_index)
-
-        # Find all the terms that turn into infection terms
-        a = 100
-        while a > 0:
-            a = 0
-            temp = linear_terms_indices.copy()
-            for i in linear_terms_indices:
-                product_index = self.linear_terms[i, 2]
-                if product_index in indices:
-                    a += 1
-                    indices.add(self.linear_terms[i, 1])
-                    temp.remove(i)
-            linear_terms_indices = temp
-        return list(indices)
 
     def set_params(self, parameters):
         if self.det_model is not None:
@@ -4818,31 +4750,6 @@ cdef class SppQ(SIR_type):
         else:
             self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
             self.nClassUwoN = self.nClassU
-
-
-    def infection_indices(self):
-        cdef Py_ssize_t a = 100
-        indices = set()
-        linear_terms_indices = list(range(self.linear_terms.shape[0]))
-
-        # Find all the infection terms
-        for term in self.infection_terms:
-            infective_index = term[1]
-            indices.add(infective_index)
-
-        # Find all the terms that turn into infection terms
-        a = 100
-        while a > 0:
-            a = 0
-            temp = linear_terms_indices.copy()
-            for i in linear_terms_indices:
-                product_index = self.linear_terms[i, 2]
-                if product_index in indices:
-                    a += 1
-                    indices.add(self.linear_terms[i, 1])
-                    temp.remove(i)
-            linear_terms_indices = temp
-        return list(indices)
 
     def set_params(self, parameters):
         if self.det_model is not None:
