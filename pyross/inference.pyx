@@ -4634,7 +4634,7 @@ cdef class Spp(SIR_type):
                         J[reagent_index, m, class_index, m] -= term
                     if product_index>-1:
                         J[product_index, m, class_index, m] += term
-                    if finres_pop[resource_index] > 0:
+                    if frp > 0:
                         term *= - x[class_index*M+m] / frp
                     for (res_class_index, res_priority_index) in resource_list[resource_index][1:]:
                         if np.size(finres_pop[resource_index]) == 1:
