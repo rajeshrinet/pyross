@@ -61,7 +61,7 @@ cdef class SIR_type:
         self.Omega = Omega
         self.M = M
         self.fi = fi
-        assert steps >= 2, 'Number of steps must be at least 2'
+        assert steps >= 1, 'Number of steps must be at least 1'
         self.steps = steps
         self.set_params(parameters)
         self.det_method=det_method
@@ -87,7 +87,6 @@ cdef class SIR_type:
         self.flat_indices1 = np.ravel_multi_index((r, c), (self.dim, self.dim))
         self.flat_indices2 = np.ravel_multi_index((c, r), (self.dim, self.dim))
 
-        self._xm = None
         self._interp = None
 
         self.param_mapping_enabled = False
@@ -290,7 +289,7 @@ cdef class SIR_type:
 
     def infer(self, x, Tf, prior_dict, contactMatrix=None,
               generator=None, intervention_fun=None, tangent=False,
-              verbose=False, ftol=1e-6,
+              verbose=False, ftol=1e-6, inter_steps=0,
               global_max_iter=100, local_max_iter=100, global_atol=1.,
               enable_global=True, enable_local=True,
               cma_processes=0, cma_population=16, cma_random_seed=None):
@@ -402,7 +401,7 @@ cdef class SIR_type:
                          'flat_guess_range':flat_guess_range,
                          'is_scale_parameter':is_scale_parameter,
                          'scaled_guesses': scaled_guesses,
-                         'generator':generator, 'prior':prior,
+                         'generator':generator, 'prior':prior, 'inter_steps':inter_steps,
                          'intervention_fun': intervention_fun, 'tangent': tangent}
         res = minimization(self._infer_to_minimize, guess, bounds, ftol=ftol, global_max_iter=global_max_iter,
                            local_max_iter=local_max_iter, global_atol=global_atol,
@@ -883,14 +882,9 @@ cdef class SIR_type:
                 self.contactMatrix = generator.intervention_custom_temporal(intervention_fun, **map_control_params_dict)
 
         Nf = Tf+1
-
         if inter_steps:
-            x0 = np.multiply(x0, self.Omega)
-            xm = pyross.utils.forward_euler_integration(self._rhs0, x0, 0, Tf, Nf, inter_steps)
-            xm = xm[::inter_steps]
-            xm = np.divide(xm, self.Omega)
-        else:
-            xm = self.integrate(x0, 0, Tf, Nf)
+            self.steps=inter_steps
+        xm = self.integrate(x0, 0, Tf, Nf)
         return np.ravel(xm[1:])
 
 
@@ -1426,7 +1420,7 @@ cdef class SIR_type:
         return logP_MAPs - 0.5*np.log(np.linalg.det(A)) + 0.5*k*np.log(2*np.pi)
 
 
-    def obtain_minus_log_p(self, parameters, np.ndarray x, double Tf, contactMatrix, tangent=False):
+    def obtain_minus_log_p(self, parameters, np.ndarray x, double Tf, contactMatrix, inter_steps=0, tangent=False):
         '''Computes -logp of a full trajectory
         Parameters
         ----------
@@ -1455,7 +1449,7 @@ cdef class SIR_type:
         if tangent:
             minus_logp = self._obtain_logp_for_traj_tangent(x_memview, Tf)
         else:
-            minus_logp = self._obtain_logp_for_traj(x_memview, Tf)
+            minus_logp = self._obtain_logp_for_traj(x_memview, Tf, inter_steps)
         return minus_logp
 
     cdef np.ndarray _get_r_from_x(self, np.ndarray x):
@@ -2469,14 +2463,7 @@ cdef class SIR_type:
         full_fltr = sparse.block_diag(fltr_)
 
         x0 = self._construct_inits(init_estimates, init_flags, init_fltrs, obs0, fltr[0])
-
-        if inter_steps:
-            x0 = np.multiply(x0, self.Omega)
-            xm = pyross.utils.forward_euler_integration(self._rhs0, x0, 0, Tf, Nf, inter_steps)
-            xm = xm[::inter_steps]
-            xm = np.divide(xm, self.Omega)
-        else:
-            xm = self.integrate(x0, 0, Tf, Nf)
+        xm = self.integrate(x0, 0, Tf, Nf)
         xm_red = full_fltr@(np.ravel(xm[1:]))
         return xm_red
 
@@ -3225,31 +3212,18 @@ cdef class SIR_type:
             double log_p = 0
             double [:] xi, xf, dev
             double [:, :] cov, xm, _xm
-            Py_ssize_t i, Nf=x.shape[0], steps=self.steps
+            Py_ssize_t i, Nf=x.shape[0]
             double [:] time_points = np.linspace(0, Tf, Nf)
+        if inter_steps:
+            self.steps = inter_steps
         for i in range(Nf-1):
             xi = x[i]
             xf = x[i+1]
             ti = time_points[i]
             tf = time_points[i+1]
-            if inter_steps:
-                xi = np.multiply(xi, self.Omega)
-                _xm = pyross.utils.forward_euler_integration(self._rhs0, xi,
-                                                             ti, tf,
-                                                             steps, inter_steps)
-                _xm = np.divide(_xm, self.Omega)
-                self._xm = np.copy(_xm)
-                self._interp = []
-                times = np.linspace(ti, tf, inter_steps*steps)
-                for i in range(_xm.shape[1]):
-                    self._interp.append(interpolate.interp1d(times, _xm[:,i],
-                                                             kind='linear'))
-                xm = _xm[::inter_steps]
-                sol = self.interpolate_euler
-            else:
-                xm, sol = self.integrate(xi, ti, tf, steps, dense_output=True)
+            xm, sol = self.integrate(xi, ti, tf, 2, dense_output=True)
             cov = self._estimate_cond_cov(sol, ti, tf)
-            dev = np.subtract(xf, xm[steps-1])
+            dev = np.subtract(xf, xm[1])
             log_p += self._log_cond_p(dev, cov)
         return -log_p
 
@@ -3383,7 +3357,7 @@ cdef class SIR_type:
             self._compute_dsigdt(sig)
             return self.dsigmadt
 
-        cov_vec = self._solve_lyapunov_type_eq(rhs, sigma0, t1, t2, self.steps)
+        cov_vec = self._solve_lyapunov_type_eq(rhs, sigma0, t1, t2, self.steps+1)
         cov = self.convert_vec_to_mat(cov_vec)
         return cov
 
@@ -3398,22 +3372,8 @@ cdef class SIR_type:
             double [:, :, :, :] full_cov
             double ti, tf
         if inter_steps:
-            x0 = np.multiply(x0, self.Omega)
-            _xm = pyross.utils.forward_euler_integration(self._rhs0, x0,
-                                                                0, Tf,
-                                                                Nf, inter_steps)
-            _xm = np.divide(_xm, self.Omega)
-            self._xm = np.copy(_xm)
-            self._interp = []
-            times = np.linspace(0, Nf, inter_steps*Nf)
-            for i in range(dim):
-                self._interp.append(interpolate.interp1d(times, _xm[:,i],
-                                                          kind='linear'))
-            xm = _xm[::inter_steps]
-            sol = self.interpolate_euler
-        else:
-            xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True,
-                                           maxNumSteps=self.steps*Nf)
+            self.steps=inter_steps
+        xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True, maxNumSteps=self.steps*Nf)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -3447,13 +3407,8 @@ cdef class SIR_type:
             double [:, :, :, :] full_cov
             double t, dt=time_points[1]
         if inter_steps:
-            x0 = np.multiply(x0, self.Omega)
-            xm = pyross.utils.forward_euler_integration(self._rhs0, x0, 0, Tf,
-                                                        Nf, inter_steps)
-            xm = xm[::inter_steps]
-            xm = np.divide(xm, self.Omega)
-        else:
-            xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
+            self.steps=inter_steps
+        xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -3478,8 +3433,6 @@ cdef class SIR_type:
         return self.det_model.dxdt
 
     def _obtain_time_evol_op(self, sol, double t1, double t2):
-        cdef:
-            Py_ssize_t steps=self.steps
 
         def rhs(t, U_vec):
             xt = sol(t)/self.Omega
@@ -3492,7 +3445,7 @@ cdef class SIR_type:
             self.U = np.eye(self.dim)
         else:
             U0 = np.identity((self.dim)).flatten()
-            U_vec = self._solve_lyapunov_type_eq(rhs, U0, t1, t2, steps)
+            U_vec = self._solve_lyapunov_type_eq(rhs, U0, t1, t2, self.steps+1)
             self.U = np.reshape(U_vec, (self.dim, self.dim))
 
     def _solve_lyapunov_type_eq(self, rhs, M0, t1, t2, steps):
@@ -3549,7 +3502,7 @@ cdef class SIR_type:
                                              b_matrix=True, jacobian=False):
         raise NotImplementedError("Please Implement compute_jacobian_and_b_matrix in subclass")
 
-    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps,
+    def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t Nf,
                   dense_output=False, maxNumSteps=100000):
         """An light weight integrate method similar to `simulate` in pyross.deterministic
 
@@ -3571,6 +3524,7 @@ cdef class SIR_type:
         sol: np.array
             The state of the system evaulated at the time point specified. Only used if det_method is set to 'solve_ivp'.
         """
+        cdef Py_ssize_t steps=self.steps, dim=self.dim
 
         def rhs0(double t, double [:] xt):
             self.det_model.set_contactMatrix(t, self.contactMatrix)
@@ -3578,14 +3532,25 @@ cdef class SIR_type:
             return self.det_model.dxdt
 
         x0 = np.multiply(x0, self.Omega)
-        time_points = np.linspace(t1, t2, steps)
-        res = solve_ivp(rhs0, [t1,t2], x0, method=self.det_method,
-                        t_eval=time_points, dense_output=dense_output,
-                        max_step=maxNumSteps, rtol=self.rtol_det)
-        y = np.divide(res.y.T, self.Omega)
+        if self.det_method == 'euler':
+            _xm = pyross.utils.forward_euler_integration(rhs0, x0, t1, t2, Nf, steps)
+            self._interp = []
+            times = np.linspace(t1, t2, steps*Nf)
+            for i in range(dim):
+                self._interp.append(interpolate.interp1d(times, _xm[:,i],
+                                                          kind='linear'))
+            sol = self.interpolate_euler
+            y = np.divide(_xm[::steps], self.Omega)
+        else:
+            time_points = np.linspace(t1, t2, Nf)
+            res = solve_ivp(rhs0, [t1,t2], x0, method=self.det_method,
+                            t_eval=time_points, dense_output=dense_output,
+                            max_step=maxNumSteps, rtol=self.rtol_det)
+            y = np.divide(res.y.T, self.Omega)
+            sol = res.sol
 
         if dense_output:
-            return y, res.sol
+            return y, sol
         else:
             return y
 

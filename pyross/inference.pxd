@@ -11,7 +11,7 @@ cdef class SIR_type:
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
         readonly double Omega, rtol_det, rtol_lyapunov
-        readonly np.ndarray beta, gIa, gIs, fsa, _xm
+        readonly np.ndarray beta, gIa, gIs, fsa
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
         readonly str det_method, lyapunov_method

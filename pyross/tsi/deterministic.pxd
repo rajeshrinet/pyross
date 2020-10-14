@@ -33,5 +33,5 @@ cdef class SIR(CommonMethods):
         readonly double tsi_max, dt
 
     cpdef rhs(self, xt, tt)
-
-    cpdef RK2_timestep(self, xt, t, contactMatrix)
+    cpdef euler_timestep(self, xt, t)
+    cpdef PC_timestep(self, xt, t)

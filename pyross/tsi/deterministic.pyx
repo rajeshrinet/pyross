@@ -149,8 +149,8 @@ cdef class SIR(CommonMethods):
     """
 
     def __init__(self, parameters, M, Ni, kI, tsi_max):
-        self.beta  = parameters['beta']              # Infection rate (M*kI)
-        self.gI    = parameters['gI']                # Removal rate of I (M*kI)
+        self.beta  = parameters['beta']              # Infection rate (kI)
+        self.gI    = parameters['gI']                # Removal rate of I (kI)
         self.kI    = int(kI)              # number of compartments of I
         self.N     = np.float(np.sum(Ni))
         self.M     = M
@@ -165,7 +165,10 @@ cdef class SIR(CommonMethods):
         self.beta = parameters['beta']
         self.gI = parameters['gI']
 
-    cpdef rhs(self, xt, t): # predictor timestep
+    cpdef rhs(self, xt, t):
+        self.PC_timestep(xt, t)
+
+    cpdef euler_timestep(self, xt, t):
         cdef:
             Py_ssize_t M=self.M, j, l, k, kI=self.kI
             double [:, :] CM=self.CM
@@ -179,16 +182,14 @@ cdef class SIR(CommonMethods):
                     lbda[j] += CM[j,l]*0.5*(beta[k]*I[k*M+l] + beta[k+1]*I[(k+1)*M+l])/Ni[l]
         for l in range(M):
             dSdt[l] = - xt[l]*lbda[l]
-
-        for k in range(kI): # Advection
+        for k in range(kI):
             for l in range(M):
-                if k>0:
-                    dIdt[k*M+l] = (I[(k-1)*M+l]-I[k*M+l])/dt # advection
-                    dIdt[k*M+l] -= gI[k] * I[(k-1)*M+l] # recovery
+                if k> 0:
+                    dIdt[k*M+l] = (I[(k-1)*M+l]-I[k*M+l])/dt -gI[k-1] * I[(k-1)*M+l] # recovery
                 else:
-                    dIdt[l] = - dSdt[l] - I[l]/dt # infection and advection
+                    dIdt[l] = - dSdt[l] - I[l]/dt
 
-    cpdef RK2_timestep(self, xt, t, contactMatrix):
+    cpdef PC_timestep(self, xt, t):
         """
         Function to go one step forward using the deterministic integrator.
         We use a RK2/Crank-Nicolson finite difference scheme
@@ -212,21 +213,54 @@ cdef class SIR(CommonMethods):
         -------
         dx: change in the state vector under predictor-corrector scheme
         """
-        cdef double [:] dx_p, dx, xt_p
-        cdef double dt=self.dt
+        cdef:
+            int M=self.M, j, k, l, kI=self.kI
+            double dt=self.dt
+            double [:, :] CM=self.CM
+            double [:] S=xt[:M], I=xt[M:], Ni=self.Ni
+            double [:] beta=self.beta, gamma=self.gI
+            double [:] Ip, ds_p, ds_c, Sp, Sc, di_p, di_c, Inext, lbda, lbda_p, Snext, temp
 
-        # predictor
-        self.CM = contactMatrix(t)
-        self.rhs(xt, t)
-        dx_p = np.copy(self.dxdt)*dt
-        xt_p = np.add(xt, dx_p)
+        lbda = np.zeros((M), dtype=DTYPE)
+        lbda_p = np.zeros((M), dtype=DTYPE)
+        temp = np.empty((M), dtype=DTYPE)
+        di_p = np.zeros((M*kI), dtype=DTYPE)
+        di_c = np.zeros((M*kI), dtype=DTYPE)
+        Ip = np.empty_like(I)
+        Inext = np.empty_like(I)
+        Snext = np.empty_like(S)
 
-        # corrector
-        self.CM = contactMatrix(t+dt)
-        self.rhs(xt_p, t+dt)
-        dx = np.add(self.dxdt*dt, dx_p)/2
+        # 1. Explicit time step
+        for j in range(M):
+            for k in range(kI-1):
+                for l in range(M):
+                    lbda[j] += CM[j,l]*0.5*(beta[k]*I[k*M+l] + beta[k+1]*I[(k+1)*M+l])/Ni[l]
+        temp = np.multiply(S, lbda)*dt
+        ds_p = np.negative(temp)
+        Sp = np.add(S, ds_p)
+        Ip[0:M] = temp
+        for k in range(1,kI): # Advection
+            for l in range(M):
+                Ip[k*M+l] = I[(k-1)*M+l]
+                di_p[(k-1)*M+l] = - gamma[k] * Ip[k*M+l]*dt
+                Ip[k*M+l] = Ip[k*M+l] + di_p[(k-1)*M+l]
 
-        return dx
+        # 2. Correction
+        for j in range(M):
+            lbda_p[j] = 0
+            for k in range(kI-1):
+                for l in range(M):
+                    lbda_p[j] += 0.5*CM[j,l]*(beta[k]*I[k*M+l] + beta[k+1]*I[(k+1)*M+l])/Ni[l]
+        temp = np.multiply(Sp, lbda_p)*dt
+        ds_c = np.negative(temp)
+        Snext = np.add(S, 0.5*np.add(ds_p, ds_c))
+        Inext[0:M] = temp
+        for k in range(1, kI):
+            for l in range(M):
+                Inext[k*M+l] = I[(k-1)*M+l] # advection
+                di_c[(k-1)*M+l] = - gamma[k] * Ip[k*M+l] *dt # recovery
+                Inext[k*M+l] = Inext[k*M+l] + 0.5*(di_p[(k-1)*M+l] + di_c[(k-1)*M+l])
+        self.dxdt = (np.concatenate([Snext, Inext]) - xt)/dt
 
     def simulate(self, x0, contactMatrix, Tf):
         """
@@ -253,15 +287,18 @@ cdef class SIR(CommonMethods):
         I_traj: np.array((Nf, kI*M), dtype=float)
            Time series infected population
         """
-        cdef int M=self.M, kI=self.kI
-        Nf = int(Tf/(self.tsi_max/float(self.kI)))
+        cdef:
+            int M=self.M, kI=self.kI
+        Nf = int(Tf/(self.tsi_max/float(self.kI)))+1
         X = np.empty((Nf, self.nClass*M), dtype=DTYPE)
 
         # Initialise:
         X[0]= x0
 
         for t in range(1,Nf):
-            X[t] = X[t-1] + self.RK2_timestep(X[t-1], t, contactMatrix)
+            self.CM = contactMatrix(t)
+            self.rhs(X[t-1], t-1)
+            X[t] = X[t-1] +  self.dxdt*self.dt
         return X
 
 

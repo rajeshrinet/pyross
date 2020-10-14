@@ -335,6 +335,7 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         return x, log_det
 
     except sp.linalg.LinAlgError:
+        print('not pos def')
         # Not positive definite:
         eigvals, eigvecs = np.linalg.eigh(A)
 
