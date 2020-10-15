@@ -67,7 +67,7 @@ setup(
     libraries=[],
     packages=['pyross'],
     #install_requires=['cython','numpy','scipy','matplotlib',
-    #                 'cma','sympy','nlopt','dill','pandas','xlrd'],
+    #                 'cma','sympy','nlopt','dill'],
     package_data={'pyross': ['*.pxd']},
     include_package_data=True,
     classifiers=[

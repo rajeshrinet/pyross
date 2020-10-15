@@ -2,7 +2,6 @@ cython
 numpy
 scipy
 sympy 
-xlrd 
 nlopt
 pathos
 cma

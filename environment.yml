@@ -17,9 +17,9 @@ dependencies:
   - xlrd
   - dynesty
   - emcee
+  - nlopt
   - pip
   - pip:
-    - nlopt
     - cma
     - dill
     - pathos

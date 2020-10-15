@@ -868,20 +868,6 @@ class GPR:
         self.plotResults()
 
 
-def getDiagonalCM(country, M=16):
-    import pyross
-    if country=='UK':
-        CH, CW, CS, CO = pyross.contactMatrix.UK()
-    else:
-        CH, CW, CS, CO = pyross.contactMatrix.getCM(country)
-    CM=CH+CW+CS+CO
-
-    x = np.zeros(M)
-    for i in range(M):
-        x[i] = 1*CM[i,i]
-    return x
-
-
 def resample(weighted_samples, N):
     """
     Given a set of weighted samples, produce a set of unweighted samples approximating the same
