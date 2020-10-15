@@ -13,9 +13,10 @@
 * ex13-interfaceData.ipynb: shows how to obtain data in differen models
 * ex14-SEAIRQ.ipynb: a quanrantine class Q, which may model individuals who have been tested and put into quarantine
 * ex15-SEAI8R.ipynb: SEAIR with 8 classes of infectives
-* ex16-Spp.ipynb: Generic user-defined model
-* fitParamBeta.ipynb: fitting data to obtain the parameter beta for SIR and SEIR
-* fitParamBeta_UK_data.ipynb: fitting data to obtain the parameter beta for SEkIkIkR
+* ex16-Spp.ipynb: Generic user-defined model 
+* ex17-SppQ.ipynb: Simulating any compartmental model with testing and quarantine using the SppQ class
+* ex18-Spp-time_dependent_parameters.ipynb: shows how an arbitrary time-dependence of parameters can be specified
+* ex19-Spp-serological-testing.ipynb: shows a finite-ressource transition to model serological testing
 
 
 Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/)  for more details.
