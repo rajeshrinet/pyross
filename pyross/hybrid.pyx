@@ -32,7 +32,7 @@ cdef class SIR:
             gIs: float
                 rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)

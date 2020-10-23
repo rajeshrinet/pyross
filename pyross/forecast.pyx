@@ -39,7 +39,7 @@ cdef class SIR:
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             cov: np.array( )
                 covariance matrix for all the estimated parameters.
     M: int
@@ -241,7 +241,7 @@ cdef class SIR_latent:
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             cov: np.array( )
                 Covariance matrix for all the estimated parameters.
             S0: np.array(M,)
@@ -455,7 +455,7 @@ cdef class SEIR:
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 Estimated mean value of rate of removal from exposed individuals.
             cov: np.array( )
@@ -668,7 +668,7 @@ cdef class SEIR_latent:
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 Estimated mean value of rate of removal from exposed individuals.
             cov: np.array( )
@@ -898,7 +898,7 @@ cdef class SEAIRQ():
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 Estimated mean value of rate of removal from exposed individuals.
             gA: float
@@ -1140,7 +1140,7 @@ cdef class SEAIRQ_latent():
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 Estimated mean value of rate of removal from exposed individuals.
             gA: float
@@ -1414,7 +1414,7 @@ cdef class SEAI5R():
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 Estimate mean value of rate of removal from exposeds individuals.
             gA: float
@@ -1717,7 +1717,7 @@ cdef class SEAI5R_latent():
             gIs: float
                 Estimate mean value of rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 Estimate mean value of rate of removal from exposeds individuals.
             gA: float

@@ -1201,7 +1201,7 @@ cdef class SIR(stochastic_integration):
         gIs: float
             rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         seed: long
             seed for pseudo-random number generator (optional).
     M: int
@@ -1448,7 +1448,7 @@ cdef class SIkR(stochastic_integration):
         gI: float
             rate of removal from infectives.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         kI: int
             number of stages of infection.
         seed: long
@@ -1658,7 +1658,7 @@ cdef class SEIR(stochastic_integration):
         gIs: float
             rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float
             rate of removal from exposed individuals.
         seed: long
@@ -1894,7 +1894,7 @@ cdef class SEAIRQ(stochastic_integration):
         gA: float
             rate of removal from activated individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         tE  : float
             testing rate and contact tracing of exposeds
         tA  : float
@@ -2188,7 +2188,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
         gA: float
             rate of removal from activated individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         ars: float
             fraction of population admissible for random and symptomatic tests
         kapE: float
@@ -3491,7 +3491,7 @@ cdef class SEI5R(stochastic_integration):
         gIc: float
             rate of removal for idividuals in intensive care.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         fh  : float
             fraction by which hospitalised individuals are isolated.
         sa: float, np.array (M,)
@@ -3890,7 +3890,7 @@ cdef class SEAI5R(stochastic_integration):
         gIs: float
             rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float
             rate of removal from exposeds individuals.
         gA: float

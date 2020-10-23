@@ -449,7 +449,7 @@ cdef class SIR(CommonMethods):
         gIs: float, np.array (M,)
             Rate of removal from symptomatic individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -770,7 +770,7 @@ cdef class SEIR(CommonMethods):
         gIs: float, np.array (M,)
             Rate of removal from symptomatic individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1088,7 +1088,7 @@ cdef class SEkIkIkR(CommonMethods):
         beta: float
             Rate of spread of infection.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gIa: float
             Rate of removal from asymptomatic infected individuals.
         gIs: float
@@ -1316,7 +1316,7 @@ cdef class SEI8R(CommonMethods):
         gIcp: float
             Rate of removal from ICU individuals towards buffer.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         sa: float, np.array (M,)
             Daily arrival of new susceptables.
         hh: float, np.array (M,)
@@ -1562,7 +1562,7 @@ cdef class SEAIR(CommonMethods):
         gIs: float
             Rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float
             Rate of removal from exposeds individuals.
         gA: float
@@ -1770,7 +1770,7 @@ cdef class SEAI8R(CommonMethods):
         gIcp: float
             Rate of removal from ICU individuals towards buffer.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         sa: float, np.array (M,)
             Daily arrival of new susceptables.
         hh: float, np.array (M,)
@@ -2202,7 +2202,7 @@ cdef class SEAIRQ_testing(CommonMethods):
         gA: float, np.array (M,)
             Rate of removal from activated individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         ars: float, np.array (M,)
             Fraction of population admissible for random and symptomatic tests
         kapE: float, np.array (M,)
@@ -2384,7 +2384,7 @@ cdef class SIRS(CommonMethods):
         gIs: float
             Rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         ep  : float
             Fraction of removed who become susceptable again
         sa  : float, np.array (M,)
@@ -3496,7 +3496,7 @@ cdef class SEI5R(CommonMethods):
         gIc: float	
             Rate of removal for idividuals in intensive care.	
         fsa: float	
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         fh  : float	
             Fraction by which hospitalised individuals are isolated.	
         sa: float, np.array (M,)	
@@ -3715,7 +3715,7 @@ cdef class SEAI5R(CommonMethods):
         gIs: float	
             Rate of removal from symptomatic individuals.	
         fsa: float	
-            Fraction by which symptomatic individuals do not self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float	
             Rate of removal from exposeds individuals.	
         gA: float	
