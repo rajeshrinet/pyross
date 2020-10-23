@@ -104,39 +104,37 @@ to test a certain subset of notebooks
 
 ## Examples
 
-PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation. [PyRoss Documentation](https://pyross.readthedocs.io/en/latest/) contains links for more examples.
+PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation with three age-groups. [PyRoss Documentation](https://pyross.readthedocs.io/en/latest/) contains links for more examples.
 
 ```Python
 # Ex1: M=3, SIR
 import numpy as np
 import pyross
+import matplotlib.pyplot as plt
 
 
-model_spec = {
-    "classes" : ["S", "I"],
+model_spec = { "classes" : ["S", "I"],
 
-    "S" : {
-        "constant"  : [ ["k"] ], 
-        "infection" : [ ["I", "-beta"] ]
-    },
+             "S" : {
+                    "constant"  : [ ["k"] ], 
+                    "infection" : [ ["I", "-beta"] ]
+                   },
 
-    "I" : {
-        "linear"    : [ ["I", "-gamma"] ],
-        "infection" : [ ["I", "beta"] ]
-    }
-}
+            "I" : {
+                    "linear"    : [ ["I", "-gamma"] ],
+                    "infection" : [ ["I", "beta"] ]
+                   }
+             }
 
 
 parameters = {
-    'beta' : 0.1,
-    'gamma' : 0.1, 
-    'k' : 1, 
-}
+              'beta' : 0.1,
+              'gamma' : 0.1, 
+              'k' : 1, 
+             }
 
 
-M = 3                
-Ni = 1000*np.ones(M)
-N = np.sum(Ni) 
+M=3;  Ni=1000*np.ones(M);  N=np.sum(Ni) 
 
 
 # Initial conditions as an array
@@ -145,14 +143,17 @@ x0 = np.array([
     1,   0,    0,    # I
 ])
 
+
 # Or initial conditions as a dictionary 
 I0 = [10, 10, 10]
 S0 = [n-20 for n in Ni]
 
+
 x0 = {
     'S' : S0,
     'I' : I0 
-}
+     }
+
 
 CM = np.array([
     [1,   0.5, 0.1],
@@ -160,16 +161,42 @@ CM = np.array([
     [0.1, 0.5, 1  ]
 ], dtype=float)
 
+
 def contactMatrix(t):  
     return CM
+
 
 # duration of simulation and data file
 Tf = 160;  Nf=Tf+1; 
 
 model = pyross.deterministic.Spp(model_spec, parameters, M, Ni)
+
 # simulate model 
 data = model.simulate(x0, contactMatrix, Tf, Nf)
 
+
+# plot the data and obtain the epidemic curve
+S = np.sum(model.model_class_data('S', data), axis=1)
+I = np.sum(model.model_class_data('I', data), axis=1)
+R = np.sum(model.model_class_data('R', data), axis=1)
+t = data['t']
+
+fig = plt.figure(num=None, figsize=(10, 8), dpi=80, facecolor='w', edgecolor='k')
+plt.rcParams.update({'font.size': 22})
+
+plt.fill_between(t, 0, S/N, color="#348ABD", alpha=0.3)
+plt.plot(t, S, '-', color="#348ABD", label='$S$', lw=4)
+
+plt.fill_between(t, 0, I/N, color='#A60628', alpha=0.3)
+plt.plot(t, I, '-', color='#A60628', label='$I$', lw=4)
+
+plt.fill_between(t, 0, R/N, color="dimgrey", alpha=0.3)
+plt.plot(t, R, '-', color="dimgrey", label='$R$', lw=4)
+
+plt.legend(fontsize=26); plt.grid() 
+plt.autoscale(enable=True, axis='x', tight=True)
+plt.ylabel('Compartment value')
+plt.xlabel('Days');
 ```
 
 ## Publications
