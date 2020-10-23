@@ -146,12 +146,16 @@ R  = model.R(data)
 ```
 
 ## Publications
+* **Efficient Bayesian inference of fully stochastic epidemiological models with applications to COVID-19**, Yuting I. Li, Günther Turk, Paul B. Rohrbach, Patrick Pietzonka, Julian Kappler, Rajesh Singh, Jakub Dolezal, Timothy Ekeh, Lukas Kikuchi, Joseph D. Peterson, Hideki Kobayashi, Michael E. Cates, R. Adhikari, Robert L. Jack, [arXiv:2010.11783, 2020](https://arxiv.org/abs/2010.11783)  | [ResearchGate](https://www.researchgate.net/publication/344828080_Efficient_Bayesian_inference_of_fully_stochastic_epidemiological_models_with_applications_to_COVID-19)
+
+* **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [arXiv:10955, 2020](https://arxiv.org/abs/2010.10955)
+
 * **Inference, prediction and optimization of non-pharmaceutical interventions using compartment models: the PyRoss library**, R. Adhikari, Austen Bolitho, Fernando Caballero, Michael E. Cates,
   Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert L. Jack, Julian Kappler,
   Lukas Kikuchi, Hideki Kobayashi, Yuting I. Li, Joseph D. Peterson, Patrick
-  Pietzonka, Benjamin Remez, Paul B. Rohrbach, Rajesh Singh, and Günther Turk, [arXiv:2005.09625](https://arxiv.org/abs/2005.09625), [Research Gate](https://www.researchgate.net/publication/341496170_Inference_prediction_and_optimization_of_non-pharmaceutical_interventions_using_compartment_models_the_PyRoss_library).  <br/> *(Please cite this paper if you use PyRoss in your research)*.
-
-* **Age-structured impact of social distancing on the COVID-19 epidemic in India**, Rajesh Singh and R. Adhikari,  [arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa).
+  Pietzonka, Benjamin Remez, Paul B. Rohrbach, Rajesh Singh, and Günther Turk, [arXiv:2005.09625, 2020](https://arxiv.org/abs/2005.09625) | [ResearchGate](https://www.researchgate.net/publication/341496170_Inference_prediction_and_optimization_of_non-pharmaceutical_interventions_using_compartment_models_the_PyRoss_library).  
+  
+* **Age-structured impact of social distancing on the COVID-19 epidemic in India**, Rajesh Singh and R. Adhikari,  [arXiv:2003.12055, 2020](https://arxiv.org/abs/2003.12055) | [ResearchGate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa).
 
 
 ## News

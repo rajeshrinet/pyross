@@ -708,60 +708,61 @@ def getPopulation(country='India', M=16):
 
     import pandas as pd
     if country=='India':
-        data = pd.read_csv(u1, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u1, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='UK':
-        data = pd.read_csv(u2, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u2, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='Germany':
-        data = pd.read_csv(u3, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u3, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='Italy':
-        data = pd.read_csv(u4, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u4, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='Denmark':
-        data = pd.read_csv(u5, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u5, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='UK':
-        data = pd.read_csv(u6, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u6, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='USA':
-        data = pd.read_csv(u7, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u7, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='China':
-        data = pd.read_csv(u8, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u8, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
     elif country=='France':
         Ni = np.genfromtxt(u9)[:, 3]
 

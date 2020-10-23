@@ -10,6 +10,5 @@ matplotlib
 ipython
 jupyter
 nbconvert
-pandas
 dynesty
 emcee
