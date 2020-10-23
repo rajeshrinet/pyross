@@ -1,6 +1,6 @@
 import numpy
 import os, sys, re
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from Cython.Build import cythonize
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
@@ -65,10 +65,10 @@ setup(
         compiler_directives={'language_level': 3},
         ),
     libraries=[],
-    packages=['pyross'],
-    #install_requires=['cython','numpy','scipy','matplotlib',
-    #                 'cma','sympy','nlopt','dill'],
-    package_data={'pyross': ['*.pxd']},
+    install_requires=['cython','numpy','scipy','matplotlib',
+                     'cma','sympy','nlopt','dill'],
+    packages=['pyross', 'pyross/tsi'],
+    package_data={'pyross': ['*.pxd'], 'pyross/tsi': ['*.pxd']},
     include_package_data=True,
     classifiers=[
         'License :: OSI Approved :: MIT License',
@@ -78,5 +78,6 @@ setup(
         'Topic :: Scientific/Engineering :: Mathematics',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Education',
+
         ],
 )

@@ -3648,7 +3648,7 @@ cdef class SIR(SIR_type):
         gIs: float
             Recovery rate for symptomatic
         fsa: float
-            The fraction of symptomatic people who are self-isolating
+            Fraction by which symptomatic individuals do not self isolate.
     M: int
         Number of age groups
     fi: float numpy.array
@@ -3778,7 +3778,7 @@ cdef class SEIR(SIR_type):
         gIs: float
             Rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self isolate.
         gE: float
             rate of removal from exposed individuals.
     M: int
@@ -3928,7 +3928,7 @@ cdef class SEAIRQ(SIR_type):
         gA: float
             rate of removal from activated individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self isolate.
         tE: float
             testing rate and contact tracing of exposeds
         tA: float
@@ -4116,7 +4116,7 @@ cdef class SEAIRQ_testing(SIR_type):
         gA: float
             rate of removal from activated individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self isolate.
         ars : float
             fraction of population admissible for random and symptomatic tests
         kapE : float
