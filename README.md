@@ -202,7 +202,7 @@ plt.xlabel('Days');
 ## Publications
 * **Efficient Bayesian inference of fully stochastic epidemiological models with applications to COVID-19**, Yuting I. Li, Günther Turk, Paul B. Rohrbach, Patrick Pietzonka, Julian Kappler, Rajesh Singh, Jakub Dolezal, Timothy Ekeh, Lukas Kikuchi, Joseph D. Peterson, Hideki Kobayashi, Michael E. Cates, R. Adhikari, Robert L. Jack, [arXiv:2010.11783, 2020](https://arxiv.org/abs/2010.11783)  | [ResearchGate](https://www.researchgate.net/publication/344828080_Efficient_Bayesian_inference_of_fully_stochastic_epidemiological_models_with_applications_to_COVID-19)
 
-* **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [arXiv:10955, 2020](https://arxiv.org/abs/2010.10955)
+* **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [arXiv:2010955, 2020](https://arxiv.org/abs/2010.10955)
 
 * **Inference, prediction and optimization of non-pharmaceutical interventions using compartment models: the PyRoss library**, R. Adhikari, Austen Bolitho, Fernando Caballero, Michael E. Cates,
   Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert L. Jack, Julian Kappler,
