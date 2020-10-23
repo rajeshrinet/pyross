@@ -107,42 +107,69 @@ to test a certain subset of notebooks
 PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation. [PyRoss Documentation](https://pyross.readthedocs.io/en/latest/) contains links for more examples.
 
 ```Python
-# Ex1: M=1, SIR
+# Ex1: M=3, SIR
 import numpy as np
 import pyross
 
-M     = 1                  # the SIR model has no age structure
-Ni    = 1000*np.ones(M)    # so there is only one age group
-N     = np.sum(Ni)         # and the total population is the size of this age group
 
-beta  = 0.2                # infection rate
-gIa   = 0.1                # recovery rate of asymptomatic infectives
-gIs   = 0.1                # recovery rate of symptomatic infectives
-alpha = 0                  # fraction of asymptomatic infectives
-fsa   = 1                  # the self-isolation parameter
+model_spec = {
+    "classes" : ["S", "I"],
 
-Ia0   = np.array([0])      # the SIR model has only one kind of infective
-Is0   = np.array([1])      # we take these to be symptomatic
-R0    = np.array([0])      # and assume there are no recovered individuals initially
-S0    = N-(Ia0+Is0+R0)     # initial susceptibles are obtained from S + Ia + Is + R = N
+    "S" : {
+        "constant"  : [ ["k"] ], 
+        "infection" : [ ["I", "-beta"] ]
+    },
 
-# there is no contact structure
-def contactMatrix(t):   
-    return np.identity(M)
+    "I" : {
+        "linear"    : [ ["I", "-gamma"] ],
+        "infection" : [ ["I", "beta"] ]
+    }
+}
 
-# instantiate model
-parameters = {'alpha':alpha, 'beta':beta, 'gIa':gIa, 'gIs':gIs, 'fsa':fsa}
-model      = pyross.deterministic.SIR(parameters, M, Ni)
 
-# simulate model
-Tf, Nt = 160,  160           # duration of simulation and data points
-data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
+parameters = {
+    'beta' : 0.1,
+    'gamma' : 0.1, 
+    'k' : 1, 
+}
 
-# time series of S, Ia, Is, R
-S  = model.S(data)
-Ia = model.Ia(data)
-Is = model.Is(data)
-R  = model.R(data)
+
+M = 3                
+Ni = 1000*np.ones(M)
+N = np.sum(Ni) 
+
+
+# Initial conditions as an array
+x0 = np.array([
+    999, 1000, 1000, # S
+    1,   0,    0,    # I
+])
+
+# Or initial conditions as a dictionary 
+I0 = [10, 10, 10]
+S0 = [n-20 for n in Ni]
+
+x0 = {
+    'S' : S0,
+    'I' : I0 
+}
+
+CM = np.array([
+    [1,   0.5, 0.1],
+    [0.5, 1,   0.5],
+    [0.1, 0.5, 1  ]
+], dtype=float)
+
+def contactMatrix(t):  
+    return CM
+
+# duration of simulation and data file
+Tf = 160;  Nf=Tf+1; 
+
+model = pyross.deterministic.Spp(model_spec, parameters, M, Ni)
+# simulate model 
+data = model.simulate(x0, contactMatrix, Tf, Nf)
+
 ```
 
 ## Publications

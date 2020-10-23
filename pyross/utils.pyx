@@ -706,7 +706,6 @@ def getPopulation(country='India', M=16):
     u8 = u0 + 'age_structures/China-2019.csv'
     u9 = u0 + 'age_structures/France.txt'
 
-    import pandas as pd
     if country=='India':
         data = np.asanyarray(np.genfromtxt(u1, delimiter=','))
         N_m  = np.array((data[:, 1]))[1:M+1]
