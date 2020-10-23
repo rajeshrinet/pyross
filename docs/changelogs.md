@@ -1,5 +1,11 @@
 # PyRoss changelogs
 
+## 1.3.3
+* Updated the docstrings. 
+
+## 1.3.2
+* Remove pandas and xlrd as dependencies
+
 ## 1.3.1 
 * Update contact matrix calculations  - see https://github.com/rajeshrinet/pyross/pull/35
 
