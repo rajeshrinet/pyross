@@ -1,6 +1,6 @@
 import numpy
 import os, sys, re
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from Cython.Build import cythonize
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate=True
@@ -78,6 +78,5 @@ setup(
         'Topic :: Scientific/Engineering :: Mathematics',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Education',
-
         ],
 )

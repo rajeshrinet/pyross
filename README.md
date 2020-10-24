@@ -42,14 +42,14 @@ Joseph Peterson,
 [Rajesh Singh](https://github.com/rajeshrinet), 
 and [Günther Turk](https://github.com/phi6GTurk).
 
-Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw)  for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
+Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw) for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
-#### From a checkout of this repository
+### From a checkout of this repository
 
-Install PyRoss and required dependencies using
+#### Install PyRoss and an extended list of dependencies using 
 
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
@@ -58,9 +58,7 @@ Install PyRoss and required dependencies using
 >> python setup.py install
 ```
 
-#### Via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html)
-
-Install PyRoss and its dependencies in a `pyross` [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml):
+#### Install PyRoss and an extended list of dependencies, via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html), in an [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml) named `pyross`:
 
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
@@ -70,7 +68,7 @@ Install PyRoss and its dependencies in a `pyross` [environment](https://github.c
 >> make
 ```
 
-#### Via pip
+### Via pip
 
 Install the latest [PyPI](https://pypi.org/project/pyross) version
 
@@ -81,7 +79,7 @@ Install the latest [PyPI](https://pypi.org/project/pyross) version
 
 
 
-#### Testing
+### Testing
 Short test of initialisation and running
 
 ```bash
@@ -104,7 +102,7 @@ to test a certain subset of notebooks
 
 ## Examples
 
-PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation with three age-groups. [PyRoss Documentation](https://pyross.readthedocs.io/en/latest/) contains links for more examples.
+PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation with three age-groups. 
 
 ```Python
 # Ex1: M=3, SIR
@@ -162,7 +160,7 @@ CM = np.array([
 ], dtype=float)
 
 
-def contactMatrix(t):  
+def contactMatrix(t):
     return CM
 
 
@@ -198,11 +196,13 @@ plt.autoscale(enable=True, axis='x', tight=True)
 plt.ylabel('Compartment value')
 plt.xlabel('Days');
 ```
+Read more in the [examples](https://github.com/rajeshrinet/pyross/tree/master/examples) folders.
+
 
 ## Publications
 * **Efficient Bayesian inference of fully stochastic epidemiological models with applications to COVID-19**, Yuting I. Li, Günther Turk, Paul B. Rohrbach, Patrick Pietzonka, Julian Kappler, Rajesh Singh, Jakub Dolezal, Timothy Ekeh, Lukas Kikuchi, Joseph D. Peterson, Hideki Kobayashi, Michael E. Cates, R. Adhikari, Robert L. Jack, [arXiv:2010.11783, 2020](https://arxiv.org/abs/2010.11783)  | [ResearchGate](https://www.researchgate.net/publication/344828080_Efficient_Bayesian_inference_of_fully_stochastic_epidemiological_models_with_applications_to_COVID-19)
 
-* **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [2010.10955, 2020](https://arxiv.org/abs/2010.10955)
+* **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [arXiv:2010.10955, 2020](https://arxiv.org/abs/2010.10955)
 
 * **Inference, prediction and optimization of non-pharmaceutical interventions using compartment models: the PyRoss library**, R. Adhikari, Austen Bolitho, Fernando Caballero, Michael E. Cates,
   Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert L. Jack, Julian Kappler,
