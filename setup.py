@@ -70,6 +70,7 @@ setup(
     packages=['pyross', 'pyross/tsi'],
     package_data={'pyross': ['*.pxd'], 'pyross/tsi': ['*.pxd']},
     include_package_data=True,
+    setup_requires=['wheel'],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',

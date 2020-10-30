@@ -6,6 +6,7 @@ nlopt
 pathos
 cma
 dill
+wheel
 matplotlib
 ipython
 jupyter
