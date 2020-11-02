@@ -5,6 +5,8 @@ import multiprocessing
 import numpy as np
 import nlopt
 import cma
+import sys
+import traceback
 from scipy.stats import truncnorm, lognorm
 
 try:
@@ -72,20 +74,10 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         if verbose:
             print('Starting global minimisation...')
 
-        if cma_processes == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                cma_processes = multiprocessing.cpu_count()
-            else:
-                cma_processes = 1
-
-        if pathos_mp:
-            p = pathos_mp.ProcessingPool(cma_processes)
-        else:
-            if cma_processes != 1:
-                print('Warning: Optional dependecy for multiprocessing support `pathos` not installed.')
-                print('         Switching to single processed mode (cma_processes = 1).')
-                cma_processes = 1
+        if not pathos_mp and cma_processes != 1:
+            print('Warning: Optional dependecy for multiprocessing support `pathos` not installed.')
+            print('         Switching to single processed mode (cma_processes = 1).')
+        cma_processes = _get_number_processes(cma_processes)
 
         options = cma.CMAOptions()
         options['bounds'] = [bounds[:, 0], bounds[:, 1]]
@@ -109,28 +101,23 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             # Use multiprocess pool for parallelisation. This only works if this function is not in a cython file,
             # otherwise, the lambda function cannot be passed to the other processes. It also needs an external Pool
             # implementation (from `pathos.multiprocessing`) since the python internal one does not support lambda fcts.
-            if cma_processes != 1:
-                try:
-                    values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
-                except:
-                    # Some types of functions cannot be pickled (in particular functions that are defined in a function
-                    # that is compiled with cython). This leads to an exception when trying to pass them to a different
-                    # process. If this happens, we switch the algorithm to single process mode.
-                    print('Warning: Running parallel optimization failed. Will switch to single-processed mode.')
-                    cma_processes = 1
-                    values = [objective_fct(x, 0, **args_dict) for x in positions]
-            else:
-                # Run the unparallelised version
-                values = [objective_fct(x, 0, **args_dict) for x in positions]
+            try:
+                values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
+            except KeyboardInterrupt:
+                print("Global optimisation: Interrupting global minimisation...")
+                iteration = global_max_iter + 1 # break out of the optimisation loop
+            except Exception as e:
+                print("Exception in multiprocessing: ")
+                print("Caught: {}".format(e))
+                if verbose:
+                    traceback.print_exc(file=sys.stdout)
+                print("Will fallback to using a single core. Setting cma_processes = 1")
+                cma_processes = 1
+                values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
             global_opt.tell(positions, values)
             if verbose:
                 global_opt.disp()
             iteration += 1
-
-        if pathos_mp:
-            p.close()  # We need to close the pool, otherwise python does not terminate properly
-            p.join()
-            p.clear()  # If this is not set, pathos will reuse the pool we just closed, producing an error
 
         x_result = global_opt.best.x
         y_result = global_opt.best.f
@@ -145,7 +132,6 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     if enable_local:
         # Use derivative free local optimisation algorithm with support for boundary conditions
         # to converge to the next minimum (which is hopefully the global one).
-        dim = len(guess)
         local_opt = nlopt.opt(nlopt.LN_NELDERMEAD, guess.shape[0])
         local_opt.set_min_objective(lambda x, grad: objective_fct(x, grad, **args_dict))
         local_opt.set_lower_bounds(bounds[:,0])
@@ -171,6 +157,32 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             print('Optimal value (local minimisation): ', y_result)
 
     return x_result, y_result
+
+def _get_number_processes(procs):
+    """
+    If pathos_mp is not found, will return 1. If procs is 0 and pathos_mp is found, it will return number of available
+    cpus. Else returns procs
+    """
+    if not pathos_mp:
+        return 1
+    elif procs == 0:
+        return multiprocessing.cpu_count()
+    else:
+        return procs
+
+
+def _take_global_optimisation_step(positions, objective_function, cma_processes, **kwargs):
+    """
+    Takes a global optimisation step either using one core, or multiprocessing
+    """
+    assert cma_processes > 0, "cma_processes must be bigger than 0"
+    if cma_processes == 1:
+        ret = [objective_function(x, grad=0, **kwargs) for x in positions]
+    elif cma_processes > 1:
+        # Using the pool as a context manager will make any exceptions raised kill the other processes.
+        with pathos_mp.ProcessingPool(cma_processes) as pool:
+            ret = pool.map(lambda x: objective_function(x, grad=0, **kwargs), positions)
+    return ret
 
 
 def parse_prior_fun(name, bounds, mean, std):
