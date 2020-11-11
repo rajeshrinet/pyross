@@ -1653,7 +1653,7 @@ cdef class SIR_type:
                               param_guess_range=None, is_scale_parameter=None, scaled_param_guesses=None,
                               param_length=None, obs=None, fltr=None, Tf=None, obs0=None, init_flags=None,
                               init_fltrs=None, tangent=None, smooth_penalty=False, bounds=None, inter_steps=0,
-                              **catchall_kwargs):
+                              objective='likelihood', **catchall_kwargs):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
             if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
@@ -1691,13 +1691,22 @@ cdef class SIR_type:
                 return -np.Inf
         # We also support `smooth_penalty == None`, which is useful for example for computing the Hessian.
 
-        logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
+        if objective == 'likelihood':
+            logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
+        elif objective == 'least_squares':
+            logl += -self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
+        elif objective == 'least_squares_diff':
+            logl += -self._obtain_square_dev_for_lat_traj_diff(x0, obs, fltr[1:], Tf)
+        else:
+            raise Exception('Unknown objective')
+            
         return logl
 
     def _logposterior_latent(self, params, prior=None,
                              **logl_kwargs):
         logl = self._loglikelihood_latent(params, **logl_kwargs)
         logp = logl + np.sum(prior.logpdf(params))
+        #print(logl,logp)
         return logp
 
     def _latent_infer_to_minimize(self, params, grad=0,
@@ -1714,7 +1723,7 @@ cdef class SIR_type:
                      intervention_fun=None, tangent=False,
                      verbose=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, global_atol=1., enable_global=True,
-                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
+                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, objective='likelihood'):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1885,7 +1894,7 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       'prior':prior, 'tangent':tangent}
+                       'prior':prior, 'tangent':tangent, 'objective':objective}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
@@ -1893,7 +1902,8 @@ cdef class SIR_type:
                           enable_global=enable_global, enable_local=enable_local,
                           cma_processes=cma_processes,
                           cma_population=cma_population, cma_stds=cma_stds,
-                          verbose=verbose, cma_random_seed=cma_random_seed, args_dict=minimize_args)
+                          verbose=verbose, cma_random_seed=cma_random_seed,
+                          args_dict=minimize_args)
         estimates = res[0]
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
@@ -2977,7 +2987,7 @@ cdef class SIR_type:
 
 
     def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
-                            np.ndarray fltr, double Tf, contactMatrix, tangent=False):
+                            np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood'):
         '''Computes -logp for a latent trajectory
 
         Parameters
@@ -3015,7 +3025,14 @@ cdef class SIR_type:
             print('x0 not consistent with obs0. '
                   'Using x0 in the calculation of logp...')
         self.set_params(parameters)
-        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
+        if objective == 'likelihood':
+            minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
+        elif objective == 'least_squares':
+            minus_logp = self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
+        elif objective == 'least_squares_diff':
+            minus_logp = self._obtain_square_dev_for_lat_traj_diff(x0, obs, fltr[1:], Tf)
+        else:
+            raise Exception('Unknown objective')
         return minus_logp
 
     def sample_endpoints(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
@@ -3287,7 +3304,40 @@ cdef class SIR_type:
         log_p -= (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
         log_p -= reduced_dim*np.log(self.Omega)
         return -log_p
+    
+    
+    cdef double _obtain_square_dev_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
+                                            double Tf):
+        cdef:
+            Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
+            double [:, :] xm
+            double [:] xm_red, dev
+            
+        xm = self.integrate(x0, 0, Tf, Nf, dense_output=False,
+                                           maxNumSteps=self.steps*Nf)
+        xm = xm[1:]
+        full_fltr = sparse.block_diag(fltr)
+        xm_red = full_fltr@(np.ravel(xm))
+        dev=np.subtract(obs_flattened, xm_red)
+        sqdev = np.sum(np.square(dev))
+        return sqdev
 
+    cdef double _obtain_square_dev_for_lat_traj_diff(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
+                                            double Tf):
+        cdef:
+            Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
+            double [:, :] xm
+            double [:] xm_red, dev
+            
+        xm = self.integrate(x0, 0, Tf, Nf, dense_output=False,
+                                           maxNumSteps=self.steps*Nf)
+        xm = np.diff(xm,axis=0)
+        full_fltr = sparse.block_diag(fltr)
+        xm_red = full_fltr@(np.ravel(xm))
+        dev=np.subtract(obs_flattened, xm_red)
+        sqdev = np.sum(np.square(dev)/(xm_red+np.ones(reduced_dim)))
+        return sqdev
+    
     def _mean_cov_for_lat_endpoint(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, tangent=False, Py_ssize_t inter_steps=0):
         cdef:
