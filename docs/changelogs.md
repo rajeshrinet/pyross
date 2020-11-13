@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.3.4
+* Updates to utils - see https://github.com/rajeshrinet/pyross/pull/38
+
 ## 1.3.3
 * Updated the docstrings. 
 

@@ -4568,7 +4568,7 @@ cdef class Spp(SIR_type):
             np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
         if 'R' in self.class_index_dict.keys():
             r = xrs[self.class_index_dict['R'],:]
-        if self.constant_terms.size > 0:
+        elif self.constant_terms.size > 0:
             r = xrs[-1,:] - np.sum(xrs[:-1,:], axis=0)
         else:
             r = self.fi - np.sum(xrs, axis=0)

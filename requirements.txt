@@ -7,7 +7,6 @@ pathos
 cma
 dill
 wheel
-kiwisolver==1.2.0
 matplotlib
 ipython
 jupyter
