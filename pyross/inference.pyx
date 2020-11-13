@@ -1706,7 +1706,6 @@ cdef class SIR_type:
                              **logl_kwargs):
         logl = self._loglikelihood_latent(params, **logl_kwargs)
         logp = logl + np.sum(prior.logpdf(params))
-        #print(logl,logp)
         return logp
 
     def _latent_infer_to_minimize(self, params, grad=0,
@@ -1723,7 +1722,8 @@ cdef class SIR_type:
                      intervention_fun=None, tangent=False,
                      verbose=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, global_atol=1., enable_global=True,
-                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, objective='likelihood'):
+                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
+                     objective='likelihood', alternative_guess=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1777,6 +1777,12 @@ cdef class SIR_type:
             The number of samples used in each step of the CMA algorithm.
         cma_random_seed: int (between 0 and 2**32-1)
             Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
+        objective: string, optional
+            Objective for the minimisation. 'likelihood' (default), 'least_square' (least squares fit w.r.t. absolute compartment values), 
+            'least_squares_diff' (least squares fit w.r.t. time-differences of compartment values)
+        alternative_guess: np.array, optional
+            Alternative initial quess, different form the mean of the prior. 
+            Array in the same format as 'flat_params' in the result dictionary of a previous optimisation run.
 
         Returns
         -------
@@ -1886,6 +1892,8 @@ cdef class SIR_type:
         prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
         cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
+        if alternative_guess is not None:
+            guess = alternative_guess
 
         minimize_args = {'generator':generator, 'intervention_fun':intervention_fun,
                        'param_keys':keys, 'param_guess_range':param_guess_range,
