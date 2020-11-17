@@ -14,18 +14,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Setup Miniconda
-        uses: goanpeca/setup-miniconda@v1.2.0
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
         with:
-         activate-environment: pyross
-         environment-file: environment.yml
-         # auto-activate-base: true
-      - name: make-pyross
-        shell: bash -l {0}
-        run: |
-          conda activate pyross
-          make
+         python-version: 3.7 
+         architecture: x64
+      - name: Print version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Install dependencies 
+        run: python -m pip install -r requirements.txt
+      
+      - name: Install pyross 
+        run: python setup.py install 
+
       - name: testing-inference
         shell: bash -l {0}
         run: |
