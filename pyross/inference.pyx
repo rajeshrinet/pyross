@@ -1702,10 +1702,12 @@ cdef class SIR_type:
             
         return logl
 
-    def _logposterior_latent(self, params, prior=None,
+    def _logposterior_latent(self, params, prior=None, verbose_likelihood=False,
                              **logl_kwargs):
         logl = self._loglikelihood_latent(params, **logl_kwargs)
         logp = logl + np.sum(prior.logpdf(params))
+        if verbose_likelihood:
+            print(logl,logp-logl,logp)
         return logp
 
     def _latent_infer_to_minimize(self, params, grad=0,
@@ -1720,10 +1722,10 @@ cdef class SIR_type:
     def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors,
                      contactMatrix=None, generator=None,
                      intervention_fun=None, tangent=False,
-                     verbose=False, ftol=1e-5, global_max_iter=100,
-                     local_max_iter=100, global_atol=1., enable_global=True,
+                     verbose=False, verbose_likelihood=False, ftol=1e-5, global_max_iter=100,
+                     local_max_iter=100, local_initial_step=None, global_atol=1., enable_global=True,
                      enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
-                     objective='likelihood', alternative_guess=None):
+                     objective='likelihood', alternative_guess=None, tmp_file=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1765,6 +1767,9 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
+        local_initital_step: optional, float or np.array
+            Initial step size for the local optimiser. If scalar, relative to the initial guess. 
+            Default: Deterined by final state of global optimiser, or, if enable_global=False, 0.01
         global_atol: float
             The absolute tolerance for global minimisation.
         enable_global: bool, optional
@@ -1783,6 +1788,8 @@ cdef class SIR_type:
         alternative_guess: np.array, optional
             Alternative initial quess, different form the mean of the prior. 
             Array in the same format as 'flat_params' in the result dictionary of a previous optimisation run.
+        tmp_file: optional, string
+            If specified, name of a file to store the temporary best estimate of the global optimiser (as backup or for inspection) as numpy array file 
 
         Returns
         -------
@@ -1902,16 +1909,16 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       'prior':prior, 'tangent':tangent, 'objective':objective}
+                       'prior':prior, 'tangent':tangent, 'objective':objective, 'verbose_likelihood':verbose_likelihood}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
-                          local_max_iter=local_max_iter, global_atol=global_atol,
+                          local_max_iter=local_max_iter, local_initial_step=local_initial_step, global_atol=global_atol,
                           enable_global=enable_global, enable_local=enable_local,
                           cma_processes=cma_processes,
                           cma_population=cma_population, cma_stds=cma_stds,
                           verbose=verbose, cma_random_seed=cma_random_seed,
-                          args_dict=minimize_args)
+                          args_dict=minimize_args, tmp_file=tmp_file)
         estimates = res[0]
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
