@@ -121,7 +121,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
                 cma_processes = 1
                 values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
             global_opt.tell(positions, values)
-            np.save('optimiser_tmp_'+str(cma_random_seed)+'.npy', global_opt.best.x)
+            if tmp_file is not None:
+                np.save(tmp_file, global_opt.best.x)
             if verbose:
                 global_opt.disp()
             iteration += 1
