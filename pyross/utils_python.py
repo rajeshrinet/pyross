@@ -159,9 +159,9 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             local_opt.set_initial_step(0.01*guess)
     
         if local_initial_step is not None:
-            if len(local_initial_step)==1:
+            if type(local_initial_step) is float:
                 local_opt.set_initial_step(local_initial_step*guess)
-            elif len(local_initial_step)==len(guess):
+            elif (type(local_initial_step) is np.array) and len(local_initial_step)==len(guess):
                 local_opt.set_initial_step(local_initial_step)
             else:
                 raise Exception('Wrong length of local_initial_step')
