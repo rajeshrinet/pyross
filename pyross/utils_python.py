@@ -16,9 +16,10 @@ except ImportError:
     pathos_mp = None
 
 def minimization(objective_fct, guess, bounds, global_max_iter=100,
-                local_max_iter=100, ftol=1e-2, global_atol=1,
-                 enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None,
-                 cma_random_seed=None, verbose=True, args_dict={}):
+                 local_max_iter=100, ftol=1e-2, global_atol=1,
+                 enable_global=True, enable_local=True, local_initial_step=None, 
+                 cma_processes=0, cma_population=16, cma_stds=None,
+                 cma_random_seed=None, verbose=True, tmp_file=None, args_dict={}):
     """ Compute the global minimum of the objective function.
 
     This function computes the global minimum of `objective_fct` using a combination of a global minimisation step
@@ -37,6 +38,9 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         The maximum number of iterations for the global algorithm.
     local_max_iter: int
         The maximum number of iterations for the local algorithm.
+    local_initital_step: optional, float or np.array
+        Initial step size for the local optimiser. If scalar, relative to the initial guess. 
+        Default: Deterined by final state of global optimiser, or, if enable_global=False, 0.01
     ftol: float
         Relative function value stopping criterion for the optimisation algorithms.
     global_atol: float
@@ -57,6 +61,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
     verbose: bool
         Enable output.
+    tmp_file: optional, string
+        If specified, name of a file to store the temporary best estimate of the global optimiser (as backup or for inspection) as numpy array file 
     args_dict: dict
         Key-word arguments that are passed to the minimisation function.
 
@@ -115,6 +121,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
                 cma_processes = 1
                 values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
             global_opt.tell(positions, values)
+            if tmp_file is not None:
+                np.save(tmp_file, global_opt.best.x)
             if verbose:
                 global_opt.disp()
             iteration += 1
@@ -147,6 +155,16 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             # to be within the boundaries.
             min_stds = np.minimum(min_stds, np.amin([bounds[:, 1] - x_result, x_result -  bounds[:, 0]], axis=0))
             local_opt.set_initial_step(1/2 * min_stds)
+        else:
+            local_opt.set_initial_step(0.01*guess)
+    
+        if local_initial_step is not None:
+            if len(local_initial_step)==1:
+                local_opt.set_initial_step(local_initial_step*guess)
+            elif len(local_initial_step)==len(guess):
+                local_opt.set_initial_step(local_initial_step)
+            else:
+                raise Exception('Wrong length of local_initial_step')
 
         x_result = local_opt.optimize(x_result)
         y_result = local_opt.last_optimum_value()
