@@ -4622,13 +4622,15 @@ cdef class Spp(SIR_type):
         cdef:
             Py_ssize_t class_index, priority_index, m, i
         for i in range(len(self.resource_list)):
-            if np.size(self.finres_pop[i]) == 1:
+            ndx = self.resource_list[i][0]
+            n_cohorts = self.parameters_length[ndx]
+            if n_cohorts == 1:
                 self.finres_pop[i] = 0
             else:
-                self.finres_pop[i] = np.zeros(np.size(self.finres_pop[i]))
+                self.finres_pop[i] = np.zeros(n_cohorts)
             for (class_index, priority_index) in self.resource_list[i][1:]:
                 for m in range(self.M):
-                    if np.size(self.finres_pop[i]) == 1:
+                    if n_cohorts == 1:
                         self.finres_pop[i] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
                     else:
                         self.finres_pop[i][m] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]

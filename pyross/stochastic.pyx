@@ -2709,13 +2709,15 @@ cdef class Spp(stochastic_integration):
         
         # Calculate populations for finite resource transitions
         for i in range(len(resource_list)):
-            if np.size(finres_pop[i]) == 1:
+            ndx = self.resource_list[i][0]
+            n_cohorts = self.parameters_length[ndx]
+            if n_cohorts == 1:
                 finres_pop[i] = 0
             else:
-                finres_pop[i] = np.zeros(np.size(finres_pop[i]))
+                finres_pop[i] = np.zeros(n_cohorts)
             for (class_index, priority_index) in resource_list[i][1:]:
                 for m in range(M):
-                    if np.size(finres_pop[i]) == 1:
+                    if n_cohorts == 1:
                         finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
                     else:
                         finres_pop[i][m] += xt[m + M*class_index] * parameters[priority_index, m]
