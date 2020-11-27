@@ -1767,7 +1767,7 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
-        local_initital_step: optional, float or np.array
+        local_initial_step: optional, float or np.array
             Initial step size for the local optimiser. If scalar, relative to the initial guess. 
             Default: Deterined by final state of global optimiser, or, if enable_global=False, 0.01
         global_atol: float
@@ -3318,8 +3318,11 @@ cdef class SIR_type:
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
         log_p1 = np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
         log_p2 = (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
-        
-        log_p = -log_p1*overdispersion - log_p2 + (reduced_dim/2)*log(overdispersion) - reduced_dim*np.log(self.Omega)
+        if overdispersion == 0:
+            log_p = -(reduced_dim/2) - log_p2 + (reduced_dim/2)*log(reduced_dim/2) - (reduced_dim/2)*log(log_p1) - reduced_dim*np.log(self.Omega)
+        else:
+            log_p = -log_p1*overdispersion - log_p2 + (reduced_dim/2)*log(overdispersion) - reduced_dim*np.log(self.Omega)
+            
         return -log_p
     
     

@@ -38,7 +38,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         The maximum number of iterations for the global algorithm.
     local_max_iter: int
         The maximum number of iterations for the local algorithm.
-    local_initital_step: optional, float or np.array
+    local_initial_step: optional, float or np.array
         Initial step size for the local optimiser. If scalar, relative to the initial guess. 
         Default: Deterined by final state of global optimiser, or, if enable_global=False, 0.01
     ftol: float
@@ -148,7 +148,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         local_opt.set_maxeval(3*local_max_iter)
 
         if enable_global:
-            # CMA gives us the scaling of the varialbes close to the minimum
+            # CMA gives us the scaling of the variables close to the minimum
             min_stds = global_opt.result.stds
             # These values can sometimes create initial steps outside of the boundaries (in particular if CMA is
             # only run for short times). This seems to create problems for NLopt, so we restrict the steps here
