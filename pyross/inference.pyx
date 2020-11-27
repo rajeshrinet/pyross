@@ -1653,7 +1653,7 @@ cdef class SIR_type:
                               param_guess_range=None, is_scale_parameter=None, scaled_param_guesses=None,
                               param_length=None, obs=None, fltr=None, Tf=None, obs0=None, init_flags=None,
                               init_fltrs=None, tangent=None, smooth_penalty=False, bounds=None, inter_steps=0,
-                              objective='likelihood', **catchall_kwargs):
+                              objective='likelihood', overdispersion=1, **catchall_kwargs):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
             if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
@@ -1692,7 +1692,7 @@ cdef class SIR_type:
         # We also support `smooth_penalty == None`, which is useful for example for computing the Hessian.
 
         if objective == 'likelihood':
-            logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
+            logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps, overdispersion=overdispersion)
         elif objective == 'least_squares':
             logl += -self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
         elif objective == 'least_squares_diff':
@@ -1725,7 +1725,7 @@ cdef class SIR_type:
                      verbose=False, verbose_likelihood=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, local_initial_step=None, global_atol=1., enable_global=True,
                      enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
-                     objective='likelihood', alternative_guess=None, tmp_file=None):
+                     objective='likelihood', alternative_guess=None, tmp_file=None, overdispersion=1):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1909,7 +1909,8 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       'prior':prior, 'tangent':tangent, 'objective':objective, 'verbose_likelihood':verbose_likelihood}
+                       'prior':prior, 'tangent':tangent, 'objective':objective, 'verbose_likelihood':verbose_likelihood, 
+                       'overdispersion':overdispersion}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
@@ -3002,7 +3003,7 @@ cdef class SIR_type:
 
 
     def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
-                            np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood'):
+                            np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood', overdispersion=1):
         '''Computes -logp for a latent trajectory
 
         Parameters
@@ -3041,7 +3042,7 @@ cdef class SIR_type:
                   'Using x0 in the calculation of logp...')
         self.set_params(parameters)
         if objective == 'likelihood':
-            minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
+            minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=0, overdispersion=overdispersion)
         elif objective == 'least_squares':
             minus_logp = self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
         elif objective == 'least_squares_diff':
@@ -3300,7 +3301,7 @@ cdef class SIR_type:
 
     cdef double _obtain_logp_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, tangent=False,
-                                         Py_ssize_t inter_steps=0):
+                                         Py_ssize_t inter_steps=0, overdispersion=1):
         cdef:
             Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
             double [:, :] xm
@@ -3315,9 +3316,10 @@ cdef class SIR_type:
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
-        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
-        log_p -= (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
-        log_p -= reduced_dim*np.log(self.Omega)
+        log_p1 = np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
+        log_p2 = (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
+        
+        log_p = -log_p1*overdispersion - log_p2 + (reduced_dim/2)*log(overdispersion) - reduced_dim*np.log(self.Omega)
         return -log_p
     
     
