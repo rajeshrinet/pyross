@@ -1944,6 +1944,11 @@ cdef class SIR_type:
         l_post = -res[1]
         l_prior = np.sum(prior.logpdf(res[0]))
         l_like = l_post - l_prior
+        
+        (log_p1, log_p2) = self._obtain_logp12_for_lat_traj(map_x0, obs, fltr[1:], Tf, tangent)
+        estimated_overdispersion = (obs.shape[0]/2)/log_p1
+        
+        
         output_dict = {
             'params_dict':map_params_dict, 'x0':map_x0, 'flat_params':estimates,
             'log_posterior':l_post, 'log_prior':l_prior, 'log_likelihood':l_like,
@@ -1951,7 +1956,7 @@ cdef class SIR_type:
             'is_scale_parameter':is_scale_parameter, 'param_length':param_length,
             'scaled_param_guesses':scaled_param_guesses,
             'init_flags': init_flags, 'init_fltrs': init_fltrs,
-            'prior': prior,
+            'prior': prior, 'log_p1': log_p1, 'log_p2':log_p2, 'estimated_overdispersion':estimated_overdispersion
         }
         if map_control_params_dict != {}:
             output_dict['control_params_dict'] = map_control_params_dict
@@ -3299,9 +3304,9 @@ cdef class SIR_type:
             log_p += self._log_cond_p(dev, cov)
         return -log_p
 
-    cdef double _obtain_logp_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
+    cdef (double, double) _obtain_logp12_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, tangent=False,
-                                         Py_ssize_t inter_steps=0, overdispersion=1):
+                                         Py_ssize_t inter_steps=0):
         cdef:
             Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
             double [:, :] xm
@@ -3317,15 +3322,24 @@ cdef class SIR_type:
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
         log_p1 = np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
-        log_p2 = (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
+        log_p2 = (ldet-reduced_dim*log(self.Omega))/2     
+        return (log_p1, log_p2)
+    
+    cdef double _obtain_logp_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
+                                            double Tf, tangent=False,
+                                         Py_ssize_t inter_steps=0, overdispersion=1):
+        cdef:
+            Py_ssize_t reduced_dim=obs_flattened.shape[0]
+
+        (log_p1, log_p2) = self._obtain_logp12_for_lat_traj(x0, obs_flattened, fltr, Tf, tangent=tangent,
+                                         inter_steps=inter_steps)
         if overdispersion == 0:
-            log_p = -(reduced_dim/2) - log_p2 + (reduced_dim/2)*log(reduced_dim/2) - (reduced_dim/2)*log(log_p1) - reduced_dim*np.log(self.Omega)
+            log_p = -(reduced_dim/2) - log_p2 - (reduced_dim/2)*log(2*PI) + (reduced_dim/2)*log(reduced_dim/2) - (reduced_dim/2)*log(log_p1) - reduced_dim*np.log(self.Omega)
         else:
-            log_p = -log_p1*overdispersion - log_p2 + (reduced_dim/2)*log(overdispersion) - reduced_dim*np.log(self.Omega)
+            log_p = -log_p1*overdispersion - log_p2 - (reduced_dim/2)*log(2*PI) + (reduced_dim/2)*log(overdispersion) - reduced_dim*np.log(self.Omega)
             
         return -log_p
-    
-    
+     
     cdef double _obtain_square_dev_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf):
         cdef:
