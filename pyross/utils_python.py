@@ -8,6 +8,7 @@ import cma
 import sys
 import traceback
 from scipy.stats import truncnorm, lognorm
+from itertools import product
 
 try:
     # Optional support for multiprocessing in the minimization function.
@@ -279,3 +280,109 @@ class lognorm_rv:
         y = self.ppf_bounds[:,0] + x * self.ppf_bounds[:,1]
         return self.rv.ppf(y)
 
+
+def hessian_finite_difference(pos, function, eps=1e-3, method="central", nprocesses=0, function_kwargs={}):
+    """Forward finite-difference computation of the Hessian of a function.
+
+    Parameters
+    ----------
+    pos:numpy.array(dims=1)
+        Position at which the hessian is to be computed.
+    function: function(numpy.array)
+        Function of interest.
+    pos: float or numpy.array(dims=1), optional
+        Step size used for FD computation (can be parameter dependant).
+    method: str
+        Different options for the FD computation: "forward" or "central".
+    nprocesses: int
+        The number of processes used for the Hessian computation. By default, this
+        chooses the number of CPU cores available.
+
+    Returns
+    -------
+    hess: numpy.array(dims=2)
+        Hessian of function at pos.
+    """
+    k = len(pos)
+    if not hasattr(eps, "__len__"):
+        eps = eps*np.ones(k)
+
+    procs = _get_number_processes(nprocesses)
+    local_func = lambda x : function(x, **function_kwargs)
+
+    if method == "forward":
+        orig_pos = pos.copy()
+        val_central = local_func(pos)
+
+        def forward_eval(i):
+            pos = orig_pos.copy()
+            pos[i] += eps[i]
+            val = local_func(pos)
+            return val
+
+        if procs > 1:
+            with pathos_mp.ProcessingPool(procs) as pool:
+                val1 = pool.map(forward_eval, range(k))
+        else:
+            val1 = [forward_eval(i) for i in range(k)]
+
+        def forward_eval2(index):
+            i,j = index
+            pos = orig_pos.copy()
+            pos[i] += eps[i]
+            pos[j] += eps[j]
+            val2 = local_func(pos)
+
+            hessian_entry = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
+            return hessian_entry
+        
+        if procs > 1:
+            with pathos_mp.ProcessingPool(procs) as pool:
+                hessian = pool.map(forward_eval2, product(range(k), range(k)))
+        else:
+            hessian = [forward_eval2(index) for index in product(range(k), range(k))]
+        
+        hessian = np.array(hessian).reshape((k,k))
+        return 1/2 * (hessian + hessian.T)
+
+    if method == "central":
+        orig_pos = pos.copy()
+        index_list = []
+        for i in range(k):
+            for j in range(i+1):
+                index_list.append((i,j))
+        
+        def central_eval(index):
+            i,j = index
+            pos = orig_pos.copy()
+            pos[i] += eps[i]
+            pos[j] += eps[j]
+            val1 = local_func(pos)
+            pos[j] -= 2*eps[j]
+            val2 = local_func(pos)
+            pos = orig_pos.copy()
+            pos[i] -= eps[i]
+            pos[j] += eps[j]
+            val3 = local_func(pos)
+            pos[j] -= 2*eps[j]
+            val4 = local_func(pos)
+            hessian_val = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
+            return hessian_val
+        
+        if procs > 1:
+            with pathos_mp.ProcessingPool(procs) as pool:
+                hessian_vals = pool.map(central_eval, index_list)
+        else:
+            hessian_vals = [central_eval(index) for index in index_list]
+
+        hessian = np.zeros((k,k))
+        ctr = 0
+        for i in range(k):
+            for j in range(i+1):
+                hessian[i,j] = hessian_vals[ctr]
+                hessian[j,i] = hessian_vals[ctr]
+                ctr += 1
+
+        return hessian
+
+    raise Exception("Finite-difference method must be 'forward' or 'central'.")
