@@ -406,6 +406,9 @@ def _parse_prior_name(sub_dict, dim):
     else:
         return ['lognorm']*dim
 
+def mode_of_lognormal(mean,std):
+    return mean**4/(mean**2+std**2)**(3/2)    
+
 def parse_param_prior_dict(prior_dict, M, check_length=True):
     flat_guess = []
     flat_stds = []
@@ -472,6 +475,12 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                 flat_guess_range.append(list(range(count, count+M)))
                 names += _parse_prior_name(sub_dict, M)
                 count += M
+    
+    # set guess to mode for all lognormal distributions
+    for i in range(len(names)):
+        if names[i] == 'lognorm':
+            flat_guess[i] = mode_of_lognormal(flat_guess[i], flat_stds[i])
+    
     return names, key_list, np.array(flat_guess), np.array(flat_stds), \
           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
 
@@ -533,6 +542,11 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     # check that the total number of guesses is correct
     assert count == dim - obs_dim, 'Total No. of guessed values must be dim - obs_dim'
 
+    # set guess to mode for all lognormal distributions
+    for i in range(len(names)):
+        if names[i] == 'lognorm':
+            guess[i] = mode_of_lognormal(guess[i], stds[i])
+    
     return names, np.array(guess), np.array(stds), np.array(bounds), \
            flags, fltrs
 
