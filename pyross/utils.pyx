@@ -407,11 +407,13 @@ def _parse_prior_name(sub_dict, dim):
         return ['lognorm']*dim
 
 def mode_of_lognormal(mean,std):
-    return mean**4/(mean**2+std**2)**(3/2)    
+    mode = mean**4/(mean**2+std**2)**(3/2)
+    logvar = np.sqrt(np.log(1+std**2/mean**2))*mode  # std on logscale
+    return mode, logvar
 
 def parse_param_prior_dict(prior_dict, M, check_length=True):
-    flat_guess = []
     flat_stds = []
+    flat_mean = []
     flat_bounds = []
     flat_guess_range = []
     key_list = []
@@ -428,7 +430,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
         except KeyError:
             raise Exception('Sub-dict under {} must have "mean" as a key'.format(key))
         if np.size(mean) == 1:
-            flat_guess.append(mean)
+            flat_mean.append(mean)
             try:
                 flat_stds.append(sub_dict['std'])
                 flat_bounds.append(sub_dict['bounds'])
@@ -444,7 +446,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
             if 'infer_scale' in sub_dict.keys():
                 infer_scale = sub_dict['infer_scale']
             if infer_scale:
-                flat_guess.append(1.0)
+                flat_mean.append(1.0)
                 try:
                     flat_stds.append(sub_dict['scale_factor_std'])
                     flat_bounds.append(sub_dict['scale_factor_bounds'])
@@ -462,7 +464,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                     assert len(mean) == M, 'length of mean must be either 1 or M'
                 else:
                     M = len(mean)
-                flat_guess += list(mean)
+                flat_mean += list(mean)
                 try:
                     assert len(sub_dict['std']) == M
                     assert len(sub_dict['bounds']) == M
@@ -477,11 +479,13 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                 count += M
     
     # set guess to mode for all lognormal distributions
+    flat_guess = flat_mean.copy()
+    flat_guess_std = flat_stds.copy()
     for i in range(len(names)):
         if names[i] == 'lognorm':
-            flat_guess[i] = mode_of_lognormal(flat_guess[i], flat_stds[i])
+            flat_guess[i], flat_guess_std[i] = mode_of_lognormal(flat_mean[i], flat_stds[i])
     
-    return names, key_list, np.array(flat_guess), np.array(flat_stds), \
+    return names, key_list, np.array(flat_mean), np.array(flat_stds), np.array(flat_guess), np.array(flat_guess_std), \
           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
 
 def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses):
@@ -497,7 +501,7 @@ def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_gu
     return orig_params
 
 def parse_init_prior_dict(prior_dict, dim, obs_dim):
-    guess = []
+    mean = []
     stds = []
     bounds = []
     names = []
@@ -507,7 +511,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     if 'lin_mode_coeff' in prior_dict.keys():
         sub_dict = prior_dict['lin_mode_coeff']
         try:
-            guess.append(sub_dict['mean'])
+            mean.append(sub_dict['mean'])
             stds.append(sub_dict['std'])
             bounds.append(sub_dict['bounds'])
             fltrs[0] = _process_init_fltr(sub_dict['fltr'], dim)
@@ -522,7 +526,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
         sub_dict = prior_dict['independent']
         try:
             fltrs[1] = _process_init_fltr(sub_dict['fltr'], dim)
-            guess.extend(sub_dict['mean'])
+            mean.extend(sub_dict['mean'])
             stds.extend(sub_dict['std'])
             bounds.extend(sub_dict['bounds'])
         except KeyError:
@@ -539,15 +543,17 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     if np.sum(flags) == 0:
         raise Exception('Prior for inits must have at least one of "independent"'
                         ' and "coeff" as keys')
-    # check that the total number of guesses is correct
+    # check that the total number of means is correct
     assert count == dim - obs_dim, 'Total No. of guessed values must be dim - obs_dim'
 
     # set guess to mode for all lognormal distributions
+    guess = mean.copy()
+    guess_std = stds.copy()
     for i in range(len(names)):
         if names[i] == 'lognorm':
-            guess[i] = mode_of_lognormal(guess[i], stds[i])
+            (guess[i],guess_std[i]) = mode_of_lognormal(mean[i], stds[i])
     
-    return names, np.array(guess), np.array(stds), np.array(bounds), \
+    return names, np.array(mean), np.array(stds), np.array(guess), np.array(guess_std), np.array(bounds), \
            flags, fltrs
 
 def _process_init_fltr(fltr, dim):
