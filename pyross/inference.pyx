@@ -1727,7 +1727,7 @@ cdef class SIR_type:
                      verbose=False, verbose_likelihood=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, local_initial_step=None, global_atol=1., enable_global=True,
                      enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
-                     objective='likelihood', alternative_guess=None, tmp_file=None):
+                     objective='likelihood', alternative_guess=None, use_mode_as_guess=False, tmp_file=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1896,13 +1896,19 @@ cdef class SIR_type:
         param_length = param_guess.shape[0]
         mean = np.concatenate([param_mean, init_mean]).astype(DTYPE)
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        guess_std = np.concatenate([param_guess_std,init_guess_std]).astype(DTYPE)
+        if use_mode_as_guess:
+            guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+            guess_std = np.concatenate([param_guess_std,init_guess_std]).astype(DTYPE)
+        else:
+            guess = mean
+            guess_std =stds
+            
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
         prior = Prior(param_prior_names+init_prior_names, bounds, mean, stds)
+        
         cma_stds = np.minimum(guess_std, (bounds[:, 1]-bounds[:, 0])/3)
-
+        
         if alternative_guess is not None:
             guess = alternative_guess
 
