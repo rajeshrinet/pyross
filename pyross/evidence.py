@@ -58,7 +58,7 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
         estimator.set_contact_matrix(contactMatrix)
 
     # Read in parameter priors
-    prior_names, keys, guess, stds, bounds, \
+    prior_names, keys, guess, stds, _, _, bounds, \
     flat_guess_range, is_scale_parameter, scaled_guesses  \
             = pyross.utils.parse_param_prior_dict(prior_dict, estimator.M)
     prior = pyross.Prior(prior_names, bounds, guess, stds)
@@ -108,12 +108,12 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, c
     fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
     # Read in parameter priors
-    param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+    param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
     is_scale_parameter, scaled_param_guesses \
         = pyross.utils.parse_param_prior_dict(param_priors, estimator.M)
 
     # Read in initial conditions priors
-    init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+    init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
         = pyross.utils.parse_init_prior_dict(init_priors, estimator.dim, len(obs0))
 
     # Concatenate the flattend parameter guess with init guess
