@@ -59,7 +59,7 @@ cdef class SIR_type:
 
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
-        readonly double Omega, rtol_det, rtol_lyapunov
+        readonly double Omega, rtol_det, rtol_lyapunov, overdispersion
         readonly np.ndarray beta, gIa, gIs, fsa, _xm
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
@@ -74,6 +74,7 @@ cdef class SIR_type:
         self.Omega = Omega
         self.M = M
         self.fi = fi
+        self.overdispersion = 1
         assert steps >= 2, 'Number of steps must be at least 2'
         self.steps = steps
         self.set_params(parameters)
@@ -1653,7 +1654,7 @@ cdef class SIR_type:
                               param_guess_range=None, is_scale_parameter=None, scaled_param_guesses=None,
                               param_length=None, obs=None, fltr=None, Tf=None, obs0=None, init_flags=None,
                               init_fltrs=None, tangent=None, smooth_penalty=False, bounds=None, inter_steps=0,
-                              objective='likelihood', overdispersion=1, **catchall_kwargs):
+                              objective='likelihood', **catchall_kwargs):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
             if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
@@ -1692,7 +1693,7 @@ cdef class SIR_type:
         # We also support `smooth_penalty == None`, which is useful for example for computing the Hessian.
 
         if objective == 'likelihood':
-            logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps, overdispersion=overdispersion)
+            logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
         elif objective == 'least_squares':
             logl += -self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
         elif objective == 'least_squares_diff':
@@ -1725,7 +1726,7 @@ cdef class SIR_type:
                      verbose=False, verbose_likelihood=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, local_initial_step=None, global_atol=1., enable_global=True,
                      enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
-                     objective='likelihood', alternative_guess=None, use_mode_as_guess=False, tmp_file=None, overdispersion=1):
+                     objective='likelihood', alternative_guess=None, use_mode_as_guess=False, tmp_file=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1917,8 +1918,7 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       'prior':prior, 'tangent':tangent, 'objective':objective, 'verbose_likelihood':verbose_likelihood, 
-                       'overdispersion':overdispersion}
+                       'prior':prior, 'tangent':tangent, 'objective':objective, 'verbose_likelihood':verbose_likelihood}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
@@ -1954,8 +1954,11 @@ cdef class SIR_type:
         l_like = l_post - l_prior
         
         (log_p1, log_p2) = self._obtain_logp12_for_lat_traj(map_x0, obs, fltr[1:], Tf, tangent)
-        estimated_overdispersion = (obs.shape[0]/2)/log_p1
+        estimated_overdispersion = log_p1/(obs.shape[0]/2.)
         
+        if self.overdispersion == 0:
+            map_params_dict['overdispersion'] = estimated_overdispersion
+            self.set_params(map_params_dict)
         
         output_dict = {
             'params_dict':map_params_dict, 'x0':map_x0, 'flat_params':estimates,
@@ -3016,7 +3019,7 @@ cdef class SIR_type:
 
 
     def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
-                            np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood', overdispersion=1):
+                            np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood'):
         '''Computes -logp for a latent trajectory
 
         Parameters
@@ -3055,7 +3058,7 @@ cdef class SIR_type:
                   'Using x0 in the calculation of logp...')
         self.set_params(parameters)
         if objective == 'likelihood':
-            minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=0, overdispersion=overdispersion)
+            minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=0)
         elif objective == 'least_squares':
             minus_logp = self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
         elif objective == 'least_squares_diff':
@@ -3329,22 +3332,23 @@ cdef class SIR_type:
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
-        log_p1 = np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
-        log_p2 = (ldet-reduced_dim*log(self.Omega))/2     
+        log_p1 = np.dot(dev, cov_red_inv_dev)*(self.Omega/2.)
+        log_p2 = (ldet-reduced_dim*log(self.Omega))/2.   
         return (log_p1, log_p2)
     
     cdef double _obtain_logp_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, tangent=False,
-                                         Py_ssize_t inter_steps=0, overdispersion=1):
+                                         Py_ssize_t inter_steps=0):
         cdef:
             Py_ssize_t reduced_dim=obs_flattened.shape[0]
 
         (log_p1, log_p2) = self._obtain_logp12_for_lat_traj(x0, obs_flattened, fltr, Tf, tangent=tangent,
                                          inter_steps=inter_steps)
-        if overdispersion == 0:
-            log_p = -(reduced_dim/2) - log_p2 - (reduced_dim/2)*log(2*PI) + (reduced_dim/2)*log(reduced_dim/2) - (reduced_dim/2)*log(log_p1) - reduced_dim*np.log(self.Omega)
+        
+        if self.overdispersion == 0:  # on-the-fly optimisation (flat prior)
+            log_p = -(reduced_dim/2.) - log_p2 - (reduced_dim/2.)*log(2.*PI) + (reduced_dim/2.)*log(reduced_dim/2.) - (reduced_dim/2.)*log(log_p1) - reduced_dim*np.log(self.Omega)
         else:
-            log_p = -log_p1*overdispersion - log_p2 - (reduced_dim/2)*log(2*PI) + (reduced_dim/2)*log(overdispersion) - reduced_dim*np.log(self.Omega)
+            log_p = -log_p1 - log_p2 - (reduced_dim/2.)*log(2.*PI) + (reduced_dim/2.) - reduced_dim*np.log(self.Omega)
             
         return -log_p
      
@@ -3472,7 +3476,7 @@ cdef class SIR_type:
             double log_cond_p
             double det
         invcov_x, ldet = pyross.utils.solve_symmetric_close_to_singular(cov, x)
-        log_cond_p = - np.dot(x, invcov_x)*(self.Omega/2) - (self.dim/2)*log(2*PI)
+        log_cond_p = - np.dot(x, invcov_x)*(self.Omega/2) - (self.dim/2.)*log(2*PI)
         log_cond_p -= (ldet - self.dim*log(self.Omega))/2
         log_cond_p -= self.dim*np.log(self.Omega)
         return log_cond_p
@@ -4569,6 +4573,10 @@ cdef class Spp(SIR_type):
                     self.model_parameters_length[i] = np.size(param)
             except KeyError:
                 raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
+        if 'overdispersion' in self.model_param_keys:
+            ndx = self.model_param_keys.index('overdispersion')
+            assert self.model_parameters_length[ndx] == 1, 'overdispersion must be a scalar'
+            self.overdispersion = self.model_parameters[ndx,0]
 
     def set_time_dep_model_parameters(self, tt):
         model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
@@ -4584,6 +4592,11 @@ cdef class Spp(SIR_type):
         except KeyError:
             raise Exception('The parameters passed do not contain certain keys.\
                              The keys are {}'.format(self.param_keys))
+            
+        if 'overdispersion' in self.model_param_keys:
+            ndx = self.model_param_keys.index('overdispersion')
+            assert self.model_parameters_length[ndx] == 1, 'overdispersion must be a scalar'
+            self.overdispersion = self.model_parameters[ndx,0]
 
     def set_det_model(self, parameters):
         if self.parameter_mapping is not None:
@@ -4764,16 +4777,21 @@ cdef class Spp(SIR_type):
             double frp
             double [:] s, reagent, rate
             double Omega=self.Omega
+            double overdispersion = self.overdispersion
+        
+        if overdispersion == 0:
+            overdispersion = 1
+            
         s = x[S_index*M:(S_index+1)*M]
 
         if self.constant_terms.size > 0:
             for i in range(constant_terms.shape[0]):
                 rate_index = constant_terms[i, 0]
                 class_index = constant_terms[i, 1]
-                rate = parameters[rate_index]
+                rate = parameters[rate_index] 
                 for m in range(M):
-                    B[class_index, m, class_index, m] += rate[m]/Omega
-                    B[nClass-1, m, nClass-1, m] += rate[m]/Omega
+                    B[class_index, m, class_index, m] += rate[m]*overdispersion/Omega
+                    B[nClass-1, m, nClass-1, m] += rate[m]*overdispersion/Omega
 
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
@@ -4781,11 +4799,11 @@ cdef class Spp(SIR_type):
             rate_index = infection_terms[i, 0]
             rate = parameters[rate_index]
             for m in range(M):
-                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
+                B[S_index, m, S_index, m] += rate[m]*overdispersion*l[i, m]*s[m]
                 if product_index>-1:
-                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
-                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
+                    B[S_index, m, product_index, m] -=  rate[m]*overdispersion*l[i, m]*s[m]
+                    B[product_index, m, product_index, m] += rate[m]*overdispersion*l[i, m]*s[m]
+                    B[product_index, m, S_index, m] -= rate[m]*overdispersion*l[i, m]*s[m]
 
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
@@ -4794,11 +4812,11 @@ cdef class Spp(SIR_type):
             rate_index = linear_terms[i, 0]
             rate = parameters[rate_index]
             for m in range(M): # only fill in the upper triangular form
-                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
+                B[reagent_index, m, reagent_index, m] += rate[m]*overdispersion*reagent[m]
                 if product_index>-1:
-                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
-                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
-                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
+                    B[product_index, m, product_index, m] += rate[m]*overdispersion*reagent[m]
+                    B[reagent_index, m, product_index, m] += -rate[m]*overdispersion*reagent[m]
+                    B[product_index, m, reagent_index, m] += -rate[m]*overdispersion*reagent[m]
 
         if finres_terms.size > 0:
             for i in range(finres_terms.shape[0]):
@@ -4815,7 +4833,7 @@ cdef class Spp(SIR_type):
                     else:
                         frp = finres_pop[resource_index][m]
                     term = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] * x[class_index*M+m] / (frp * self.Omega)
+                           * parameters[probability_index, m] * x[class_index*M+m] * overdispersion / (frp * self.Omega)
                     if reagent_index>-1:
                         B[reagent_index, m, reagent_index, m] += term
                         if product_index>-1:
