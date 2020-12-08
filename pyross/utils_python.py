@@ -7,6 +7,7 @@ import nlopt
 import cma
 import sys
 import traceback
+import pickle
 from scipy.stats import truncnorm, lognorm
 from itertools import product
 
@@ -20,7 +21,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
                  local_max_iter=100, ftol=1e-2, global_atol=1,
                  enable_global=True, enable_local=True, local_initial_step=None, 
                  cma_processes=0, cma_population=16, cma_stds=None,
-                 cma_random_seed=None, verbose=True, tmp_file=None, args_dict={}):
+                 cma_random_seed=None, verbose=True, tmp_file=None, load_backup_file=None, args_dict={}):
     """ Compute the global minimum of the objective function.
 
     This function computes the global minimum of `objective_fct` using a combination of a global minimisation step
@@ -63,7 +64,9 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     verbose: bool
         Enable output.
     tmp_file: optional, string
-        If specified, name of a file to store the temporary best estimate of the global optimiser (as backup or for inspection) as numpy array file 
+        If specified, name of a file to store the state of the optimiser as backup
+    load_backup_file: optional, string
+        If specified, name of a file to restore the the state of the optimiser
     args_dict: dict
         Key-word arguments that are passed to the minimisation function.
 
@@ -79,7 +82,10 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     # Step 1: Global optimisation
     if enable_global:
         if verbose:
-            print('Starting global minimisation...')
+            if load_backup_file is None:
+                print('Starting global minimisation ...')
+            else:
+                print('Continuing global minimisation from backup ...')
 
         if not pathos_mp and cma_processes != 1:
             print('Warning: Optional dependecy for multiprocessing support `pathos` not installed.')
@@ -100,8 +106,16 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         if cma_random_seed is None:
             cma_random_seed = np.random.randint(2**32-2)
         options['seed'] = cma_random_seed
-
-        global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
+        if load_backup_file is None:
+            global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
+        else:
+            try:
+                s = open(load_backup_file, 'rb').read() 
+                global_opt = pickle.loads(s)
+            except:
+                print('Backup file not found or invalid, starting new optimisation')
+                global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
+                
         iteration = 0
         while not global_opt.stop() and iteration < global_max_iter:
             positions = global_opt.ask()
@@ -123,7 +137,8 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
                 values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
             global_opt.tell(positions, values)
             if tmp_file is not None:
-                np.save(tmp_file, global_opt.best.x)
+                s = global_opt.pickle_dumps()
+                open(tmp_file, 'wb').write(s)
             if verbose:
                 global_opt.disp()
             iteration += 1
