@@ -3092,7 +3092,7 @@ cdef class SIR_type:
 
     def sample_trajs(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
-                       inter_steps=100):
+                       inter_steps=100, start_with_mean=False):
         cdef Py_ssize_t i, Nf=obs.shape[0]
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         x0 = infer_result['x0'].copy()
@@ -3104,6 +3104,8 @@ cdef class SIR_type:
             while not all(map(self._all_positive, trajs[i])):
                 partial_trajs = np.random.multivariate_normal(mean, cov)
                 trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        if start_with_mean:
+            trajs[0] = (full_null_space.T@mean + known_space).reshape((Nf-1, self.dim))
         return trajs
 
 
@@ -3354,7 +3356,7 @@ cdef class SIR_type:
         if self.overdispersion == 0:  # on-the-fly optimisation (flat prior)
             log_p = -(reduced_dim/2.) - log_p2 - (reduced_dim/2.)*log(2.*PI) + (reduced_dim/2.)*log(reduced_dim/2.) - (reduced_dim/2.)*log(log_p1) - reduced_dim*np.log(self.Omega)
         else:
-            log_p = -log_p1 - log_p2 - (reduced_dim/2.)*log(2.*PI) + (reduced_dim/2.) - reduced_dim*np.log(self.Omega)
+            log_p = -log_p1 - log_p2 - (reduced_dim/2.)*log(2.*PI) + reduced_dim*np.log(self.Omega)
             
         return -log_p
      
