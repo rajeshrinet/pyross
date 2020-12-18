@@ -45,18 +45,29 @@ def parse_model_spec(model_spec, param_keys):
         constant_term_set = set() # used to check for duplicates
         constant_term_list = []
         for (k, val) in constant_dict.items():
-            for (rate,) in val:
-                if (k, rate) in constant_term_set:
-                    raise Exception('Duplicate constant term: {}, {}'.format(k, rate))
-                else:
-                    sign = 1
-                    constant_term_set.add((k, rate))
-                    class_index = class_index_dict[k]
-                    if rate.startswith('-'):
-                        rate = rate[1:]
-                        sign = -1
-                    rate_index = params_index_dict[rate]
-                    constant_term_list.append([rate_index, class_index, sign])
+            for vv in val:
+                if len(val)==1:
+                    (rate,) = vv
+                    if (k, rate) in constant_term_set:
+                        raise Exception('Duplicate constant term: {}, {}'.format(k, rate))
+                    else:
+                        constant_term_set.add((k, rate))
+                        overdispersion_index = -1
+                elif len(val)==2:
+                    (k, rate, overdispersion) = vv
+                    if (k, rate) in constant_term_set:
+                        raise Exception('Duplicate constant term: {}, {}, {}'.format(k, rate, overdispersion))
+                    else:
+                        constant_term_set.add((k, rate, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                sign = 1
+                class_index = class_index_dict[k]
+                if rate.startswith('-'):
+                    rate = rate[1:]
+                    sign = -1
+                rate_index = params_index_dict[rate]
+                constant_term_list.append([rate_index, class_index, sign, overdispersion_index])
+
 
         if len(constant_term_list) > 0: # add one class for Ni
             class_index_dict['Ni'] = nClass
@@ -67,41 +78,67 @@ def parse_model_spec(model_spec, param_keys):
         linear_terms_list = [] # collect all linear terms
         linear_terms_destination_dict = {} # a dictionary for the product
         for (k, val) in linear_dict.items():
-            for (reagent, rate) in val:
-                if (reagent, rate) in linear_terms_set:
-                    raise Exception('Duplicates linear terms: {}, {}'.format(reagent, rate))
-                else:
-                    linear_terms_set.add((reagent, rate))
-                    reagent_index = class_index_dict[reagent]
-                    if rate.startswith('-'):
-                        rate = rate[1:]
-                        rate_index = params_index_dict[rate]
-                        linear_terms_list.append([rate_index, reagent_index, -1])
+            for vv in val:
+                if len(vv) == 2:
+                    (reagent, rate) = vv
+                    if (reagent,rate) in linear_terms_set:
+                        raise Exception('Duplicate linear terms: {}, {}'.format(reagent, rate))
                     else:
-                        rate_index = params_index_dict[rate]
-                        linear_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        linear_terms_set.add((reagent, rate))
+                        overdispersion_index = -1
+                elif len(vv) == 3:
+                    (reagent, rate, overdispersion) = vv
+                    if (reagent, rate, overdispersion) in linear_terms_set:
+                        raise Exception('Duplicate linear terms: {}, {}, {}'.format(reagent, rate, overdispersion))
+                    else:
+                        linear_terms_set.add((reagent, rate, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                else:
+                    raise Exception('Wrong number of values in linear term: {}, {} (2 or 3 allowed)'.format(k, vv))
+                reagent_index = class_index_dict[reagent]
+                if rate.startswith('-'):
+                    rate = rate[1:]
+                    rate_index = params_index_dict[rate]
+                    linear_terms_list.append([rate_index, reagent_index, -1, overdispersion_index])
+                else:
+                    rate_index = params_index_dict[rate]
+                    linear_terms_destination_dict[(rate_index, reagent_index, overdispersion_index)] = class_index_dict[k]
+
 
         # parse the infection terms into a list of [rate_index, reagent_index] and a dictionary for the product
         infection_terms_set = set() # used to check to duplicates
         infection_terms_list = [] # collect all infection terms
         infection_terms_destination_dict = {} # a dictionary for the product
         for (k, val) in infection_dict.items():
-            for (reagent, rate) in val:
-                if (reagent, rate) in infection_terms_set:
-                    raise Exception('Duplicates infection terms: {}, {}'.format(reagent, rate))
+            for vv in val:
+                if len(vv) == 2:  # no overdispersion specified
+                    (reagent, rate) = vv
+                    if (reagent, rate) in infection_terms_set:
+                        raise Exception('Duplicate infection terms: {}, {}'.format(reagent, rate))
+                    else:
+                        infection_terms_set.add((reagent, rate))
+                        overdispersion_index = -1
+                elif len(vv) == 3:  # overdispersion specified
+                    (reagent, rate, overdispersion) = vv
+                    if (reagent, rate, overdispersion) in infection_terms_set:
+                        raise Exception('Duplicate infection terms: {}, {}, {}'.format(reagent, rate, overdispersion))
+                    else:
+                        infection_terms_set.add((reagent, rate, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
                 else:
-                    infection_terms_set.add((reagent, rate))
-                    reagent_index = class_index_dict[reagent]
-                    if rate.startswith('-'):
-                        rate = rate[1:]
-                        if k != 'S':
-                            raise Exception('A susceptible group that is not S: {}'.format(k))
-                        else:
-                            rate_index = params_index_dict[rate]
-                            infection_terms_list.append([rate_index, reagent_index, -1])
+                    raise Exception('Wrong number of values in infection term: {}, {} (2 or 3 allowed)'.format(k, vv))
+                reagent_index = class_index_dict[reagent]
+                if rate.startswith('-'):
+                    rate = rate[1:]
+                    if k != 'S':
+                        raise Exception('A susceptible group that is not S: {}'.format(k))
                     else:
                         rate_index = params_index_dict[rate]
-                        infection_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        infection_terms_list.append([rate_index, reagent_index, -1, overdispersion_index])
+                else:
+                    rate_index = params_index_dict[rate]
+                    infection_terms_destination_dict[(rate_index, reagent_index, overdispersion_index)] = class_index_dict[k]
+
 
 
         # parse the finite resource-terms into
@@ -115,36 +152,47 @@ def parse_model_spec(model_spec, param_keys):
         resource_dict = {}
         resource_count = 0
         for (k, val) in finres_dict.items():
-            for (reagent, rate, priority, prob) in val:
-                if (reagent, rate, priority, prob) in finres_terms_set:
-                    raise Exception('Duplicates finite-resource terms: {}, {}, {}, {}'.format(reagent, rate, priority, prob))
-                else:
-                    finres_terms_set.add((reagent, rate, priority, prob))
-                    class_index = class_index_dict[reagent]
-                    neg_rate = rate.startswith('-')
-                    if neg_rate:
-                        rate = rate[1:]
-                    rate_index = params_index_dict[rate]
-                    priority_index = params_index_dict[priority]
-                    prob_index = params_index_dict[prob]
-                    if rate not in resource_dict.keys():
-                        resource_dict[rate] = resource_count
-                        resource_list.append([rate_index])
-                        resource_count += 1
-                    resource_index = resource_dict[rate]
-                    if (class_index, priority_index) not in resource_list[resource_index]:
-                        resource_list[resource_index].append((class_index, priority_index))
-                    dict_key = (resource_index, priority_index, prob_index, class_index)
-                    if dict_key not in finres_terms_dict.keys():
-                        finres_terms_dict[dict_key] = [-1,-1]
-                    if neg_rate:
-                        finres_terms_dict[dict_key][0] = class_index_dict[k]
+            for vv in val:
+                if len(vv) == 4:  # no overdispersion specified
+                    (reagent, rate, priority, prob) = vv
+                    if (reagent, rate, priority, prob) in finres_terms_set:
+                        raise Exception('Duplicate finite-resource terms: {}, {}, {}, {}'.format(reagent, rate, priority, prob))
                     else:
-                        finres_terms_dict[dict_key][1] = class_index_dict[k]
+                        finres_terms_set.add((reagent, rate, priority, prob))
+                        overdispersion_index = -1
+                elif len(vv) == 5:  # overdispersion specified 
+                    (reagent, rate, priority, prob, overdispersion) = vv
+                    if (reagent, rate, priority, prob, overdispersion) in finres_terms_set:
+                        raise Exception('Duplicate finite-resource terms: {}, {}, {}, {}, {}'.format(reagent, rate, priority, prob, overdispersion))
+                    else:
+                        finres_terms_set.add((reagent, rate, priority, prob, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                else:
+                    raise Exception('Wrong number of values in finite resource term: {}, {} (4 or 5 allowed)'.format(k, vv))
+                class_index = class_index_dict[reagent]
+                neg_rate = rate.startswith('-')
+                if neg_rate:
+                    rate = rate[1:]
+                rate_index = params_index_dict[rate]
+                priority_index = params_index_dict[priority]
+                prob_index = params_index_dict[prob]
+                if rate not in resource_dict.keys():
+                    resource_dict[rate] = resource_count
+                    resource_list.append([rate_index])
+                    resource_count += 1
+                resource_index = resource_dict[rate]
+                if (class_index, priority_index) not in resource_list[resource_index]:
+                    resource_list[resource_index].append((class_index, priority_index))
+                dict_key = (resource_index, priority_index, prob_index, class_index, overdispersion_index)
+                if dict_key not in finres_terms_dict.keys():
+                    finres_terms_dict[dict_key] = [-1,-1]
+                if neg_rate:
+                    finres_terms_dict[dict_key][0] = class_index_dict[k]
+                else:
+                    finres_terms_dict[dict_key][1] = class_index_dict[k]
         for (k,val) in finres_terms_dict.items():
-            finres_terms_list.append(list(k) + val)
-
-
+            (resource_index, priority_index, prob_index, class_index, overdispersion_index) = k
+            finres_terms_list.append([resource_index, priority_index, prob_index, class_index, *val, overdispersion_index])
 
 
         # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
@@ -201,8 +249,9 @@ def set_destination(term_list, destination_dict):
     for term in term_list:
         rate_index = term[0]
         reagent_index = term[1]
-        if (rate_index, reagent_index) in destination_dict.keys():
-            product_index = destination_dict[(rate_index, reagent_index)]
+        overdispersion_index = term[3]
+        if (rate_index, reagent_index, overdispersion_index) in destination_dict.keys():
+            product_index = destination_dict[(rate_index, reagent_index, overdispersion_index)]
             term[2] = product_index
 
 def age_dep_rates(rate, int M, str name, bint check_length=True):

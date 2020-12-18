@@ -4736,7 +4736,7 @@ cdef class Spp(SIR_type):
     cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, nClass=self.nClass, class_index
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            Py_ssize_t rate_index, infective_index, product_index, reagent_index, overdispersion_index, S_index=self.class_index_dict['S']
             Py_ssize_t resource_index, priority_index, probability_index
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
@@ -4747,7 +4747,7 @@ cdef class Spp(SIR_type):
             np.ndarray resource_list=self.resource_list
             np.ndarray finres_pop = self.finres_pop
             double frp
-            double [:] s, reagent, rate
+            double [:] s, reagent, rate, overdispersion
             double Omega=self.Omega
         s = x[S_index*M:(S_index+1)*M]
 
@@ -4755,35 +4755,50 @@ cdef class Spp(SIR_type):
             for i in range(constant_terms.shape[0]):
                 rate_index = constant_terms[i, 0]
                 class_index = constant_terms[i, 1]
+                overdispersion_index = constant_terms[i, 2]
                 rate = parameters[rate_index]
+                if overdispersion_index == -1:
+                    overdispersion = np.ones(M)
+                else:
+                    overdispersion = parameters[overdispersion_index]
                 for m in range(M):
-                    B[class_index, m, class_index, m] += rate[m]/Omega
-                    B[nClass-1, m, nClass-1, m] += rate[m]/Omega
+                    B[class_index, m, class_index, m] += rate[m]*overdispersion[m]/Omega
+                    B[nClass-1, m, nClass-1, m] += rate[m]*overdispersion[m]/Omega
 
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
             infective_index = infection_terms[i, 1]
             rate_index = infection_terms[i, 0]
+            overdispersion_index = infection_terms[i, 3]
             rate = parameters[rate_index]
+            if overdispersion_index == -1:
+                overdispersion = np.ones(M)
+            else:
+                overdispersion = parameters[overdispersion_index]
             for m in range(M):
-                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
+                B[S_index, m, S_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
                 if product_index>-1:
-                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
-                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
+                    B[S_index, m, product_index, m] -=  rate[m]*overdispersion[m]*l[i, m]*s[m]
+                    B[product_index, m, product_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
+                    B[product_index, m, S_index, m] -= rate[m]*overdispersion[m]*l[i, m]*s[m]
 
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
             reagent_index = linear_terms[i, 1]
+            overdispersion_index = linear_terms[i, 3]
             reagent = x[reagent_index*M:(reagent_index+1)*M]
             rate_index = linear_terms[i, 0]
             rate = parameters[rate_index]
+            if overdispersion_index == -1:
+                overdispersion = np.ones(M)
+            else:
+                overdispersion = parameters[overdispersion_index]
             for m in range(M): # only fill in the upper triangular form
-                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
+                B[reagent_index, m, reagent_index, m] += rate[m]*overdispersion[m]*reagent[m]
                 if product_index>-1:
-                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
-                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
-                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
+                    B[product_index, m, product_index, m] += rate[m]*overdispersion[m]*reagent[m]
+                    B[reagent_index, m, product_index, m] += -rate[m]*overdispersion[m]*reagent[m]
+                    B[product_index, m, reagent_index, m] += -rate[m]*overdispersion[m]*reagent[m]
 
         if finres_terms.size > 0:
             for i in range(finres_terms.shape[0]):
@@ -4792,15 +4807,20 @@ cdef class Spp(SIR_type):
                 priority_index = finres_terms[i, 1]
                 probability_index = finres_terms[i, 2]
                 class_index = finres_terms[i, 3]
-                reagent_index = self.finres_terms[i, 4]
-                product_index = self.finres_terms[i, 5]
+                reagent_index = finres_terms[i, 4]
+                product_index = finres_terms[i, 5]
+                overdispersion_index = finres_terms[i, 6]
+                if overdispersion_index == -1:
+                    overdispersion = np.ones(M)
+                else:
+                    overdispersion = parameters[overdispersion_index]
                 for m in range(M):
                     if np.size(finres_pop[resource_index]) == 1:
                         frp = finres_pop[resource_index]
                     else:
                         frp = finres_pop[resource_index][m]
                     term = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] * x[class_index*M+m] / (frp * self.Omega)
+                           * parameters[probability_index, m] * overdispersion[m] * x[class_index*M+m] / (frp * self.Omega)
                     if reagent_index>-1:
                         B[reagent_index, m, reagent_index, m] += term
                         if product_index>-1:
@@ -4918,411 +4938,3 @@ cdef class SppQ(Spp):
         self.testRate = testRate
         self.set_det_model(self.param_dict)
         
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SppQ_old(SIR_type):
-    """
-    No longer maintained, will be deprecated.
-
-    """
-    cdef:
-        readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
-        readonly Py_ssize_t nClassU, nClassUwoN
-        readonly np.ndarray model_parameters
-        readonly pyross.deterministic.SppQ_old det_model
-        readonly dict model_spec
-        readonly dict param_dict
-        readonly list model_param_keys
-        readonly object parameter_mapping
-        readonly object time_dep_param_mapping
-        readonly object testRate
-
-
-    def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
-        if parameter_mapping is not None and time_dep_param_mapping is not None:
-            raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
-        self.parameter_mapping = parameter_mapping
-        self.time_dep_param_mapping = time_dep_param_mapping
-        self.param_keys = list(parameters.keys())
-        if parameter_mapping is not None:
-            self.model_param_keys = list(parameter_mapping(parameters).keys())
-        elif time_dep_param_mapping is not None:
-            self.param_dict = parameters.copy()
-            self.model_param_keys = list(time_dep_param_mapping(parameters, 0).keys())
-        else:
-            self.model_param_keys = self.param_keys.copy()
-        self.model_spec=model_spec
-        res = pyross.utils.parse_model_spec(model_spec, self.model_param_keys)
-        self.nClass = res[0]
-        self.class_index_dict = res[1]
-        self.constant_terms = res[2]
-        self.linear_terms = res[3]
-        self.infection_terms = res[4]
-        self.test_pos = res[7]
-        self.test_freq = res[8]
-        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
-        if self.parameter_mapping is not None:
-            parameters = self.parameter_mapping(parameters)
-        if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.SppQ_old(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
-        else:
-            self.det_model = pyross.deterministic.SppQ_old(model_spec, parameters, M, fi*Omega)
-        self.testRate =  testRate
-        self.det_model.set_testRate(testRate)
-
-        if self.constant_terms.size > 0:
-            self.nClassU = self.nClass // 2 # number of unquarantined classes with constant terms
-            self.nClassUwoN = self.nClassU - 1
-        else:
-            self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
-            self.nClassUwoN = self.nClassU
-
-
-    def infection_indices(self):
-        cdef Py_ssize_t a = 100
-        indices = set()
-        linear_terms_indices = list(range(self.linear_terms.shape[0]))
-
-        # Find all the infection terms
-        for term in self.infection_terms:
-            infective_index = term[1]
-            indices.add(infective_index)
-
-        # Find all the terms that turn into infection terms
-        a = 100
-        while a > 0:
-            a = 0
-            temp = linear_terms_indices.copy()
-            for i in linear_terms_indices:
-                product_index = self.linear_terms[i, 2]
-                if product_index in indices:
-                    a += 1
-                    indices.add(self.linear_terms[i, 1])
-                    temp.remove(i)
-            linear_terms_indices = temp
-        return list(indices)
-
-    def set_params(self, parameters):
-        if self.det_model is not None:
-            self.set_det_model(parameters)
-        nParams = len(self.param_keys)
-        self.param_dict = parameters.copy()
-        if self.parameter_mapping is not None:
-            model_parameters = self.parameter_mapping(parameters)
-            nParams = len(self.model_param_keys)
-            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            try:
-                for (i, key) in enumerate(self.model_param_keys):
-                    param = model_parameters[key]
-                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-            except KeyError:
-                raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
-        elif self.time_dep_param_mapping is not None:
-            self.set_time_dep_model_parameters(0)
-        else:
-            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            try:
-                for (i, key) in enumerate(self.param_keys):
-                    param = parameters[key]
-                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-            except KeyError:
-                raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
-
-
-    def set_time_dep_model_parameters(self, tt):
-        model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
-        nParams = len(self.model_param_keys)
-        self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        try:
-            for (i, key) in enumerate(self.model_param_keys):
-                param = model_parameters[key]
-                self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-        except KeyError:
-            raise Exception('The parameters passed do not contain certain keys.\
-                             The keys are {}'.format(self.param_keys))
-
-    def set_testRate(self, testRate):
-        self.testRate=testRate
-        self.det_model.set_testRate(testRate)
-
-    def set_det_model(self, parameters):
-        if self.parameter_mapping is not None:
-            self.det_model.update_model_parameters(self.parameter_mapping(parameters))
-        else:
-            self.det_model.update_model_parameters(parameters)
-        self.det_model.set_testRate(self.testRate)
-
-    def make_params_dict(self):
-        param_dict = self.param_dict.copy()
-        return param_dict
-
-    cdef np.ndarray _get_r_from_x(self, np.ndarray x):
-        cdef:
-            np.ndarray r
-            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
-        r = self.fi - xrs[-1,:] - np.sum(xrs[:self.nClassUwoN,:], axis=0) # subtract total quarantined and all non-quarantined classes
-        return r
-
-    cdef np.ndarray _get_rq_from_x(self, np.ndarray x):
-        cdef:
-            np.ndarray r
-            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
-        r = xrs[-1,:] - np.sum(xrs[self.nClassU:-1,:], axis=0) # subtract all quarantined classes
-        return r
-
-    def _all_positive(self, np.ndarray x0):
-        r = self._get_r_from_x(x0)
-        rq = self._get_rq_from_x(x0)
-        return (x0 >0).all() and (r > 0).all() and (rq > 0).all()
-
-    cdef double _penalty_from_negative_values(self, np.ndarray x0):
-        cdef:
-            double eps=0.1/self.Omega, dev
-            np.ndarray R_init, RQ_init
-        R_init = self._get_r_from_x(x0)
-        RQ_init = self._get_rq_from_x(x0)
-        dev = - (np.sum(R_init[R_init<0]) + np.sum(RQ_init[RQ_init<0]) + np.sum(x0[x0<0]))
-        return (dev/eps)**2 + (dev/eps)**8
-
-    cdef calculate_test_r(self, double [:] x, double [:] r, double TR):
-        cdef:
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN, M=self.M
-            int [:] test_freq=self.test_freq
-            double [:] fi=self.fi
-            double Omega = self.Omega
-            double ntestpop=0, tau0=0
-            double [:, :] parameters=self.model_parameters
-            Py_ssize_t m, i
-
-        # Compute non-quarantined recovered
-        r = self._get_r_from_x(np.array(x))
-        # Compute normalisation of testing rates
-        for m in range(M):
-            for i in range(nClassUwoN):
-                ntestpop += parameters[test_freq[i], m] * x[i*M+m]
-            ntestpop += parameters[test_freq[nClassUwoN], m] * r[m]
-        tau0 = TR / (Omega * ntestpop)
-        return ntestpop, tau0
-
-    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
-                                        b_matrix=True, jacobian=False):
-        cdef:
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, M=self.M
-            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-            double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-            double [:] fi=self.fi
-            double TR
-            double ntestpop, tau0
-            double [:] r=np.zeros(self.M, dtype=DTYPE)
-        self.CM = self.contactMatrix(t)
-        if self.time_dep_param_mapping is not None:
-            self.set_time_dep_model_parameters(t)
-        TR = self.testRate(t)
-        if self.constant_terms.size > 0:
-            fi = x[(nClassU-1)*M:]
-        self.fill_lambdas(x, l)
-        ntestpop, tau0 = self.calculate_test_r(x, r, TR)
-        if b_matrix:
-            self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-            self.noise_correlation(x, l, r, tau0)
-        if jacobian:
-            self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-            self.jacobian(x, l, r, ntestpop, tau0)
-
-    cdef fill_lambdas(self, double [:] x, double [:, :] l):
-        cdef:
-            double [:, :] CM=self.CM
-            int [:, :] infection_terms=self.infection_terms
-            double infection_rate
-            double [:] fi=self.fi
-            Py_ssize_t m, n, i, infective_index, index, M=self.M, num_of_infection_terms=infection_terms.shape[0]
-        for i in range(num_of_infection_terms):
-            infective_index = infection_terms[i, 1]
-            for m in range(M):
-                for n in range(M):
-                    index = n + M*infective_index
-                    if fi[n]>0:
-                        l[i, m] += CM[m,n]*x[index]/fi[n]
-
-    cdef jacobian(self, double [:] x, double [:, :] l, double [:] r, double ntestpop, double tau0):
-        cdef:
-            Py_ssize_t i, m, n, M=self.M, dim=self.dim
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
-            double [:, :, :, :] J = self.J
-            double [:, :] CM=self.CM
-            double [:, :] parameters=self.model_parameters
-            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
-            int [:] test_pos=self.test_pos
-            int [:] test_freq=self.test_freq
-            double [:] rate
-            double term, term2, term3
-            double [:] fi=self.fi
-
-        # infection terms (no infection terms in Q classes, perfect quarantine)
-        for i in range(infection_terms.shape[0]):
-            product_index = infection_terms[i, 2]
-            infective_index = infection_terms[i, 1]
-            rate_index = infection_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M):
-                J[S_index, m, S_index, m] -= rate[m]*l[i, m]
-                if product_index>-1:
-                    J[product_index, m, S_index, m] += rate[m]*l[i, m]
-                for n in range(M):
-                    J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
-                    if product_index>-1:
-                        J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
-        # linear terms
-        for i in range(linear_terms.shape[0]):
-            product_index = linear_terms[i, 2]
-            reagent_index = linear_terms[i, 1]
-            rate_index = linear_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M):
-                J[reagent_index, m, reagent_index, m] -= rate[m]
-                J[reagent_index + nClassU, m, reagent_index + nClassU, m] -= rate[m]
-                if product_index>-1:
-                    J[product_index, m, reagent_index, m] += rate[m]
-                    J[product_index + nClassU, m, reagent_index + nClassU, m] += rate[m]
-        # quarantining terms
-        for m in range(M):
-            for i in range(nClassUwoN):
-                term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m]
-                term2 = term * x[i*M+m] / ntestpop
-                J[i, m, i, m] -= term
-                J[i+nClassU, m, i, m] += term
-                J[nClass-1,  m, i, m] += term
-                for n in range(M):
-                    for j in range(nClassUwoN):
-                        term3 = term2 * (parameters[test_freq[j],n] - parameters[test_freq[nClassUwoN],n])
-                        J[i, m, j, n] += term3
-                        J[i+nClassU, m, j, n] -= term3
-                        J[nClass-1,  m, j, n] -= term3
-                    term3 = term2 * parameters[test_freq[nClassUwoN],n]
-                    if self.constant_terms.size > 0:
-                        J[i, m, nClassUwoN, n] += term3
-                        J[i+nClassU, m, nClassUwoN, n] -= term3
-                        J[nClass-1,  m, nClassUwoN, n] -= term3
-                    J[i, m, nClass-1, n] -= term3
-                    J[i+nClassU, m, nClass-1, n] += term3
-                    J[nClass-1,  m, nClass-1, n] += term3
-            term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m]
-            term2 = term * r[m] / ntestpop
-            for j in range(nClassUwoN):
-                J[nClass-1, m, j, m] -= term
-            if self.constant_terms.size > 0:
-                J[nClass-1, m, nClassUwoN, m] += term
-            J[nClass-1, m, nClass-1, m] -= term
-            for n in range(M):
-                for j in range(nClassUwoN):
-                    term3 = term2 * (parameters[test_freq[j],n] - parameters[test_freq[nClassUwoN],n])
-                    J[nClass-1,  m, j, n] -= term3
-                term3 = term2 * parameters[test_freq[nClassUwoN],n]
-                if self.constant_terms.size > 0:
-                    J[nClass-1,  m, nClassUwoN, n] -= term3
-                J[nClass-1,  m, nClass-1, n] += term3
-
-
-
-        self.J_mat = self.J.reshape((dim, dim))
-
-    cdef noise_correlation(self, double [:] x, double [:, :] l, double [:] r, double tau0):
-        cdef:
-            Py_ssize_t i, m, n, M=self.M, class_index
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
-            double [:, :, :, :] B=self.B
-            double [:, :] CM=self.CM
-            double [:, :] parameters=self.model_parameters
-            int [:, :] constant_terms=self.constant_terms
-            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
-            int [:] test_pos=self.test_pos
-            int [:] test_freq=self.test_freq
-            double [:] s, reagent, rate
-            double term
-            double Omega=self.Omega
-        s = x[S_index*M:(S_index+1)*M]
-
-        if self.constant_terms.size > 0:
-            for i in range(constant_terms.shape[0]):
-                rate_index = constant_terms[i, 0]
-                class_index = constant_terms[i, 1]
-                rate = parameters[rate_index]
-                for m in range(M):
-                    B[class_index, m, class_index, m] += rate[m]/Omega
-                    B[nClass-1, m, nClass-1, m] += rate[m]/Omega
-
-        for i in range(infection_terms.shape[0]):
-            product_index = infection_terms[i, 2]
-            infective_index = infection_terms[i, 1]
-            rate_index = infection_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M):
-                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
-                if product_index>-1:
-                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
-                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
-
-        for i in range(linear_terms.shape[0]):
-            product_index = linear_terms[i, 2]
-            reagent_index = linear_terms[i, 1]
-            reagent = x[reagent_index*M:(reagent_index+1)*M]
-            rate_index = linear_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M): # only fill in the upper triangular form
-                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
-                if product_index>-1:
-                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
-                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
-                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
-            # same transitions in Q classes
-            reagent = x[(reagent_index+nClassU)*M:((reagent_index+nClassU)+1)*M]
-            for m in range(M): # only fill in the upper triangular form
-                B[reagent_index+nClassU, m, reagent_index+nClassU, m] += rate[m]*reagent[m]
-                if product_index>-1:
-                    B[product_index+nClassU, m, product_index+nClassU, m] += rate[m]*reagent[m]
-                    B[reagent_index+nClassU, m, product_index+nClassU, m] += -rate[m]*reagent[m]
-                    B[product_index+nClassU, m, reagent_index+nClassU, m] += -rate[m]*reagent[m]
-
-        for m in range(M):
-            for i in range(nClassUwoN): # only fill in the upper triangular form
-                term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m] * x[m+M*i]
-                B[i, m, i, m] += term
-                B[i+nClassU, m, i+nClassU, m] += term
-                B[nClass-1, m, nClass-1, m] += term
-                B[i, m, i+nClassU, m] -= term
-                B[i+nClassU, m, i, m] -= term
-                B[i, m, nClass-1, m] -= term
-                B[nClass-1, m, i, m] -= term
-                B[i+nClassU, m, nClass-1, m] += term
-                B[nClass-1, m, i+nClassU, m] += term
-            term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m] * r[m]
-            B[nClass-1, m, nClass-1, m] += term
-
-
-        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
-
-cdef class SppSparse(Spp):
-
-    def __init__(self, model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi, Omega=1, steps=4,
-                det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3,
-                parameter_mapping=None, time_dep_param_mapping=None):
-
-        super().__init__(model_spec, parameters, M, fi, Omega, steps,
-                det_method, lyapunov_method, rtol_det, rtol_lyapunov,
-                parameter_mapping, time_dep_param_mapping)
-
-        if self.parameter_mapping is not None:
-            parameters = self.parameter_mapping(parameters)
-            self.param_mapping_enabled = True
-        if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
-            self.param_mapping_enabled = True
-        else:
-            self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega)
