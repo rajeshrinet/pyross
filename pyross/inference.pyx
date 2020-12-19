@@ -1727,7 +1727,7 @@ cdef class SIR_type:
                      verbose=False, verbose_likelihood=False, ftol=1e-5, global_max_iter=100,
                      local_max_iter=100, local_initial_step=None, global_atol=1., enable_global=True,
                      enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
-                     objective='likelihood', alternative_guess=None, use_mode_as_guess=False, tmp_file=None):
+                     objective='likelihood', alternative_guess=None, use_mode_as_guess=False, tmp_file=None, load_backup_file=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1792,6 +1792,8 @@ cdef class SIR_type:
             Array in the same format as 'flat_params' in the result dictionary of a previous optimisation run.
         tmp_file: optional, string
             If specified, name of a file to store the temporary best estimate of the global optimiser (as backup or for inspection) as numpy array file 
+        load_backup_file: optional, string
+            If specified, name of a file to restore the the state of the global optimiser
 
         Returns
         -------
@@ -1928,7 +1930,7 @@ cdef class SIR_type:
                           cma_processes=cma_processes,
                           cma_population=cma_population, cma_stds=cma_stds,
                           verbose=verbose, cma_random_seed=cma_random_seed,
-                          args_dict=minimize_args, tmp_file=tmp_file)
+                          args_dict=minimize_args, tmp_file=tmp_file, load_backup_file=load_backup_file)
         estimates = res[0]
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
@@ -3327,8 +3329,8 @@ cdef class SIR_type:
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
-        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
-        log_p -= (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
+        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2.)
+        log_p -= (ldet-reduced_dim*log(self.Omega))/2. + (reduced_dim/2.)*log(2.*PI)
         log_p -= reduced_dim*np.log(self.Omega)
         return -log_p
     
