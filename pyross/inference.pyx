@@ -3319,8 +3319,8 @@ cdef class SIR_type:
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
-        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
-        log_p -= (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
+        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2.)
+        log_p -= (ldet-reduced_dim*log(self.Omega))/2. + (reduced_dim/2.)*log(2.*PI)
         log_p -= reduced_dim*np.log(self.Omega)
         return -log_p
     
