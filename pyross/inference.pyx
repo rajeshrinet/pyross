@@ -47,6 +47,10 @@ DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 ctypedef np.uint8_t BOOL_t
 
+class MaxIntegratorStepsException(Exception):
+    def __init__(self, message='Maximum number of integrator steps reached'):
+        super(MaxIntegratorStepsException, self).__init__(message)
+
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -60,6 +64,7 @@ cdef class SIR_type:
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
         readonly double Omega, rtol_det, rtol_lyapunov
+        readonly long max_steps_det, max_steps_lyapunov, integrator_step_count
         readonly np.ndarray beta, gIa, gIs, fsa, _xm
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
@@ -69,8 +74,7 @@ cdef class SIR_type:
         readonly object contactMatrix
         readonly bint param_mapping_enabled
 
-
-    def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov):
+    def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov):
         self.Omega = Omega
         self.M = M
         self.fi = fi
@@ -81,6 +85,8 @@ cdef class SIR_type:
         self.lyapunov_method=lyapunov_method
         self.rtol_det = rtol_det
         self.rtol_lyapunov = rtol_lyapunov
+        self.max_steps_det = max_steps_det
+        self.max_steps_lyapunov = max_steps_lyapunov
 
         self.dim = nClass*M
         self.nClass = nClass
@@ -3140,37 +3146,47 @@ cdef class SIR_type:
                 eigvec = - eigvec
             return eigvec/np.linalg.norm(eigvec, ord=1)
 
-    def set_lyapunov_method(self, lyapunov_method, rtol=None):
+    def set_lyapunov_method(self, lyapunov_method, rtol=None, max_steps=0):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
         lyapunov_method: str
             The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
-        rtol: double, otional
+        rtol: double, optional
             relative tolerance of the integrator (default 1e-3)
+        max_steps: int
+            Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
+            Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
         '''
         if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
             raise Exception('{} not implemented. Choose between LSODA, RK45, RK2 and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
         if rtol is not None:
             self.rtol_lyapunov = rtol
+        if max_steps is not None:
+            self.max_steps_lyapunov = max_steps
 
-    def set_det_method(self, det_method, rtol=None):
+    def set_det_method(self, det_method, rtol=None, max_steps=None):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
         det_method: str
             The name of the integration method. Choose between 'LSODA' and 'RK45'.
-        rtol: double, otional
+        rtol: double, optional
             relative tolerance of the integrator (default 1e-3)
+        max_steps: int, optional
+            Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
+            Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
         '''
         if det_method not in ['LSODA', 'RK45']:
             raise Exception('{} not implemented. Choose between LSODA and RK45'.format(det_method))
         self.det_method=det_method
         if rtol is not None:
             self.rtol_det = rtol
+        if max_steps is not None:
+            self.max_steps_det = max_steps
 
 
     def set_det_model(self, parameters):
@@ -3307,6 +3323,7 @@ cdef class SIR_type:
                 sol = self.interpolate_euler
             else:
                 xm, sol = self.integrate(xi, ti, tf, steps, dense_output=True)
+            self.integrator_step_count = 0
             cov = self._estimate_cond_cov(sol, ti, tf)
             dev = np.subtract(xf, xm[steps-1])
             log_p += self._log_cond_p(dev, cov)
@@ -3323,7 +3340,10 @@ cdef class SIR_type:
         if tangent:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, inter_steps=inter_steps)
         else:
-            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
+            try:
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
+            except MaxIntegratorStepsException:
+                return np.Inf
         full_fltr = sparse.block_diag(fltr)
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
         xm_red = full_fltr@(np.ravel(xm))
@@ -3343,7 +3363,7 @@ cdef class SIR_type:
             double [:] xm_red, dev
             
         xm = self.integrate(x0, 0, Tf, Nf, dense_output=False,
-                                           maxNumSteps=self.steps*Nf)
+                                           max_step=self.steps*Nf)
         xm = xm[1:]
         full_fltr = sparse.block_diag(fltr)
         xm_red = full_fltr@(np.ravel(xm))
@@ -3359,7 +3379,7 @@ cdef class SIR_type:
             double [:] xm_red, dev
             
         xm = self.integrate(x0, 0, Tf, Nf, dense_output=False,
-                                           maxNumSteps=self.steps*Nf)
+                                           max_step=self.steps*Nf)
         xm = np.diff(xm,axis=0)
         full_fltr = sparse.block_diag(fltr)
         xm_red = full_fltr@(np.ravel(xm))
@@ -3473,6 +3493,9 @@ cdef class SIR_type:
             x = sol(t)/self.Omega # sol is an ODESolver obj for extensive variables
             self.compute_jacobian_and_b_matrix(x, t, b_matrix=True, jacobian=True)
             self._compute_dsigdt(sig)
+            self.integrator_step_count += 1
+            if self.max_steps_lyapunov != 0 and self.integrator_step_count > self.max_steps_lyapunov:
+                raise MaxIntegratorStepsException()
             return self.dsigmadt
 
         cov_vec = self._solve_lyapunov_type_eq(rhs, sigma0, t1, t2, self.steps)
@@ -3505,9 +3528,10 @@ cdef class SIR_type:
             sol = self.interpolate_euler
         else:
             xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True,
-                                           maxNumSteps=self.steps*Nf)
+                                           max_step=self.steps*Nf)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
+        self.integrator_step_count = 0
         for i in range(Nf-1):
             ti = time_points[i]
             tf = time_points[i+1]
@@ -3545,7 +3569,7 @@ cdef class SIR_type:
             xm = xm[::inter_steps]
             xm = np.divide(xm, self.Omega)
         else:
-            xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
+            xm = self.integrate(x0, 0, Tf, Nf, max_step=self.steps*Nf)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -3596,6 +3620,9 @@ cdef class SIR_type:
             self.compute_jacobian_and_b_matrix(xt, t, b_matrix=False, jacobian=True)
             U_mat = np.reshape(U_vec, (self.dim, self.dim))
             dUdt = np.dot(self.J_mat, U_mat)
+            self.integrator_step_count += 1
+            if self.max_steps_lyapunov != 0 and self.integrator_step_count > self.max_steps_lyapunov:
+                raise MaxIntegratorStepsException()
             return np.ravel(dUdt)
 
         if isclose(t1, t2): ## float precision
@@ -3660,7 +3687,7 @@ cdef class SIR_type:
         raise NotImplementedError("Please Implement compute_jacobian_and_b_matrix in subclass")
 
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps,
-                  dense_output=False, maxNumSteps=100000):
+                  dense_output=False, max_step=100000):
         """An light weight integrate method similar to `simulate` in pyross.deterministic
 
         Parameters
@@ -3673,8 +3700,8 @@ cdef class SIR_type:
             Final time of integrator
         steps: int
             Number of time steps for numerical integrator evaluation.
-        maxNumSteps: int, optional
-            The maximum number of steps taken by the integrator.
+        max_step: int, optional
+            The maximum allowed step size of the integrator.
 
         Returns
         -------
@@ -3685,13 +3712,17 @@ cdef class SIR_type:
         def rhs0(double t, double [:] xt):
             self.det_model.set_contactMatrix(t, self.contactMatrix)
             self.det_model.rhs(xt, t)
+            self.integrator_step_count += 1
+            if self.max_steps_det != 0 and self.integrator_step_count > self.max_steps_det:
+                raise MaxIntegratorStepsException()
             return self.det_model.dxdt
 
         x0 = np.multiply(x0, self.Omega)
         time_points = np.linspace(t1, t2, steps)
+        self.integrator_step_count = 0
         res = solve_ivp(rhs0, [t1,t2], x0, method=self.det_method,
                         t_eval=time_points, dense_output=dense_output,
-                        max_step=maxNumSteps, rtol=self.rtol_det)
+                        max_step=max_step, rtol=self.rtol_det)
         y = np.divide(res.y.T, self.Omega)
 
         if dense_output:
@@ -3749,12 +3780,19 @@ cdef class SIR(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-4)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0). 
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
+    
     """
     cdef readonly pyross.deterministic.SIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-4, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-4, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gIa', 'gIs', 'fsa']
-        super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.class_index_dict = {'S':0, 'Ia':1, 'Is':2}
         self.set_det_model(parameters)
 
@@ -3881,15 +3919,21 @@ cdef class SEIR(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     """
 
     cdef:
         readonly np.ndarray gE
         readonly pyross.deterministic.SEIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gE', 'gIa', 'gIs', 'fsa']
-        super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'Ia':2, 'Is':3}
         self.set_det_model(parameters)
 
@@ -4037,17 +4081,23 @@ cdef class SEAIRQ(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     """
 
     cdef:
         readonly np.ndarray gE, gA, tE, tA, tIa, tIs
         readonly pyross.deterministic.SEAIRQ det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gE', 'gA', \
                            'gIa', 'gIs', 'fsa', \
                            'tE', 'tA', 'tIa', 'tIs']
-        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.set_det_model(parameters)
 
@@ -4223,6 +4273,12 @@ cdef class SEAIRQ_testing(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     """
 
     cdef:
@@ -4230,11 +4286,11 @@ cdef class SEAIRQ_testing(SIR_type):
         readonly object testRate
         readonly pyross.deterministic.SEAIRQ_testing det_model
 
-    def __init__(self, parameters, testRate, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, testRate, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gE', 'gA', \
                            'gIa', 'gIs', 'fsa', \
                            'ars', 'kapE']
-        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.testRate=testRate
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.make_det_model(parameters)
@@ -4419,6 +4475,12 @@ cdef class Spp(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     parameter_mapping: python function, optional
         A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
     time_dep_param_mapping: python function, optional
@@ -4463,7 +4525,8 @@ cdef class Spp(SIR_type):
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0,
+                                    parameter_mapping=None, time_dep_param_mapping=None):
         if parameter_mapping is not None and time_dep_param_mapping is not None:
             raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
         self.parameter_mapping = parameter_mapping
@@ -4485,7 +4548,7 @@ cdef class Spp(SIR_type):
         self.infection_terms = res[4]
         self.finres_terms = res[5]
         self.resource_list = res[6]
-        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
             self.param_mapping_enabled = True
@@ -4872,6 +4935,12 @@ cdef class SppQ(Spp):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     parameter_mapping: python function, optional
         A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
     time_dep_param_mapping: python function, optional
@@ -4911,7 +4980,7 @@ cdef class SppQ(Spp):
         readonly object testRate
         
     def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0, parameter_mapping=None, time_dep_param_mapping=None):
         if parameter_mapping is not None and time_dep_param_mapping is not None:
             raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
         self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec) 
@@ -4919,7 +4988,7 @@ cdef class SppQ(Spp):
         self.input_param_mapping = parameter_mapping
         self.testRate = testRate
         super().__init__(self.full_model_spec, parameters, M, fi, Omega, steps,
-                                    det_method, lyapunov_method, rtol_det, rtol_lyapunov, parameter_mapping=None, time_dep_param_mapping=self.full_time_dep_param_mapping)
+                                    det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov, parameter_mapping=None, time_dep_param_mapping=self.full_time_dep_param_mapping)
         
     
     cpdef full_time_dep_param_mapping(self, input_parameters, t):
