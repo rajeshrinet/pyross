@@ -4820,7 +4820,7 @@ cdef class Spp(SIR_type):
             for i in range(constant_terms.shape[0]):
                 rate_index = constant_terms[i, 0]
                 class_index = constant_terms[i, 1]
-                overdispersion_index = constant_terms[i, 2]
+                overdispersion_index = constant_terms[i, 3]
                 rate = parameters[rate_index]
                 if overdispersion_index == -1:
                     overdispersion = np.ones(M)

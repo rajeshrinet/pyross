@@ -46,15 +46,15 @@ def parse_model_spec(model_spec, param_keys):
         constant_term_list = []
         for (k, val) in constant_dict.items():
             for vv in val:
-                if len(val)==1:
+                if len(vv)==1:
                     (rate,) = vv
                     if (k, rate) in constant_term_set:
                         raise Exception('Duplicate constant term: {}, {}'.format(k, rate))
                     else:
                         constant_term_set.add((k, rate))
                         overdispersion_index = -1
-                elif len(val)==2:
-                    (k, rate, overdispersion) = vv
+                elif len(vv)==2:
+                    (rate, overdispersion) = vv
                     if (k, rate) in constant_term_set:
                         raise Exception('Duplicate constant term: {}, {}, {}'.format(k, rate, overdispersion))
                     else:
