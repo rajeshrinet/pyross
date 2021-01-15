@@ -3089,7 +3089,7 @@ cdef class SIR_type:
 
     def sample_trajs(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
-                       inter_steps=100):
+                       inter_steps=100, require_positive=True):
         cdef Py_ssize_t i, Nf=obs.shape[0]
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         x0 = infer_result['x0'].copy()
@@ -3097,10 +3097,15 @@ cdef class SIR_type:
         self.set_params(infer_result['params_dict'])
         mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
         trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
-        for i in range(nsamples):
-            while not all(map(self._all_positive, trajs[i])):
-                partial_trajs = np.random.multivariate_normal(mean, cov)
-                trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        if require_positive:
+            for i in range(nsamples):
+                while not all(map(self._all_positive, trajs[i])):
+                    partial_trajs = np.random.multivariate_normal(mean, cov)
+                    trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        else:
+            partial_trajs = np.random.default_rng().multivariate_normal(mean, cov, nsamples, method='eigh')
+            for i in range(nsamples):
+                trajs[i] = (full_null_space.T@partial_trajs[i] + known_space).reshape((Nf-1, self.dim))
         return trajs
 
 
@@ -3427,20 +3432,24 @@ cdef class SIR_type:
         for i in range(Nf-1):
             null_space, known_spaces[i] = self._split_spaces(fltr[i], obs[i])
             null_spaces.append(null_space)
-            full_fltrs.append(np.vstack((fltr[i], null_space)))
+            full_fltrs.append(fltr[i])
             mask[i*dim:i*dim+len(obs[i])] = True
 
         full_fltr_mat = sparse.block_diag(full_fltrs)
         full_null_space = sparse.block_diag(null_spaces)
-        full_cov = full_fltr_mat@full_cov@(full_fltr_mat.T)
-        xm  = full_fltr_mat@np.ravel(xm)
-
-        xm_known = xm[mask]
+        
+        full_cov11 = full_null_space@full_cov@(full_null_space.T)
+        full_cov12 = full_null_space@full_cov@(full_fltr_mat.T)
+        full_cov22 = full_fltr_mat@full_cov@(full_fltr_mat.T)
+        
+        xm_known  = full_fltr_mat@np.ravel(xm)
+        xm_null  = full_null_space@np.ravel(xm)
+        
         obs_flattened = pyross.utils.process_obs(obs, Nf-1)
         dev=np.subtract(obs_flattened, xm_known)
-        invcov = np.linalg.inv(full_cov)
-        cov_red = np.linalg.inv(invcov[np.invert(mask)][:, np.invert(mask)])
-        xm_red = xm[np.invert(mask)] - cov_red@invcov[np.invert(mask)][:, mask]@dev
+        tmp = full_cov12@np.linalg.inv(full_cov22)
+        cov_red = np.subtract(full_cov11, tmp@(full_cov12.T))
+        xm_red = xm_null + tmp@dev
         return xm_red, cov_red/self.Omega, full_null_space, known_spaces.flatten()
 
     def _split_spaces(self, fltr, obs):
