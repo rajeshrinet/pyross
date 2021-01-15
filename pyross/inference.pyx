@@ -3425,7 +3425,6 @@ cdef class SIR_type:
         else:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
         known_spaces = np.empty((Nf-1, dim), dtype=DTYPE)
-        mask = np.zeros((Nf-1)*dim, dtype='bool')
         null_spaces = []
         full_fltrs = []
 
@@ -3433,8 +3432,7 @@ cdef class SIR_type:
             null_space, known_spaces[i] = self._split_spaces(fltr[i], obs[i])
             null_spaces.append(null_space)
             full_fltrs.append(fltr[i])
-            mask[i*dim:i*dim+len(obs[i])] = True
-
+      
         full_fltr_mat = sparse.block_diag(full_fltrs)
         full_null_space = sparse.block_diag(null_spaces)
         
