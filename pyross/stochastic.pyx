@@ -51,8 +51,9 @@ cdef class stochastic_integration:
         readonly int nClass, nReactions, nReactions_per_agegroup
         readonly int dim_state_vec
         np.ndarray rates, overdispersions, xt, xtminus1, vectors_of_change, CM
+        int overdispersion_mode
         mt19937 gen
-        long seed 
+        long seed
         dict readData
 
 
@@ -202,9 +203,12 @@ cdef class stochastic_integration:
             double [:] overdispersions = self.overdispersions
             long [:,:] vectors_of_change = self.vectors_of_change
             long [:] xt = self.xt
+            int overdispersion_mode = self.overdispersion_mode
             double dt, t, random
             int i, j, M = self.M
+            long overdispersion_factor
             int dim_state_vec = self.dim_state_vec
+            np.ndarray xt_candidate
 
         # draw exponentially distributed time for next reaction
         random = self.uniform_dist()
@@ -215,8 +219,32 @@ cdef class stochastic_integration:
         i = self.random_choice(np.array(rates)/np.array(np.floor(overdispersions))) # just to try out
 
         # adjust population according to chosen reaction
-        for j in range(dim_state_vec):
-            xt[j] += vectors_of_change[i,j] * np.floor(overdispersions[i])
+        if overdispersion_mode == 0:
+            overdispersion_factor = long ( np.floor(overdispersions[i]) )
+            #
+            for j in range(dim_state_vec):
+                xt[j] += vectors_of_change[i,j] * overdispersion_factor
+                if xt[j] < 0:
+                  raise RuntimeError("Encountered negative population in SSA step")
+        #
+        elif overdispersion_mode == 1:
+            if np.floor(overdispersions[i]) < 1.01:
+                overdispersion_factor = 1
+                for j in range(dim_state_vec):
+                    xt[j] += vectors_of_change[i,j] * overdispersion_factor
+                    if xt[j] < 0:
+                      raise RuntimeError("Encountered negative population in SSA step")
+            else:
+                xt_candidate = np.zeros_like( np.array(xt) ,dtype=long)
+                xt_candidate[0] = -1
+                while (xt_candidate < 0).any():
+                    overdispersion_factor = long ( self.poisson_dist( np.floor(overdispersions[i]) ) )
+                    for j in range(dim_state_vec):
+                        xt_candidate[j] = xt[j] + vectors_of_change[i,j] * overdispersion_factor
+                for j in range(dim_state_vec):
+                    xt[j] = xt_candidate[j]
+
+
 
         return t
 
@@ -921,12 +949,12 @@ cdef class stochastic_integration:
         -------
              E: Exposed population time series
         """
-        
+
         if None != Ei:
-            X = data['X']  
+            X = data['X']
             E = X[:, Ei[0]*self.M:Ei[1]*self.M]
         else:
-            X = data['X']  
+            X = data['X']
             Ei=self.readData['Ei']
             E = X[:, Ei[0]*self.M:Ei[1]*self.M]
         return E
@@ -942,12 +970,12 @@ cdef class stochastic_integration:
         -------
              A: Activated population time series
         """
-        
+
         if None != Ai:
-            X = data['X']  
+            X = data['X']
             A = X[:, Ai[0]*self.M:Ai[1]*self.M]
         else:
-            X = data['X']  
+            X = data['X']
             Ai=self.readData['Ai']
             A = X[:, Ai[0]*self.M:Ai[1]*self.M]
         return A
@@ -969,7 +997,7 @@ cdef class stochastic_integration:
             Ii=self.readData['Ii']
             I = X[:, Ii[0]*self.M:Ii[1]*self.M]
         else:
-            X  = data['X']  
+            X  = data['X']
             Ii=self.readData['Ii']
             I = X[:, Ii[0]*self.M:Ii[1]*self.M]
         return I
@@ -985,12 +1013,12 @@ cdef class stochastic_integration:
         -------
              Ia : Asymptomatics population time series
         """
-        
+
         if None != Iai:
             X  = data['X']
             Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
         else:
-            X  = data['X'] 
+            X  = data['X']
             Iai=self.readData['Iai']
             Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
         return Ia
@@ -1010,7 +1038,7 @@ cdef class stochastic_integration:
             X  = data['X']
             Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
         else:
-            X  = data['X']  
+            X  = data['X']
             Isi=self.readData['Isi']
             Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
         return Is
@@ -1024,14 +1052,14 @@ cdef class stochastic_integration:
 
         Returns
         -------
-             Isp : (intermediate stage between symptomatics 
+             Isp : (intermediate stage between symptomatics
                    and recovered) population time series
         """
         if None != Ispi:
             X  = data['X']
             Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
         else:
-            X  = data['X']  
+            X  = data['X']
             Ispi=self.readData['Ispi']
             Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
         return Isp
@@ -1065,7 +1093,7 @@ cdef class stochastic_integration:
 
         Returns
         -------
-             Ihp : (intermediate stage between symptomatics 
+             Ihp : (intermediate stage between symptomatics
                    and recovered) population time series
         """
         if None != Ihpi:
@@ -1089,10 +1117,10 @@ cdef class stochastic_integration:
              Ic : ICU hospitalized population time series
         """
         if None != Ici:
-            X  = data['X'] 
+            X  = data['X']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         else:
-            X  = data['X'] 
+            X  = data['X']
             Ici=self.readData['Ici']
             Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
         return Ic
@@ -1106,7 +1134,7 @@ cdef class stochastic_integration:
 
         Returns
         -------
-             Icp : (intermediate stage between ICU 
+             Icp : (intermediate stage between ICU
                    and recovered) population time series
         """
         if None != Icpi:
@@ -1151,16 +1179,16 @@ cdef class stochastic_integration:
              For SEAI8R: R=N(t)-(S+E+Ia+Is+Is'+Ih+Ih'+Ic+Ic')
         """
         if None != Rind:
-            X = data['X']  
+            X = data['X']
             R = self.population
         else:
-            X = data['X']  
+            X = data['X']
             Rind=self.readData['Rind']
             R = self.population
         for i in range(Rind):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
+            R  = R - X[:, i*self.M:(i+1)*self.M]
         return R
-   
+
 
     def Sx(self,  data, Sxi):
         """
@@ -1170,7 +1198,7 @@ cdef class stochastic_integration:
 
         Returns
         -------
-            Generic compartment Sx 
+            Generic compartment Sx
         """
         X  = data['X']
         Im = X[:, Sxi[0]*self.M:Sxi[1]*self.M ]
@@ -1266,6 +1294,12 @@ cdef class SIR(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
+
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
                                           dtype=long)
@@ -1286,7 +1320,7 @@ cdef class SIR(stochastic_integration):
             # reaction Is -> R at age group i:
             # population of Is decreases by 1
             self.vectors_of_change[3+i*nRpa,i+2*M] = -1
-        
+
         self.readData = {'Iai':[1,2], 'Isi':[2,3], 'Rind':3}
         self.population = self.Ni
 
@@ -1382,7 +1416,7 @@ cdef class SIR(stochastic_integration):
                      'fsa':self.fsa,
                      'alpha':self.alpha, 'beta':self.beta,
                      'gIa':self.gIa, 'gIs':self.gIs}
-        
+
         return out_dict
 
 
@@ -1508,6 +1542,12 @@ cdef class SIkR(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
+
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
                                           dtype=long)
@@ -1530,7 +1570,7 @@ cdef class SIkR(stochastic_integration):
             # reaction I_{kI} -> R} at age group i:
             # population of last stage decreases by 1
             self.vectors_of_change[self.kI+i*nRpa,i+self.kI*M] = -1
-        
+
         self.readData = {'Ii':[1,self.kI+1], 'Rind':self.kI+1}
         self.population = self.Ni
 
@@ -1720,6 +1760,12 @@ cdef class SEIR(stochastic_integration):
                                   supplied_seed=parameters['seed'])
         except KeyError:
             self.initialize_random_number_generator()
+
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
 
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
@@ -1980,6 +2026,13 @@ cdef class SEAIRQ(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
+
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
                                           dtype=long)
@@ -2025,8 +2078,8 @@ cdef class SEAIRQ(stochastic_integration):
             # reaction Is -> Q at age group i:
             self.vectors_of_change[9+i*nRpa,i+4*M] = -1
             self.vectors_of_change[9+i*nRpa,i+5*M] = +1
-        
-        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
+
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5],
                         'Qi':[5,6], 'Rind':6}
         self.population = self.Ni
 
@@ -2171,7 +2224,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
     * E: exposed
     * A: Asymptomatic and infectious
     * Ia: asymptomatic
-    * Is: symptomatic   
+    * Is: symptomatic
     * Q: quarantined
 
     ...
@@ -2276,6 +2329,12 @@ cdef class SEAIRQ_testing(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
+
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
                                           dtype=long)
@@ -2321,8 +2380,8 @@ cdef class SEAIRQ_testing(stochastic_integration):
             # reaction Is -> Q at age group i:
             self.vectors_of_change[9+i*nRpa,i+4*M] = -1
             self.vectors_of_change[9+i*nRpa,i+5*M] = +1
-        
-        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5], 
+
+        self.readData = {'Ei':[1,2], 'Ai':[2,3], 'Iai':[3,4], 'Isi':[4,5],
                         'Qi':[5,6], 'Rind':6}
         self.population = self.Ni
 
@@ -2479,6 +2538,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 
 
+
 cdef class Spp(stochastic_integration):
     """
     Generic user-defined epidemic model.
@@ -2498,8 +2558,8 @@ cdef class Spp(stochastic_integration):
     Ni: np.array(3*M, )
         Initial number in each compartment and class
     time_dep_param_mapping: python function, optional
-        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
-        Default: Identical mapping of the dictionary at all times. 
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec.
+        Default: Identical mapping of the dictionary at all times.
 
     Examples
     --------
@@ -2536,7 +2596,7 @@ cdef class Spp(stochastic_integration):
         readonly dict param_dict
         dict class_index_dict
         readonly object time_dep_param_mapping
-        
+
 
     def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
         cdef:
@@ -2556,7 +2616,7 @@ cdef class Spp(stochastic_integration):
         if self.time_dep_param_mapping is not None:
             self.param_dict = parameters.copy()
             parameters = self.time_dep_param_mapping(parameters, 0)
-        
+
         self.param_keys = list(parameters.keys())
         res = pyross.utils.parse_model_spec(model_spec, self.param_keys)
         self.nClass = res[0]
@@ -2567,29 +2627,29 @@ cdef class Spp(stochastic_integration):
         self.infection_terms = res[4]
         self.finres_terms = res[5]
         self.resource_list = res[6]
-  
+
         if self.constant_terms.size > 0:
             self.n_constant_terms = len(self.constant_terms)
         else:
             self.n_constant_terms = 0
-     
+
         if self.linear_terms.size > 0:
             self.n_linear_terms = len(self.linear_terms)
         else:
             self.n_linear_terms = 0
-     
+
         if self.infection_terms.size > 0:
             self.n_infection_terms = len(self.infection_terms)
         else:
             self.n_infection_terms = 0
-       
+
         if self.finres_terms.size > 0:
             self.n_finres_terms = len(self.finres_terms)
         else:
             self.n_finres_terms = 0
 
-        
-            
+
+
         if self.time_dep_param_mapping is None:
             self.update_model_parameters(parameters)
         else:
@@ -2597,14 +2657,14 @@ cdef class Spp(stochastic_integration):
         self._lambdas = np.zeros((self.infection_terms.shape[0], M))
 
         #
-        
+
         self.nReactions_per_agegroup = self.n_constant_terms + \
                     + self.n_linear_terms + \
                     + self.n_infection_terms + \
                     + self.n_finres_terms
         self.nReactions = self.M * self.nReactions_per_agegroup
         self.dim_state_vec = self.nClass * self.M
-        
+
         self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # contact matrix C
         self.finres_pop = np.empty( len(self.resource_list), dtype='object')  # populations for finite-resource transitions
         for i in range(len(self.resource_list)):
@@ -2626,6 +2686,13 @@ cdef class Spp(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
+
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
                                           dtype=long)
@@ -2642,7 +2709,7 @@ cdef class Spp(stochastic_integration):
                 #
                 self.vectors_of_change[i + m*nRpa,m + M*class_index] = sign
                 self.vectors_of_change[i + m*nRpa,m + M*(nClass-1)] = sign
-            
+
             offset = self.n_constant_terms
             for i in range(self.n_linear_terms):
                 #rate_index = linear_terms[i, 0]
@@ -2653,7 +2720,7 @@ cdef class Spp(stochastic_integration):
                 if product_index != -1:
                     self.vectors_of_change[offset + i + m*nRpa,m + M*product_index] += 1
                     #dxdt[m + M*product_index] += term
-        
+
             offset += self.n_linear_terms
             for i in range(self.n_infection_terms):
                 #rate_index = infection_terms[i, 0]
@@ -2663,7 +2730,7 @@ cdef class Spp(stochastic_integration):
                 self.vectors_of_change[offset + i + m*nRpa,m+M*S_index] -= 1
                 if product_index != -1:
                     self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
-  
+
             offset += self.n_infection_terms
             for i in range(self.n_finres_terms):
                 reagent_index = self.finres_terms[i, 4]
@@ -2672,7 +2739,7 @@ cdef class Spp(stochastic_integration):
                     self.vectors_of_change[offset + i + m*nRpa,m+M*reagent_index] -= 1
                 if product_index != -1:
                     self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
-            
+
 
 
 
@@ -2701,12 +2768,12 @@ cdef class Spp(stochastic_integration):
         if self.time_dep_param_mapping is not None:
             self.update_time_dep_model_parameters(tt)
             parameters = self.parameters
-        
+
         # Compute lambda
         if constant_terms.size > 0:
             for i in range(M):
                 Ni[i] = xt[(nClass-1)*M + i]  # update Ni
-        
+
         for i in range(infection_terms.shape[0]):
             infective_index = infection_terms[i, 1]
             for m in range(M):
@@ -2715,7 +2782,7 @@ cdef class Spp(stochastic_integration):
                     index = n + M*infective_index
                     if Ni[n]>0:
                         lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
-        
+
         # Calculate populations for finite resource transitions
         for i in range(len(resource_list)):
             ndx = self.resource_list[i][0]
@@ -2730,8 +2797,8 @@ cdef class Spp(stochastic_integration):
                         finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
                     else:
                         finres_pop[i][m] += xt[m + M*class_index] * parameters[priority_index, m]
-        
-        for m in range(M):       
+
+        for m in range(M):
             for i in range(self.n_constant_terms):
                 rate_index = constant_terms[i, 0]
                 overdispersion_index = constant_terms[i, 3]
@@ -2750,7 +2817,7 @@ cdef class Spp(stochastic_integration):
                 rates[offset + i + m*nRpa] = rate
                 if overdispersion_index != -1:
                     overdispersions[offset + i + m*nRpa] = parameters[overdispersion_index, m]
-            
+
             offset += self.n_linear_terms
             for i in range(self.n_infection_terms):
                 rate_index = infection_terms[i, 0]
@@ -2759,7 +2826,7 @@ cdef class Spp(stochastic_integration):
                 rates[offset + i + m*nRpa] = rate
                 if overdispersion_index != -1:
                     overdispersions[offset + i + m*nRpa] = parameters[overdispersion_index, m]
-           
+
             offset += self.n_infection_terms
             for i in range(self.n_finres_terms):
                 resource_index = finres_terms[i, 0]
@@ -2781,14 +2848,14 @@ cdef class Spp(stochastic_integration):
                 if overdispersion_index != -1:
                     overdispersions[offset + i + m*nRpa] = parameters[overdispersion_index, m]
         return
-    
-            
+
+
     def update_model_parameters(self, parameters):
         if self.time_dep_param_mapping is None:
             nParams = len(self.param_keys)
             self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
             self.parameters_length = np.empty(nParams, dtype=np.intp)
-            
+
             try:
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
@@ -2801,7 +2868,7 @@ cdef class Spp(stochastic_integration):
             self.param_dict = parameters.copy()
             self.update_time_dep_model_parameters(0)
 
-            
+
     def update_time_dep_model_parameters(self, tt):
         parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
@@ -2966,8 +3033,8 @@ cdef class SppQ(Spp):
     Ni: np.array(3*M, )
         Initial number in each compartment and class
     time_dep_param_mapping: python function, optional
-        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
-        Default: Identical mapping of the dictionary at all times. 
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec.
+        Default: Identical mapping of the dictionary at all times.
 
     Examples
     --------
@@ -2983,7 +3050,7 @@ cdef class SppQ(Spp):
                 "infection" : [ ["I", "beta"] ]
             },
             "test_pos"  : [ "p_falsepos", "p_truepos", "p_falsepos"] ,
-            "test_freq" : [ "tf", "tf", "tf"] 
+            "test_freq" : [ "tf", "tf", "tf"]
         }
     >>> parameters = {
             'beta': 0.1,
@@ -2993,21 +3060,21 @@ cdef class SppQ(Spp):
             'tf': 1
         }
     """
-    
+
     cdef:
         readonly dict full_model_spec
         readonly object input_time_dep_param_mapping
         readonly object testRate
-        
+
     def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
-        self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec) 
+        self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec)
         self.input_time_dep_param_mapping = time_dep_param_mapping
         self.testRate = None
         super().__init__(self.full_model_spec, parameters, M, Ni, time_dep_param_mapping=self.full_time_dep_param_mapping)
-        
+
     cpdef set_testRate(self, testRate):
-        self.testRate = testRate 
-        
+        self.testRate = testRate
+
     cpdef full_time_dep_param_mapping(self, input_parameters, t):
         cdef dict output_param_dict
         if self.input_time_dep_param_mapping is not None:
@@ -3019,7 +3086,7 @@ cdef class SppQ(Spp):
         else:
             output_param_dict['tau'] = 0
         return output_param_dict
-    
+
     def model_class_data(self, model_class_key, data):
         """
         Parameters
@@ -3043,7 +3110,7 @@ cdef class SppQ(Spp):
             class_index = self.class_index_dict[model_class_key]
             Os = X[:, class_index*self.M:(class_index+1)*self.M]
         return Os
-    
+
     def simulate(self, x0, contactMatrix, testRate, Tf, Nf,
                 method='gillespie',
                 int nc=30, double epsilon = 0.03,
@@ -3242,6 +3309,13 @@ cdef class SEI5R(stochastic_integration):
                                   supplied_seed=parameters['seed'])
         except KeyError:
             self.initialize_random_number_generator()
+
+
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
 
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
@@ -3634,6 +3708,12 @@ cdef class SEAI5R(stochastic_integration):
         except KeyError:
             self.initialize_random_number_generator()
 
+        # Set overdispersion mode (if provided)
+        try:
+            self.overdispersion_mode=parameters['overdispersion_mode']
+        except KeyError:
+            self.overdispersion_mode = 0
+
         # create vectors of change for reactions
         self.vectors_of_change = np.zeros((self.nReactions,self.dim_state_vec),
                                           dtype=long)
@@ -3891,4 +3971,3 @@ cdef class SEAI5R(stochastic_integration):
                     }
         self.population = (out_dict['X'])[:,8*self.M:9*self.M]
         return out_dict
-
