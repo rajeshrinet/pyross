@@ -401,3 +401,35 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
         return hessian
 
     raise Exception("Finite-difference method must be 'forward' or 'central'.")
+
+    
+def eval_parallel(samples, function, nprocesses=0, function_kwargs={}):
+    """Evaluate a function for many samples in parallel
+
+    Parameters
+    ----------
+    samples:list
+        Samples for which the function is to be computed.
+    function: function(numpy.array)
+        Function of interest.
+    nprocesses: int
+        The number of processes used for the Hessian computation. By default, this
+        chooses the number of CPU cores available.
+
+    Returns
+    -------
+    val: list
+        Function values at samples.
+    """
+
+    procs = _get_number_processes(nprocesses)
+    local_func = lambda x : function(x, **function_kwargs)
+
+    if procs > 1:
+        with pathos_mp.ProcessingPool(procs) as pool:
+            val = pool.map(local_func, samples)
+    else:
+        val = [local_func(i) for x in samples]
+
+    return val
+

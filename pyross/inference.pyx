@@ -2876,8 +2876,90 @@ cdef class SIR_type:
                                          function_kwargs=kwargs)
         return hess
 
-    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors,
-                               tangent=False):
+    def latent_param_slice(self, obs, fltr, Tf, infer_result, pos, direction, scale, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False, nprocesses=0):
+        '''
+        Samples the posterior and prior along a one-dimensional slice of the paramter space
+
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            The total time of the trajectory.
+        infer_result: dict
+            Dictionary returned by latent_infer
+        pos: np.array
+            Position in parameter space around which the parameter slice is computed
+        direction: np.array
+            Direction in parameter space in which the parameter slice is computed    
+        scale: np.array
+            Values by which the direction vector is scaled. Points evaluated are pos + scale * direction
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
+
+        Returns
+        -------
+        posterior: np.array
+            posterior evaluated along the 1d slice
+        prior: np.array
+            prior evaluated along the 1d slice
+        
+        '''
+        # Sanity checks of the intputs
+        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        flat_params = np.copy(infer_result['flat_params'])
+
+        kwargs = {}
+        kwargs['obs'] = obs
+        kwargs['fltr'] = fltr
+        kwargs['Tf'] = Tf
+        kwargs['obs0'] = obs0
+        kwargs['tangent'] = tangent
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs', 'prior']:
+            kwargs[key] = infer_result[key]
+
+        kwargs['generator']=generator
+        kwargs['intervention_fun']=intervention_fun
+        kwargs['inter_steps']=inter_steps
+        kwargs['disable_penalty']=None
+
+        samples = [ pos + s*direction for s in scale]
+
+        posterior = eval_parallel(samples, self._latent_infer_to_minimize, nprocesses=nprocesses, function_kwargs=kwargs)
+        prior = [ np.sum(infer_result['prior'].logpdf(s)) for s in samples ]
+        
+        return -np.array(posterior), np.array(prior)
+    
+
+    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, param_priors, init_priors,
+                               contactMatrix=None, generator=None, intervention_fun=None, tangent=False, nprocesses=0):
         """
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
@@ -2897,8 +2979,20 @@ cdef class SIR_type:
             :math:`F_{ij} x_j (t) = obs_i(t)`
         Tf: float
             The total time of the trajectory.
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         param_priors: dict
             A dictionary that specifies priors for parameters.
             See `infer` for examples.
@@ -2907,13 +3001,19 @@ cdef class SIR_type:
             See below for examples.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
 
         Returns
         -------
         samples: list of dict
             N samples of the Gaussian distribution.
         """
-        self.contactMatrix = contactMatrix
+        
+        # Sanity checks of the intputs
+        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+        
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
@@ -2940,14 +3040,18 @@ cdef class SIR_type:
                         'param_length':param_length,
                         'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                         'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                        'tangent':tangent}
+                        'tangent':tangent, 'generator':generator, 'intervention_fun':intervention_fun}
 
         # Sample the flat parameters.
         mean = map_estimate['flat_map']
         sample_parameters = np.random.multivariate_normal(mean, cov, N)
 
         samples = []
-        for sample in sample_parameters:
+        
+        l_like_list = eval_parallel(self._loglike_latent, sample_parameters, nprocesses=nprocesses, function_kwargs=loglike_args)
+        
+        for i in range(len(sample_parameters)):
+            sample = sample_parameters[i]
             new_sample = map_estimate.copy()
             new_sample['flat_params'] = sample
             param_estimates = sample[:map_estimate['param_length']]
@@ -2957,7 +3061,7 @@ cdef class SIR_type:
                         map_estimate['is_scale_parameter'], map_estimate['scaled_param_guesses'])
             new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
                                       map_estimate['init_fltrs'], obs0, fltr[0])
-            l_like = self._loglike_latent(sample, **loglike_args)
+            l_like = l_like_list[i]
             l_prior = np.sum(prior.logpdf(sample))
             l_post = l_like + l_prior
             new_sample['log_posterior'] = l_post
