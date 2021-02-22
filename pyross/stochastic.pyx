@@ -205,7 +205,7 @@ cdef class stochastic_integration:
             long [:] xt = self.xt
             int overdispersion_mode = self.overdispersion_mode
             double dt, t, random
-            int i, j, M = self.M
+            int i, j, k, counter, M = self.M
             long overdispersion_factor
             int dim_state_vec = self.dim_state_vec
             np.ndarray xt_candidate
@@ -219,7 +219,7 @@ cdef class stochastic_integration:
         i = self.random_choice(np.array(rates)/np.array(np.floor(overdispersions))) # just to try out
 
         # adjust population according to chosen reaction
-        if overdispersion_mode == 0:
+        if overdispersion_mode == 1:
             overdispersion_factor = long ( np.floor(overdispersions[i]) )
             #
             for j in range(dim_state_vec):
@@ -227,8 +227,8 @@ cdef class stochastic_integration:
                 if xt[j] < 0:
                   raise RuntimeError("Encountered negative population in SSA step")
         #
-        elif overdispersion_mode == 1:
-            if np.floor(overdispersions[i]) < 1.01:
+        elif overdispersion_mode == 0:
+            if np.floor(overdispersions[i]) < 1.00001:
                 overdispersion_factor = 1
                 for j in range(dim_state_vec):
                     xt[j] += vectors_of_change[i,j] * overdispersion_factor
@@ -237,12 +237,22 @@ cdef class stochastic_integration:
             else:
                 xt_candidate = np.zeros_like( np.array(xt) ,dtype=long)
                 xt_candidate[0] = -1
+                counter = 0
                 while (xt_candidate < 0).any():
-                    overdispersion_factor = long ( self.poisson_dist( np.floor(overdispersions[i]) ) )
+                    overdispersion_factor = long ( self.poisson_dist( overdispersions[i] - 1. )  ) + 1
                     for j in range(dim_state_vec):
                         xt_candidate[j] = xt[j] + vectors_of_change[i,j] * overdispersion_factor
+                    counter += 1
+                    if counter > 1000:
+                      for j in range(dim_state_vec):
+                          print(xt_candidate[j])
+                      raise RuntimeError("After 1000 tries, every randomly sampled overdipersion value yield negative populations" + \
+                      "Try increasing threshold by increasing the " + \
+                      "argument 'nc', or decreasing timestep by decreasing argument 'epsilon'")
                 for j in range(dim_state_vec):
                     xt[j] = xt_candidate[j]
+        else:
+            raise RuntimeError("overdispersion_mode set to {0}. But only 0 and 1 are valid modes".format(overdispersion_mode))
 
 
 
@@ -592,16 +602,52 @@ cdef class stochastic_integration:
         cdef:
             int nReactions = self.nReactions
             int dim_state_vec = self.dim_state_vec
-            int i, j
+            double [:] overdispersions = self.overdispersions
+            int i, j, k, counter
             double [:] rates = self.rates
             long [:,:] vectors_of_change = self.vectors_of_change
             long [:] xt = self.xt
+            long overdispersion_factor
+            int overdispersion_mode = self.overdispersion_mode
+            np.ndarray xt_candidate
         # Draw reactions
         for i in range(nReactions):
             if rates[i] > 0:
                 K_events = self.poisson_dist( rates[i] * cur_tau )
-                for j in range(dim_state_vec):
-                    xt[j] += vectors_of_change[i,j] * K_events
+                for k in range(K_events):
+                    if overdispersion_mode == 0:
+                        if np.floor(overdispersions[i]) < 1.00001:
+                            overdispersion_factor = 1
+                            for j in range(dim_state_vec):
+                                xt[j] += vectors_of_change[i,j] * overdispersion_factor
+                                if xt[j] < 0:
+                                  raise RuntimeError("Encountered negative population in tau leaping step" + \
+                                  "Try increasing threshold by increasing the " + \
+                                  "argument 'nc', or decreasing timestep by decreasing argument 'epsilon'")
+                        else:
+                            xt_candidate = np.zeros_like( np.array(xt) ,dtype=long)
+                            xt_candidate[0] = -1
+                            counter = 0
+                            while (xt_candidate < 0).any():
+                                overdispersion_factor = long ( self.poisson_dist( overdispersions[i] - 1. )  ) + 1
+                                for j in range(dim_state_vec):
+                                    xt_candidate[j] = xt[j] + vectors_of_change[i,j] * overdispersion_factor
+                                counter += 1
+                                if counter > 1000:
+                                  for j in range(dim_state_vec):
+                                      print(xt_candidate[j])
+                                  raise RuntimeError("After 1000 tries, every randomly sampled overdipersion value yield negative populations" + \
+                                  "Try increasing threshold by increasing the " + \
+                                  "argument 'nc', or decreasing timestep by decreasing argument 'epsilon'")
+                            for j in range(dim_state_vec):
+                                xt[j] = xt_candidate[j]
+                    elif overdispersion_mode == 1:
+                        overdispersion_factor = long ( np.floor(overdispersions[i]) )
+                        #
+                        for j in range(dim_state_vec):
+                            xt[j] += vectors_of_change[i,j] * overdispersion_factor
+                            if xt[j] < 0:
+                              raise RuntimeError("Encountered negative population in tau leaping step")
         for i in range(dim_state_vec):
             if xt[i] < 0:
                 raise RuntimeError("Tau leaping led to negative population. " + \
