@@ -2877,7 +2877,7 @@ cdef class SIR_type:
         return hess
 
     def latent_param_slice(self, obs, fltr, Tf, infer_result, pos, direction, scale, contactMatrix=None,
-                       generator=None, intervention_fun=None, tangent=False, nprocesses=0):
+                       generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
         '''
         Samples the posterior and prior along a one-dimensional slice of the paramter space
 
@@ -2914,6 +2914,10 @@ cdef class SIR_type:
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration.
         nprocesses: int, optional
             The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
             the number of cpu cores if `pathos` is available, otherwise 1.
