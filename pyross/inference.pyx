@@ -1152,7 +1152,7 @@ cdef class SIR_type:
 
     def hessian(self, x, Tf, infer_result, contactMatrix=None, generator=None,
                 intervention_fun=None, tangent=False, eps=None,
-                fd_method="central", inter_steps=0, nprocesses=0):
+                fd_method="central", inter_steps=0, nprocesses=0, basis=None):
         '''
         Computes the Hessian matrix for the MAP estimates of an SIR type model.
 
@@ -1218,7 +1218,7 @@ cdef class SIR_type:
         print('epsilon used for differentiation: ', eps)
 
         hess = hessian_finite_difference(flat_params, self._infer_to_minimize, eps, method=fd_method, nprocesses=nprocesses,
-                                         function_kwargs=kwargs)
+                                         basis=basis, function_kwargs=kwargs)
         return hess
 
     def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
@@ -2799,7 +2799,7 @@ cdef class SIR_type:
 
     def latent_hessian(self, obs, fltr, Tf, infer_result, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
-                       eps=None, fd_method="central", inter_steps=0, nprocesses=0):
+                       eps=None, fd_method="central", inter_steps=0, nprocesses=0, basis=None):
         '''
         Computes the Hessian matrix for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
 
@@ -2873,7 +2873,7 @@ cdef class SIR_type:
         print('epsilon used for differentiation: ', eps)
 
         hess = hessian_finite_difference(flat_params, self._latent_infer_to_minimize, eps, method=fd_method, nprocesses=nprocesses, 
-                                         function_kwargs=kwargs)
+                                         basis=basis, function_kwargs=kwargs)
         return hess
 
     def latent_param_slice(self, obs, fltr, Tf, infer_result, pos, direction, scale, contactMatrix=None,
