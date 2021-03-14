@@ -4,13 +4,13 @@
 ## PyRoss: inference, forecasts, and optimised control for epidemiological models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) ![CI](https://github.com/rajeshrinet/pyross/workflows/CI/badge.svg) ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg)  [![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi/pyross) [![Python Version](https://img.shields.io/pypi/pyversions/pyross)](https://pypi.org/project/pyross) [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)  ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) ![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 
 
-[About](#about) | [Blog](https://pyrosslib.github.io/blog/) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
+[About](#about) | [Blog](https://pyrosslib.github.io/blog/) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
 
 
 ## About
 
-[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library that offers an integrated platform for **inference**, **forecasts** and **non-pharmaceutical interventions** in structured epidemiological compartment models.
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library that offers an integrated platform for **inference**, **forecasts** and **non-pharmaceutical interventions** in structured epidemiological compartment models. 
 
 **Compartment models** of arbitrary complexity can be  **user-defined** through Python dictionaries. The most common epidemiological models, and several less common ones, come pre-defined with the library. Models can include **stages** to allow for non-exponentially distributed compartmental residence times. Currently,  [pre-defined models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include ones with multiple disease states (exposed, asymptomatic, symptomatic, etc) and may be further divided by age, and by objective medical states (hospitalized, in ICU, etc). The compartment framework supports models for **disease surveillance** and **quarantine** and a variety of other processes of epidemiological relevance. 
 
@@ -30,10 +30,10 @@ The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](
 [Austen Bolitho](https://github.com/TakodaS),
 [Erik Brorson](https://github.com/erikbrorson),
 [Fernando Caballero](https://github.com/fcaballerop), 
-Michael Cates,
+[Michael Cates](http://www.damtp.cam.ac.uk/person/mec22),
 [Jakub Dolezal](https://github.com/JakubJDolezal),
 [Tim Ekeh](https://github.com/tekeh),
-Jules Guioth, 
+[Jules Guioth](https://orcid.org/0000-0001-5644-3044), 
 [Robert Jack](https://github.com/rljack2002),
 [Julian Kappler](https://github.com/juliankappler),
 [Lukas Kikuchi](https://github.com/lukastk),
