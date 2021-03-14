@@ -28,19 +28,25 @@ The libraries are named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ro
 The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are:
 [Ronojoy Adhikari](https://github.com/ronojoy),
 [Austen Bolitho](https://github.com/TakodaS),
-Fernando Caballero, Michael Cates,
+[Erik Brorson](https://github.com/erikbrorson),
+[Fernando Caballero](https://github.com/fcaballerop), 
+Michael Cates,
 [Jakub Dolezal](https://github.com/JakubJDolezal),
 [Tim Ekeh](https://github.com/tekeh),
-Jules Guioth, Robert Jack,
+Jules Guioth, 
+[Robert Jack](https://github.com/rljack2002),
 [Julian Kappler](https://github.com/juliankappler),
 [Lukas Kikuchi](https://github.com/lukastk),
+[Hideki Kobayashi](https://github.com/hidekb),
 [Irene Li](https://github.com/Irene-Li),
-Joseph Peterson,
+[Joseph Peterson](https://github.com/jdpeterson3/),
 [Patrick Pietzonka](https://github.com/ppietzonka),
 [Benjamin Remez](https://github.com/BenjaminRemez),
 [Paul Rohrbach](https://github.com/prohrbach),
 [Rajesh Singh](https://github.com/rajeshrinet), 
-and [Günther Turk](https://github.com/phi6GTurk).
+and [Günther Turk](https://github.com/phi6GTurk). 
+
+PyRoss development is partially supported by a [Microsoft Research Award](https://www.microsoft.com/en-us/research/collaboration/studies-in-pandemic-preparedness/#!projects) for "Building an open platform for pandemic modelling".
 
 Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw) for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 
@@ -200,6 +206,9 @@ Read more in the [examples](https://github.com/rajeshrinet/pyross/tree/master/ex
 
 
 ## Publications
+* **Bayesian inference across multiple models suggests a strong increase in lethality of COVID-19 in late 2020 in the UK**
+Efficient Bayesian inference of fully stochastic epidemiological models with applications to COVID-19**, Patrick Pietzonka, Erik Brorson, William Bankes, Michael E. Cates, Robert L. Jack, R. Adhikari [medRxiv, 2021](https://doi.org/10.1101/2021.03.10.21253311)
+
 * **Efficient Bayesian inference of fully stochastic epidemiological models with applications to COVID-19**, Yuting I. Li, Günther Turk, Paul B. Rohrbach, Patrick Pietzonka, Julian Kappler, Rajesh Singh, Jakub Dolezal, Timothy Ekeh, Lukas Kikuchi, Joseph D. Peterson, Hideki Kobayashi, Michael E. Cates, R. Adhikari, Robert L. Jack, [arXiv:2010.11783, 2020](https://arxiv.org/abs/2010.11783)  | [ResearchGate](https://www.researchgate.net/publication/344828080_Efficient_Bayesian_inference_of_fully_stochastic_epidemiological_models_with_applications_to_COVID-19)
 
 * **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [arXiv:2010.10955, 2020](https://arxiv.org/abs/2010.10955)
@@ -220,7 +229,6 @@ Read more in the [examples](https://github.com/rajeshrinet/pyross/tree/master/ex
 * Python Trending has tweeted about PyRoss <blockquote class="twitter-tweet"><p lang="en" dir="ltr">PyRoss - Mathematical modelling of infectious disease in Python. <a href="https://t.co/VBOmT5kaVT">https://t.co/VBOmT5kaVT</a> <a href="https://t.co/FRvEqWMlPL">https://t.co/FRvEqWMlPL</a></p>&mdash; Python Trending (@pythontrending) <a href="https://twitter.com/pythontrending/status/1244918005731033088?ref_src=twsrc%5Etfw">March 31, 2020</a></blockquote>  
 
 * Python Weekly has tweeted about PyRoss <blockquote class="twitter-tweet"><p lang="en" dir="ltr">PyRoss - Mathematical modelling of infectious disease in Python. <a href="https://t.co/MyTWTM1ItP">https://t.co/MyTWTM1ItP</a> <a href="https://twitter.com/hashtag/Python?src=hash&amp;ref_src=twsrc%5Etfw">#Python</a> <a href="https://twitter.com/hashtag/Coronavirus?src=hash&amp;ref_src=twsrc%5Etfw">#Coronavirus</a> <a href="https://twitter.com/hashtag/Covid19?src=hash&amp;ref_src=twsrc%5Etfw">#Covid19</a> <a href="https://t.co/gzPNpWf7mK">pic.twitter.com/gzPNpWf7mK</a></p>&mdash; Python Weekly (@PythonWeekly) <a href="https://twitter.com/PythonWeekly/status/1248324915788492807?ref_src=twsrc%5Etfw">April 9, 2020</a></blockquote>
-
 
 
 ## License

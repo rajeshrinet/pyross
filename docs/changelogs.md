@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.3.5
+* Updates to TSI and inference 
+
 ## 1.3.4
 * Updates to utils - see https://github.com/rajeshrinet/pyross/pull/38
 
