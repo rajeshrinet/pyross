@@ -7,6 +7,9 @@ from scipy.linalg import solve_triangular, rq
 import numpy as np
 from scipy.interpolate import make_interp_spline
 from scipy.linalg import eig
+from scipy.stats import multivariate_normal
+from scipy.linalg.lapack import dtrtri
+from scipy.linalg import cholesky
 cimport numpy as np
 cimport cython
 from math import isclose
@@ -408,7 +411,7 @@ cdef class SIR_type:
         """
 
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
@@ -539,7 +542,7 @@ cdef class SIR_type:
         if queue_size is None:
             queue_size = nprocesses
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
@@ -699,7 +702,7 @@ cdef class SIR_type:
         Returns
         -------
         sampler: emcee.EnsembleSampler
-            This function returns the interal state of the sampler. To look at the chain of the internal flattened paramters,
+            This function returns the interal state of the sampler. To look at the chain of the internal flattened parameters,
             run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
             `mcmc_inference(..., sampler=sampler)` to continue the chain or `mcmc_inference_process_result(...)` to process
             the result.
@@ -742,7 +745,7 @@ cdef class SIR_type:
         if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
@@ -986,7 +989,7 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         infer_result_loc = infer_result.copy()
         # backwards compatibility
@@ -1093,7 +1096,7 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         infer_result_loc = infer_result.copy()
@@ -1191,7 +1194,7 @@ cdef class SIR_type:
         hess: 2d numpy.array
             The Hessian matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         flat_params = np.copy(infer_result['flat_params'])
@@ -1885,7 +1888,7 @@ cdef class SIR_type:
             }
         """
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2066,7 +2069,7 @@ cdef class SIR_type:
         if queue_size is None:
             queue_size = nprocesses
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2157,7 +2160,7 @@ cdef class SIR_type:
         output_samples: list
             The processed weighted posterior samples.
         """
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2311,7 +2314,7 @@ cdef class SIR_type:
         if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2415,7 +2418,7 @@ cdef class SIR_type:
         output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
             The processed posterior samples.
         """
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2620,7 +2623,7 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2735,7 +2738,7 @@ cdef class SIR_type:
         FIM_det: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2841,7 +2844,7 @@ cdef class SIR_type:
         hess: 2d numpy.array
             The Hessian matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2875,11 +2878,93 @@ cdef class SIR_type:
         hess = hessian_finite_difference(flat_params, self._latent_infer_to_minimize, eps, method=fd_method, nprocesses=nprocesses, 
                                          basis=basis, function_kwargs=kwargs)
         return hess
+    
+    
+    def sample_latent(self, obs, fltr, Tf, infer_result, flat_params_list, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
+        '''
+        Samples the posterior and prior 
+
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            The total time of the trajectory.
+        infer_result: dict
+            Dictionary returned by latent_infer
+        flat_params_list: list of np.array's
+            Parameters for which the prior and posterior are sampled
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
+
+        Returns
+        -------
+        posterior: np.array
+            posterior evaluated along the 1d slice
+        prior: np.array
+            prior evaluated along the 1d slice
+        
+        '''
+        # Sanity checks of the inputs
+        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+
+        # Process fltr and obs
+        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
+
+        flat_params = np.copy(infer_result['flat_params'])
+
+        kwargs = {}
+        kwargs['obs'] = obs
+        kwargs['fltr'] = fltr
+        kwargs['Tf'] = Tf
+        kwargs['obs0'] = obs0
+        kwargs['tangent'] = tangent
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs', 'prior']:
+            kwargs[key] = infer_result[key]
+
+        kwargs['generator']=generator
+        kwargs['intervention_fun']=intervention_fun
+        kwargs['inter_steps']=inter_steps
+        kwargs['disable_penalty']=None
+
+
+        posterior = eval_parallel(flat_params_list, self._latent_infer_to_minimize, nprocesses=nprocesses, function_kwargs=kwargs)
+        prior = [ np.sum(infer_result['prior'].logpdf(s)) for s in flat_params_list]
+        
+        return -np.array(posterior), np.array(prior)
+    
 
     def latent_param_slice(self, obs, fltr, Tf, infer_result, pos, direction, scale, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
         '''
-        Samples the posterior and prior along a one-dimensional slice of the paramter space
+        Samples the posterior and prior along a one-dimensional slice of the parameter space
 
         Parameters
         ----------
@@ -2930,52 +3015,23 @@ cdef class SIR_type:
             prior evaluated along the 1d slice
         
         '''
-        # Sanity checks of the intputs
-        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
-        # Process fltr and obs
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-
-        flat_params = np.copy(infer_result['flat_params'])
-
-        kwargs = {}
-        kwargs['obs'] = obs
-        kwargs['fltr'] = fltr
-        kwargs['Tf'] = Tf
-        kwargs['obs0'] = obs0
-        kwargs['tangent'] = tangent
-        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
-                    'scaled_param_guesses', 'param_length', 'init_flags',
-                    'init_fltrs', 'prior']:
-            kwargs[key] = infer_result[key]
-
-        kwargs['generator']=generator
-        kwargs['intervention_fun']=intervention_fun
-        kwargs['inter_steps']=inter_steps
-        kwargs['disable_penalty']=None
 
         samples = [ pos + s*direction for s in scale]
-
-        posterior = eval_parallel(samples, self._latent_infer_to_minimize, nprocesses=nprocesses, function_kwargs=kwargs)
-        prior = [ np.sum(infer_result['prior'].logpdf(s)) for s in samples ]
-        
-        return -np.array(posterior), np.array(prior)
+      
+        return self.sample_latent(obs, fltr, Tf, infer_result, samples, contactMatrix,
+                       generator, intervention_fun, tangent, inter_steps, nprocesses)
     
-
-    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, param_priors, init_priors,
-                               contactMatrix=None, generator=None, intervention_fun=None, tangent=False, nprocesses=0):
-        """
+    def sample_gaussian_latent(self, N, obs, fltr, Tf, infer_result, invcov, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False, inter_steps=0, allow_negative=False, nprocesses=0):
+        '''
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
-
+        
         Parameters
         ----------
         N: int
             The number of samples.
-        map_estimate: dict
-            The MAP estimate, e.g. as computed by `inference.latent_infer`.
-        cov: np.array
-            The covariance matrix of the flat parameters.
         obs:  np.array
             The partially observed trajectory.
         fltr: 2d np.array
@@ -2983,6 +3039,10 @@ cdef class SIR_type:
             :math:`F_{ij} x_j (t) = obs_i(t)`
         Tf: float
             The total time of the trajectory.
+        infer_result: dict
+            Dictionary returned by latent_infer
+        invcov: np.array
+            The inverse covariance matrix of the flat parameters.
         contactMatrix: callable, optional
             A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
             Either a contactMatrix or a generator must be specified.
@@ -2997,83 +3057,57 @@ cdef class SIR_type:
             The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
-        param_priors: dict
-            A dictionary that specifies priors for parameters.
-            See `infer` for examples.
-        init_priors: dict
-            A dictionary that specifies priors for initial conditions.
-            See below for examples.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
+        allow_negative: bool, optional
+            Allow negative values of the sample parameters. If False, samples with negative paramters values are discarded 
+            and additional samples are drawn until the specified number `N` of samples is reached. Default is False.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration.
         nprocesses: int, optional
             The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
             the number of cpu cores if `pathos` is available, otherwise 1.
 
         Returns
         -------
-        samples: list of dict
-            N samples of the Gaussian distribution.
-        """
+        samples: list of np.array's
+            N samples of the Gaussian distribution (flat parameters).
+        posterior: np.array
+            posterior evaluated along the 1d slice
+        prior: np.array
+            prior evaluated along the 1d slice
         
-        # Sanity checks of the intputs
-        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+        '''
+
         
-        fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
-
-        # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
-
-        # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
-
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
-
-        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
-        cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
-
-        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter,
-                        'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length,
-                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                        'tangent':tangent, 'generator':generator, 'intervention_fun':intervention_fun}
-
-        # Sample the flat parameters.
-        mean = map_estimate['flat_map']
-        sample_parameters = np.random.multivariate_normal(mean, cov, N)
-
-        samples = []
+        mean = infer_result['flat_params']
         
-        l_like_list = eval_parallel(self._loglike_latent, sample_parameters, nprocesses=nprocesses, function_kwargs=loglike_args)
+        chol = cholesky(invcov, lower=False)
+        L = dtrtri(chol, lower=0)[0]
         
-        for i in range(len(sample_parameters)):
-            sample = sample_parameters[i]
-            new_sample = map_estimate.copy()
-            new_sample['flat_params'] = sample
-            param_estimates = sample[:map_estimate['param_length']]
-            init_estimates = sample[map_estimate['param_length']:]
-            new_sample['map_params_dict'] = \
-                pyross.utils.unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
-                        map_estimate['is_scale_parameter'], map_estimate['scaled_param_guesses'])
-            new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
-                                      map_estimate['init_fltrs'], obs0, fltr[0])
-            l_like = l_like_list[i]
-            l_prior = np.sum(prior.logpdf(sample))
-            l_post = l_like + l_prior
-            new_sample['log_posterior'] = l_post
-            new_sample['log_prior'] = l_prior
-            new_sample['log_likelihood'] = l_like
-            samples.append(new_sample)
-
-        return samples
+        uninormal=multivariate_normal(cov=np.eye(len(mean)))
+        samples=[]
+        xlist=uninormal.rvs(1000000)
+        ndx=0
+        for i in range(N):
+            while True:
+                x=xlist[ndx]
+                ndx=ndx+1
+                if ndx>=len(xlist):
+                    xlist=uninormal.rvs(len(xlist))
+                    ndx=0
+                s=(L@x.T).T + mean
+                if np.min(s)>0 or allow_negative:
+                    break
+            samples.append(s)
+        
+        posterior, prior = self.sample_latent(obs, fltr, Tf, infer_result, samples, contactMatrix,
+                                           generator, intervention_fun, tangent, inter_steps, nprocesses)
+        
+        return samples, posterior, prior
+    
 
 
     def latent_evidence_laplace(self, obs, fltr, Tf, infer_result, contactMatrix=None,
