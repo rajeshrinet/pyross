@@ -177,7 +177,7 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         if local_initial_step is not None:
             if type(local_initial_step) is float:
                 local_opt.set_initial_step(local_initial_step*guess)
-            elif (type(local_initial_step) is np.array) and len(local_initial_step)==len(guess):
+            elif (type(local_initial_step) is np.ndarray) and len(local_initial_step)==len(guess):
                 local_opt.set_initial_step(local_initial_step)
             else:
                 raise Exception('Wrong length of local_initial_step')
@@ -296,7 +296,8 @@ class lognorm_rv:
         return self.rv.ppf(y)
 
 
-def hessian_finite_difference(pos, function, eps=1e-3, method="central", nprocesses=0, function_kwargs={}):
+def hessian_finite_difference(pos, function, eps=1e-3, method="central", nprocesses=0, basis=None,
+                              function_kwargs={}):
     """Forward finite-difference computation of the Hessian of a function.
 
     Parameters
@@ -312,6 +313,9 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
     nprocesses: int
         The number of processes used for the Hessian computation. By default, this
         chooses the number of CPU cores available.
+    basis: numpy.array(dims=2), optional
+        The orthogonal coordinate basis used for the finite difference scheme. Uses 
+        canonical coordinates (basis=identity matrix) by default.
 
     Returns
     -------
@@ -321,6 +325,9 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
     k = len(pos)
     if not hasattr(eps, "__len__"):
         eps = eps*np.ones(k)
+        
+    if basis is None:
+        basis = np.identity(k)
 
     procs = _get_number_processes(nprocesses)
     local_func = lambda x : function(x, **function_kwargs)
@@ -331,7 +338,7 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
 
         def forward_eval(i):
             pos = orig_pos.copy()
-            pos[i] += eps[i]
+            pos += eps[i] * basis[:,i]
             val = local_func(pos)
             return val
 
@@ -344,8 +351,8 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
         def forward_eval2(index):
             i,j = index
             pos = orig_pos.copy()
-            pos[i] += eps[i]
-            pos[j] += eps[j]
+            pos += eps[i] * basis[:,i]
+            pos += eps[j] * basis[:,j]
             val2 = local_func(pos)
 
             hessian_entry = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
@@ -358,7 +365,7 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
             hessian = [forward_eval2(index) for index in product(range(k), range(k))]
         
         hessian = np.array(hessian).reshape((k,k))
-        return 1/2 * (hessian + hessian.T)
+        return basis @ (1/2 * (hessian + hessian.T)) @ basis.T
 
     if method == "central":
         orig_pos = pos.copy()
@@ -370,16 +377,16 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
         def central_eval(index):
             i,j = index
             pos = orig_pos.copy()
-            pos[i] += eps[i]
-            pos[j] += eps[j]
+            pos += eps[i] * basis[:,i]
+            pos += eps[j] * basis[:,j]
             val1 = local_func(pos)
-            pos[j] -= 2*eps[j]
+            pos -= 2*eps[j] * basis[:,j]
             val2 = local_func(pos)
             pos = orig_pos.copy()
-            pos[i] -= eps[i]
-            pos[j] += eps[j]
+            pos -= eps[i] * basis[:,i]
+            pos += eps[j] * basis[:,j]
             val3 = local_func(pos)
-            pos[j] -= 2*eps[j]
+            pos -= 2*eps[j] * basis[:,j]
             val4 = local_func(pos)
             hessian_val = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
             return hessian_val
@@ -398,6 +405,38 @@ def hessian_finite_difference(pos, function, eps=1e-3, method="central", nproces
                 hessian[j,i] = hessian_vals[ctr]
                 ctr += 1
 
-        return hessian
+        return basis @ hessian @ basis.T
 
     raise Exception("Finite-difference method must be 'forward' or 'central'.")
+
+    
+def eval_parallel(samples, function, nprocesses=0, function_kwargs={}):
+    """Evaluate a function for many samples in parallel
+
+    Parameters
+    ----------
+    samples:list
+        Samples for which the function is to be computed.
+    function: function(numpy.array)
+        Function of interest.
+    nprocesses: int
+        The number of processes used for the Hessian computation. By default, this
+        chooses the number of CPU cores available.
+
+    Returns
+    -------
+    val: list
+        Function values at samples.
+    """
+
+    procs = _get_number_processes(nprocesses)
+    local_func = lambda x : function(x, **function_kwargs)
+
+    if procs > 1:
+        with pathos_mp.ProcessingPool(procs) as pool:
+            val = pool.map(local_func, samples)
+    else:
+        val = [local_func(i) for x in samples]
+
+    return val
+
