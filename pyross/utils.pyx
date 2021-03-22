@@ -45,18 +45,29 @@ def parse_model_spec(model_spec, param_keys):
         constant_term_set = set() # used to check for duplicates
         constant_term_list = []
         for (k, val) in constant_dict.items():
-            for (rate,) in val:
-                if (k, rate) in constant_term_set:
-                    raise Exception('Duplicate constant term: {}, {}'.format(k, rate))
-                else:
-                    sign = 1
-                    constant_term_set.add((k, rate))
-                    class_index = class_index_dict[k]
-                    if rate.startswith('-'):
-                        rate = rate[1:]
-                        sign = -1
-                    rate_index = params_index_dict[rate]
-                    constant_term_list.append([rate_index, class_index, sign])
+            for vv in val:
+                if len(vv)==1:
+                    (rate,) = vv
+                    if (k, rate) in constant_term_set:
+                        raise Exception('Duplicate constant term: {}, {}'.format(k, rate))
+                    else:
+                        constant_term_set.add((k, rate))
+                        overdispersion_index = -1
+                elif len(vv)==2:
+                    (rate, overdispersion) = vv
+                    if (k, rate) in constant_term_set:
+                        raise Exception('Duplicate constant term: {}, {}, {}'.format(k, rate, overdispersion))
+                    else:
+                        constant_term_set.add((k, rate, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                sign = 1
+                class_index = class_index_dict[k]
+                if rate.startswith('-'):
+                    rate = rate[1:]
+                    sign = -1
+                rate_index = params_index_dict[rate]
+                constant_term_list.append([rate_index, class_index, sign, overdispersion_index])
+
 
         if len(constant_term_list) > 0: # add one class for Ni
             class_index_dict['Ni'] = nClass
@@ -67,39 +78,64 @@ def parse_model_spec(model_spec, param_keys):
         linear_terms_list = [] # collect all linear terms
         linear_terms_destination_dict = {} # a dictionary for the product
         for (k, val) in linear_dict.items():
-            for (reagent, rate) in val:
-                if (reagent, rate) in linear_terms_set:
-                    raise Exception('Duplicates linear terms: {}, {}'.format(reagent, rate))
-                else:
-                    linear_terms_set.add((reagent, rate))
-                    reagent_index = class_index_dict[reagent]
-                    if rate.startswith('-'):
-                        rate = rate[1:]
-                        rate_index = params_index_dict[rate]
-                        linear_terms_list.append([rate_index, reagent_index, -1])
+            for vv in val:
+                if len(vv) == 2:
+                    (reagent, rate) = vv
+                    if (reagent,rate) in linear_terms_set:
+                        raise Exception('Duplicate linear terms: {}, {}'.format(reagent, rate))
                     else:
-                        rate_index = params_index_dict[rate]
-                        linear_terms_destination_dict[(rate_index, reagent_index)] = class_index_dict[k]
+                        linear_terms_set.add((reagent, rate))
+                        overdispersion_index = -1
+                elif len(vv) == 3:
+                    (reagent, rate, overdispersion) = vv
+                    if (reagent, rate, overdispersion) in linear_terms_set:
+                        raise Exception('Duplicate linear terms: {}, {}, {}'.format(reagent, rate, overdispersion))
+                    else:
+                        linear_terms_set.add((reagent, rate, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                else:
+                    raise Exception('Wrong number of values in linear term: {}, {} (2 or 3 allowed)'.format(k, vv))
+                reagent_index = class_index_dict[reagent]
+                if rate.startswith('-'):
+                    rate = rate[1:]
+                    rate_index = params_index_dict[rate]
+                    linear_terms_list.append([rate_index, reagent_index, -1, overdispersion_index])
+                else:
+                    rate_index = params_index_dict[rate]
+                    linear_terms_destination_dict[(rate_index, reagent_index, overdispersion_index)] = class_index_dict[k]
+
 
         # parse the infection terms into a list of [rate_index, reagent_index, susceptible_index] and a dictionary for the product
         infection_terms_set = set() # used to check to duplicates
         infection_terms_list = [] # collect all infection terms
         infection_terms_destination_dict = {} # a dictionary for the product
         for (k, val) in infection_dict.items():
-            for (reagent, susceptible, rate) in val:
-                if (reagent, susceptible, rate) in infection_terms_set:
-                    raise Exception('Duplicates infection terms: {}, {}'.format(reagent, susceptible, rate))
-                else:
-                    infection_terms_set.add((reagent, susceptible, rate))
-                    reagent_index = class_index_dict[reagent]
-                    susceptible_index = class_index_dict[susceptible]
-                    if rate.startswith('-'):
-                        rate = rate[1:]
-                        rate_index = params_index_dict[rate]
-                        infection_terms_list.append([rate_index, reagent_index, susceptible_index, -1])
+            for vv in val:
+                if len(vv) == 3:  # no overdispersion specified
+                    (reagent, susceptible, rate) = vv
+                    if (reagent, susceptible, rate) in infection_terms_set:
+                        raise Exception('Duplicate infection terms: {}, {}, {}'.format(reagent, susceptible, rate))
                     else:
-                        rate_index = params_index_dict[rate]
-                        infection_terms_destination_dict[(rate_index, reagent_index, susceptible_index)] = class_index_dict[k]
+                        infection_terms_set.add((reagent, susceptible, rate))
+                        overdispersion_index = -1
+                elif len(vv) == 4:  # overdispersion specified
+                    (reagent, susceptible, rate, overdispersion) = vv
+                    if (reagent, susceptible, rate, overdispersion) in infection_terms_set:
+                        raise Exception('Duplicate infection terms: {}, {}, {}, {}'.format(reagent, susceptible, rate, overdispersion))
+                    else:
+                        infection_terms_set.add((reagent, susceptible, rate, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                else:
+                    raise Exception('Wrong number of values in infection term: {}, {} (3 or 4 allowed)'.format(k, vv))
+                reagent_index = class_index_dict[reagent]
+                susceptible_index = class_index_dict[susceptible]
+                if rate.startswith('-'):
+                    rate = rate[1:]
+                    rate_index = params_index_dict[rate]
+                    infection_terms_list.append([rate_index, reagent_index, susceptible_index, -1, overdispersion_index])
+                else:
+                    rate_index = params_index_dict[rate]
+                    infection_terms_destination_dict[(rate_index, reagent_index, susceptible_index, overdispersion_index)] = class_index_dict[k]
 
 
         # parse the finite resource-terms into
@@ -113,36 +149,47 @@ def parse_model_spec(model_spec, param_keys):
         resource_dict = {}
         resource_count = 0
         for (k, val) in finres_dict.items():
-            for (reagent, rate, priority, prob) in val:
-                if (reagent, rate, priority, prob) in finres_terms_set:
-                    raise Exception('Duplicates finite-resource terms: {}, {}, {}, {}'.format(reagent, rate, priority, prob))
-                else:
-                    finres_terms_set.add((reagent, rate, priority, prob))
-                    class_index = class_index_dict[reagent]
-                    neg_rate = rate.startswith('-')
-                    if neg_rate:
-                        rate = rate[1:]
-                    rate_index = params_index_dict[rate]
-                    priority_index = params_index_dict[priority]
-                    prob_index = params_index_dict[prob]
-                    if rate not in resource_dict.keys():
-                        resource_dict[rate] = resource_count
-                        resource_list.append([rate_index])
-                        resource_count += 1
-                    resource_index = resource_dict[rate]
-                    if (class_index, priority_index) not in resource_list[resource_index]:
-                        resource_list[resource_index].append((class_index, priority_index))
-                    dict_key = (resource_index, priority_index, prob_index, class_index)
-                    if dict_key not in finres_terms_dict.keys():
-                        finres_terms_dict[dict_key] = [-1,-1]
-                    if neg_rate:
-                        finres_terms_dict[dict_key][0] = class_index_dict[k]
+            for vv in val:
+                if len(vv) == 4:  # no overdispersion specified
+                    (reagent, rate, priority, prob) = vv
+                    if (reagent, rate, priority, prob) in finres_terms_set:
+                        raise Exception('Duplicate finite-resource terms: {}, {}, {}, {}'.format(reagent, rate, priority, prob))
                     else:
-                        finres_terms_dict[dict_key][1] = class_index_dict[k]
+                        finres_terms_set.add((reagent, rate, priority, prob))
+                        overdispersion_index = -1
+                elif len(vv) == 5:  # overdispersion specified 
+                    (reagent, rate, priority, prob, overdispersion) = vv
+                    if (reagent, rate, priority, prob, overdispersion) in finres_terms_set:
+                        raise Exception('Duplicate finite-resource terms: {}, {}, {}, {}, {}'.format(reagent, rate, priority, prob, overdispersion))
+                    else:
+                        finres_terms_set.add((reagent, rate, priority, prob, overdispersion))
+                        overdispersion_index = params_index_dict[overdispersion]
+                else:
+                    raise Exception('Wrong number of values in finite resource term: {}, {} (4 or 5 allowed)'.format(k, vv))
+                class_index = class_index_dict[reagent]
+                neg_rate = rate.startswith('-')
+                if neg_rate:
+                    rate = rate[1:]
+                rate_index = params_index_dict[rate]
+                priority_index = params_index_dict[priority]
+                prob_index = params_index_dict[prob]
+                if rate not in resource_dict.keys():
+                    resource_dict[rate] = resource_count
+                    resource_list.append([rate_index])
+                    resource_count += 1
+                resource_index = resource_dict[rate]
+                if (class_index, priority_index) not in resource_list[resource_index]:
+                    resource_list[resource_index].append((class_index, priority_index))
+                dict_key = (resource_index, priority_index, prob_index, class_index, overdispersion_index)
+                if dict_key not in finres_terms_dict.keys():
+                    finres_terms_dict[dict_key] = [-1,-1]
+                if neg_rate:
+                    finres_terms_dict[dict_key][0] = class_index_dict[k]
+                else:
+                    finres_terms_dict[dict_key][1] = class_index_dict[k]
         for (k,val) in finres_terms_dict.items():
-            finres_terms_list.append(list(k) + val)
-
-
+            (resource_index, priority_index, prob_index, class_index, overdispersion_index) = k
+            finres_terms_list.append([resource_index, priority_index, prob_index, class_index, *val, overdispersion_index])
 
         # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
         test_pos_list = []
@@ -191,15 +238,17 @@ def parse_model_spec(model_spec, param_keys):
                                      np.array(test_freq_list, dtype=np.intc, ndmin=1))
     return res
 
+
 def set_destination(term_list, destination_dict):
     '''
     A function used by parse_model_spec that sets the product_index
     '''
     for term in term_list:
-        indices = tuple(term[:-1])
+        indices = tuple(term[:-2]+term[-1:])
         if indices in destination_dict.keys():
             product_index = destination_dict[indices]
             term[-1] = product_index
+            
 
 def age_dep_rates(rate, int M, str name, bint check_length=True):
     if np.size(rate)==1:
@@ -354,75 +403,6 @@ def largest_real_eig(np.ndarray A):
     return eigval_sign, eigvec
 
 
-
-def hessian_finite_difference(pos, function, eps=1e-3, method="central"):
-    """Forward finite-difference computation of the Hessian of a function.
-
-    Parameters
-    ----------
-    pos:numpy.array(dims=1)
-        Position at which the hessian is to be computed.
-    function: function(numpy.array)
-        Function of interest.
-    pos: float or numpy.array(dims=1), optional
-        Step size used for FD computation (can be parameter dependant).
-    method: str
-        Different options for the FD computation: "forward" or "central".
-
-    Returns
-    -------
-    hess: numpy.array(dims=2)
-        Hessian of function at pos.
-    """
-    k = len(pos)
-    if not hasattr(eps, "__len__"):
-        eps = eps*np.ones(k)
-
-    hessian = np.empty((k, k))
-
-    if method == "forward":
-        val_central = function(pos)
-        val1 = np.zeros(k)
-        for i in range(k):
-            pos[i] += eps[i]
-            val1[i] = function(pos)
-            pos[i] -= eps[i]
-
-        for i in range(k):
-            pos[i] += eps[i]
-            for j in range(k):
-                pos[j] += eps[j]
-                val2 = function(pos)
-                pos[j] -= eps[j]
-
-                hessian[i, j] = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
-            pos[i] -= eps[i]
-
-        return 1/2 * (hessian + hessian.T)
-
-    if method == "central":
-        orig_pos = pos.copy()
-        for i in range(k):
-            for j in range(i+1):
-                pos = orig_pos.copy()
-                pos[i] += eps[i]
-                pos[j] += eps[j]
-                val1 = function(pos)
-                pos[j] -= 2*eps[j]
-                val2 = function(pos)
-                pos = orig_pos.copy()
-                pos[i] -= eps[i]
-                pos[j] += eps[j]
-                val3 = function(pos)
-                pos[j] -= 2*eps[j]
-                val4 = function(pos)
-                hessian[i, j] = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
-                hessian[j, i] = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
-
-        return hessian
-
-    raise Exception("Finite-difference method must be 'forward' or 'central'.")
-
 def partial_derivative(func, var, point, dx, *func_args):
     args = point[:]
     def wraps(x, *wraps_args):
@@ -471,9 +451,14 @@ def _parse_prior_name(sub_dict, dim):
     else:
         return ['lognorm']*dim
 
+def mode_of_lognormal(mean,std):
+    mode = mean**4/(mean**2+std**2)**(3/2)
+    logvar = np.sqrt(np.log(1+std**2/mean**2))*mode  # std on logscale
+    return mode, logvar
+
 def parse_param_prior_dict(prior_dict, M, check_length=True):
-    flat_guess = []
     flat_stds = []
+    flat_mean = []
     flat_bounds = []
     flat_guess_range = []
     key_list = []
@@ -490,7 +475,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
         except KeyError:
             raise Exception('Sub-dict under {} must have "mean" as a key'.format(key))
         if np.size(mean) == 1:
-            flat_guess.append(mean)
+            flat_mean.append(mean)
             try:
                 flat_stds.append(sub_dict['std'])
                 flat_bounds.append(sub_dict['bounds'])
@@ -506,7 +491,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
             if 'infer_scale' in sub_dict.keys():
                 infer_scale = sub_dict['infer_scale']
             if infer_scale:
-                flat_guess.append(1.0)
+                flat_mean.append(1.0)
                 try:
                     flat_stds.append(sub_dict['scale_factor_std'])
                     flat_bounds.append(sub_dict['scale_factor_bounds'])
@@ -524,7 +509,7 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                     assert len(mean) == M, 'length of mean must be either 1 or M'
                 else:
                     M = len(mean)
-                flat_guess += list(mean)
+                flat_mean += list(mean)
                 try:
                     assert len(sub_dict['std']) == M
                     assert len(sub_dict['bounds']) == M
@@ -537,7 +522,15 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
                 flat_guess_range.append(list(range(count, count+M)))
                 names += _parse_prior_name(sub_dict, M)
                 count += M
-    return names, key_list, np.array(flat_guess), np.array(flat_stds), \
+    
+    # set guess to mode for all lognormal distributions
+    flat_guess = flat_mean.copy()
+    flat_guess_std = flat_stds.copy()
+    for i in range(len(names)):
+        if names[i] == 'lognorm':
+            flat_guess[i], flat_guess_std[i] = mode_of_lognormal(flat_mean[i], flat_stds[i])
+    
+    return names, key_list, np.array(flat_mean), np.array(flat_stds), np.array(flat_guess), np.array(flat_guess_std), \
           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
 
 def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses):
@@ -553,7 +546,7 @@ def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_gu
     return orig_params
 
 def parse_init_prior_dict(prior_dict, dim, obs_dim):
-    guess = []
+    mean = []
     stds = []
     bounds = []
     names = []
@@ -563,7 +556,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     if 'lin_mode_coeff' in prior_dict.keys():
         sub_dict = prior_dict['lin_mode_coeff']
         try:
-            guess.append(sub_dict['mean'])
+            mean.append(sub_dict['mean'])
             stds.append(sub_dict['std'])
             bounds.append(sub_dict['bounds'])
             fltrs[0] = _process_init_fltr(sub_dict['fltr'], dim)
@@ -578,7 +571,7 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
         sub_dict = prior_dict['independent']
         try:
             fltrs[1] = _process_init_fltr(sub_dict['fltr'], dim)
-            guess.extend(sub_dict['mean'])
+            mean.extend(sub_dict['mean'])
             stds.extend(sub_dict['std'])
             bounds.extend(sub_dict['bounds'])
         except KeyError:
@@ -595,10 +588,17 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     if np.sum(flags) == 0:
         raise Exception('Prior for inits must have at least one of "independent"'
                         ' and "coeff" as keys')
-    # check that the total number of guesses is correct
+    # check that the total number of means is correct
     assert count == dim - obs_dim, 'Total No. of guessed values must be dim - obs_dim'
 
-    return names, np.array(guess), np.array(stds), np.array(bounds), \
+    # set guess to mode for all lognormal distributions
+    guess = mean.copy()
+    guess_std = stds.copy()
+    for i in range(len(names)):
+        if names[i] == 'lognorm':
+            (guess[i],guess_std[i]) = mode_of_lognormal(mean[i], stds[i])
+    
+    return names, np.array(mean), np.array(stds), np.array(guess), np.array(guess_std), np.array(bounds), \
            flags, fltrs
 
 def _process_init_fltr(fltr, dim):
@@ -702,62 +702,62 @@ def getPopulation(country='India', M=16):
     u8 = u0 + 'age_structures/China-2019.csv'
     u9 = u0 + 'age_structures/France.txt'
 
-    import pandas as pd
     if country=='India':
-        data = pd.read_csv(u1, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u1, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='UK':
-        data = pd.read_csv(u2, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u2, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='Germany':
-        data = pd.read_csv(u3, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u3, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='Italy':
-        data = pd.read_csv(u4, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u4, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='Denmark':
-        data = pd.read_csv(u5, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u5, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='UK':
-        data = pd.read_csv(u6, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u6, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='USA':
-        data = pd.read_csv(u7, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u7, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
 
     elif country=='China':
-        data = pd.read_csv(u8, sep=',',header=None, skiprows=[0])
-        N_m  = np.array((data[1]))[0:M]
-        N_f  = np.array((data[2]))[0:M]
-        Ni   = N_m + N_f
+        data = np.asanyarray(np.genfromtxt(u8, delimiter=','))
+        N_m  = np.array((data[:, 1]))[1:M+1]
+        N_f  = np.array((data[:, 2 ]))[1:M+1]
+        Ni   = N_m + N_f 
         Ni   = Ni[0:M];  Ni=Ni.astype('double')
+
     elif country=='France':
         Ni = np.genfromtxt(u9)[:, 3]
 
@@ -862,20 +862,6 @@ class GPR:
         self.calcPrior()
         self.calcMuSigma()
         self.plotResults()
-
-
-def getDiagonalCM(country, M=16):
-    import pyross
-    if country=='UK':
-        CH, CW, CS, CO = pyross.contactMatrix.UK()
-    else:
-        CH, CW, CS, CO = pyross.contactMatrix.getCM(country)
-    CM=CH+CW+CS+CO
-
-    x = np.zeros(M)
-    for i in range(M):
-        x[i] = 1*CM[i,i]
-    return x
 
 
 def resample(weighted_samples, N):

@@ -10,16 +10,14 @@ dependencies:
   - scipy
   - pytest 
   - pytest-cov
-  - pandas
   - sympy
   - ipython
   - nbconvert
-  - xlrd
   - dynesty
   - emcee
+  - nlopt
   - pip
   - pip:
     - cma
     - dill
-    - nlopt
     - pathos

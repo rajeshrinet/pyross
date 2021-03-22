@@ -4,13 +4,13 @@
 ## PyRoss: inference, forecasts, and optimised control for epidemiological models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) ![CI](https://github.com/rajeshrinet/pyross/workflows/CI/badge.svg) ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg)  [![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi/pyross) [![Python Version](https://img.shields.io/pypi/pyversions/pyross)](https://pypi.org/project/pyross) [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)  ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) ![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 
 
-[About](#about) | [Blog](https://pyrosslib.github.io/blog/) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Events](https://github.com/rajeshrinet/pyross/wiki/Upcoming-and-past-events) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
+[About](#about) | [Blog](https://pyrosslib.github.io/blog/) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
 
 
 
 ## About
 
-[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library that offers an integrated platform for **inference**, **forecasts** and **non-pharmaceutical interventions** in structured epidemiological compartment models.
+[PyRoss](https://github.com/rajeshrinet/pyross) is a numerical library that offers an integrated platform for **inference**, **forecasts** and **non-pharmaceutical interventions** in structured epidemiological compartment models. 
 
 **Compartment models** of arbitrary complexity can be  **user-defined** through Python dictionaries. The most common epidemiological models, and several less common ones, come pre-defined with the library. Models can include **stages** to allow for non-exponentially distributed compartmental residence times. Currently,  [pre-defined models](https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf) include ones with multiple disease states (exposed, asymptomatic, symptomatic, etc) and may be further divided by age, and by objective medical states (hospitalized, in ICU, etc). The compartment framework supports models for **disease surveillance** and **quarantine** and a variety of other processes of epidemiological relevance. 
 
@@ -28,28 +28,34 @@ The libraries are named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ro
 The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are:
 [Ronojoy Adhikari](https://github.com/ronojoy),
 [Austen Bolitho](https://github.com/TakodaS),
-Fernando Caballero, Michael Cates,
+[Erik Brorson](https://github.com/erikbrorson),
+[Fernando Caballero](https://github.com/fcaballerop), 
+[Michael Cates](http://www.damtp.cam.ac.uk/person/mec22),
 [Jakub Dolezal](https://github.com/JakubJDolezal),
 [Tim Ekeh](https://github.com/tekeh),
-Jules Guioth, Robert Jack,
+[Jules Guioth](https://orcid.org/0000-0001-5644-3044), 
+[Robert Jack](https://github.com/rljack2002),
 [Julian Kappler](https://github.com/juliankappler),
 [Lukas Kikuchi](https://github.com/lukastk),
+[Hideki Kobayashi](https://github.com/hidekb),
 [Irene Li](https://github.com/Irene-Li),
-Joseph Peterson,
+[Joseph Peterson](https://github.com/jdpeterson3/),
 [Patrick Pietzonka](https://github.com/ppietzonka),
 [Benjamin Remez](https://github.com/BenjaminRemez),
 [Paul Rohrbach](https://github.com/prohrbach),
 [Rajesh Singh](https://github.com/rajeshrinet), 
-and [Günther Turk](https://github.com/phi6GTurk).
+and [Günther Turk](https://github.com/phi6GTurk). 
 
-Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw)  for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
+PyRoss development is partially supported by a [Microsoft Research Award](https://www.microsoft.com/en-us/research/collaboration/studies-in-pandemic-preparedness/#!projects) for "Building an open platform for pandemic modelling".
+
+Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw) for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
-#### From a checkout of this repository
+### From a checkout of this repository
 
-Install PyRoss and required dependencies using
+#### Install PyRoss and an extended list of dependencies using 
 
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
@@ -58,9 +64,7 @@ Install PyRoss and required dependencies using
 >> python setup.py install
 ```
 
-#### Via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html)
-
-Install PyRoss and its dependencies in a `pyross` [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml):
+#### Install PyRoss and an extended list of dependencies, via [Anaconda](https://docs.conda.io/projects/continuumio-conda/en/latest/user-guide/install/index.html), in an [environment](https://github.com/rajeshrinet/pyross/blob/master/environment.yml) named `pyross`:
 
 ```bash
 >> git clone https://github.com/rajeshrinet/pyross.git
@@ -70,7 +74,7 @@ Install PyRoss and its dependencies in a `pyross` [environment](https://github.c
 >> make
 ```
 
-#### Via pip
+### Via pip
 
 Install the latest [PyPI](https://pypi.org/project/pyross) version
 
@@ -81,7 +85,7 @@ Install the latest [PyPI](https://pypi.org/project/pyross) version
 
 
 
-#### Testing
+### Testing
 Short test of initialisation and running
 
 ```bash
@@ -104,54 +108,117 @@ to test a certain subset of notebooks
 
 ## Examples
 
-PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation. [PyRoss Documentation](https://pyross.readthedocs.io/en/latest/) contains links for more examples.
+PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation with three age-groups. 
 
 ```Python
-# Ex1: M=1, SIR
+# M=3, SIR with three age-groups
+
 import numpy as np
 import pyross
+import matplotlib.pyplot as plt
 
-M     = 1                  # the SIR model has no age structure
-Ni    = 1000*np.ones(M)    # so there is only one age group
-N     = np.sum(Ni)         # and the total population is the size of this age group
 
-beta  = 0.2                # infection rate
-gIa   = 0.1                # recovery rate of asymptomatic infectives
-gIs   = 0.1                # recovery rate of symptomatic infectives
-alpha = 0                  # fraction of asymptomatic infectives
-fsa   = 1                  # the self-isolation parameter
+model_spec = { "classes" : ["S", "I"],
 
-Ia0   = np.array([0])      # the SIR model has only one kind of infective
-Is0   = np.array([1])      # we take these to be symptomatic
-R0    = np.array([0])      # and assume there are no recovered individuals initially
-S0    = N-(Ia0+Is0+R0)     # initial susceptibles are obtained from S + Ia + Is + R = N
+             "S" : {
+                    "constant"  : [ ["k"] ], 
+                    "infection" : [ ["I", "-beta"] ]
+                   },
 
-# there is no contact structure
-def contactMatrix(t):   
-    return np.identity(M)
+            "I" : {
+                    "linear"    : [ ["I", "-gamma"] ],
+                    "infection" : [ ["I", "beta"] ]
+                   }
+             }
 
-# instantiate model
-parameters = {'alpha':alpha, 'beta':beta, 'gIa':gIa, 'gIs':gIs, 'fsa':fsa}
-model      = pyross.deterministic.SIR(parameters, M, Ni)
 
-# simulate model
-Tf, Nt = 160,  160           # duration of simulation and data points
-data = model.simulate(S0, Ia0, Is0, contactMatrix, Tf, Nt)
+parameters = {
+              'beta' : 0.1,
+              'gamma' : 0.1, 
+              'k' : 1, 
+             }
 
-# time series of S, Ia, Is, R
-S  = model.S(data)
-Ia = model.Ia(data)
-Is = model.Is(data)
-R  = model.R(data)
+
+M=3;  Ni=1000*np.ones(M);  N=np.sum(Ni) 
+
+
+# Initial conditions as an array
+x0 = np.array([
+    999, 1000, 1000, # S
+    1,   0,    0,    # I
+])
+
+
+# Or initial conditions as a dictionary 
+I0 = [10, 10, 10]
+S0 = [n-20 for n in Ni]
+
+
+x0 = {
+    'S' : S0,
+    'I' : I0 
+     }
+
+
+CM = np.array([
+    [1,   0.5, 0.1],
+    [0.5, 1,   0.5],
+    [0.1, 0.5, 1  ]
+], dtype=float)
+
+
+def contactMatrix(t):
+    return CM
+
+
+# duration of simulation and data file
+Tf = 160;  Nf=Tf+1; 
+
+model = pyross.deterministic.Spp(model_spec, parameters, M, Ni)
+
+# simulate model 
+data = model.simulate(x0, contactMatrix, Tf, Nf)
+
+
+# plot the data and obtain the epidemic curve
+S = np.sum(model.model_class_data('S', data), axis=1)
+I = np.sum(model.model_class_data('I', data), axis=1)
+R = np.sum(model.model_class_data('R', data), axis=1)
+t = data['t']
+
+fig = plt.figure(num=None, figsize=(10, 8), dpi=80, facecolor='w', edgecolor='k')
+plt.rcParams.update({'font.size': 22})
+
+plt.fill_between(t, 0, S/N, color="#348ABD", alpha=0.3)
+plt.plot(t, S, '-', color="#348ABD", label='$S$', lw=4)
+
+plt.fill_between(t, 0, I/N, color='#A60628', alpha=0.3)
+plt.plot(t, I, '-', color='#A60628', label='$I$', lw=4)
+
+plt.fill_between(t, 0, R/N, color="dimgrey", alpha=0.3)
+plt.plot(t, R, '-', color="dimgrey", label='$R$', lw=4)
+
+plt.legend(fontsize=26); plt.grid() 
+plt.autoscale(enable=True, axis='x', tight=True)
+plt.ylabel('Compartment value')
+plt.xlabel('Days');
 ```
+Read more in the [examples](https://github.com/rajeshrinet/pyross/tree/master/examples) folders.
+
 
 ## Publications
-* **Inference, prediction and optimization of non-pharmaceutical interventions using compartment models: the PyRoss library**, R. Adhikari, Austen Bolitho, Fernando Caballero, Michael E. Cates,
+* **Bayesian inference across multiple models suggests a strong increase in lethality of COVID-19 in late 2020 in the UK**. Patrick Pietzonka, Erik Brorson, William Bankes, Michael E. Cates, Robert L. Jack, R. Adhikari [medRxiv, 2021](https://doi.org/10.1101/2021.03.10.21253311)
+
+* **Efficient Bayesian inference of fully stochastic epidemiological models with applications to COVID-19**. Yuting I. Li, Günther Turk, Paul B. Rohrbach, Patrick Pietzonka, Julian Kappler, Rajesh Singh, Jakub Dolezal, Timothy Ekeh, Lukas Kikuchi, Joseph D. Peterson, Hideki Kobayashi, Michael E. Cates, R. Adhikari, Robert L. Jack, [arXiv:2010.11783, 2020](https://arxiv.org/abs/2010.11783)  | [ResearchGate](https://www.researchgate.net/publication/344828080_Efficient_Bayesian_inference_of_fully_stochastic_epidemiological_models_with_applications_to_COVID-19)
+
+* **Efficient and flexible methods for time since infection models**, Joseph D. Peterson, R. Adhikari, [arXiv:2010.10955, 2020](https://arxiv.org/abs/2010.10955)
+
+* **Inference, prediction and optimization of non-pharmaceutical interventions using compartment models: the PyRoss library**. R. Adhikari, Austen Bolitho, Fernando Caballero, Michael E. Cates,
   Jakub Dolezal, Timothy Ekeh, Jules Guioth, Robert L. Jack, Julian Kappler,
   Lukas Kikuchi, Hideki Kobayashi, Yuting I. Li, Joseph D. Peterson, Patrick
-  Pietzonka, Benjamin Remez, Paul B. Rohrbach, Rajesh Singh, and Günther Turk, [arXiv:2005.09625](https://arxiv.org/abs/2005.09625), [Research Gate](https://www.researchgate.net/publication/341496170_Inference_prediction_and_optimization_of_non-pharmaceutical_interventions_using_compartment_models_the_PyRoss_library).  <br/> *(Please cite this paper if you use PyRoss in your research)*.
-
-* **Age-structured impact of social distancing on the COVID-19 epidemic in India**, Rajesh Singh and R. Adhikari,  [arXiv:2003.12055](https://arxiv.org/abs/2003.12055), [Research Gate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa).
+  Pietzonka, Benjamin Remez, Paul B. Rohrbach, Rajesh Singh, and Günther Turk, [arXiv:2005.09625, 2020](https://arxiv.org/abs/2005.09625) | [ResearchGate](https://www.researchgate.net/publication/341496170_Inference_prediction_and_optimization_of_non-pharmaceutical_interventions_using_compartment_models_the_PyRoss_library).  
+  
+* **Age-structured impact of social distancing on the COVID-19 epidemic in India**. Rajesh Singh and R. Adhikari,  [arXiv:2003.12055, 2020](https://arxiv.org/abs/2003.12055) | [ResearchGate](https://www.researchgate.net/publication/340209224_Age-structured_impact_of_social_distancing_on_the_COVID-19_epidemic_in_India_Updates_at_httpsgithubcomrajeshrinetpyrossa).
 
 
 ## News
@@ -162,7 +229,6 @@ R  = model.R(data)
 * Python Trending has tweeted about PyRoss <blockquote class="twitter-tweet"><p lang="en" dir="ltr">PyRoss - Mathematical modelling of infectious disease in Python. <a href="https://t.co/VBOmT5kaVT">https://t.co/VBOmT5kaVT</a> <a href="https://t.co/FRvEqWMlPL">https://t.co/FRvEqWMlPL</a></p>&mdash; Python Trending (@pythontrending) <a href="https://twitter.com/pythontrending/status/1244918005731033088?ref_src=twsrc%5Etfw">March 31, 2020</a></blockquote>  
 
 * Python Weekly has tweeted about PyRoss <blockquote class="twitter-tweet"><p lang="en" dir="ltr">PyRoss - Mathematical modelling of infectious disease in Python. <a href="https://t.co/MyTWTM1ItP">https://t.co/MyTWTM1ItP</a> <a href="https://twitter.com/hashtag/Python?src=hash&amp;ref_src=twsrc%5Etfw">#Python</a> <a href="https://twitter.com/hashtag/Coronavirus?src=hash&amp;ref_src=twsrc%5Etfw">#Coronavirus</a> <a href="https://twitter.com/hashtag/Covid19?src=hash&amp;ref_src=twsrc%5Etfw">#Covid19</a> <a href="https://t.co/gzPNpWf7mK">pic.twitter.com/gzPNpWf7mK</a></p>&mdash; Python Weekly (@PythonWeekly) <a href="https://twitter.com/PythonWeekly/status/1248324915788492807?ref_src=twsrc%5Etfw">April 9, 2020</a></blockquote>
-
 
 
 ## License

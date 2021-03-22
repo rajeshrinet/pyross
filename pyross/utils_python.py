@@ -5,7 +5,11 @@ import multiprocessing
 import numpy as np
 import nlopt
 import cma
+import sys
+import traceback
+import pickle
 from scipy.stats import truncnorm, lognorm
+from itertools import product
 
 try:
     # Optional support for multiprocessing in the minimization function.
@@ -14,9 +18,10 @@ except ImportError:
     pathos_mp = None
 
 def minimization(objective_fct, guess, bounds, global_max_iter=100,
-                local_max_iter=100, ftol=1e-2, global_atol=1,
-                 enable_global=True, enable_local=True, cma_processes=0, cma_population=16, cma_stds=None,
-                 cma_random_seed=None, verbose=True, args_dict={}):
+                 local_max_iter=100, ftol=1e-2, global_atol=1,
+                 enable_global=True, enable_local=True, local_initial_step=None, 
+                 cma_processes=0, cma_population=16, cma_stds=None,
+                 cma_random_seed=None, verbose=True, tmp_file=None, load_backup_file=None, args_dict={}):
     """ Compute the global minimum of the objective function.
 
     This function computes the global minimum of `objective_fct` using a combination of a global minimisation step
@@ -35,6 +40,9 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         The maximum number of iterations for the global algorithm.
     local_max_iter: int
         The maximum number of iterations for the local algorithm.
+    local_initital_step: optional, float or np.array
+        Initial step size for the local optimiser. If scalar, relative to the initial guess. 
+        Default: Deterined by final state of global optimiser, or, if enable_global=False, 0.01
     ftol: float
         Relative function value stopping criterion for the optimisation algorithms.
     global_atol: float
@@ -55,6 +63,10 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
     verbose: bool
         Enable output.
+    tmp_file: optional, string
+        If specified, name of a file to store the state of the optimiser as backup
+    load_backup_file: optional, string
+        If specified, name of a file to restore the the state of the optimiser
     args_dict: dict
         Key-word arguments that are passed to the minimisation function.
 
@@ -70,22 +82,15 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     # Step 1: Global optimisation
     if enable_global:
         if verbose:
-            print('Starting global minimisation...')
-
-        if cma_processes == 0:
-            if pathos_mp:
-                # Optional dependecy for multiprocessing (pathos) is installed.
-                cma_processes = multiprocessing.cpu_count()
+            if load_backup_file is None:
+                print('Starting global minimisation ...')
             else:
-                cma_processes = 1
+                print('Continuing global minimisation from backup ...')
 
-        if pathos_mp:
-            p = pathos_mp.ProcessingPool(cma_processes)
-        else:
-            if cma_processes != 1:
-                print('Warning: Optional dependecy for multiprocessing support `pathos` not installed.')
-                print('         Switching to single processed mode (cma_processes = 1).')
-                cma_processes = 1
+        if not pathos_mp and cma_processes != 1:
+            print('Warning: Optional dependecy for multiprocessing support `pathos` not installed.')
+            print('         Switching to single processed mode (cma_processes = 1).')
+        cma_processes = _get_number_processes(cma_processes)
 
         options = cma.CMAOptions()
         options['bounds'] = [bounds[:, 0], bounds[:, 1]]
@@ -101,36 +106,42 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
         if cma_random_seed is None:
             cma_random_seed = np.random.randint(2**32-2)
         options['seed'] = cma_random_seed
-
-        global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
+        if load_backup_file is None:
+            global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
+        else:
+            try:
+                s = open(load_backup_file, 'rb').read() 
+                global_opt = pickle.loads(s)
+            except:
+                print('Backup file not found or invalid, starting new optimisation')
+                global_opt = cma.CMAEvolutionStrategy(guess, 1.0, options)
+                
         iteration = 0
         while not global_opt.stop() and iteration < global_max_iter:
             positions = global_opt.ask()
             # Use multiprocess pool for parallelisation. This only works if this function is not in a cython file,
             # otherwise, the lambda function cannot be passed to the other processes. It also needs an external Pool
             # implementation (from `pathos.multiprocessing`) since the python internal one does not support lambda fcts.
-            if cma_processes != 1:
-                try:
-                    values = p.map(lambda x: objective_fct(x, grad=0, **args_dict), positions)
-                except:
-                    # Some types of functions cannot be pickled (in particular functions that are defined in a function
-                    # that is compiled with cython). This leads to an exception when trying to pass them to a different
-                    # process. If this happens, we switch the algorithm to single process mode.
-                    print('Warning: Running parallel optimization failed. Will switch to single-processed mode.')
-                    cma_processes = 1
-                    values = [objective_fct(x, 0, **args_dict) for x in positions]
-            else:
-                # Run the unparallelised version
-                values = [objective_fct(x, 0, **args_dict) for x in positions]
+            try:
+                values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
+            except KeyboardInterrupt:
+                print("Global optimisation: Interrupting global minimisation...")
+                iteration = global_max_iter + 1 # break out of the optimisation loop
+            except Exception as e:
+                print("Exception in multiprocessing: ")
+                print("Caught: {}".format(e))
+                if verbose:
+                    traceback.print_exc(file=sys.stdout)
+                print("Will fallback to using a single core. Setting cma_processes = 1")
+                cma_processes = 1
+                values = _take_global_optimisation_step(positions, objective_fct, cma_processes, **args_dict)
             global_opt.tell(positions, values)
+            if tmp_file is not None:
+                s = global_opt.pickle_dumps()
+                open(tmp_file, 'wb').write(s)
             if verbose:
                 global_opt.disp()
             iteration += 1
-
-        if pathos_mp:
-            p.close()  # We need to close the pool, otherwise python does not terminate properly
-            p.join()
-            p.clear()  # If this is not set, pathos will reuse the pool we just closed, producing an error
 
         x_result = global_opt.best.x
         y_result = global_opt.best.f
@@ -145,7 +156,6 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
     if enable_local:
         # Use derivative free local optimisation algorithm with support for boundary conditions
         # to converge to the next minimum (which is hopefully the global one).
-        dim = len(guess)
         local_opt = nlopt.opt(nlopt.LN_NELDERMEAD, guess.shape[0])
         local_opt.set_min_objective(lambda x, grad: objective_fct(x, grad, **args_dict))
         local_opt.set_lower_bounds(bounds[:,0])
@@ -161,6 +171,16 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             # to be within the boundaries.
             min_stds = np.minimum(min_stds, np.amin([bounds[:, 1] - x_result, x_result -  bounds[:, 0]], axis=0))
             local_opt.set_initial_step(1/2 * min_stds)
+        else:
+            local_opt.set_initial_step(0.01*guess)
+    
+        if local_initial_step is not None:
+            if type(local_initial_step) is float:
+                local_opt.set_initial_step(local_initial_step*guess)
+            elif (type(local_initial_step) is np.ndarray) and len(local_initial_step)==len(guess):
+                local_opt.set_initial_step(local_initial_step)
+            else:
+                raise Exception('Wrong length of local_initial_step')
 
         x_result = local_opt.optimize(x_result)
         y_result = local_opt.last_optimum_value()
@@ -171,6 +191,32 @@ def minimization(objective_fct, guess, bounds, global_max_iter=100,
             print('Optimal value (local minimisation): ', y_result)
 
     return x_result, y_result
+
+def _get_number_processes(procs):
+    """
+    If pathos_mp is not found, will return 1. If procs is 0 and pathos_mp is found, it will return number of available
+    cpus. Else returns procs
+    """
+    if not pathos_mp:
+        return 1
+    elif procs == 0:
+        return multiprocessing.cpu_count()
+    else:
+        return procs
+
+
+def _take_global_optimisation_step(positions, objective_function, cma_processes, **kwargs):
+    """
+    Takes a global optimisation step either using one core, or multiprocessing
+    """
+    assert cma_processes > 0, "cma_processes must be bigger than 0"
+    if cma_processes == 1:
+        ret = [objective_function(x, grad=0, **kwargs) for x in positions]
+    elif cma_processes > 1:
+        # Using the pool as a context manager will make any exceptions raised kill the other processes.
+        with pathos_mp.ProcessingPool(cma_processes) as pool:
+            ret = pool.map(lambda x: objective_function(x, grad=0, **kwargs), positions)
+    return ret
 
 
 def parse_prior_fun(name, bounds, mean, std):
@@ -248,4 +294,149 @@ class lognorm_rv:
     def ppf(self, x):
         y = self.ppf_bounds[:,0] + x * self.ppf_bounds[:,1]
         return self.rv.ppf(y)
+
+
+def hessian_finite_difference(pos, function, eps=1e-3, method="central", nprocesses=0, basis=None,
+                              function_kwargs={}):
+    """Forward finite-difference computation of the Hessian of a function.
+
+    Parameters
+    ----------
+    pos:numpy.array(dims=1)
+        Position at which the hessian is to be computed.
+    function: function(numpy.array)
+        Function of interest.
+    pos: float or numpy.array(dims=1), optional
+        Step size used for FD computation (can be parameter dependant).
+    method: str
+        Different options for the FD computation: "forward" or "central".
+    nprocesses: int
+        The number of processes used for the Hessian computation. By default, this
+        chooses the number of CPU cores available.
+    basis: numpy.array(dims=2), optional
+        The orthogonal coordinate basis used for the finite difference scheme. Uses 
+        canonical coordinates (basis=identity matrix) by default.
+
+    Returns
+    -------
+    hess: numpy.array(dims=2)
+        Hessian of function at pos.
+    """
+    k = len(pos)
+    if not hasattr(eps, "__len__"):
+        eps = eps*np.ones(k)
+        
+    if basis is None:
+        basis = np.identity(k)
+
+    procs = _get_number_processes(nprocesses)
+    local_func = lambda x : function(x, **function_kwargs)
+
+    if method == "forward":
+        orig_pos = pos.copy()
+        val_central = local_func(pos)
+
+        def forward_eval(i):
+            pos = orig_pos.copy()
+            pos += eps[i] * basis[:,i]
+            val = local_func(pos)
+            return val
+
+        if procs > 1:
+            with pathos_mp.ProcessingPool(procs) as pool:
+                val1 = pool.map(forward_eval, range(k))
+        else:
+            val1 = [forward_eval(i) for i in range(k)]
+
+        def forward_eval2(index):
+            i,j = index
+            pos = orig_pos.copy()
+            pos += eps[i] * basis[:,i]
+            pos += eps[j] * basis[:,j]
+            val2 = local_func(pos)
+
+            hessian_entry = (val2 - val1[i] - val1[j] + val_central)/(eps[i]*eps[j])
+            return hessian_entry
+        
+        if procs > 1:
+            with pathos_mp.ProcessingPool(procs) as pool:
+                hessian = pool.map(forward_eval2, product(range(k), range(k)))
+        else:
+            hessian = [forward_eval2(index) for index in product(range(k), range(k))]
+        
+        hessian = np.array(hessian).reshape((k,k))
+        return basis @ (1/2 * (hessian + hessian.T)) @ basis.T
+
+    if method == "central":
+        orig_pos = pos.copy()
+        index_list = []
+        for i in range(k):
+            for j in range(i+1):
+                index_list.append((i,j))
+        
+        def central_eval(index):
+            i,j = index
+            pos = orig_pos.copy()
+            pos += eps[i] * basis[:,i]
+            pos += eps[j] * basis[:,j]
+            val1 = local_func(pos)
+            pos -= 2*eps[j] * basis[:,j]
+            val2 = local_func(pos)
+            pos = orig_pos.copy()
+            pos -= eps[i] * basis[:,i]
+            pos += eps[j] * basis[:,j]
+            val3 = local_func(pos)
+            pos -= 2*eps[j] * basis[:,j]
+            val4 = local_func(pos)
+            hessian_val = (val1 + val4 - val2 - val3) / (4*eps[i]*eps[j])
+            return hessian_val
+        
+        if procs > 1:
+            with pathos_mp.ProcessingPool(procs) as pool:
+                hessian_vals = pool.map(central_eval, index_list)
+        else:
+            hessian_vals = [central_eval(index) for index in index_list]
+
+        hessian = np.zeros((k,k))
+        ctr = 0
+        for i in range(k):
+            for j in range(i+1):
+                hessian[i,j] = hessian_vals[ctr]
+                hessian[j,i] = hessian_vals[ctr]
+                ctr += 1
+
+        return basis @ hessian @ basis.T
+
+    raise Exception("Finite-difference method must be 'forward' or 'central'.")
+
+    
+def eval_parallel(samples, function, nprocesses=0, function_kwargs={}):
+    """Evaluate a function for many samples in parallel
+
+    Parameters
+    ----------
+    samples:list
+        Samples for which the function is to be computed.
+    function: function(numpy.array)
+        Function of interest.
+    nprocesses: int
+        The number of processes used for the Hessian computation. By default, this
+        chooses the number of CPU cores available.
+
+    Returns
+    -------
+    val: list
+        Function values at samples.
+    """
+
+    procs = _get_number_processes(nprocesses)
+    local_func = lambda x : function(x, **function_kwargs)
+
+    if procs > 1:
+        with pathos_mp.ProcessingPool(procs) as pool:
+            val = pool.map(local_func, samples)
+    else:
+        val = [local_func(i) for x in samples]
+
+    return val
 

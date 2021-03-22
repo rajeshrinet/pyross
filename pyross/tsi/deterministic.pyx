@@ -10,7 +10,6 @@ import nlopt
 
 DTYPE   = np.float
 
-
 cdef class CommonMethods:
     """
     Parent class used for all classes listed below. 
@@ -19,7 +18,13 @@ cdef class CommonMethods:
     b) Method to get time series of S, etc by passing a dict of data.
     c) Method to set the contactMatrix array, CM
     """
-
+    
+    cdef:
+        readonly int N, M, kI, kE, nClass
+        readonly float Ttsi, dtsi, beta_params, gI_params
+        readonly np.ndarray population, beta, gI, Ni, CM
+        readonly dict paramList, readData
+    
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
         Ti=0, maxNumSteps=100000, **kwargs):
         """
@@ -125,311 +130,14 @@ cdef class CommonMethods:
         self.CM=contactMatrix(t)
 
 
-    def S(self,  data):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             S: Susceptible population time series
-        """
-        
-        X = data['X']
-        S = X[:, 0:self.M]
-        return S
-
-
-    def E(self,  data, Ei=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             E: Exposed population time series
-        """
-        
-        if None != Ei:
-            X = data['X']  
-            E = X[:, Ei[0]*self.M:Ei[1]*self.M]
-        else:
-            X = data['X']  
-            Ei=self.readData['Ei']
-            E = X[:, Ei[0]*self.M:Ei[1]*self.M]
-        return E
-
-
-    def A(self,  data, Ai=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             A: Activated population time series
-        """
-        
-        if None != Ai:
-            X = data['X']  
-            A = X[:, Ai[0]*self.M:Ai[1]*self.M]
-        else:
-            X = data['X']  
-            Ai=self.readData['Ai']
-            A = X[:, Ai[0]*self.M:Ai[1]*self.M]
-        return A
-
-
-    def I(self,  data, Ii=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-
-        if None != Ii:
-            X  = data['X']
-            Ii=self.readData['Ii']
-            I = X[:, Ii[0]*self.M:Ii[1]*self.M]
-        else:
-            X  = data['X']  
-            Ii=self.readData['Ii']
-            I = X[:, Ii[0]*self.M:Ii[1]*self.M]
-        return I
-
-
-    def Ia(self,  data, Iai=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ia : Asymptomatics population time series
-        """
-        
-        if None != Iai:
-            X  = data['X']
-            Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
-        else:
-            X  = data['X'] 
-            Iai=self.readData['Iai']
-            Ia = X[:, Iai[0]*self.M:Iai[1]*self.M]
-        return Ia
-
-
-    def Is(self,  data, Isi=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Is : symptomatics population time series
-        """
-        if None != Isi:
-            X  = data['X']
-            Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
-        else:
-            X  = data['X']  
-            Isi=self.readData['Isi']
-            Is = X[:, Isi[0]*self.M:Isi[1]*self.M]
-        return Is
-
-
-    def Isp(self,  data, Ispi=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Isp : (intermediate stage between symptomatics 
-                   and recovered) population time series
-        """
-        if None != Ispi:
-            X  = data['X']
-            Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
-        else:
-            X  = data['X']  
-            Ispi=self.readData['Ispi']
-            Isp = X[:, Ispi[0]*self.M:Ispi[1]*self.M]
-        return Isp
-
-
-    def Ih(self,  data, Ihi=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : hospitalized population time series
-        """
-        if None != Ihi:
-            X  = data['X']
-            Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
-        else:
-            X  = data['X']
-            Ihi=self.readData['Ihi']
-            Ih = X[:, Ihi[0]*self.M:Ihi[1]*self.M]
-        return Ih
-
-
-    def Ihp(self,  data, Ihpi=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ihp : (intermediate stage between symptomatics 
-                   and recovered) population time series
-        """
-        if None != Ihpi:
-            X  = data['X']
-            Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
-        else:
-            X  = data['X']
-            Ihpi=self.readData['Ihpi']
-            Ihp = X[:, Ihpi[0]*self.M:Ihpi[1]*self.M]
-        return Ihp
-
-
-    def Ic(self,  data, Ici=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : ICU hospitalized population time series
-        """
-        if None != Ici:
-            X  = data['X'] 
-            Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
-        else:
-            X  = data['X'] 
-            Ici=self.readData['Ici']
-            Ic = X[:, Ici[0]*self.M:Ici[1]*self.M ]
-        return Ic
-
-
-    def Icp(self,  data, Icpi=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Icp : (intermediate stage between ICU 
-                   and recovered) population time series
-        """
-        if None != Icpi:
-            X  = data['X']
-            Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
-        else:
-            X  = data['X']
-            Icpi=self.readData['Icpi']
-            Icp = X[:, Icpi[0]*self.M:Icpi[1]*self.M]
-        return Icp
-
-
-    def Im(self,  data, Imi=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             Ic : mortality time series
-        """
-        if None != Imi:
-            X  = data['X']
-            Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
-        else:
-            X  = data['X']
-            Imi=self.readData['Imi']
-            Im = X[:, Imi[0]*self.M:Imi[1]*self.M ]
-        return Im
-
-
-    def R(self,  data, Rind=None):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-             R: Removed population time series
-             For SEAI8R: R=N(t)-(S+E+Ia+Is+Is'+Ih+Ih'+Ic+Ic')
-        """
-        if None != Rind:
-            X = data['X']  
-            R = self.population
-        else:
-            X = data['X']  
-            Rind=self.readData['Rind']
-            R = self.population
-        for i in range(Rind):
-            R  = R - X[:, i*self.M:(i+1)*self.M] 
-        return R
-   
-
-    def Sx(self,  data, Sxi):
-        """
-        Parameters
-        ----------
-        data: Data dict
-
-        Returns
-        -------
-            Generic compartment Sx 
-        """
-        X  = data['X']
-        Im = X[:, Sxi[0]*self.M:Sxi[1]*self.M ]
-        Sx = X[:, Sxi[0]*self.M:Sxi[1]*self.M ]
-        return Sx
-
-
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SIkR(CommonMethods):
+# cdef class SIR(CommonMethods):
+class SIR:
     """
-    Susceptible, Infected, Removed (SIkR). Method of k-stages of I
-
-    .. math::
-        \dot{S_{i}}=-\lambda_{i}(t)S_{i},
-    .. math::
-        \dot{I}_{i}^{1}=k_{E}\gamma_{E}E_{i}^{k}-k_{I}\gamma_{I}I_{i}^{1},
-    .. math::
-        \dot{I}_{i}^{k}=k_{I}\gamma_{I}I_{i}^{(k-1)}-k_{I}\gamma_{I}I_{i}^{k}, 
-    .. math::
-        \dot{R}_{i}=k_{I}\gamma_{I}I_{i}^{k}.
-
-    .. math::
-        \lambda_{i}(t)=\\beta\sum_{j=1}^{M}\sum_{n=1}^{k}C_{ij}(t)\\frac{I_{j}^{n}}{N_{j}},
-    ...
-
     Parameters
     ----------
     parameters: dict
@@ -441,108 +149,215 @@ cdef class SIkR(CommonMethods):
             Rate of removal from infectives.
         kI: int
             number of stages of infection.
-    M: int
-        Number of compartments of individual for each class.
-        I.e len(contactMatrix)
-    Ni: np.array(M, )
-        Initial number in each compartment and class
+        Ttsi: float
+            tsi cut-off
+        M: int
+            Number of compartments of individual for each class.
+            ==len(contactMatrix)
+        Ni: np.array(M, )
+            Initial number in each compartment and class
     """
 
-    def __init__(self, parameters, M, Ni):
-        self.beta  = parameters['beta']              # Infection rate
-        self.gI    = parameters['gI']                # Removal rate of I
-        self.kI    = parameters['kI']
-        self.nClass= self.kI + 1
+    def __init__(self, parameters, beta_fun, gI_fun):
+        # self.beta  = parameters['beta']  # Infection rate
+        # self.gI    = parameters['gI']    # Removal rate of I
+        self.kI          = parameters['kI']    # Number of compartments
+        self.Ttsi        = parameters['Ttsi']  # tsi cut-off
+        self.M           = parameters['M']     # Number of age classes$
+        self.N           = parameters['N']     # Full population size
+        self.Ni          = np.zeros( self.M, dtype=DTYPE)
+        self.Ni          = parameters['Ni']    # Array of total number of people per age class
 
-        self.N     = np.sum(Ni)
-        self.M     = M
-        self.Ni    = np.zeros( self.M, dtype=DTYPE)  
-        self.Ni    = Ni
-
-        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
-        self.dxdt  = np.zeros( (self.kI+1)*self.M, dtype=DTYPE) # Right hand side
-
-        self.paramList = parameters
-        self.readData = {'Ii':[1,self.kI+1], 'Rind':self.kI+1}
-        self.population = self.Ni
-
-
-    cpdef rhs(self, xt, tt):
-        cdef:
-            int N=self.N, M=self.M, i, j, jj, kI=self.kI
-            double beta=self.beta, gI=self.kI*self.gI, rateS, lmda
-            double [:] S    = xt[0  :M]
-            double [:] I    = xt[M  :(kI+1)*M]
-            double [:] Ni   = self.Ni
-            double [:,:] CM = self.CM
-            double [:] dxdt = self.dxdt
-
-        for i in range(M):
-            lmda=0
-            for jj in range(kI):
-                for j in range(M):
-                    lmda += beta*(CM[i,j]*I[j+jj*M])/Ni[j]
-            rateS = lmda*S[i]
-            #
-            dxdt[i]     = -rateS
-            dxdt[i+M]   = rateS - gI*I[i]
-
-            for j in range(kI-1):
-                dxdt[i+(j+2)*M]   = gI*I[i+j*M] - gI*I[i+(j+1)*M]
-        return
-
-
-    def simulate(self, S0, I0, contactMatrix, Tf, Nf, Ti=0, integrator='odeint',
-                 maxNumSteps=100000, **kwargs):
-        """
-        Simulates a compartment model given initial conditions,
-        choice of integrator and other parameters. 
-        Returns the time series data and parameters in a dict. 
-        Internally calls the method 'simulator' of CommonMethods
+        self.beta_params = parameters['beta'] # Parameters for beta_fun
+        self.gI_params   = parameters['gI']   # Parameters for gI_fun
+ 
+        self.beta_fun = beta_fun              # beta FUNCTION
+        self.gI_fun   = gI_fun                # gI FUNCTION
         
-        ...
+        self.nClass = self.kI + 1        # Total number of stages
 
+        self.N     = np.sum(self.Ni)             # Population size
+        self.CM    = np.zeros( (self.M, self.M), dtype=DTYPE)   # Contact matrix C
+        self.dtsi  = self.Ttsi/float(self.kI) # tsi time step
+
+    def set_IC(self, I_list):
+        """
+        Set Initial Conditions from a list of infectives
+        
+        Argument:
+        --------
+        - I_list: list of tuples (int, int, float)
+           Elements of the list are: (# infectives, age_class, tsi) 
+        Returns:
+        -------
+        - S0: np.array(M)
+        - I0: np.array(M*kI)
+        """
+        S0 = np.zeros(self.M)
+        I0 = np.zeros(self.M*self.kI)
+        for tup in I_list:
+            if tup[2]<self.Ttsi:
+                k = int(tup[2]/self.dtsi)
+            else:
+                k = self.kI-1
+            I0[k + tup[1]*self.M] = tup[0]/float(self.N)/self.dtsi # should be a distribution
+        for i in range(self.M):
+            S0[i] = self.Ni[i] - np.sum([I0[k+i*self.M]*self.N*self.dtsi for k in range(self.kI)])
+        S0 = S0/float(self.N)
+        return S0, I0
+            
+    def set_beta(self):
+        """
+        Method to set beta(t, Ttsi, **args) as an array of size kI
+        """
+        beta = []
+        for k in range(self.kI):
+            beta.append(self.beta_fun(k*self.dtsi, self.Ttsi, self.beta_params))
+        return beta
+
+    def set_gI(self):
+        """
+        Method to set gI(t, Ttsi, **args) as an array of size kI
+        """
+        gI = []
+        for k in range(self.kI):
+            gI.append(self.gI_fun(k*self.dtsi, self.Ttsi, self.gI_params))
+        return gI
+            
+        
+    # cpdef trajectory(self, S, I):
+    def trajectory(self, S, I):
+        """
+        Function to go one step forward using the deterministic integrator.
+        We use a RK2/Crank-Nicolson finite difference scheme
+        
         Parameters
         ----------
-        S0: np.array
-            Initial number of susceptables.
-        I0: np.array
-            Initial number of  infectives.
+        S: np.array(M)
+           Number of susceptibles
+        I: np.array(kI*M, dtype=float)
+           Infected population
+       
+        Returns
+        -------
+        Snext: np.array(M, dtype=float)
+           Updated number of susceptibles
+        Inext: np.array(kI*M, dtype=float)
+           Updated infected population
+        """
+        CM = self.CM
+        
+        beta = self.set_beta()
+        gI   = self.set_gI()
+        
+        Ip = np.zeros(self.kI*self.M)
+        didt_p = np.zeros(self.M*(self.kI-1))
+        didt_c = np.zeros(self.M*(self.kI-1))
+        Inext = np.zeros(self.M*self.kI)
+        lbda = np.zeros(self.M)
+        lbda_p = np.zeros(self.M)
+        Snext = np.zeros(self.M)
+        
+        dtsi = self.dtsi
+        dt = dtsi # Enforce that tsi-discretisation
+                  # and time-discretisation are the same!
+       
+        # 1. Explicit time step 
+        for j in range(self.M):
+            lbda[j] = 0 
+            for k in range(self.kI-1):
+                for l in range(self.M):
+                    lbda[j] += CM[j,l]*0.5*(beta[k]*I[k+l*self.M] + beta[k+1]*I[k+1+l*self.M])*dtsi
+        dsdt_p = - S*lbda 
+        Sp = S + dsdt_p*dt
+        Ip[0:self.M] = - dsdt_p
+        for k in range(1,self.kI): # Advection
+            for l in range(self.M):
+                Ip[k] = I[k-1+l*self.M]
+        for k in range(1, self.kI): # Recovery
+            for l in range(self.M):
+                didt_p[k-1+l*self.M] = - gI[k] * Ip[k+l*self.M] 
+                Ip[k+l*self.M] = Ip[k+l*self.M] + didt_p[k-1+l*self.M]*dt
+    
+        # 2. Correction 
+        for j in range(self.M):
+            lbda_p[j] = 0 
+            for k in range(self.kI-1):
+                for l in range(self.M):
+                    lbda_p[j] += 0.5*CM[j,l]*(beta[k]*I[k+l*self.M] + beta[k+1]*I[k+1+l*self.M])*dtsi
+        dsdt_c = - Sp * lbda_p
+        
+        Snext = S + 0.5*dt*(dsdt_p + dsdt_c)
+        
+        Inext[0:self.M] = - dsdt_c
+        for k in range(1, self.kI): # Advection
+            for l in range(self.M):
+                Inext[k+l*self.M] = I[k-1+l*self.M] 
+        for k in range(1,self.kI):  # Recovery 
+            for l in range(self.M):
+                didt_c[k-1+l*self.M] = - gI[k] * Ip[k+l*self.M]
+                Inext[k+l*self.M] = Inext[k+l*self.M] + 0.5*dt*(didt_p[k-1+l*self.M] + didt_c[k-1+l*self.M])
+        return Snext, Inext 
+
+    
+    def simulate(self, S0, I0, contactMatrix, Tf, Ti=0):
+        """
+        Function to go one step forward using the deterministic integrator.
+        We use a RK2/Crank-Nicolson finite difference scheme
+        
+        Parameters
+        ----------
+        S0: np.array(M)
+           Initial number of susceptibles
+        I0: np.array(kI*M, dtype=float)
+           Initial Infected population
         contactMatrix: python function(t)
              The social contact matrix C_{ij} denotes the
              average number of contacts made per day by an
-             individual in class i with an individual in class j
+             individual in class i with an individual in class j       
         Tf: float
             Final time of integrator
-        Nf: Int
-            Number of time points to evaluate.
-        Ti: float, optional
-            Start time of integrator. The default is 0.
-        integrator: TYPE, optional
-            Integrator to use either from scipy.integrate or odespy.
-            The default is 'odeint'.
-        maxNumSteps: int, optional
-            maximum number of steps the integrator can take.
-            The default is 100000.
-        **kwargs: kwargs for integrator
+        Ti: float
+            Initial time of integrator
 
         Returns
         -------
-        dict
-             X: output path from integrator,  t : time points evaluated at,
-            'param': input param to integrator.
-
+        S_traj: np.array((Nf, M), dtype=float)
+           Time series of susceptibles
+        I_traj: np.array((Nf, kI*M), dtype=float)
+           Time series infected population
         """
+    
+        # Initialise:
+        S = np.copy(S0)
+        I = np.copy(I0)
+        t = Ti
+              
+        S_traj = []
+        I_traj = []
+        t_traj = []
+        
+        S_traj.append(S0)
+        I_traj.append(I0*self.dtsi) # distribution -> population (dimensionless)
+        t_traj.append(t)
+    
+        ### MAIN LOOP ###
+        while t<=Tf:
+            self.CM = contactMatrix(t)
+            Snext, Inext = self.trajectory(S, I)
+            S = np.copy(Snext)
+            I = np.copy(Inext)
+            t += self.dtsi
+            S_traj.append(Snext)
+            I_traj.append(Inext*self.dtsi) # distribution -> population (dimensionless)
+            t_traj.append(t)
 
-        x0=np.concatenate((S0, I0))
-        data = self.simulator(x0, contactMatrix, Tf, Nf, 
-                              integrator, Ti, maxNumSteps, **kwargs)
+        # Store trajectory within a dictionary
+        data = {'S': S_traj,
+                'I': I_traj,
+                't': t_traj}
+            
         return data
-
-
-
-
-
 
 cdef class Simulator:
     """

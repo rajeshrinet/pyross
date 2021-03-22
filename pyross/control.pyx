@@ -217,7 +217,7 @@ cdef class SIR(control_integration):
             gIs: float
                 rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -604,7 +604,7 @@ cdef class SIRS(control_integration):
             gIs: float
                 rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             ep  : float
                 fraction of removed who become susceptable again
             sa  : float, np.array (M,)
@@ -767,7 +767,7 @@ cdef class SEIR(control_integration):
             gIs: float
                 rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 rate of removal from exposed individuals.
     M: int
@@ -1154,7 +1154,7 @@ cdef class SEAIR(control_integration):
             gIs: float
                 rate of removal from symptomatic individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             gE: float
                 rate of removal from exposeds individuals.
             gA: float
@@ -1295,7 +1295,7 @@ cdef class SEAIRQ(control_integration):
             gA: float
                 rate of removal from activated individuals.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             tE  : float
                 testing rate and contact tracing of exposeds
             tA  : float
@@ -1476,7 +1476,7 @@ cdef class SEI5R(control_integration):
             gIc: float
                 rate of removal for idividuals in intensive care.
             fsa: float
-                fraction by which symptomatic individuals self isolate.
+                fraction by which symptomatic individuals do not self-isolate.
             fh  : float
                 fraction by which hospitalised individuals are isolated.
             sa: float, np.array (M,)

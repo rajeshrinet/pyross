@@ -2,15 +2,14 @@ cython
 numpy
 scipy
 sympy 
-xlrd 
 nlopt
 pathos
 cma
 dill
+wheel
 matplotlib
 ipython
 jupyter
 nbconvert
-pandas
 dynesty
 emcee

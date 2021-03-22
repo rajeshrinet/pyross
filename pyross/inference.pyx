@@ -7,6 +7,9 @@ from scipy.linalg import solve_triangular, rq
 import numpy as np
 from scipy.interpolate import make_interp_spline
 from scipy.linalg import eig
+from scipy.stats import multivariate_normal
+from scipy.linalg.lapack import dtrtri
+from scipy.linalg import cholesky
 cimport numpy as np
 cimport cython
 from math import isclose
@@ -47,6 +50,10 @@ DTYPE   = np.float
 ctypedef np.float_t DTYPE_t
 ctypedef np.uint8_t BOOL_t
 
+class MaxIntegratorStepsException(Exception):
+    def __init__(self, message='Maximum number of integrator steps reached'):
+        super(MaxIntegratorStepsException, self).__init__(message)
+
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -60,6 +67,7 @@ cdef class SIR_type:
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
         readonly double Omega, rtol_det, rtol_lyapunov
+        readonly long max_steps_det, max_steps_lyapunov, integrator_step_count
         readonly np.ndarray beta, gIa, gIs, fsa, _xm
         readonly np.ndarray alpha, fi, CM, dsigmadt, J, B, J_mat, B_vec, U
         readonly np.ndarray flat_indices1, flat_indices2, flat_indices, rows, cols
@@ -69,8 +77,7 @@ cdef class SIR_type:
         readonly object contactMatrix
         readonly bint param_mapping_enabled
 
-
-    def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov):
+    def __init__(self, parameters, nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov):
         self.Omega = Omega
         self.M = M
         self.fi = fi
@@ -81,6 +88,8 @@ cdef class SIR_type:
         self.lyapunov_method=lyapunov_method
         self.rtol_det = rtol_det
         self.rtol_lyapunov = rtol_lyapunov
+        self.max_steps_det = max_steps_det
+        self.max_steps_lyapunov = max_steps_lyapunov
 
         self.dim = nClass*M
         self.nClass = nClass
@@ -185,7 +194,7 @@ cdef class SIR_type:
     def mcmc_inference(self, x, Tf, contactMatrix, prior_dict, tangent=False, verbose=False, sampler=None, nwalkers=None,
                        walker_pos=None, nsamples=1000, nprocesses=0):
         """
-        Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+        Sample the posterior distribution of the epidemiological parameters using ensemble MCMC.
 
         Note
         ----
@@ -402,11 +411,11 @@ cdef class SIR_type:
         """
 
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        prior_names, keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, _, _, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
@@ -533,11 +542,11 @@ cdef class SIR_type:
         if queue_size is None:
             queue_size = nprocesses
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        prior_names, keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, _, _, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
@@ -606,7 +615,7 @@ cdef class SIR_type:
             The processed weighted posterior samples.
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, _, _, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
 
@@ -649,7 +658,7 @@ cdef class SIR_type:
     def infer_mcmc(self, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, tangent=False,
                    verbose=False, sampler=None, nwalkers=None, walker_pos=None, nsamples=1000, nprocesses=0):
         """
-        Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+        Sample the posterior distribution of the epidemiological parameters using ensemble MCMC.
 
         Parameters
         ----------
@@ -693,7 +702,7 @@ cdef class SIR_type:
         Returns
         -------
         sampler: emcee.EnsembleSampler
-            This function returns the interal state of the sampler. To look at the chain of the internal flattened paramters,
+            This function returns the interal state of the sampler. To look at the chain of the internal flattened parameters,
             run `sampler.get_chain()`. Use this to judge whether the chain has sufficiently converged. Either rerun
             `mcmc_inference(..., sampler=sampler)` to continue the chain or `mcmc_inference_process_result(...)` to process
             the result.
@@ -736,11 +745,11 @@ cdef class SIR_type:
         if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Read in parameter priors
-        prior_names, keys, guess, stds, bounds, \
+        prior_names, keys, guess, stds, _, _, bounds, \
         flat_guess_range, is_scale_parameter, scaled_guesses  \
                 = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
@@ -816,7 +825,7 @@ cdef class SIR_type:
             The processed posterior samples.
         """
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
-        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, _, _, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
 
@@ -980,7 +989,7 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         infer_result_loc = infer_result.copy()
         # backwards compatibility
@@ -1087,7 +1096,7 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         infer_result_loc = infer_result.copy()
@@ -1146,7 +1155,7 @@ cdef class SIR_type:
 
     def hessian(self, x, Tf, infer_result, contactMatrix=None, generator=None,
                 intervention_fun=None, tangent=False, eps=None,
-                fd_method="central", inter_steps=0):
+                fd_method="central", inter_steps=0, nprocesses=0, basis=None):
         '''
         Computes the Hessian matrix for the MAP estimates of an SIR type model.
 
@@ -1185,12 +1194,15 @@ cdef class SIR_type:
         hess: 2d numpy.array
             The Hessian matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         flat_params = np.copy(infer_result['flat_params'])
 
         kwargs = {}
+        kwargs['x'] = x
+        kwargs['Tf'] = Tf
+        kwargs['tangent'] = tangent
         for key in ['is_scale_parameter',
                     'scaled_param_guesses', 'prior']:
             kwargs[key] = infer_result[key]
@@ -1208,9 +1220,8 @@ cdef class SIR_type:
             #eps = 10.*np.spacing(flat_params)**(0.25)
         print('epsilon used for differentiation: ', eps)
 
-        def minuslogp(y):
-            return self._infer_to_minimize(y, x=x, Tf=Tf, tangent=tangent, **kwargs)
-        hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
+        hess = hessian_finite_difference(flat_params, self._infer_to_minimize, eps, method=fd_method, nprocesses=nprocesses,
+                                         basis=basis, function_kwargs=kwargs)
         return hess
 
     def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
@@ -1360,7 +1371,7 @@ cdef class SIR_type:
         samples: list of dict
             N samples of the Gaussian distribution.
         """
-        prior_names, keys, guess, stds, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
+        prior_names, keys, guess, stds, _, _, bounds, flat_guess_range, is_scale_parameter, scaled_guesses \
             = pyross.utils.parse_param_prior_dict(prior_dict, self.M, check_length=(not self.param_mapping_enabled))
         prior = Prior(prior_names, bounds, guess, stds)
         loglike_args = {'keys':keys, 'is_scale_parameter':is_scale_parameter,
@@ -1574,7 +1585,7 @@ cdef class SIR_type:
                               init_priors, tangent=False, verbose=False, sampler=None, nwalkers=None, walker_pos=None,
                               nsamples=1000, nprocesses=0):
         """
-        Sample the posterior distribution of the epidimiological parameters using ensemble MCMC.
+        Sample the posterior distribution of the epidemiological parameters using ensemble MCMC.
 
         Note
         ----
@@ -1653,7 +1664,7 @@ cdef class SIR_type:
                               param_guess_range=None, is_scale_parameter=None, scaled_param_guesses=None,
                               param_length=None, obs=None, fltr=None, Tf=None, obs0=None, init_flags=None,
                               init_fltrs=None, tangent=None, smooth_penalty=False, bounds=None, inter_steps=0,
-                              **catchall_kwargs):
+                              objective='likelihood', **catchall_kwargs):
         if bounds is not None:
             # Check that params is within bounds. If not, return -np.inf.
             if np.any(bounds[:,0] > params) or np.any(bounds[:,1] < params):
@@ -1691,13 +1702,23 @@ cdef class SIR_type:
                 return -np.Inf
         # We also support `smooth_penalty == None`, which is useful for example for computing the Hessian.
 
-        logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
+        if objective == 'likelihood':
+            logl += -self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent, inter_steps=inter_steps)
+        elif objective == 'least_squares':
+            logl += -self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
+        elif objective == 'least_squares_diff':
+            logl += -self._obtain_square_dev_for_lat_traj_diff(x0, obs, fltr[1:], Tf)
+        else:
+            raise Exception('Unknown objective')
+            
         return logl
 
-    def _logposterior_latent(self, params, prior=None,
+    def _logposterior_latent(self, params, prior=None, verbose_likelihood=False,
                              **logl_kwargs):
         logl = self._loglikelihood_latent(params, **logl_kwargs)
         logp = logl + np.sum(prior.logpdf(params))
+        if verbose_likelihood:
+            print(logl,logp-logl,logp)
         return logp
 
     def _latent_infer_to_minimize(self, params, grad=0,
@@ -1712,9 +1733,10 @@ cdef class SIR_type:
     def latent_infer(self, np.ndarray obs, np.ndarray fltr, Tf, param_priors, init_priors,
                      contactMatrix=None, generator=None,
                      intervention_fun=None, tangent=False,
-                     verbose=False, ftol=1e-5, global_max_iter=100,
-                     local_max_iter=100, global_atol=1., enable_global=True,
-                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None):
+                     verbose=False, verbose_likelihood=False, ftol=1e-5, global_max_iter=100,
+                     local_max_iter=100, local_initial_step=None, global_atol=1., enable_global=True,
+                     enable_local=True, cma_processes=0, cma_population=16, cma_random_seed=None, 
+                     objective='likelihood', alternative_guess=None, use_mode_as_guess=False, tmp_file=None, load_backup_file=None):
         """
         Compute the maximum a-posteriori (MAP) estimate for the initial conditions and all desired parameters, including control parameters,
         for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
@@ -1756,6 +1778,9 @@ cdef class SIR_type:
             Number of global optimisations performed.
         local_max_iter: int, optional
             Number of local optimisation performed.
+        local_initital_step: optional, float or np.array
+            Initial step size for the local optimiser. If scalar, relative to the initial guess. 
+            Default: Deterined by final state of global optimiser, or, if enable_global=False, 0.01
         global_atol: float
             The absolute tolerance for global minimisation.
         enable_global: bool, optional
@@ -1768,6 +1793,18 @@ cdef class SIR_type:
             The number of samples used in each step of the CMA algorithm.
         cma_random_seed: int (between 0 and 2**32-1)
             Random seed for the optimisation algorithms. By default it is generated from numpy.random.randint.
+        objective: string, optional
+            Objective for the minimisation. 'likelihood' (default), 'least_square' (least squares fit w.r.t. absolute compartment values), 
+            'least_squares_diff' (least squares fit w.r.t. time-differences of compartment values)
+        alternative_guess: np.array, optional
+            Alternative initial quess, different form the mean of the prior. 
+            Array in the same format as 'flat_params' in the result dictionary of a previous optimisation run.
+        use_mode_as_guess: bool, optional
+            Initialise optimisation with mode instead of mean of the prior. Makes a difference for lognormal distributions. 
+        tmp_file: optional, string
+            If specified, name of a file to store the temporary best estimate of the global optimiser (as backup or for inspection) as numpy array file 
+        load_backup_file: optional, string
+            If specified, name of a file to restore the the state of the global optimiser
 
         Returns
         -------
@@ -1853,30 +1890,40 @@ cdef class SIR_type:
             }
         """
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_mean, param_stds, param_guess, param_guess_std, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_mean, init_stds, init_guess, init_guess_std, init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
         param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+        mean = np.concatenate([param_mean, init_mean]).astype(DTYPE)
         stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
+        if use_mode_as_guess:
+            guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
+            guess_std = np.concatenate([param_guess_std,init_guess_std]).astype(DTYPE)
+        else:
+            guess = mean
+            guess_std =stds
+            
         bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
-        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
-        cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
-
+        prior = Prior(param_prior_names+init_prior_names, bounds, mean, stds)
+        
+        cma_stds = np.minimum(guess_std, (bounds[:, 1]-bounds[:, 0])/3)
+        
+        if alternative_guess is not None:
+            guess = alternative_guess
 
         minimize_args = {'generator':generator, 'intervention_fun':intervention_fun,
                        'param_keys':keys, 'param_guess_range':param_guess_range,
@@ -1885,15 +1932,16 @@ cdef class SIR_type:
                        'param_length':param_length,
                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                       'prior':prior, 'tangent':tangent}
+                       'prior':prior, 'tangent':tangent, 'objective':objective, 'verbose_likelihood':verbose_likelihood}
         res = minimization(self._latent_infer_to_minimize,
                           guess, bounds, ftol=ftol,
                           global_max_iter=global_max_iter,
-                          local_max_iter=local_max_iter, global_atol=global_atol,
+                          local_max_iter=local_max_iter, local_initial_step=local_initial_step, global_atol=global_atol,
                           enable_global=enable_global, enable_local=enable_local,
                           cma_processes=cma_processes,
                           cma_population=cma_population, cma_stds=cma_stds,
-                          verbose=verbose, cma_random_seed=cma_random_seed, args_dict=minimize_args)
+                          verbose=verbose, cma_random_seed=cma_random_seed,
+                          args_dict=minimize_args, tmp_file=tmp_file, load_backup_file=load_backup_file)
         estimates = res[0]
 
         # Get the parameters (in their original structure) from the flattened parameter vector.
@@ -2023,19 +2071,19 @@ cdef class SIR_type:
         if queue_size is None:
             queue_size = nprocesses
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2114,19 +2162,19 @@ cdef class SIR_type:
         output_samples: list
             The processed weighted posterior samples.
         """
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2268,19 +2316,19 @@ cdef class SIR_type:
         if nprocesses > 1 and pathos_mp is None:
             raise Exception("The Python package `pathos` is needed for multiprocessing.")
 
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2372,19 +2420,19 @@ cdef class SIR_type:
         output_samples: list of dict (if flat=True), or list of list of dict (if flat=False)
             The processed posterior samples.
         """
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
         # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+        param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
         is_scale_parameter, scaled_param_guesses \
             = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
 
         # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+        init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
 
         # Concatenate the flattend parameter guess with init guess
@@ -2577,7 +2625,7 @@ cdef class SIR_type:
         FIM: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2692,7 +2740,7 @@ cdef class SIR_type:
         FIM_det: 2d numpy.array
             The Fisher Information Matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2756,7 +2804,7 @@ cdef class SIR_type:
 
     def latent_hessian(self, obs, fltr, Tf, infer_result, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
-                       eps=None, fd_method="central", inter_steps=0):
+                       eps=None, fd_method="central", inter_steps=0, nprocesses=0, basis=None):
         '''
         Computes the Hessian matrix for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
 
@@ -2798,7 +2846,7 @@ cdef class SIR_type:
         hess: 2d numpy.array
             The Hessian matrix
         '''
-        # Sanity checks of the intputs
+        # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
         # Process fltr and obs
@@ -2807,6 +2855,11 @@ cdef class SIR_type:
         flat_params = np.copy(infer_result['flat_params'])
 
         kwargs = {}
+        kwargs['obs'] = obs
+        kwargs['fltr'] = fltr
+        kwargs['Tf'] = Tf
+        kwargs['obs0'] = obs0
+        kwargs['tangent'] = tangent
         for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
                     'scaled_param_guesses', 'param_length', 'init_flags',
                     'init_fltrs', 'prior']:
@@ -2824,27 +2877,18 @@ cdef class SIR_type:
             #eps = 10.*np.spacing(flat_params)**(0.25)
         print('epsilon used for differentiation: ', eps)
 
-        def minuslogp(y):
-            return self._latent_infer_to_minimize(y, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
-                                           tangent=tangent, **kwargs)
-
-        hess = pyross.utils.hessian_finite_difference(flat_params, minuslogp, eps, method=fd_method)
+        hess = hessian_finite_difference(flat_params, self._latent_infer_to_minimize, eps, method=fd_method, nprocesses=nprocesses, 
+                                         basis=basis, function_kwargs=kwargs)
         return hess
-
-    def sample_gaussian_latent(self, N, map_estimate, cov, obs, fltr, Tf, contactMatrix, param_priors, init_priors,
-                               tangent=False):
-        """
-        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
-        covariance `cov`.
+    
+    
+    def sample_latent(self, obs, fltr, Tf, infer_result, flat_params_list, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
+        '''
+        Samples the posterior and prior 
 
         Parameters
         ----------
-        N: int
-            The number of samples.
-        map_estimate: dict
-            The MAP estimate, e.g. as computed by `inference.latent_infer`.
-        cov: np.array
-            The covariance matrix of the flat parameters.
         obs:  np.array
             The partially observed trajectory.
         fltr: 2d np.array
@@ -2852,75 +2896,220 @@ cdef class SIR_type:
             :math:`F_{ij} x_j (t) = obs_i(t)`
         Tf: float
             The total time of the trajectory.
-        contactMatrix: callable
-            A function that returns the contact matrix at time t (input).
-        param_priors: dict
-            A dictionary that specifies priors for parameters.
-            See `infer` for examples.
-        init_priors: dict
-            A dictionary that specifies priors for initial conditions.
-            See below for examples.
+        infer_result: dict
+            Dictionary returned by latent_infer
+        flat_params_list: list of np.array's
+            Parameters for which the prior and posterior are sampled
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
 
         Returns
         -------
-        samples: list of dict
-            N samples of the Gaussian distribution.
-        """
-        self.contactMatrix = contactMatrix
+        posterior: np.array
+            posterior evaluated along the 1d slice
+        prior: np.array
+            prior evaluated along the 1d slice
+        
+        '''
+        # Sanity checks of the inputs
+        self._process_contact_matrix(contactMatrix, generator, intervention_fun)
+
+        # Process fltr and obs
         fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
-        # Read in parameter priors
-        param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
-        is_scale_parameter, scaled_param_guesses \
-            = pyross.utils.parse_param_prior_dict(param_priors, self.M, check_length=(not self.param_mapping_enabled))
+        flat_params = np.copy(infer_result['flat_params'])
 
-        # Read in initial conditions priors
-        init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
-            = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
+        kwargs = {}
+        kwargs['obs'] = obs
+        kwargs['fltr'] = fltr
+        kwargs['Tf'] = Tf
+        kwargs['obs0'] = obs0
+        kwargs['tangent'] = tangent
+        for key in ['param_keys', 'param_guess_range', 'is_scale_parameter',
+                    'scaled_param_guesses', 'param_length', 'init_flags',
+                    'init_fltrs', 'prior']:
+            kwargs[key] = infer_result[key]
 
-        # Concatenate the flattend parameter guess with init guess
-        param_length = param_guess.shape[0]
-        guess = np.concatenate([param_guess, init_guess]).astype(DTYPE)
-        stds = np.concatenate([param_stds,init_stds]).astype(DTYPE)
-        bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
+        kwargs['generator']=generator
+        kwargs['intervention_fun']=intervention_fun
+        kwargs['inter_steps']=inter_steps
+        kwargs['disable_penalty']=None
 
-        prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
-        cma_stds = np.minimum(stds, (bounds[:, 1]-bounds[:, 0])/3)
 
-        loglike_args = {'param_keys':keys, 'param_guess_range':param_guess_range,
-                        'is_scale_parameter':is_scale_parameter,
-                        'scaled_param_guesses':scaled_param_guesses,
-                        'param_length':param_length,
-                        'obs':obs, 'fltr':fltr, 'Tf':Tf, 'obs0':obs0,
-                        'init_flags':init_flags, 'init_fltrs': init_fltrs,
-                        'tangent':tangent}
+        posterior = eval_parallel(flat_params_list, self._latent_infer_to_minimize, nprocesses=nprocesses, function_kwargs=kwargs)
+        prior = [ np.sum(infer_result['prior'].logpdf(s)) for s in flat_params_list]
+        
+        return -np.array(posterior), np.array(prior)
+    
 
-        # Sample the flat parameters.
-        mean = map_estimate['flat_map']
-        sample_parameters = np.random.multivariate_normal(mean, cov, N)
+    def latent_param_slice(self, obs, fltr, Tf, infer_result, pos, direction, scale, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
+        '''
+        Samples the posterior and prior along a one-dimensional slice of the parameter space
 
-        samples = []
-        for sample in sample_parameters:
-            new_sample = map_estimate.copy()
-            new_sample['flat_params'] = sample
-            param_estimates = sample[:map_estimate['param_length']]
-            init_estimates = sample[map_estimate['param_length']:]
-            new_sample['map_params_dict'] = \
-                pyross.utils.unflatten_parameters(param_estimates, map_estimate['param_guess_range'],
-                        map_estimate['is_scale_parameter'], map_estimate['scaled_param_guesses'])
-            new_sample['map_x0'] = self._construct_inits(init_estimates, map_estimate['init_flags'],
-                                      map_estimate['init_fltrs'], obs0, fltr[0])
-            l_like = self._loglike_latent(sample, **loglike_args)
-            l_prior = np.sum(prior.logpdf(sample))
-            l_post = l_like + l_prior
-            new_sample['log_posterior'] = l_post
-            new_sample['log_prior'] = l_prior
-            new_sample['log_likelihood'] = l_like
-            samples.append(new_sample)
+        Parameters
+        ----------
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            The total time of the trajectory.
+        infer_result: dict
+            Dictionary returned by latent_infer
+        pos: np.array
+            Position in parameter space around which the parameter slice is computed
+        direction: np.array
+            Direction in parameter space in which the parameter slice is computed    
+        scale: np.array
+            Values by which the direction vector is scaled. Points evaluated are pos + scale * direction
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
 
-        return samples
+        Returns
+        -------
+        posterior: np.array
+            posterior evaluated along the 1d slice
+        prior: np.array
+            prior evaluated along the 1d slice
+        
+        '''
+
+
+        samples = [ pos + s*direction for s in scale]
+      
+        return self.sample_latent(obs, fltr, Tf, infer_result, samples, contactMatrix,
+                       generator, intervention_fun, tangent, inter_steps, nprocesses)
+    
+    def sample_gaussian_latent(self, N, obs, fltr, Tf, infer_result, invcov, contactMatrix=None,
+                       generator=None, intervention_fun=None, tangent=False, inter_steps=0, allow_negative=False, nprocesses=0):
+        '''
+        Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
+        covariance `cov`.
+        
+        Parameters
+        ----------
+        N: int
+            The number of samples.
+        obs:  np.array
+            The partially observed trajectory.
+        fltr: 2d np.array
+            The filter for the observation such that
+            :math:`F_{ij} x_j (t) = obs_i(t)`
+        Tf: float
+            The total time of the trajectory.
+        infer_result: dict
+            Dictionary returned by latent_infer
+        invcov: np.array
+            The inverse covariance matrix of the flat parameters.
+        contactMatrix: callable, optional
+            A function that returns the contact matrix at time t (input). If specified, control parameters are not inferred.
+            Either a contactMatrix or a generator must be specified.
+        generator: pyross.contactMatrix, optional
+            A pyross.contactMatrix object that generates a contact matrix function with specified lockdown
+            parameters.
+            Either a contactMatrix or a generator must be specified.
+        intervention_fun: callable, optional
+            The calling signature is `intervention_func(t, **kwargs)`,
+            where t is time and kwargs are other keyword arguments for the function.
+            The function must return (aW, aS, aO), where aW, aS and aO are (2, M) arrays.
+            The contact matrices are then rescaled as :math:`aW[0]_i CW_{ij} aW[1]_j` etc.
+            If not set, assume intervention that's constant in time.
+            See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
+        tangent: bool, optional
+            Set to True to use tangent space inference. Default is False.
+        allow_negative: bool, optional
+            Allow negative values of the sample parameters. If False, samples with negative paramters values are discarded 
+            and additional samples are drawn until the specified number `N` of samples is reached. Default is False.
+        inter_steps: int, optional
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration.
+        nprocesses: int, optional
+            The number of processes used to compute the likelihood for the walkers, needs `pathos`. Default is
+            the number of cpu cores if `pathos` is available, otherwise 1.
+
+        Returns
+        -------
+        samples: list of np.array's
+            N samples of the Gaussian distribution (flat parameters).
+        posterior: np.array
+            posterior evaluated along the 1d slice
+        prior: np.array
+            prior evaluated along the 1d slice
+        
+        '''
+
+        
+        mean = infer_result['flat_params']
+        
+        chol = cholesky(invcov, lower=False)
+        L = dtrtri(chol, lower=0)[0]
+        
+        uninormal=multivariate_normal(cov=np.eye(len(mean)))
+        samples=[]
+        xlist=uninormal.rvs(1000000)
+        ndx=0
+        for i in range(N):
+            while True:
+                x=xlist[ndx]
+                ndx=ndx+1
+                if ndx>=len(xlist):
+                    xlist=uninormal.rvs(len(xlist))
+                    ndx=0
+                s=(L@x.T).T + mean
+                if np.min(s)>0 or allow_negative:
+                    break
+            samples.append(s)
+        
+        posterior, prior = self.sample_latent(obs, fltr, Tf, infer_result, samples, contactMatrix,
+                                           generator, intervention_fun, tangent, inter_steps, nprocesses)
+        
+        return samples, posterior, prior
+    
 
 
     def latent_evidence_laplace(self, obs, fltr, Tf, infer_result, contactMatrix=None,
@@ -2977,7 +3166,7 @@ cdef class SIR_type:
 
 
     def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
-                            np.ndarray fltr, double Tf, contactMatrix, tangent=False):
+                            np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood'):
         '''Computes -logp for a latent trajectory
 
         Parameters
@@ -3015,7 +3204,14 @@ cdef class SIR_type:
             print('x0 not consistent with obs0. '
                   'Using x0 in the calculation of logp...')
         self.set_params(parameters)
-        minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
+        if objective == 'likelihood':
+            minus_logp = self._obtain_logp_for_lat_traj(x0, obs, fltr[1:], Tf, tangent)
+        elif objective == 'least_squares':
+            minus_logp = self._obtain_square_dev_for_lat_traj(x0, obs, fltr[1:], Tf)
+        elif objective == 'least_squares_diff':
+            minus_logp = self._obtain_square_dev_for_lat_traj_diff(x0, obs, fltr[1:], Tf)
+        else:
+            raise Exception('Unknown objective')
         return minus_logp
 
     def sample_endpoints(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
@@ -3037,7 +3233,7 @@ cdef class SIR_type:
 
     def sample_trajs(self, obs, fltr, Tf, infer_result, nsamples, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
-                       inter_steps=100):
+                       inter_steps=100, require_positive=True):
         cdef Py_ssize_t i, Nf=obs.shape[0]
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         x0 = infer_result['x0'].copy()
@@ -3045,10 +3241,15 @@ cdef class SIR_type:
         self.set_params(infer_result['params_dict'])
         mean, cov, full_null_space, known_space = self._mean_cov_for_lat_traj(x0, obs[1:], fltr[1:], Tf)
         trajs = np.full((nsamples, (Nf-1), self.dim), -1, dtype=DTYPE)
-        for i in range(nsamples):
-            while not all(map(self._all_positive, trajs[i])):
-                partial_trajs = np.random.multivariate_normal(mean, cov)
-                trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        if require_positive:
+            for i in range(nsamples):
+                while not all(map(self._all_positive, trajs[i])):
+                    partial_trajs = np.random.multivariate_normal(mean, cov)
+                    trajs[i] = (full_null_space.T@partial_trajs + known_space).reshape((Nf-1, self.dim))
+        else:
+            partial_trajs = np.random.default_rng().multivariate_normal(mean, cov, nsamples, method='eigh')
+            for i in range(nsamples):
+                trajs[i] = (full_null_space.T@partial_trajs[i] + known_space).reshape((Nf-1, self.dim))
         return trajs
 
 
@@ -3071,7 +3272,7 @@ cdef class SIR_type:
         x0: numpy.array
             Full initial conditions.
         '''
-        _, init_mean, _, _, init_flags, init_fltrs \
+        _, init_mean, _, _, _, _,init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
         x0 = self._construct_inits(init_mean, init_flags, init_fltrs, obs0, fltr0)
         return x0
@@ -3094,37 +3295,47 @@ cdef class SIR_type:
                 eigvec = - eigvec
             return eigvec/np.linalg.norm(eigvec, ord=1)
 
-    def set_lyapunov_method(self, lyapunov_method, rtol=None):
+    def set_lyapunov_method(self, lyapunov_method, rtol=None, max_steps=0):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
         lyapunov_method: str
             The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
-        rtol: double, otional
+        rtol: double, optional
             relative tolerance of the integrator (default 1e-3)
+        max_steps: int
+            Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
+            Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
         '''
         if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
             raise Exception('{} not implemented. Choose between LSODA, RK45, RK2 and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
         if rtol is not None:
             self.rtol_lyapunov = rtol
+        if max_steps is not None:
+            self.max_steps_lyapunov = max_steps
 
-    def set_det_method(self, det_method, rtol=None):
+    def set_det_method(self, det_method, rtol=None, max_steps=None):
         '''Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
         det_method: str
             The name of the integration method. Choose between 'LSODA' and 'RK45'.
-        rtol: double, otional
+        rtol: double, optional
             relative tolerance of the integrator (default 1e-3)
+        max_steps: int, optional
+            Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
+            Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
         '''
         if det_method not in ['LSODA', 'RK45']:
             raise Exception('{} not implemented. Choose between LSODA and RK45'.format(det_method))
         self.det_method=det_method
         if rtol is not None:
             self.rtol_det = rtol
+        if max_steps is not None:
+            self.max_steps_det = max_steps
 
 
     def set_det_model(self, parameters):
@@ -3261,6 +3472,7 @@ cdef class SIR_type:
                 sol = self.interpolate_euler
             else:
                 xm, sol = self.integrate(xi, ti, tf, steps, dense_output=True)
+            self.integrator_step_count = 0
             cov = self._estimate_cond_cov(sol, ti, tf)
             dev = np.subtract(xf, xm[steps-1])
             log_p += self._log_cond_p(dev, cov)
@@ -3277,17 +3489,53 @@ cdef class SIR_type:
         if tangent:
             xm, full_cov = self.obtain_full_mean_cov_tangent_space(x0, Tf, Nf, inter_steps=inter_steps)
         else:
-            xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
+            try:
+                xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
+            except MaxIntegratorStepsException:
+                return np.Inf
         full_fltr = sparse.block_diag(fltr)
         cov_red = full_fltr@full_cov@np.transpose(full_fltr)
         xm_red = full_fltr@(np.ravel(xm))
         dev=np.subtract(obs_flattened, xm_red)
         cov_red_inv_dev, ldet = pyross.utils.solve_symmetric_close_to_singular(cov_red, dev)
-        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2)
-        log_p -= (ldet-reduced_dim*log(self.Omega))/2 + (reduced_dim/2)*log(2*PI)
+        log_p = -np.dot(dev, cov_red_inv_dev)*(self.Omega/2.)
+        log_p -= (ldet-reduced_dim*log(self.Omega))/2. + (reduced_dim/2.)*log(2.*PI)
         log_p -= reduced_dim*np.log(self.Omega)
         return -log_p
+    
+    
+    cdef double _obtain_square_dev_for_lat_traj(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
+                                            double Tf):
+        cdef:
+            Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
+            double [:, :] xm
+            double [:] xm_red, dev
+            
+        xm = self.integrate(x0, 0, Tf, Nf, dense_output=False,
+                                           max_step=self.steps*Nf)
+        xm = xm[1:]
+        full_fltr = sparse.block_diag(fltr)
+        xm_red = full_fltr@(np.ravel(xm))
+        dev=np.subtract(obs_flattened, xm_red)
+        sqdev = np.sum(np.square(dev))
+        return sqdev
 
+    cdef double _obtain_square_dev_for_lat_traj_diff(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
+                                            double Tf):
+        cdef:
+            Py_ssize_t reduced_dim=obs_flattened.shape[0], Nf=fltr.shape[0]+1
+            double [:, :] xm
+            double [:] xm_red, dev
+            
+        xm = self.integrate(x0, 0, Tf, Nf, dense_output=False,
+                                           max_step=self.steps*Nf)
+        xm = np.diff(xm,axis=0)
+        full_fltr = sparse.block_diag(fltr)
+        xm_red = full_fltr@(np.ravel(xm))
+        dev=np.subtract(obs_flattened, xm_red)
+        sqdev = np.sum(np.square(dev)/(xm_red+np.ones(reduced_dim)))
+        return sqdev
+    
     def _mean_cov_for_lat_endpoint(self, double [:] x0, double [:] obs_flattened, np.ndarray fltr,
                                             double Tf, tangent=False, Py_ssize_t inter_steps=0):
         cdef:
@@ -3321,27 +3569,29 @@ cdef class SIR_type:
         else:
             xm, full_cov = self.obtain_full_mean_cov(x0, Tf, Nf, inter_steps=inter_steps)
         known_spaces = np.empty((Nf-1, dim), dtype=DTYPE)
-        mask = np.zeros((Nf-1)*dim, dtype='bool')
         null_spaces = []
         full_fltrs = []
 
         for i in range(Nf-1):
             null_space, known_spaces[i] = self._split_spaces(fltr[i], obs[i])
             null_spaces.append(null_space)
-            full_fltrs.append(np.vstack((fltr[i], null_space)))
-            mask[i*dim:i*dim+len(obs[i])] = True
-
+            full_fltrs.append(fltr[i])
+      
         full_fltr_mat = sparse.block_diag(full_fltrs)
         full_null_space = sparse.block_diag(null_spaces)
-        full_cov = full_fltr_mat@full_cov@(full_fltr_mat.T)
-        xm  = full_fltr_mat@np.ravel(xm)
-
-        xm_known = xm[mask]
+        
+        full_cov11 = full_null_space@full_cov@(full_null_space.T)
+        full_cov12 = full_null_space@full_cov@(full_fltr_mat.T)
+        full_cov22 = full_fltr_mat@full_cov@(full_fltr_mat.T)
+        
+        xm_known  = full_fltr_mat@np.ravel(xm)
+        xm_null  = full_null_space@np.ravel(xm)
+        
         obs_flattened = pyross.utils.process_obs(obs, Nf-1)
         dev=np.subtract(obs_flattened, xm_known)
-        invcov = np.linalg.inv(full_cov)
-        cov_red = np.linalg.inv(invcov[np.invert(mask)][:, np.invert(mask)])
-        xm_red = xm[np.invert(mask)] - cov_red@invcov[np.invert(mask)][:, mask]@dev
+        tmp = full_cov12@np.linalg.inv(full_cov22)
+        cov_red = np.subtract(full_cov11, tmp@(full_cov12.T))
+        xm_red = xm_null + tmp@dev
         return xm_red, cov_red/self.Omega, full_null_space, known_spaces.flatten()
 
     def _split_spaces(self, fltr, obs):
@@ -3394,6 +3644,9 @@ cdef class SIR_type:
             x = sol(t)/self.Omega # sol is an ODESolver obj for extensive variables
             self.compute_jacobian_and_b_matrix(x, t, b_matrix=True, jacobian=True)
             self._compute_dsigdt(sig)
+            self.integrator_step_count += 1
+            if self.max_steps_lyapunov != 0 and self.integrator_step_count > self.max_steps_lyapunov:
+                raise MaxIntegratorStepsException()
             return self.dsigmadt
 
         cov_vec = self._solve_lyapunov_type_eq(rhs, sigma0, t1, t2, self.steps)
@@ -3426,9 +3679,10 @@ cdef class SIR_type:
             sol = self.interpolate_euler
         else:
             xm, sol = self.integrate(x0, 0, Tf, Nf, dense_output=True,
-                                           maxNumSteps=self.steps*Nf)
+                                           max_step=self.steps*Nf)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
+        self.integrator_step_count = 0
         for i in range(Nf-1):
             ti = time_points[i]
             tf = time_points[i+1]
@@ -3466,7 +3720,7 @@ cdef class SIR_type:
             xm = xm[::inter_steps]
             xm = np.divide(xm, self.Omega)
         else:
-            xm = self.integrate(x0, 0, Tf, Nf, maxNumSteps=self.steps*Nf)
+            xm = self.integrate(x0, 0, Tf, Nf, max_step=self.steps*Nf)
         full_cov = np.zeros((Nf-1, dim, Nf-1, dim), dtype=DTYPE)
         cov = np.zeros((dim, dim), dtype=DTYPE)
         for i in range(Nf-1):
@@ -3517,6 +3771,9 @@ cdef class SIR_type:
             self.compute_jacobian_and_b_matrix(xt, t, b_matrix=False, jacobian=True)
             U_mat = np.reshape(U_vec, (self.dim, self.dim))
             dUdt = np.dot(self.J_mat, U_mat)
+            self.integrator_step_count += 1
+            if self.max_steps_lyapunov != 0 and self.integrator_step_count > self.max_steps_lyapunov:
+                raise MaxIntegratorStepsException()
             return np.ravel(dUdt)
 
         if isclose(t1, t2): ## float precision
@@ -3581,7 +3838,7 @@ cdef class SIR_type:
         raise NotImplementedError("Please Implement compute_jacobian_and_b_matrix in subclass")
 
     def integrate(self, double [:] x0, double t1, double t2, Py_ssize_t steps,
-                  dense_output=False, maxNumSteps=100000):
+                  dense_output=False, max_step=100000):
         """An light weight integrate method similar to `simulate` in pyross.deterministic
 
         Parameters
@@ -3594,8 +3851,8 @@ cdef class SIR_type:
             Final time of integrator
         steps: int
             Number of time steps for numerical integrator evaluation.
-        maxNumSteps: int, optional
-            The maximum number of steps taken by the integrator.
+        max_step: int, optional
+            The maximum allowed step size of the integrator.
 
         Returns
         -------
@@ -3606,13 +3863,17 @@ cdef class SIR_type:
         def rhs0(double t, double [:] xt):
             self.det_model.set_contactMatrix(t, self.contactMatrix)
             self.det_model.rhs(xt, t)
+            self.integrator_step_count += 1
+            if self.max_steps_det != 0 and self.integrator_step_count > self.max_steps_det:
+                raise MaxIntegratorStepsException()
             return self.det_model.dxdt
 
         x0 = np.multiply(x0, self.Omega)
         time_points = np.linspace(t1, t2, steps)
+        self.integrator_step_count = 0
         res = solve_ivp(rhs0, [t1,t2], x0, method=self.det_method,
                         t_eval=time_points, dense_output=dense_output,
-                        max_step=maxNumSteps, rtol=self.rtol_det)
+                        max_step=max_step, rtol=self.rtol_det)
         y = np.divide(res.y.T, self.Omega)
 
         if dense_output:
@@ -3648,7 +3909,7 @@ cdef class SIR(SIR_type):
         gIs: float
             Recovery rate for symptomatic
         fsa: float
-            The fraction of symptomatic people who are self-isolating
+            Fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of age groups
     fi: float numpy.array
@@ -3670,12 +3931,19 @@ cdef class SIR(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-4)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0). 
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
+    
     """
     cdef readonly pyross.deterministic.SIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-4, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-4, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gIa', 'gIs', 'fsa']
-        super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 3, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.class_index_dict = {'S':0, 'Ia':1, 'Is':2}
         self.set_det_model(parameters)
 
@@ -3778,7 +4046,7 @@ cdef class SEIR(SIR_type):
         gIs: float
             Rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float
             rate of removal from exposed individuals.
     M: int
@@ -3802,15 +4070,21 @@ cdef class SEIR(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     """
 
     cdef:
         readonly np.ndarray gE
         readonly pyross.deterministic.SEIR det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gE', 'gIa', 'gIs', 'fsa']
-        super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 4, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'Ia':2, 'Is':3}
         self.set_det_model(parameters)
 
@@ -3928,7 +4202,7 @@ cdef class SEAIRQ(SIR_type):
         gA: float
             rate of removal from activated individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         tE: float
             testing rate and contact tracing of exposeds
         tA: float
@@ -3958,17 +4232,23 @@ cdef class SEAIRQ(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     """
 
     cdef:
         readonly np.ndarray gE, gA, tE, tA, tIa, tIs
         readonly pyross.deterministic.SEAIRQ det_model
 
-    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gE', 'gA', \
                            'gIa', 'gIs', 'fsa', \
                            'tE', 'tA', 'tIa', 'tIs']
-        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.set_det_model(parameters)
 
@@ -4116,7 +4396,7 @@ cdef class SEAIRQ_testing(SIR_type):
         gA: float
             rate of removal from activated individuals.
         fsa: float
-            fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         ars : float
             fraction of population admissible for random and symptomatic tests
         kapE : float
@@ -4144,6 +4424,12 @@ cdef class SEAIRQ_testing(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     """
 
     cdef:
@@ -4151,11 +4437,11 @@ cdef class SEAIRQ_testing(SIR_type):
         readonly object testRate
         readonly pyross.deterministic.SEAIRQ_testing det_model
 
-    def __init__(self, parameters, testRate, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3):
+    def __init__(self, parameters, testRate, M, fi, Omega=1, steps=4, det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0):
         self.param_keys = ['alpha', 'beta', 'gE', 'gA', \
                            'gIa', 'gIs', 'fsa', \
                            'ars', 'kapE']
-        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, 6, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         self.testRate=testRate
         self.class_index_dict = {'S':0, 'E':1, 'A':2, 'Ia':3, 'Is':4, 'Q':5}
         self.make_det_model(parameters)
@@ -4340,6 +4626,12 @@ cdef class Spp(SIR_type):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     parameter_mapping: python function, optional
         A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
     time_dep_param_mapping: python function, optional
@@ -4384,7 +4676,8 @@ cdef class Spp(SIR_type):
 
 
     def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0,
+                                    parameter_mapping=None, time_dep_param_mapping=None):
         if parameter_mapping is not None and time_dep_param_mapping is not None:
             raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
         self.parameter_mapping = parameter_mapping
@@ -4406,7 +4699,7 @@ cdef class Spp(SIR_type):
         self.infection_terms = res[4]
         self.finres_terms = res[5]
         self.resource_list = res[6]
-        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
+        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov)
         if self.parameter_mapping is not None:
             parameters = self.parameter_mapping(parameters)
             self.param_mapping_enabled = True
@@ -4510,7 +4803,7 @@ cdef class Spp(SIR_type):
             np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
         if 'R' in self.class_index_dict.keys():
             r = xrs[self.class_index_dict['R'],:]
-        if self.constant_terms.size > 0:
+        elif self.constant_terms.size > 0:
             r = xrs[-1,:] - np.sum(xrs[:-1,:], axis=0)
         else:
             r = self.fi - np.sum(xrs, axis=0)
@@ -4557,13 +4850,15 @@ cdef class Spp(SIR_type):
         cdef:
             Py_ssize_t class_index, priority_index, m, i
         for i in range(len(self.resource_list)):
-            if np.size(self.finres_pop[i]) == 1:
+            ndx = self.resource_list[i][0]
+            n_cohorts = self.model_parameters_length[ndx]
+            if n_cohorts == 1:
                 self.finres_pop[i] = 0
             else:
-                self.finres_pop[i] = np.zeros(np.size(self.finres_pop[i]))
+                self.finres_pop[i] = np.zeros(n_cohorts)
             for (class_index, priority_index) in self.resource_list[i][1:]:
                 for m in range(self.M):
-                    if np.size(self.finres_pop[i]) == 1:
+                    if n_cohorts == 1:
                         self.finres_pop[i] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
                     else:
                         self.finres_pop[i][m] += x[m + self.M*class_index] * self.model_parameters[priority_index, m]
@@ -4634,7 +4929,7 @@ cdef class Spp(SIR_type):
                         J[reagent_index, m, class_index, m] -= term
                     if product_index>-1:
                         J[product_index, m, class_index, m] += term
-                    if finres_pop[resource_index] > 0:
+                    if frp > 0:
                         term *= - x[class_index*M+m] / frp
                     for (res_class_index, res_priority_index) in resource_list[resource_index][1:]:
                         if np.size(finres_pop[resource_index]) == 1:
@@ -4657,7 +4952,7 @@ cdef class Spp(SIR_type):
     cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, nClass=self.nClass, class_index
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            Py_ssize_t rate_index, infective_index, product_index, reagent_index, overdispersion_index, S_index=self.class_index_dict['S']
             Py_ssize_t resource_index, priority_index, probability_index
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
@@ -4668,7 +4963,7 @@ cdef class Spp(SIR_type):
             np.ndarray resource_list=self.resource_list
             np.ndarray finres_pop = self.finres_pop
             double frp
-            double [:] s, reagent, rate
+            double [:] s, reagent, rate, overdispersion
             double Omega=self.Omega
         s = x[S_index*M:(S_index+1)*M]
 
@@ -4676,35 +4971,50 @@ cdef class Spp(SIR_type):
             for i in range(constant_terms.shape[0]):
                 rate_index = constant_terms[i, 0]
                 class_index = constant_terms[i, 1]
+                overdispersion_index = constant_terms[i, 3]
                 rate = parameters[rate_index]
+                if overdispersion_index == -1:
+                    overdispersion = np.ones(M)
+                else:
+                    overdispersion = parameters[overdispersion_index]
                 for m in range(M):
-                    B[class_index, m, class_index, m] += rate[m]/Omega
-                    B[nClass-1, m, nClass-1, m] += rate[m]/Omega
+                    B[class_index, m, class_index, m] += rate[m]*overdispersion[m]/Omega
+                    B[nClass-1, m, nClass-1, m] += rate[m]*overdispersion[m]/Omega
 
         for i in range(infection_terms.shape[0]):
             product_index = infection_terms[i, 2]
             infective_index = infection_terms[i, 1]
             rate_index = infection_terms[i, 0]
+            overdispersion_index = infection_terms[i, 3]
             rate = parameters[rate_index]
+            if overdispersion_index == -1:
+                overdispersion = np.ones(M)
+            else:
+                overdispersion = parameters[overdispersion_index]
             for m in range(M):
-                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
+                B[S_index, m, S_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
                 if product_index>-1:
-                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
-                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
+                    B[S_index, m, product_index, m] -=  rate[m]*overdispersion[m]*l[i, m]*s[m]
+                    B[product_index, m, product_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
+                    B[product_index, m, S_index, m] -= rate[m]*overdispersion[m]*l[i, m]*s[m]
 
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
             reagent_index = linear_terms[i, 1]
+            overdispersion_index = linear_terms[i, 3]
             reagent = x[reagent_index*M:(reagent_index+1)*M]
             rate_index = linear_terms[i, 0]
             rate = parameters[rate_index]
+            if overdispersion_index == -1:
+                overdispersion = np.ones(M)
+            else:
+                overdispersion = parameters[overdispersion_index]
             for m in range(M): # only fill in the upper triangular form
-                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
+                B[reagent_index, m, reagent_index, m] += rate[m]*overdispersion[m]*reagent[m]
                 if product_index>-1:
-                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
-                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
-                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
+                    B[product_index, m, product_index, m] += rate[m]*overdispersion[m]*reagent[m]
+                    B[reagent_index, m, product_index, m] += -rate[m]*overdispersion[m]*reagent[m]
+                    B[product_index, m, reagent_index, m] += -rate[m]*overdispersion[m]*reagent[m]
 
         if finres_terms.size > 0:
             for i in range(finres_terms.shape[0]):
@@ -4713,15 +5023,20 @@ cdef class Spp(SIR_type):
                 priority_index = finres_terms[i, 1]
                 probability_index = finres_terms[i, 2]
                 class_index = finres_terms[i, 3]
-                reagent_index = self.finres_terms[i, 4]
-                product_index = self.finres_terms[i, 5]
+                reagent_index = finres_terms[i, 4]
+                product_index = finres_terms[i, 5]
+                overdispersion_index = finres_terms[i, 6]
+                if overdispersion_index == -1:
+                    overdispersion = np.ones(M)
+                else:
+                    overdispersion = parameters[overdispersion_index]
                 for m in range(M):
                     if np.size(finres_pop[resource_index]) == 1:
                         frp = finres_pop[resource_index]
                     else:
                         frp = finres_pop[resource_index][m]
                     term = parameters[rate_index, m] * parameters[priority_index, m] \
-                           * parameters[probability_index, m] * x[class_index*M+m] / (frp * self.Omega)
+                           * parameters[probability_index, m] * overdispersion[m] * x[class_index*M+m] / (frp * self.Omega)
                     if reagent_index>-1:
                         B[reagent_index, m, reagent_index, m] += term
                         if product_index>-1:
@@ -4771,6 +5086,12 @@ cdef class SppQ(Spp):
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
         relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
     parameter_mapping: python function, optional
         A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
     time_dep_param_mapping: python function, optional
@@ -4810,7 +5131,7 @@ cdef class SppQ(Spp):
         readonly object testRate
         
     def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0, parameter_mapping=None, time_dep_param_mapping=None):
         if parameter_mapping is not None and time_dep_param_mapping is not None:
             raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
         self.full_model_spec = pyross.utils.build_SppQ_model_spec(model_spec) 
@@ -4818,7 +5139,7 @@ cdef class SppQ(Spp):
         self.input_param_mapping = parameter_mapping
         self.testRate = testRate
         super().__init__(self.full_model_spec, parameters, M, fi, Omega, steps,
-                                    det_method, lyapunov_method, rtol_det, rtol_lyapunov, parameter_mapping=None, time_dep_param_mapping=self.full_time_dep_param_mapping)
+                                    det_method, lyapunov_method, rtol_det, rtol_lyapunov, max_steps_det, max_steps_lyapunov, parameter_mapping=None, time_dep_param_mapping=self.full_time_dep_param_mapping)
         
     
     cpdef full_time_dep_param_mapping(self, input_parameters, t):
@@ -4839,411 +5160,3 @@ cdef class SppQ(Spp):
         self.testRate = testRate
         self.set_det_model(self.param_dict)
         
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SppQ_old(SIR_type):
-    """
-    No longer maintained, will be deprecated.
-
-    """
-    cdef:
-        readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
-        readonly Py_ssize_t nClassU, nClassUwoN
-        readonly np.ndarray model_parameters
-        readonly pyross.deterministic.SppQ_old det_model
-        readonly dict model_spec
-        readonly dict param_dict
-        readonly list model_param_keys
-        readonly object parameter_mapping
-        readonly object time_dep_param_mapping
-        readonly object testRate
-
-
-    def __init__(self, model_spec, parameters, testRate, M, fi, Omega=1, steps=4,
-                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, parameter_mapping=None, time_dep_param_mapping=None):
-        if parameter_mapping is not None and time_dep_param_mapping is not None:
-            raise Exception('Specify either parameter_mapping or time_dep_param_mapping')
-        self.parameter_mapping = parameter_mapping
-        self.time_dep_param_mapping = time_dep_param_mapping
-        self.param_keys = list(parameters.keys())
-        if parameter_mapping is not None:
-            self.model_param_keys = list(parameter_mapping(parameters).keys())
-        elif time_dep_param_mapping is not None:
-            self.param_dict = parameters.copy()
-            self.model_param_keys = list(time_dep_param_mapping(parameters, 0).keys())
-        else:
-            self.model_param_keys = self.param_keys.copy()
-        self.model_spec=model_spec
-        res = pyross.utils.parse_model_spec(model_spec, self.model_param_keys)
-        self.nClass = res[0]
-        self.class_index_dict = res[1]
-        self.constant_terms = res[2]
-        self.linear_terms = res[3]
-        self.infection_terms = res[4]
-        self.test_pos = res[7]
-        self.test_freq = res[8]
-        super().__init__(parameters, self.nClass, M, fi, Omega, steps, det_method, lyapunov_method, rtol_det, rtol_lyapunov)
-        if self.parameter_mapping is not None:
-            parameters = self.parameter_mapping(parameters)
-        if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.SppQ_old(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
-        else:
-            self.det_model = pyross.deterministic.SppQ_old(model_spec, parameters, M, fi*Omega)
-        self.testRate =  testRate
-        self.det_model.set_testRate(testRate)
-
-        if self.constant_terms.size > 0:
-            self.nClassU = self.nClass // 2 # number of unquarantined classes with constant terms
-            self.nClassUwoN = self.nClassU - 1
-        else:
-            self.nClassU = (self.nClass - 1) // 2 # number of unquarantined classes w/o constant terms
-            self.nClassUwoN = self.nClassU
-
-
-    def infection_indices(self):
-        cdef Py_ssize_t a = 100
-        indices = set()
-        linear_terms_indices = list(range(self.linear_terms.shape[0]))
-
-        # Find all the infection terms
-        for term in self.infection_terms:
-            infective_index = term[1]
-            indices.add(infective_index)
-
-        # Find all the terms that turn into infection terms
-        a = 100
-        while a > 0:
-            a = 0
-            temp = linear_terms_indices.copy()
-            for i in linear_terms_indices:
-                product_index = self.linear_terms[i, 2]
-                if product_index in indices:
-                    a += 1
-                    indices.add(self.linear_terms[i, 1])
-                    temp.remove(i)
-            linear_terms_indices = temp
-        return list(indices)
-
-    def set_params(self, parameters):
-        if self.det_model is not None:
-            self.set_det_model(parameters)
-        nParams = len(self.param_keys)
-        self.param_dict = parameters.copy()
-        if self.parameter_mapping is not None:
-            model_parameters = self.parameter_mapping(parameters)
-            nParams = len(self.model_param_keys)
-            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            try:
-                for (i, key) in enumerate(self.model_param_keys):
-                    param = model_parameters[key]
-                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-            except KeyError:
-                raise Exception('The parameters returned by parameter_mapping(...) do not contain certain keys. The keys are {}'.format(self.model_param_keys))
-        elif self.time_dep_param_mapping is not None:
-            self.set_time_dep_model_parameters(0)
-        else:
-            self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            try:
-                for (i, key) in enumerate(self.param_keys):
-                    param = parameters[key]
-                    self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-            except KeyError:
-                raise Exception('The parameters passed do not contain certain keys. The keys are {}'.format(self.param_keys))
-
-
-    def set_time_dep_model_parameters(self, tt):
-        model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
-        nParams = len(self.model_param_keys)
-        self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        try:
-            for (i, key) in enumerate(self.model_param_keys):
-                param = model_parameters[key]
-                self.model_parameters[i] = pyross.utils.age_dep_rates(param, self.M, key)
-        except KeyError:
-            raise Exception('The parameters passed do not contain certain keys.\
-                             The keys are {}'.format(self.param_keys))
-
-    def set_testRate(self, testRate):
-        self.testRate=testRate
-        self.det_model.set_testRate(testRate)
-
-    def set_det_model(self, parameters):
-        if self.parameter_mapping is not None:
-            self.det_model.update_model_parameters(self.parameter_mapping(parameters))
-        else:
-            self.det_model.update_model_parameters(parameters)
-        self.det_model.set_testRate(self.testRate)
-
-    def make_params_dict(self):
-        param_dict = self.param_dict.copy()
-        return param_dict
-
-    cdef np.ndarray _get_r_from_x(self, np.ndarray x):
-        cdef:
-            np.ndarray r
-            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
-        r = self.fi - xrs[-1,:] - np.sum(xrs[:self.nClassUwoN,:], axis=0) # subtract total quarantined and all non-quarantined classes
-        return r
-
-    cdef np.ndarray _get_rq_from_x(self, np.ndarray x):
-        cdef:
-            np.ndarray r
-            np.ndarray xrs=x.reshape(int(self.dim/self.M), self.M)
-        r = xrs[-1,:] - np.sum(xrs[self.nClassU:-1,:], axis=0) # subtract all quarantined classes
-        return r
-
-    def _all_positive(self, np.ndarray x0):
-        r = self._get_r_from_x(x0)
-        rq = self._get_rq_from_x(x0)
-        return (x0 >0).all() and (r > 0).all() and (rq > 0).all()
-
-    cdef double _penalty_from_negative_values(self, np.ndarray x0):
-        cdef:
-            double eps=0.1/self.Omega, dev
-            np.ndarray R_init, RQ_init
-        R_init = self._get_r_from_x(x0)
-        RQ_init = self._get_rq_from_x(x0)
-        dev = - (np.sum(R_init[R_init<0]) + np.sum(RQ_init[RQ_init<0]) + np.sum(x0[x0<0]))
-        return (dev/eps)**2 + (dev/eps)**8
-
-    cdef calculate_test_r(self, double [:] x, double [:] r, double TR):
-        cdef:
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN, M=self.M
-            int [:] test_freq=self.test_freq
-            double [:] fi=self.fi
-            double Omega = self.Omega
-            double ntestpop=0, tau0=0
-            double [:, :] parameters=self.model_parameters
-            Py_ssize_t m, i
-
-        # Compute non-quarantined recovered
-        r = self._get_r_from_x(np.array(x))
-        # Compute normalisation of testing rates
-        for m in range(M):
-            for i in range(nClassUwoN):
-                ntestpop += parameters[test_freq[i], m] * x[i*M+m]
-            ntestpop += parameters[test_freq[nClassUwoN], m] * r[m]
-        tau0 = TR / (Omega * ntestpop)
-        return ntestpop, tau0
-
-    cdef compute_jacobian_and_b_matrix(self, double [:] x, double t,
-                                        b_matrix=True, jacobian=False):
-        cdef:
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, M=self.M
-            Py_ssize_t num_of_infection_terms=self.infection_terms.shape[0]
-            double [:, :] l=np.zeros((num_of_infection_terms, self.M), dtype=DTYPE)
-            double [:] fi=self.fi
-            double TR
-            double ntestpop, tau0
-            double [:] r=np.zeros(self.M, dtype=DTYPE)
-        self.CM = self.contactMatrix(t)
-        if self.time_dep_param_mapping is not None:
-            self.set_time_dep_model_parameters(t)
-        TR = self.testRate(t)
-        if self.constant_terms.size > 0:
-            fi = x[(nClassU-1)*M:]
-        self.fill_lambdas(x, l)
-        ntestpop, tau0 = self.calculate_test_r(x, r, TR)
-        if b_matrix:
-            self.B = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-            self.noise_correlation(x, l, r, tau0)
-        if jacobian:
-            self.J = np.zeros((nClass, M, nClass, M), dtype=DTYPE)
-            self.jacobian(x, l, r, ntestpop, tau0)
-
-    cdef fill_lambdas(self, double [:] x, double [:, :] l):
-        cdef:
-            double [:, :] CM=self.CM
-            int [:, :] infection_terms=self.infection_terms
-            double infection_rate
-            double [:] fi=self.fi
-            Py_ssize_t m, n, i, infective_index, index, M=self.M, num_of_infection_terms=infection_terms.shape[0]
-        for i in range(num_of_infection_terms):
-            infective_index = infection_terms[i, 1]
-            for m in range(M):
-                for n in range(M):
-                    index = n + M*infective_index
-                    if fi[n]>0:
-                        l[i, m] += CM[m,n]*x[index]/fi[n]
-
-    cdef jacobian(self, double [:] x, double [:, :] l, double [:] r, double ntestpop, double tau0):
-        cdef:
-            Py_ssize_t i, m, n, M=self.M, dim=self.dim
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
-            double [:, :, :, :] J = self.J
-            double [:, :] CM=self.CM
-            double [:, :] parameters=self.model_parameters
-            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
-            int [:] test_pos=self.test_pos
-            int [:] test_freq=self.test_freq
-            double [:] rate
-            double term, term2, term3
-            double [:] fi=self.fi
-
-        # infection terms (no infection terms in Q classes, perfect quarantine)
-        for i in range(infection_terms.shape[0]):
-            product_index = infection_terms[i, 2]
-            infective_index = infection_terms[i, 1]
-            rate_index = infection_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M):
-                J[S_index, m, S_index, m] -= rate[m]*l[i, m]
-                if product_index>-1:
-                    J[product_index, m, S_index, m] += rate[m]*l[i, m]
-                for n in range(M):
-                    J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
-                    if product_index>-1:
-                        J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
-        # linear terms
-        for i in range(linear_terms.shape[0]):
-            product_index = linear_terms[i, 2]
-            reagent_index = linear_terms[i, 1]
-            rate_index = linear_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M):
-                J[reagent_index, m, reagent_index, m] -= rate[m]
-                J[reagent_index + nClassU, m, reagent_index + nClassU, m] -= rate[m]
-                if product_index>-1:
-                    J[product_index, m, reagent_index, m] += rate[m]
-                    J[product_index + nClassU, m, reagent_index + nClassU, m] += rate[m]
-        # quarantining terms
-        for m in range(M):
-            for i in range(nClassUwoN):
-                term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m]
-                term2 = term * x[i*M+m] / ntestpop
-                J[i, m, i, m] -= term
-                J[i+nClassU, m, i, m] += term
-                J[nClass-1,  m, i, m] += term
-                for n in range(M):
-                    for j in range(nClassUwoN):
-                        term3 = term2 * (parameters[test_freq[j],n] - parameters[test_freq[nClassUwoN],n])
-                        J[i, m, j, n] += term3
-                        J[i+nClassU, m, j, n] -= term3
-                        J[nClass-1,  m, j, n] -= term3
-                    term3 = term2 * parameters[test_freq[nClassUwoN],n]
-                    if self.constant_terms.size > 0:
-                        J[i, m, nClassUwoN, n] += term3
-                        J[i+nClassU, m, nClassUwoN, n] -= term3
-                        J[nClass-1,  m, nClassUwoN, n] -= term3
-                    J[i, m, nClass-1, n] -= term3
-                    J[i+nClassU, m, nClass-1, n] += term3
-                    J[nClass-1,  m, nClass-1, n] += term3
-            term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m]
-            term2 = term * r[m] / ntestpop
-            for j in range(nClassUwoN):
-                J[nClass-1, m, j, m] -= term
-            if self.constant_terms.size > 0:
-                J[nClass-1, m, nClassUwoN, m] += term
-            J[nClass-1, m, nClass-1, m] -= term
-            for n in range(M):
-                for j in range(nClassUwoN):
-                    term3 = term2 * (parameters[test_freq[j],n] - parameters[test_freq[nClassUwoN],n])
-                    J[nClass-1,  m, j, n] -= term3
-                term3 = term2 * parameters[test_freq[nClassUwoN],n]
-                if self.constant_terms.size > 0:
-                    J[nClass-1,  m, nClassUwoN, n] -= term3
-                J[nClass-1,  m, nClass-1, n] += term3
-
-
-
-        self.J_mat = self.J.reshape((dim, dim))
-
-    cdef noise_correlation(self, double [:] x, double [:, :] l, double [:] r, double tau0):
-        cdef:
-            Py_ssize_t i, m, n, M=self.M, class_index
-            Py_ssize_t nClass=self.nClass, nClassU=self.nClassU, nClassUwoN=self.nClassUwoN
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
-            double [:, :, :, :] B=self.B
-            double [:, :] CM=self.CM
-            double [:, :] parameters=self.model_parameters
-            int [:, :] constant_terms=self.constant_terms
-            int [:, :] linear_terms=self.linear_terms, infection_terms=self.infection_terms
-            int [:] test_pos=self.test_pos
-            int [:] test_freq=self.test_freq
-            double [:] s, reagent, rate
-            double term
-            double Omega=self.Omega
-        s = x[S_index*M:(S_index+1)*M]
-
-        if self.constant_terms.size > 0:
-            for i in range(constant_terms.shape[0]):
-                rate_index = constant_terms[i, 0]
-                class_index = constant_terms[i, 1]
-                rate = parameters[rate_index]
-                for m in range(M):
-                    B[class_index, m, class_index, m] += rate[m]/Omega
-                    B[nClass-1, m, nClass-1, m] += rate[m]/Omega
-
-        for i in range(infection_terms.shape[0]):
-            product_index = infection_terms[i, 2]
-            infective_index = infection_terms[i, 1]
-            rate_index = infection_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M):
-                B[S_index, m, S_index, m] += rate[m]*l[i, m]*s[m]
-                if product_index>-1:
-                    B[S_index, m, product_index, m] -=  rate[m]*l[i, m]*s[m]
-                    B[product_index, m, product_index, m] += rate[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] -= rate[m]*l[i, m]*s[m]
-
-        for i in range(linear_terms.shape[0]):
-            product_index = linear_terms[i, 2]
-            reagent_index = linear_terms[i, 1]
-            reagent = x[reagent_index*M:(reagent_index+1)*M]
-            rate_index = linear_terms[i, 0]
-            rate = parameters[rate_index]
-            for m in range(M): # only fill in the upper triangular form
-                B[reagent_index, m, reagent_index, m] += rate[m]*reagent[m]
-                if product_index>-1:
-                    B[product_index, m, product_index, m] += rate[m]*reagent[m]
-                    B[reagent_index, m, product_index, m] += -rate[m]*reagent[m]
-                    B[product_index, m, reagent_index, m] += -rate[m]*reagent[m]
-            # same transitions in Q classes
-            reagent = x[(reagent_index+nClassU)*M:((reagent_index+nClassU)+1)*M]
-            for m in range(M): # only fill in the upper triangular form
-                B[reagent_index+nClassU, m, reagent_index+nClassU, m] += rate[m]*reagent[m]
-                if product_index>-1:
-                    B[product_index+nClassU, m, product_index+nClassU, m] += rate[m]*reagent[m]
-                    B[reagent_index+nClassU, m, product_index+nClassU, m] += -rate[m]*reagent[m]
-                    B[product_index+nClassU, m, reagent_index+nClassU, m] += -rate[m]*reagent[m]
-
-        for m in range(M):
-            for i in range(nClassUwoN): # only fill in the upper triangular form
-                term = tau0 * parameters[test_freq[i], m] * parameters[test_pos[i], m] * x[m+M*i]
-                B[i, m, i, m] += term
-                B[i+nClassU, m, i+nClassU, m] += term
-                B[nClass-1, m, nClass-1, m] += term
-                B[i, m, i+nClassU, m] -= term
-                B[i+nClassU, m, i, m] -= term
-                B[i, m, nClass-1, m] -= term
-                B[nClass-1, m, i, m] -= term
-                B[i+nClassU, m, nClass-1, m] += term
-                B[nClass-1, m, i+nClassU, m] += term
-            term = tau0 * parameters[test_freq[nClassUwoN], m] * parameters[test_pos[nClassUwoN], m] * r[m]
-            B[nClass-1, m, nClass-1, m] += term
-
-
-        self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
-
-cdef class SppSparse(Spp):
-
-    def __init__(self, model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi, Omega=1, steps=4,
-                det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3,
-                parameter_mapping=None, time_dep_param_mapping=None):
-
-        super().__init__(model_spec, parameters, M, fi, Omega, steps,
-                det_method, lyapunov_method, rtol_det, rtol_lyapunov,
-                parameter_mapping, time_dep_param_mapping)
-
-        if self.parameter_mapping is not None:
-            parameters = self.parameter_mapping(parameters)
-            self.param_mapping_enabled = True
-        if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
-            self.param_mapping_enabled = True
-        else:
-            self.det_model = pyross.deterministic.SppSparse(model_spec, contact_matrix0, contact_matrix_threshold, parameters, M, fi*Omega)

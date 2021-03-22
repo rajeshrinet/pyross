@@ -449,7 +449,7 @@ cdef class SIR(CommonMethods):
         gIs: float, np.array (M,)
             Rate of removal from symptomatic individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -770,7 +770,7 @@ cdef class SEIR(CommonMethods):
         gIs: float, np.array (M,)
             Rate of removal from symptomatic individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -1087,6 +1087,8 @@ cdef class SEkIkIkR(CommonMethods):
             Fraction of infected who are asymptomatic.
         beta: float
             Rate of spread of infection.
+        fsa: float, np.array (M,)
+            Fraction by which symptomatic individuals do not self-isolate.
         gIa: float
             Rate of removal from asymptomatic infected individuals.
         gIs: float
@@ -1314,7 +1316,7 @@ cdef class SEI8R(CommonMethods):
         gIcp: float
             Rate of removal from ICU individuals towards buffer.
         fsa: float
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         sa: float, np.array (M,)
             Daily arrival of new susceptables.
         hh: float, np.array (M,)
@@ -1560,7 +1562,7 @@ cdef class SEAIR(CommonMethods):
         gIs: float
             Rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float
             Rate of removal from exposeds individuals.
         gA: float
@@ -1768,7 +1770,7 @@ cdef class SEAI8R(CommonMethods):
         gIcp: float
             Rate of removal from ICU individuals towards buffer.
         fsa: float
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         sa: float, np.array (M,)
             Daily arrival of new susceptables.
         hh: float, np.array (M,)
@@ -2028,7 +2030,6 @@ cdef class SEAIRQ(CommonMethods):
         gA: float, np.array (M,)
             Rate of removal from activated individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals self isolate.
         tE: float, np.array (M,)
             testing rate and contact tracing of exposeds
         tA: float, np.array (M,)
@@ -2201,7 +2202,7 @@ cdef class SEAIRQ_testing(CommonMethods):
         gA: float, np.array (M,)
             Rate of removal from activated individuals.
         fsa: float, np.array (M,)
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         ars: float, np.array (M,)
             Fraction of population admissible for random and symptomatic tests
         kapE: float, np.array (M,)
@@ -2383,7 +2384,7 @@ cdef class SIRS(CommonMethods):
         gIs: float
             Rate of removal from symptomatic individuals.
         fsa: float
-            Fraction by which symptomatic individuals self isolate.
+            Fraction by which symptomatic individuals do not self-isolate.
         ep  : float
             Fraction of removed who become susceptable again
         sa  : float, np.array (M,)
@@ -2650,11 +2651,12 @@ cdef class Spp(CommonMethods):
         }
     """
 
-    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None, constant_CM=0):
 
         self.N = DTYPE(np.sum(Ni))
         self.M = DTYPE(M)
         self.Ni = np.array(Ni, dtype=DTYPE)
+        self.constant_CM=constant_CM
         
         self.time_dep_param_mapping = time_dep_param_mapping
         if self.time_dep_param_mapping is not None:
@@ -2721,7 +2723,7 @@ cdef class Spp(CommonMethods):
     cpdef rhs(self, xt_arr, tt):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
-            Py_ssize_t susceptible_index, infection_index
+            Py_ssize_t susceptible_index, infective_index
             Py_ssize_t reagent_index, product_index, rate_index
             Py_ssize_t resource_index, probability_index, priority_index 
             Py_ssize_t origin_index, destination_index
@@ -2737,6 +2739,8 @@ cdef class Spp(CommonMethods):
             double [:] Ni   = self.Ni
             double [:,:] CM = self.CM
             double [:,:] lambdas = self._lambdas
+            unsigned short nn
+            unsigned short [:,:] nonzero_index_n = self.nonzero_index_n
             
 
         if self.time_dep_param_mapping is not None:
@@ -2747,24 +2751,37 @@ cdef class Spp(CommonMethods):
         if self.constant_terms.size > 0:
             Ni = xt_arr[(nClass-1)*M:] # update Ni
 
-        for i in range(infection_terms.shape[0]):
-            infective_index = infection_terms[i, 1]
+        if self.constant_CM == 1:
             for m in range(M):
-                lambdas[i, m] = 0
-                for n in range(M):
-                    index = n + M*infective_index
-                    if Ni[n]>0:
-                        lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
+                for i in range(infection_terms.shape[0]):
+                    infective_index = infection_terms[i, 1]
+                    lambdas[i, m] = 0
+                    for n in range(1, nonzero_index_n[m, 0] + 1):
+                        nn = nonzero_index_n[m, n]
+                        index = nn + M*infective_index
+                        if Ni[nn]>0:
+                            lambdas[i, m] += CM[m,nn]*xt[index]/Ni[nn]
+        else:
+            for m in range(M):
+                for i in range(infection_terms.shape[0]):
+                    infective_index = infection_terms[i, 1]
+                    lambdas[i, m] = 0
+                    for n in range(M):
+                        index = n + M*infective_index
+                        if Ni[n]>0:
+                            lambdas[i, m] += CM[m,n]*xt[index]/Ni[n]
                     
         # Calculate populations for finite resource transitions
         for i in range(len(resource_list)):
-            if np.size(finres_pop[i]) == 1:
+            ndx = self.resource_list[i][0]
+            n_cohorts = self.parameters_length[ndx]
+            if n_cohorts == 1:
                 finres_pop[i] = 0
             else:
-                finres_pop[i] = np.zeros(np.size(finres_pop[i]))
+                finres_pop[i] = np.zeros(n_cohorts)
             for (class_index, priority_index) in resource_list[i][1:]:
                 for m in range(M):
-                    if np.size(finres_pop[i]) == 1:
+                    if n_cohorts == 1:
                         finres_pop[i] += xt[m + M*class_index] * parameters[priority_index, m]
                     else:
                         finres_pop[i][m] += xt[m + M*class_index] * parameters[priority_index, m]
@@ -2876,6 +2893,37 @@ cdef class Spp(CommonMethods):
              X: output path from integrator,  t : time points evaluated at,
             'param': input param to integrator.
         """
+
+        cdef:
+            int m, n, index_n, M=self.M
+            double [:,:] CM=contactMatrix(1.0)
+            unsigned short [:,:] nonzero_index_n
+            move_n_num = np.zeros(M, dtype=int)
+
+        # Here nonzero elements of CM are stored for skipping these
+        if self.constant_CM == 1:
+            for m in range(M):
+                index_n = 0
+                for n in range(M):
+                    if CM[m,n] > 0.0:
+                        index_n += 1
+                    
+                move_n_num[m] = <int> index_n
+
+            move_n_num.sort()
+            max_move_n = move_n_num[M - 1]
+            print("Max index n", max_move_n)
+            self.nonzero_index_n = np.zeros( (self.M, max_move_n + 1), dtype=np.uint16) # the list n for non zero CM at specific m
+            nonzero_index_n = self.nonzero_index_n
+
+            for m in range(M):
+                index_n = 0
+                for n in range(M):
+                    if CM[m,n] > 0.0:
+                        nonzero_index_n[m, index_n + 1] = n
+                        index_n += 1
+                    
+                nonzero_index_n[m,0] = index_n
 
         if type(x0) == list:
             x0 = np.array(x0)
@@ -3183,7 +3231,7 @@ cdef class SppQ_old(CommonMethods):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, nClassU=self.nClassU, class_index
             Py_ssize_t nClassUwoN = nClassU - int(self.constant_terms.size > 0) # number of unquarantined classes without auxiliary class N
-            Py_ssize_t S_index=self.class_index_dict['S'], infection_index
+            Py_ssize_t S_index=self.class_index_dict['S'], infective_index
             Py_ssize_t reagent_index, product_index, rate_index
             int sign
             int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms
@@ -3451,7 +3499,7 @@ cdef class SEI5R(CommonMethods):
         gIc: float	
             Rate of removal for idividuals in intensive care.	
         fsa: float	
-            Fraction by which symptomatic individuals self isolate.	
+            Fraction by which symptomatic individuals do not self-isolate.
         fh  : float	
             Fraction by which hospitalised individuals are isolated.	
         sa: float, np.array (M,)	
@@ -3670,7 +3718,7 @@ cdef class SEAI5R(CommonMethods):
         gIs: float	
             Rate of removal from symptomatic individuals.	
         fsa: float	
-            Fraction by which symptomatic individuals self isolate.	
+            Fraction by which symptomatic individuals do not self-isolate.
         gE: float	
             Rate of removal from exposeds individuals.	
         gA: float	
@@ -3948,7 +3996,7 @@ cdef class SppSparse(Spp):
     cpdef rhs(self, xt_arr, tt):
         cdef:
             Py_ssize_t m, n, M=self.M, i, index, nClass=self.nClass, class_index
-            Py_ssize_t S_index=self.class_index_dict['S'], infection_index
+            Py_ssize_t S_index=self.class_index_dict['S'], infective_index
             Py_ssize_t reagent_index, product_index, rate_index, morig, mpoint
             int sign
             int [:, :] constant_terms=self.constant_terms, linear_terms=self.linear_terms

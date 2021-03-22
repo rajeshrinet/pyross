@@ -1,5 +1,20 @@
 # PyRoss changelogs
 
+## 1.3.7
+* Updates to TSI and inference 
+
+## 1.3.4
+* Updates to utils - see https://github.com/rajeshrinet/pyross/pull/38
+
+## 1.3.3
+* Updated the docstrings. 
+
+## 1.3.2
+* Remove pandas and xlrd as dependencies
+
+## 1.3.1 
+* Update contact matrix calculations  - see https://github.com/rajeshrinet/pyross/pull/35
+
 ## 1.3.0 
 * Merge PyRossTSI with PyRoss
 

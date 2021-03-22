@@ -7,6 +7,7 @@ cimport cython
 import warnings
 from types import ModuleType
 import os
+from cython.parallel import prange
 
 
 DTYPE   = np.float
@@ -278,7 +279,10 @@ cdef class CustomTemporalProtocol(Protocol):
 
 
 
-
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
 cdef class SpatialContactMatrix:
     '''A class for generating a spatial compartmental model with commute data
 
@@ -306,6 +310,7 @@ cdef class SpatialContactMatrix:
         readonly np.ndarray density_factor, norm_factor, local_contacts
         readonly Py_ssize_t n_loc, M
         readonly double work_ratio
+        readonly np.ndarray spatial_CM
 
     def __init__(self, double b, double work_ratio, np.ndarray populations,
                     np.ndarray areas, np.ndarray commutes):
@@ -340,28 +345,34 @@ cdef class SpatialContactMatrix:
         rho = np.sum(populations)/np.sum(areas)
         self._compute_density_factor(b, rho, areas.astype('float'))
 
-    def spatial_contact_matrix(self, np.ndarray CM):
+        self.spatial_CM = np.zeros((self.n_loc, self.M, self.n_loc, self.M))
+
+    def spatial_contact_matrix(self, np.ndarray[DTYPE_t, ndim=2] CM):
         self._compute_local_contacts(CM.astype('float'))
         cdef:
-            Py_ssize_t mu, nu, i, j, M=self.M, n_loc=self.n_loc
+            Py_ssize_t mu, nu, eta, i, j, M=self.M, n_loc=self.n_loc
             double [:, :, :] f=self.commute_fraction,
             double [:, :, :] C=self.local_contacts[0], CC=self.local_contacts[1]
             double [:, :] pop=self.pops[0], commute_time_pop=self.pops[1]
-            np.ndarray spatial_CM
-            double p, cc, work_ratio=self.work_ratio
-        spatial_CM = np.zeros((n_loc, M, n_loc, M))
-        for i in range(M):
+            #np.ndarray spatial_CM
+            #double [:,:,:,:] spatial_CM=self.spatial_CM
+            np.ndarray[DTYPE_t, ndim=4] spatial_CM = np.zeros((n_loc, M, n_loc, M))
+            double p, cc, work_ratio=self.work_ratio, f1, f2
+        #spatial_CM = np.zeros((n_loc, M, n_loc, M))
+        for i in prange(M, nogil=True):
+        #for i in range(M):
             for j in range(M):
                 for mu in range(n_loc):
                     p = pop[mu, i]
                     spatial_CM[mu, i, mu, j] = C[mu, i, j]*(1-work_ratio)
-                    for nu in range(n_loc):
-                        for eta in range(n_loc):
-                            cc = CC[eta, i, j]
-                            f1 = f[mu, eta, i]
-                            f2 = f[nu, eta, j]
-                            spatial_CM[mu, i, nu, j] += f1*f2*cc*work_ratio
-                        spatial_CM[mu, i, nu, j] /= p
+                    if p >= 1.0:
+                        for nu in range(n_loc):
+                            for eta in range(n_loc):
+                                cc = CC[eta, i, j]
+                                f1 = f[mu, eta, i]
+                                f2 = f[nu, eta, j]
+                                spatial_CM[mu, i, nu, j] += f1*f2*cc*work_ratio
+                            spatial_CM[mu, i, nu, j] /= p
         return spatial_CM
 
     cdef _process_commute(self, double [:, :] pop, double [:, :, :] commutes):
@@ -379,7 +390,9 @@ cdef class SpatialContactMatrix:
                 commute_fraction[mu, mu, i] = 1
                 for nu in range(self.n_loc):
                     if nu != mu:
-                        f = commutes[nu, mu, i]/p
+                        f = 0.0
+                        if p >= 1.0:
+                            f = commutes[nu, mu, i]/p
                         commute_fraction[nu, mu, i] = f
                         commute_fraction[mu, mu, i] -= f
 
@@ -391,34 +404,33 @@ cdef class SpatialContactMatrix:
             double [:, :, :] pops=self.pops
             double [:, :, :, :] density_factor=self.density_factor
             double [:, :, :] norm_factor=self.norm_factor
-        for mu in range(self.n_loc):
+        for mu in prange(self.n_loc, nogil=True):
             for i in range(self.M):
                 for j in range(self.M):
                     for a in range(2):
                         rhoi = pops[a, mu, i]/areas[mu]
                         rhoj = pops[a, mu, j]/areas[mu]
-                        density_factor[a, mu, i, j] = pow(rhoi*rhoj/rho**2, b)
+                        density_factor[a, mu, i, j] = pow(rhoi*rhoj, b)
                         norm_factor[a, i, j] += density_factor[a, mu, i, j]
 
 
     cdef _compute_local_contacts(self, double [:, :] CM):
         cdef:
-            Py_ssize_t mu, i, j, M=self.M, n_loc=self.n_loc
+            Py_ssize_t mu, i, j, a, M=self.M, n_loc=self.n_loc
             double [:] Ni = self.Ni
             double [:, :, :, :] local_contacts=self.local_contacts
             double [:, :, :] norm=self.norm_factor
             double [:, :, :, :] density_factor=self.density_factor
             double c, d
-        for mu in range(n_loc):
+        for mu in prange(n_loc, nogil=True):
             for i in range(M):
                 for j in range(M):
                     c = CM[i, j] * Ni[i]
                     for a in range(2):
                         d = density_factor[a, mu, i, j]
-                        local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
-
-
-
+                        local_contacts[a, mu, i, j] = 0.0
+                        if norm[a, i, j] != 0.0:
+                            local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
 
 cdef class MinimalSpatialContactMatrix:
     '''A class for generating a minimal spatial compartmental model
@@ -817,107 +829,34 @@ data from above
 '''
 
 
-def getCM(country='India', sheet=1):
-    """
-    Method to compute contact matrices of a given country
-
-    The data is read from sheets at:
-
-    https://github.com/rajeshrinet/pyross/tree/master/examples/data/contact_matrices_152_countries
-
-    Parameters
-    ----------
-    country: string
-        Default is India
-    sheet: int
-        Default is 1
-        sheet takes value 1 and 2
-
-    Returns
-    ----------
-    four np.arrays: CH, CW, CS, CO of the given country
-
-    CH - home,
-
-    CW - work,
-
-    CS - school,
-
-    CO - other locations
-
-    """
-
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-
-    if sheet==1:
-        uH = u1 + u2 + 'home_1.xlsx'
-        uW = u1 + u2 + 'work_1.xlsx'
-        uS = u1 + u2 + 'school_1.xlsx'
-        uO = u1 + u2 + 'other_locations_1.xlsx'
-    elif sheet==2:
-        uH = u1 + u2 + 'home_2.xlsx'
-        uW = u1 + u2 + 'work_2.xlsx'
-        uS = u1 + u2 + 'school_2.xlsx'
-        uO = u1 + u2 + 'other_locations_2.xlsx'
-    else:
-        raise Exception('There are only two sheets, choose 1 or 2')
-
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name=country))
-    CW = np.array(pd.read_excel(uW,  sheet_name=country))
-    CS = np.array(pd.read_excel(uS,  sheet_name=country))
-    CO = np.array(pd.read_excel(uO,  sheet_name=country))
-    return CH, CW, CS, CO
-
-
-def China():
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-    uH = u1 + u2 + 'home_1.xlsx'
-    uW = u1 + u2 + 'work_1.xlsx'
-    uS = u1 + u2 + 'school_1.xlsx'
-    uO = u1 + u2 + 'other_locations_1.xlsx'
-
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name='China'))
-    CW = np.array(pd.read_excel(uW,  sheet_name='China'))
-    CS = np.array(pd.read_excel(uS,  sheet_name='China'))
-    CO = np.array(pd.read_excel(uO,  sheet_name='China'))
-    return CH, CW, CS, CO
-
-
 def Denmark():
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-    uH = u1 + u2 + 'home_1.xlsx'
-    uW = u1 + u2 + 'work_1.xlsx'
-    uS = u1 + u2 + 'school_1.xlsx'
-    uO = u1 + u2 + 'other_locations_1.xlsx' 
-
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name='Denmark'))
-    CW = np.array(pd.read_excel(uW,  sheet_name='Denmark'))
-    CS = np.array(pd.read_excel(uS,  sheet_name='Denmark'))
-    CO = np.array(pd.read_excel(uO,  sheet_name='Denmark'))
+    u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+    uH = u1 + 'Denmark_HP.txt'
+    uW = u1 + 'Denmark_WP.txt'
+    uS = u1 + 'Denmark_SP.txt'
+    uO = u1 + 'Denmark_OP.txt'
+        
+        
+    CW = np.genfromtxt(uW)
+    CS = np.genfromtxt(uS)
+    CO = np.genfromtxt(uO)
+    CH = np.genfromtxt(uH)
     return CH, CW, CS, CO
 
 
 
 def France(source='fumanelliEtAl'):
     if source=='premEtAl':
-        u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-        u2 ='/data/contact_matrices_152_countries/MUestimates_'
-        uH = u1 + u2 + 'home_1.xlsx'
-        uW = u1 + u2 + 'work_1.xlsx'
-        uS = u1 + u2 + 'school_1.xlsx'
-        uO = u1 + u2 + 'other_locations_1.xlsx' 
-
-        import pandas as pd
-        CH = np.array(pd.read_excel(uH,  sheet_name='France'))
-        CW = np.array(pd.read_excel(uW,  sheet_name='France'))
-        CS = np.array(pd.read_excel(uS,  sheet_name='France'))
-        CO = np.array(pd.read_excel(uO,  sheet_name='France'))
+        u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+        uH = u1 + 'France_HP.txt'
+        uW = u1 + 'France_WP.txt'
+        uS = u1 + 'France_SP.txt'
+        uO = u1 + 'France_OP.txt'
+            
+        CW = np.genfromtxt(uW)
+        CS = np.genfromtxt(uS)
+        CO = np.genfromtxt(uO)
+        CH = np.genfromtxt(uH)
     
     elif source=='fumanelliEtAl':
         u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
@@ -937,99 +876,64 @@ def France(source='fumanelliEtAl'):
 
 
 def Germany():
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-    uH = u1 + u2 + 'home_1.xlsx'
-    uW = u1 + u2 + 'work_1.xlsx'
-    uS = u1 + u2 + 'school_1.xlsx'
-    uO = u1 + u2 + 'other_locations_1.xlsx' 
-
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name='Germany'))
-    CW = np.array(pd.read_excel(uW,  sheet_name='Germany'))
-    CS = np.array(pd.read_excel(uS,  sheet_name='Germany'))
-    CO = np.array(pd.read_excel(uO,  sheet_name='Germany'))
+    u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+    uH = u1 + 'Germany_HP.txt'
+    uW = u1 + 'Germany_WP.txt'
+    uS = u1 + 'Germany_SP.txt'
+    uO = u1 + 'Germany_OP.txt'
+        
+        
+    CW = np.genfromtxt(uW)
+    CS = np.genfromtxt(uS)
+    CO = np.genfromtxt(uO)
+    CH = np.genfromtxt(uH)
     return CH, CW, CS, CO
 
 
 def India():
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-    uH = u1 + u2 + 'home_1.xlsx'
-    uW = u1 + u2 + 'work_1.xlsx'
-    uS = u1 + u2 + 'school_1.xlsx'
-    uO = u1 + u2 + 'other_locations_1.xlsx' 
-
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name='India'))
-    CW = np.array(pd.read_excel(uW,  sheet_name='India'))
-    CS = np.array(pd.read_excel(uS,  sheet_name='India'))
-    CO = np.array(pd.read_excel(uO,  sheet_name='India'))
+    u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+    uH = u1 + 'India_HP.txt'
+    uW = u1 + 'India_WP.txt'
+    uS = u1 + 'India_SP.txt'
+    uO = u1 + 'India_OP.txt'
+        
+    CW = np.genfromtxt(uW)
+    CS = np.genfromtxt(uS)
+    CO = np.genfromtxt(uO)
+    CH = np.genfromtxt(uH)
     return CH, CW, CS, CO
 
 
 def Italy():
-    u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-    u2 ='/data/contact_matrices_152_countries/MUestimates_'
-    uH = u1 + u2 + 'home_1.xlsx'
-    uW = u1 + u2 + 'work_1.xlsx'
-    uS = u1 + u2 + 'school_1.xlsx'
-    uO = u1 + u2 + 'other_locations_1.xlsx' 
-
-    import pandas as pd
-    CH = np.array(pd.read_excel(uH,  sheet_name='Italy'))
-    CW = np.array(pd.read_excel(uW,  sheet_name='Italy'))
-    CS = np.array(pd.read_excel(uS,  sheet_name='Italy'))
-    CO = np.array(pd.read_excel(uO,  sheet_name='Italy'))
+    u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+    uH = u1 + 'Italy_HP.txt'
+    uW = u1 + 'Italy_WP.txt'
+    uS = u1 + 'Italy_SP.txt'
+    uO = u1 + 'Italy_OP.txt'
+        
+        
+    CW = np.genfromtxt(uW)
+    CS = np.genfromtxt(uS)
+    CO = np.genfromtxt(uO)
+    CH = np.genfromtxt(uH)
     return CH, CW, CS, CO
 
 
 
 def UK(source='premEtAl'):
     if source=='premEtAl':
-        u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples'
-        u2 ='/data/contact_matrices_152_countries/MUestimates_'
-        uH = u1 + u2 + 'home_2.xlsx'
-        uW = u1 + u2 + 'work_2.xlsx'
-        uS = u1 + u2 + 'school_2.xlsx'
-        uO = u1 + u2 + 'other_locations_2.xlsx' 
-    
-        import pandas as pd
-        CH0 = np.array(pd.read_excel(uH,  sheet_name='United Kingdom of Great Britain'))
-        CW0 = np.array(pd.read_excel(uW,  sheet_name='United Kingdom of Great Britain'))
-        CS0 = np.array(pd.read_excel(uS,  sheet_name='United Kingdom of Great Britain'))
-        CO0 = np.array(pd.read_excel(uO,  sheet_name='United Kingdom of Great Britain')) 
+        u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
+        uH = u1 + 'UK_HP.txt'
+        uW = u1 + 'UK_WP.txt'
+        uS = u1 + 'UK_SP.txt'
+        uO = u1 + 'UK_OP.txt'
+            
+        CW = np.genfromtxt(uW)
+        CS = np.genfromtxt(uS)
+        CO = np.genfromtxt(uO)
+        CH = np.genfromtxt(uH)
 
-        CH = np.zeros((16, 16))
-        CH[0,:]= np.array((0.478812799633172, 0.55185413960287,0.334323605154544,0.132361228266194,
-                           0.138531587861408,0.281604887066586,0.406440258772792,0.493947983343078,
-                           0.113301080935514,0.0746826413664804,0.0419640342896305,0.0179831987029717,
-                           0.00553694264516568,0.00142187285266089,0,0.000505582193632659))
-        for i in range(15):
-            CH[i+1, :] = CH0[i, :]
-        
-            
-        CW = np.zeros((16, 16))
-        CW[0,:]= np.array((0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.,0.0))
-        for i in range(15):
-            CW[i+1, :] = CW0[i, :]
-        
-            
-        CS = np.zeros((16, 16))
-        CS[0,:]= np.array((0.974577996106766,0.151369805263473,0.00874880925953218,0.0262790907947637,
-                           0.0111281607429249,0.0891043051294382,0.125477587043249,0.0883182775274553,
-                           0.0371824197201174,0.0294092695284747,0.,0.0,0.00758428705895781,0.00151636767747242,0,0))
-        for i in range(15):
-            CS[i+1, :] = CS0[i, :]
-        
-        CO = np.zeros((16, 16))
-        CO[0,:]= np.array((0.257847576361162,0.100135168376607,0.0458036773638843,0.127084549151753,0.187303683093508,
-                           0.257979214509792,0.193228849121415,0.336594916946786,0.309223290169635,0.070538522966953,
-                           0.152218422246435,0.113554851510519,0.0615771477785246,0.040429874099682,0.0373564987094767,
-                           0.00669781557624776))
-        for i in range(15):
-            CO[i+1, :] = CO0[i, :]
-    
+
     elif source=='fumanelliEtAl':
         u1 ='https://raw.githubusercontent.com/rajeshrinet/pystokes-misc/master/cm/'
         uH = u1 + 'UKH.txt'

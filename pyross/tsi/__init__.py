@@ -1,3 +1,3 @@
-import .tsi.deterministic
-import .tsi.utils
+import pyross.tsi.deterministic
+import pyross.tsi.utils
 

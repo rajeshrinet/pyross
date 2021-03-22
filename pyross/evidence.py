@@ -58,7 +58,7 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
         estimator.set_contact_matrix(contactMatrix)
 
     # Read in parameter priors
-    prior_names, keys, guess, stds, bounds, \
+    prior_names, keys, guess, stds, _, _, bounds, \
     flat_guess_range, is_scale_parameter, scaled_guesses  \
             = pyross.utils.parse_param_prior_dict(prior_dict, estimator.M)
     prior = pyross.Prior(prior_names, bounds, guess, stds)
@@ -72,7 +72,7 @@ def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=N
 
 
 def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, contactMatrix=None, generator=None, 
-                          intervention_fun=None, tangent=False):
+                          intervention_fun=None, tangent=False, smooth_penalty=False, disable_bounds=False):
     """Process an estimator from `pyross.inference` to generate input arguments for the evidence computations 
     `pyross.evidence.evidence_smc` and `pyross.evidence.evidence_path_sampling` for estimation problems with latent 
     variables. The input has the same structure as the input of `pyross.inference.latent_infer`, see there for a detailed 
@@ -108,12 +108,12 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, c
     fltr, obs, obs0 = pyross.utils.process_latent_data(fltr, obs)
 
     # Read in parameter priors
-    param_prior_names, keys, param_guess, param_stds, param_bounds, param_guess_range, \
+    param_prior_names, keys, param_guess, param_stds, _, _, param_bounds, param_guess_range, \
     is_scale_parameter, scaled_param_guesses \
         = pyross.utils.parse_param_prior_dict(param_priors, estimator.M)
 
     # Read in initial conditions priors
-    init_prior_names, init_guess, init_stds, init_bounds, init_flags, init_fltrs \
+    init_prior_names, init_guess, init_stds, _, _,init_bounds, init_flags, init_fltrs \
         = pyross.utils.parse_init_prior_dict(init_priors, estimator.dim, len(obs0))
 
     # Concatenate the flattend parameter guess with init guess
@@ -123,11 +123,18 @@ def latent_get_parameters(estimator, obs, fltr, Tf, param_priors, init_priors, c
     bounds = np.concatenate([param_bounds, init_bounds], axis=0).astype(DTYPE)
 
     prior = Prior(param_prior_names+init_prior_names, bounds, guess, stds)
-
-    logl = lambda params: estimator._loglikelihood_latent(params, generator=generator, intervention_fun=intervention_fun, 
-                param_keys=keys, param_guess_range=param_guess_range, is_scale_parameter=is_scale_parameter, 
-                scaled_param_guesses=scaled_param_guesses, param_length=param_length, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
-                init_flags=init_flags, init_fltrs=init_fltrs, tangent=tangent, enable_penalty=False, bounds=bounds)
+    
+    if not disable_bounds:
+        logl = lambda params: estimator._loglikelihood_latent(params, generator=generator, intervention_fun=intervention_fun, 
+                    param_keys=keys, param_guess_range=param_guess_range, is_scale_parameter=is_scale_parameter, 
+                    scaled_param_guesses=scaled_param_guesses, param_length=param_length, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
+                    init_flags=init_flags, init_fltrs=init_fltrs, tangent=tangent, smooth_penalty=smooth_penalty, bounds=bounds)
+    
+    else:
+        logl = lambda params: estimator._loglikelihood_latent(params, generator=generator, intervention_fun=intervention_fun, 
+                    param_keys=keys, param_guess_range=param_guess_range, is_scale_parameter=is_scale_parameter, 
+                    scaled_param_guesses=scaled_param_guesses, param_length=param_length, obs=obs, fltr=fltr, Tf=Tf, obs0=obs0,
+                    init_flags=init_flags, init_fltrs=init_fltrs, tangent=tangent, smooth_penalty=smooth_penalty, bounds=None)
 
     return logl, prior, len(guess)
 
