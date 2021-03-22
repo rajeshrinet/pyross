@@ -1799,6 +1799,8 @@ cdef class SIR_type:
         alternative_guess: np.array, optional
             Alternative initial quess, different form the mean of the prior. 
             Array in the same format as 'flat_params' in the result dictionary of a previous optimisation run.
+        use_mode_as_guess: bool, optional
+            Initialise optimisation with mode instead of mean of the prior. Makes a difference for lognormal distributions. 
         tmp_file: optional, string
             If specified, name of a file to store the temporary best estimate of the global optimiser (as backup or for inspection) as numpy array file 
         load_backup_file: optional, string
