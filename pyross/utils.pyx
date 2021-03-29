@@ -247,7 +247,7 @@ def set_destination(term_list, destination_dict):
         indices = tuple(term[:-2]+term[-1:])
         if indices in destination_dict.keys():
             product_index = destination_dict[indices]
-            term[-1] = product_index
+            term[-2] = product_index
             
 
 def age_dep_rates(rate, int M, str name, bint check_length=True):
