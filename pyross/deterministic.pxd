@@ -257,9 +257,9 @@ cdef class SEAIRQ_testing(CommonMethods):
 @cython.boundscheck(True)
 @cython.cdivision(False)
 @cython.nonecheck(True)
-cdef class Spp(CommonMethods):
+cdef class Xpp(CommonMethods):
     """
-    Given a model specification, the Spp class generates a custome-made compartment epidemic model.
+    Given a model specification, the Xpp class generates a custome-made compartment epidemic model.
     """
 
     cdef:
@@ -276,6 +276,16 @@ cdef class Spp(CommonMethods):
         readonly np.ndarray nonzero_index_n
 
     cpdef rhs(self, rp, tt)
+
+@cython.wraparound(False)
+@cython.boundscheck(True)
+@cython.cdivision(False)
+@cython.nonecheck(True)
+cdef class Spp(Xpp):
+    """
+    Given a model specification, the Spp class generates a custome-made compartment epidemic model with default susceptible class.
+    """
+
     
 @cython.wraparound(False)
 @cython.boundscheck(True)
@@ -307,30 +317,6 @@ cdef class SppQ(Spp):
     
     cpdef set_testRate(self, testRate)
     cpdef full_time_dep_param_mapping(self, input_parameters, t)
-        
-        
-@cython.wraparound(False)
-@cython.boundscheck(True)
-@cython.cdivision(False)
-@cython.nonecheck(True)
-cdef class SppQ_old(CommonMethods):
-    """
-    Given a model specification, the SppQ class generates a custome-made model just like Spp, but automatically adds a quarantined version of every compartment
-    """
-
-    cdef:
-        readonly np.ndarray constant_terms, linear_terms, infection_terms, test_pos, test_freq
-        readonly np.ndarray parameters
-        readonly list param_keys
-        readonly dict class_index_dict
-        readonly dict param_dict
-        readonly np.ndarray _lambdas
-        readonly int nClassU
-        readonly object testRate
-        readonly object time_dep_param_mapping
-
-    cpdef rhs(self, rp, tt)
-    cpdef set_testRate(self, testRate)
 
 
 

@@ -3,6 +3,7 @@ cimport numpy as np
 cimport cython
 import pyross.utils
 import warnings
+import copy
 
 DTYPE   = np.float
 from libc.stdlib cimport malloc, free
@@ -2607,7 +2608,7 @@ cdef class SIRS(CommonMethods):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class Spp(CommonMethods):
+cdef class Xpp(CommonMethods):
     """
     Generic user-defined epidemic model.
 
@@ -2637,11 +2638,11 @@ cdef class Spp(CommonMethods):
             "classes" : ["S", "I"],
             "S" : {
                 "constant"  : [ ["k"] ],
-                "infection" : [ ["I", "-beta"] ]
+                "infection" : [ ["I", "S", "-beta"] ]
             },
             "I" : {
                 "linear"    : [ ["I", "-gamma"] ],
-                "infection" : [ ["I", "beta"] ]
+                "infection" : [ ["I", "S", "beta"] ]
             }
         }
     >>> parameters = {
@@ -3001,6 +3002,64 @@ cdef class Spp(CommonMethods):
                 Os = self.Ni - np.sum(X_reshaped, axis=1)
         return Os
 
+
+@cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.cdivision(True)
+@cython.nonecheck(False)
+cdef class Spp(Xpp):
+    """
+    Generic user-defined epidemic model, with default susceptible class `S`.
+
+    ...
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        Contains the values for the parameters given in the model specification.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(M, )
+        Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec. 
+        Default: Identical mapping of the dictionary at all times. 
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "constant"  : [ ["k"] ],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'k': 1,
+        }
+    """   
+    
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None, constant_CM=0):
+        Xpp_model_spec=copy.deepcopy(model_spec)
+        for key in Xpp_model_spec.keys():
+            if "infection" in Xpp_model_spec[key]:
+                for term in Xpp_model_spec[key]["infection"]:
+                    term.insert(1,'S')
+        super().__init__(Xpp_model_spec, parameters, M, Ni, time_dep_param_mapping=time_dep_param_mapping, constant_CM=constant_CM)
+    
+    
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
