@@ -3,7 +3,7 @@ cimport numpy as np
 cimport cython
 import pyross.utils
 import warnings
-import copy
+
 
 DTYPE   = np.float
 from libc.stdlib cimport malloc, free
@@ -3052,11 +3052,7 @@ cdef class Spp(Xpp):
     """   
     
     def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None, constant_CM=0):
-        Xpp_model_spec=copy.deepcopy(model_spec)
-        for key in Xpp_model_spec.keys():
-            if "infection" in Xpp_model_spec[key]:
-                for term in Xpp_model_spec[key]["infection"]:
-                    term.insert(1,'S')
+        Xpp_model_spec = pyross.utils.Spp2Xpp(model_spec)
         super().__init__(Xpp_model_spec, parameters, M, Ni, time_dep_param_mapping=time_dep_param_mapping, constant_CM=constant_CM)
     
     

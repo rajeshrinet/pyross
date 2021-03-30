@@ -2585,7 +2585,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 
 
-cdef class Spp(stochastic_integration):
+cdef class Xpp(stochastic_integration):
     """
     Generic user-defined epidemic model.
 
@@ -2615,11 +2615,11 @@ cdef class Spp(stochastic_integration):
             "classes" : ["S", "I"],
             "S" : {
                 "constant"  : [ ["k"] ],
-                "infection" : [ ["I", "-beta"] ]
+                "infection" : [ ["I", "S", "-beta"] ]
             },
             "I" : {
                 "linear"    : [ ["I", "-gamma"] ],
-                "infection" : [ ["I", "beta"] ]
+                "infection" : [ ["I", "S", "beta"] ]
             }
         }
     >>> parameters = {
@@ -2649,7 +2649,7 @@ cdef class Spp(stochastic_integration):
             int i, m
             int nRpa # short for number of reactions per age group
             int nClass, offset
-            Py_ssize_t S_index, infection_index,
+            Py_ssize_t susceptible_index, infection_index,
             Py_ssize_t reagent_index, product_index
             int sign, class_index
 
@@ -2744,7 +2744,6 @@ cdef class Spp(stochastic_integration):
                                           dtype=long)
         # self.vectors_of_change[i,j] = change in population j at reaction i
         nRpa = self.nReactions_per_agegroup
-        S_index=self.class_index_dict['S']
         for m in range(M):
             #
             for i in range(self.n_constant_terms):
@@ -2771,9 +2770,10 @@ cdef class Spp(stochastic_integration):
             for i in range(self.n_infection_terms):
                 #rate_index = infection_terms[i, 0]
                 reagent_index = self.infection_terms[i, 1]
-                product_index = self.infection_terms[i, 2]
-                #term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
-                self.vectors_of_change[offset + i + m*nRpa,m+M*S_index] -= 1
+                susceptible_index = self.infection_terms[i, 2]
+                product_index = self.infection_terms[i, 3]
+                #term = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*susceptible_index]
+                self.vectors_of_change[offset + i + m*nRpa,m+M*susceptible_index] -= 1
                 if product_index != -1:
                     self.vectors_of_change[offset + i + m*nRpa,m+M*product_index] += 1
 
@@ -2808,7 +2808,6 @@ cdef class Spp(stochastic_integration):
             double [:,:] lambdas = self._lambdas
             double frp
             int offset, nClass = self.nClass
-            int S_index=self.class_index_dict['S']
             int class_index, priority_index, resource_index, probability_index
 
         if self.time_dep_param_mapping is not None:
@@ -2867,8 +2866,9 @@ cdef class Spp(stochastic_integration):
             offset += self.n_linear_terms
             for i in range(self.n_infection_terms):
                 rate_index = infection_terms[i, 0]
-                overdispersion_index = infection_terms[i, 3]
-                rate = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*S_index]
+                susceptible_index = infection_terms[i, 2]
+                overdispersion_index = infection_terms[i, 4]
+                rate = parameters[rate_index, m] * lambdas[i, m] * xt[m+M*susceptible_index]
                 rates[offset + i + m*nRpa] = rate
                 if overdispersion_index != -1:
                     overdispersions[offset + i + m*nRpa] = parameters[overdispersion_index, m]
@@ -3060,6 +3060,55 @@ cdef class Spp(stochastic_integration):
         out_dict.update(param_dict)
         return out_dict
 
+    
+cdef class Spp(Xpp):
+    """
+    Generic user-defined epidemic model, with default susceptible class `S`.
+
+    ...
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        A dictionary containing the model parameters.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of compartments of individual for each class.
+        I.e len(contactMatrix)
+    Ni: np.array(3*M, )
+        Initial number in each compartment and class
+    time_dep_param_mapping: python function, optional
+        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec.
+        Default: Identical mapping of the dictionary at all times.
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "constant"  : [ ["k"] ],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'k': 1,
+        }
+    """
+    
+    def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
+        Xpp_model_spec = pyross.utils.Spp2Xpp(model_spec)
+        super().__init__(Xpp_model_spec, parameters, M, Ni, time_dep_param_mapping=time_dep_param_mapping)
+    
 cdef class SppQ(Spp):
     """
     Generic user-defined epidemic model with quarantine.

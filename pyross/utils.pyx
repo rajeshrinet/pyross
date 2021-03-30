@@ -955,7 +955,7 @@ def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
     transtions for testing. If not yet specified, an explicit R-class is added. 
 
     Parameters
-    inout_model_spec: dict
+    input_model_spec: dict
         Model specification of the model without quarantine (Spp syntax)
   
     Returns
@@ -1014,3 +1014,24 @@ def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
         
                 
     return model_spec
+
+
+def Spp2Xpp(model_spec):
+    """
+    Converts Spp syntax to Xpp syntax by adding susceptible class `S` to every infection term.
+
+    Parameters
+    model_spec: dict
+        Model specification in Spp syntax
+  
+    Returns
+    -------
+    Xpp_model_spec: dict
+        Model specification in Xpp syntax
+    """
+    Xpp_model_spec=copy.deepcopy(model_spec)
+    for key in Xpp_model_spec.keys():
+        if "infection" in Xpp_model_spec[key]:
+            for term in Xpp_model_spec[key]["infection"]:
+                term.insert(1,'S')
+    return Xpp_model_spec
