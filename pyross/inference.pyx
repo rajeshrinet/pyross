@@ -3283,6 +3283,7 @@ cdef class SIR_type:
             Py_ssize_t S_index, M=self.M
         # assume no infected at the start and compute eig vecs for the infectious species
         x0 = np.zeros((self.dim), dtype=DTYPE)
+        assert 'S' in self.class_index_dict, 'for fastest growing mode, a class "S" needs to be specified'
         S_index = self.class_index_dict['S']
         x0[S_index*M:(S_index+1)*M] = self.fi
         self.compute_jacobian_and_b_matrix(x0, t,
@@ -4593,10 +4594,11 @@ cdef class SEAIRQ_testing(SIR_type):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class Spp(SIR_type):
-    """User-defined epidemic model.
+cdef class Xpp(SIR_type):
+    """
+    User-defined epidemic model.
 
-    To initialise the Spp model,
+    To initialise the Xpp model,
 
     Parameters
     ----------
@@ -4647,11 +4649,11 @@ cdef class Spp(SIR_type):
             "classes" : ["S", "I"],
             "S" : {
                 "constant"  : [ ["k"] ],
-                "infection" : [ ["I", "-beta"] ]
+                "infection" : [ ["I", "S". "-beta"] ]
             },
             "I" : {
                 "linear"    : [ ["I", "-gamma"] ],
-                "infection" : [ ["I", "beta"] ]
+                "infection" : [ ["I", "S", "beta"] ]
             }
         }
     >>> parameters = {
@@ -4666,7 +4668,7 @@ cdef class Spp(SIR_type):
         readonly np.ndarray model_parameters
         readonly np.ndarray model_parameters_length
         readonly np.ndarray finres_pop
-        readonly pyross.deterministic.Spp det_model
+        readonly pyross.deterministic.Xpp det_model
         readonly dict model_spec
         readonly dict param_dict
         readonly list model_param_keys
@@ -4704,10 +4706,10 @@ cdef class Spp(SIR_type):
             parameters = self.parameter_mapping(parameters)
             self.param_mapping_enabled = True
         if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+            self.det_model = pyross.deterministic.Xpp(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
             self.param_mapping_enabled = True
         else:
-            self.det_model = pyross.deterministic.Spp(model_spec, parameters, M, fi*Omega)
+            self.det_model = pyross.deterministic.Xpp(model_spec, parameters, M, fi*Omega)
         
         self.finres_pop = np.empty( len(self.resource_list), dtype='object')  # populations for finite-resource transitions
         for i in range(len(self.resource_list)):
@@ -4866,7 +4868,7 @@ cdef class Spp(SIR_type):
     cdef jacobian(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, dim=self.dim
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, S_index=self.class_index_dict['S']
+            Py_ssize_t rate_index, infective_index, product_index, reagent_index, susceptible_index
             Py_ssize_t resource_index, priority_index, probability_index, class_index, res_class_index, res_priority_index
             double [:, :, :, :] J = self.J
             double [:, :] CM=self.CM
@@ -4881,18 +4883,20 @@ cdef class Spp(SIR_type):
 
         # infection terms
         for i in range(infection_terms.shape[0]):
-            product_index = infection_terms[i, 2]
-            infective_index = infection_terms[i, 1]
             rate_index = infection_terms[i, 0]
+            infective_index = infection_terms[i, 1]
+            susceptible_index = infection_terms[i, 2]
+            product_index = infection_terms[i, 3]
+                
             rate = parameters[rate_index]
             for m in range(M):
-                J[S_index, m, S_index, m] -= rate[m]*l[i, m]
+                J[susceptible_index, m, susceptible_index, m] -= rate[m]*l[i, m]
                 if product_index>-1:
-                    J[product_index, m, S_index, m] += rate[m]*l[i, m]
+                    J[product_index, m, susceptible_index, m] += rate[m]*l[i, m]
                 for n in range(M):
-                    J[S_index, m, infective_index, n] -= x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
+                    J[susceptible_index, m, infective_index, n] -= x[susceptible_index*M+m]*rate[m]*CM[m, n]/fi[n]
                     if product_index>-1:
-                        J[product_index, m, infective_index, n] += x[S_index*M+m]*rate[m]*CM[m, n]/fi[n]
+                        J[product_index, m, infective_index, n] += x[susceptible_index*M+m]*rate[m]*CM[m, n]/fi[n]
 
         # linear terms
         for i in range(linear_terms.shape[0]):
@@ -4952,7 +4956,7 @@ cdef class Spp(SIR_type):
     cdef noise_correlation(self, double [:] x, double [:, :] l):
         cdef:
             Py_ssize_t i, m, n, M=self.M, nClass=self.nClass, class_index
-            Py_ssize_t rate_index, infective_index, product_index, reagent_index, overdispersion_index, S_index=self.class_index_dict['S']
+            Py_ssize_t rate_index, infective_index, product_index, reagent_index, overdispersion_index, susceptible_index
             Py_ssize_t resource_index, priority_index, probability_index
             double [:, :, :, :] B=self.B
             double [:, :] CM=self.CM
@@ -4965,7 +4969,7 @@ cdef class Spp(SIR_type):
             double frp
             double [:] s, reagent, rate, overdispersion
             double Omega=self.Omega
-        s = x[S_index*M:(S_index+1)*M]
+        
 
         if self.constant_terms.size > 0:
             for i in range(constant_terms.shape[0]):
@@ -4982,21 +4986,25 @@ cdef class Spp(SIR_type):
                     B[nClass-1, m, nClass-1, m] += rate[m]*overdispersion[m]/Omega
 
         for i in range(infection_terms.shape[0]):
-            product_index = infection_terms[i, 2]
-            infective_index = infection_terms[i, 1]
+
+                            
             rate_index = infection_terms[i, 0]
-            overdispersion_index = infection_terms[i, 3]
+            infective_index = infection_terms[i, 1]
+            susceptible_index = infection_terms[i, 2]
+            product_index = infection_terms[i, 3]
+            overdispersion_index = infection_terms[i, 4]
             rate = parameters[rate_index]
+            s = x[susceptible_index*M:(susceptible_index+1)*M]
             if overdispersion_index == -1:
                 overdispersion = np.ones(M)
             else:
                 overdispersion = parameters[overdispersion_index]
             for m in range(M):
-                B[S_index, m, S_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
+                B[susceptible_index, m, susceptible_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
                 if product_index>-1:
-                    B[S_index, m, product_index, m] -=  rate[m]*overdispersion[m]*l[i, m]*s[m]
+                    B[susceptible_index, m, product_index, m] -=  rate[m]*overdispersion[m]*l[i, m]*s[m]
                     B[product_index, m, product_index, m] += rate[m]*overdispersion[m]*l[i, m]*s[m]
-                    B[product_index, m, S_index, m] -= rate[m]*overdispersion[m]*l[i, m]*s[m]
+                    B[product_index, m, susceptible_index, m] -= rate[m]*overdispersion[m]*l[i, m]*s[m]
 
         for i in range(linear_terms.shape[0]):
             product_index = linear_terms[i, 2]
@@ -5047,6 +5055,83 @@ cdef class Spp(SIR_type):
 
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
+        
+cdef class Spp(Xpp):
+    """User-defined epidemic model.
+
+    To initialise the Spp model,
+
+    Parameters
+    ----------
+    model_spec: dict
+        A dictionary specifying the model. See `Examples`.
+    parameters: dict
+        A dictionary containing the model parameters.
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+    M: int
+        Number of age groups.
+    fi: np.array(M) or list
+        Fraction of each age group.
+    Omega: int
+        Total population.
+    steps: int, optional
+        The number of internal integration steps performed between the observed points (not used in tangent space inference).
+        For robustness, set steps to be large, lyapunov_method='LSODA'.
+        For speed, set steps to be small (~4), lyapunov_method='euler'.
+        For a combination of the two, choose something in between.
+    det_method: str, optional
+        The integration method used for deterministic integration.
+        Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
+    lyapunov_method: str, optional
+        The integration method used for the integration of the Lyapunov equation for the covariance.
+        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+    rtol_det: float, optional
+        relative tolerance for the deterministic integrator (default 1e-3)
+    rtol_lyapunov: float, optional
+        relative tolerance for the Lyapunov-type integrator (default 1e-3)
+    max_steps_det: int, optional
+        Maximum number of integration steps (total) for the deterministic integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_det are disregarded by the optimiser.
+    max_steps_lyapunov: int, optional
+        Maximum number of integration steps (total) for the Lyapunov-type integrator. Default: unlimited (represented as 0)
+        Parameters for which the integrator reaches max_steps_lyapunov are disregarded by the optimiser.
+    parameter_mapping: python function, optional
+        A user-defined function that maps the dictionary the parameters used for inference to a dictionary of parameters used in model_spec. Default is an identical mapping.
+    time_dep_param_mapping: python function, optional
+        As parameter_mapping, but time-dependent. The user-defined function takes time as a second argument.
+
+    See `SIR_type` for a table of all the methods
+
+    Examples
+    --------
+    An example of model_spec and parameters for SIR class with a constant influx
+
+    >>> model_spec = {
+            "classes" : ["S", "I"],
+            "S" : {
+                "constant"  : [ ["k"] ],
+                "infection" : [ ["I", "-beta"] ]
+            },
+            "I" : {
+                "linear"    : [ ["I", "-gamma"] ],
+                "infection" : [ ["I", "beta"] ]
+            }
+        }
+    >>> parameters = {
+            'beta': 0.1,
+            'gamma': 0.1,
+            'k': 1,
+        }
+    """
+
+    def __init__(self, model_spec, parameters, M, fi, Omega=1, steps=4,
+                                    det_method='LSODA', lyapunov_method='LSODA', rtol_det=1e-3, rtol_lyapunov=1e-3, max_steps_det=0, max_steps_lyapunov=0,
+                                    parameter_mapping=None, time_dep_param_mapping=None):
+        Xpp_model_spec = pyross.utils.Spp2Xpp(model_spec)
+        super().__init__(Xpp_model_spec, parameters, M, fi, Omega=Omega, steps=steps,
+                                    det_method=det_method, lyapunov_method=lyapunov_method, rtol_det=rtol_det, rtol_lyapunov=rtol_lyapunov, max_steps_det=max_steps_det, 
+                                    max_steps_lyapunov=max_steps_lyapunov, parameter_mapping=parameter_mapping, time_dep_param_mapping=time_dep_param_mapping)
+        
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
