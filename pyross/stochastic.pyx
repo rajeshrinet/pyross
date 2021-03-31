@@ -2649,7 +2649,7 @@ cdef class Xpp(stochastic_integration):
             int i, m
             int nRpa # short for number of reactions per age group
             int nClass, offset
-            Py_ssize_t susceptible_index, infection_index,
+            Py_ssize_t susceptible_index, infection_index
             Py_ssize_t reagent_index, product_index
             int sign, class_index
 
