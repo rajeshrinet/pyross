@@ -31,7 +31,7 @@ A generic user-defined model using Spp
 *************************************************************
 * `Deterministic simulation of any generic compartmental model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex02-Spp.ipynb>`_
 * `Stochastic simulation of any generic compartmental model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex02-Spp.ipynb>`_
-* `Inference with any generic compartment model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex_Spp.ipynb>`_
+* `Inference with any generic compartment model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex_Spp_inference.ipynb>`_
 
 
 Latent inference and Bayesian model comparisons 
