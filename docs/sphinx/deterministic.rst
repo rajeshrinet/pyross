@@ -1,67 +1,61 @@
 Deterministic simulations
 ==================================
 
-Deterministic simulations with compartment models and age structure.
+`Link to example notebook for deterministic simulations of a generic user-defined compartmental model in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex02-Spp.ipynb>`_
+
+A list of methods for deterministic simulations of age-structured compartment models along with link to notebook examples is given below. 
 
 Spp
 --------------------------
 .. autoclass:: pyross.deterministic.Spp
     :members:
 
+* `Link to example notebook: deterministic sampling in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex02-Spp.ipynb>`_
+
 SppQ
 --------------------------
 .. autoclass:: pyross.deterministic.SppQ
     :members:
+
+* `Link to example notebook: deterministic sampling in PyRoss using SppQ <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex08-SppQ.ipynb>`_
 
 SIR
 --------------------------
 .. autoclass:: pyross.deterministic.SIR
     :members:
 
+* `Link to example notebook: deterministic sampling in PyRoss using SIR <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01-SIR.ipynb>`_
+
+
 SIkR
 --------------------------
 .. autoclass:: pyross.deterministic.SIkR
     :members:
+
+* `Link to example notebook: deterministic sampling in PyRoss using SIkR <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex06-SIkR-and-SEkIkR.ipynb>`_
 
 SEIR
 --------------------------
 .. autoclass:: pyross.deterministic.SEIR
     :members:
 
+* `Link to example notebook: deterministic sampling in PyRoss using SEIR <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex05-SEIR.ipynb>`_
+
 SEkIkR
 -----------------------------
 .. autoclass:: pyross.deterministic.SEkIkR
     :members:
 
-SEkIkIkR
--------------------------------
-.. autoclass:: pyross.deterministic.SEkIkIkR
-    :members:
+* `Link to example notebook: deterministic sampling in PyRoss using SEkIkR <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex06-SIkR-and-SEkIkR.ipynb>`_
 
-SEI8R
--------------------------------
-.. autoclass:: pyross.deterministic.SEI8R
-    :members:
-
-SEAIR
-----------------------------
-.. autoclass:: pyross.deterministic.SEAIR
-    :members:
-
-SEAI8R
---------------------------------
-.. autoclass:: pyross.deterministic.SEAI8R
-    :members:
 
 SEAIRQ
 ------------------------------
 .. autoclass:: pyross.deterministic.SEAIRQ
     :members:
 
-SEAIRQ_testing
---------------------------------------
-.. autoclass:: pyross.deterministic.SEAIRQ_testing
-    :members:
+* `Link to example notebook: deterministic sampling in PyRoss using SEAIRQ <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex07-SEAIRQ.ipynb>`_
+
 
 CommonMethods
 ----------------------------------------
