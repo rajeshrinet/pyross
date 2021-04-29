@@ -203,7 +203,7 @@ class StochasticTest(unittest.TestCase):
                 for i in range(self.nloops):
                     traj =  mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf)['X']
                     trajectories.append(traj)
-                traj_mean = np.mean(trajectories, axis=0)[:-1]
+                traj_mean = np.mean(trajectories, axis=0)
                 mean = mD.simulate(*x0, self.contactMatrix, self.Tf, self.Tf)['X']
                 absdiff = np.abs(traj_mean -mean)/(N*self.Tf)
                 # print(name, np.sum(absdiff[:,:-1]))
@@ -230,7 +230,7 @@ class StochasticTest(unittest.TestCase):
                     traj =  mS.simulate(*x0, self.contactMatrix, self.Tf, self.Tf,
                                         method='tau_leaping')['X']
                     trajectories.append(traj)
-                traj_mean = np.mean(trajectories, axis=0)[:-1]
+                traj_mean = np.mean(trajectories, axis=0)
                 mean = mD.simulate(*x0, self.contactMatrix, self.Tf, self.Tf)['X']
                 absdiff = np.abs(traj_mean -mean)/(N*self.Tf)
                 # print(name, np.sum(absdiff[:,:-1]))

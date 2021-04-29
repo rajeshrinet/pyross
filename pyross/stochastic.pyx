@@ -293,8 +293,8 @@ cdef class stochastic_integration:
             int M=self.M
             int nReactions = self.nReactions
             int dim_state_vec = self.dim_state_vec
-            int i
-            double t, dt, W
+            int i, j
+            double t, dt, W, dt_out
             long [:] xt = self.xt
             double [:] rates = self.rates
 
@@ -304,10 +304,13 @@ cdef class stochastic_integration:
             trajectory = []
             trajectory.append((self.xt).copy())
         else:
-            t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
+            Nf -= 1 # subtract one to account for initial configuration
+            dt_out = float(Tf)/float(Nf)
+            t_arr = np.arange(0,Nf+1,dtype=float)*dt_out
+            trajectory = np.zeros([Nf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
-            next_writeout = 1
+            next_writeout = dt_out
+            j = 1
 
         while t < Tf:
             # stop if nobody is infected
@@ -316,8 +319,9 @@ cdef class stochastic_integration:
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
+                    for i in range(j,int(Nf)+1):
                         trajectory[i] = xt
+                        j += 1
                 break
 
             # calculate current rate matrix
@@ -332,8 +336,9 @@ cdef class stochastic_integration:
             # if total reaction rate is zero
             if W == 0.:
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
+                    for i in range(j,int(Nf)+1):
                         trajectory[i] = (self.xt).copy()
+                        j += 1
                 break
 
             # perform SSA step
@@ -343,11 +348,12 @@ cdef class stochastic_integration:
                 t_arr.append(t)
                 trajectory.append((self.xt).copy())
             else:
-                while (next_writeout < t):
-                    if next_writeout > Tf:
+                while (next_writeout <= t):
+                    if j > Nf:
                         break
-                    trajectory[next_writeout] = (self.xt).copy()
-                    next_writeout += 1
+                    trajectory[j] = (self.xt).copy()
+                    next_writeout += dt_out
+                    j += 1
 
         out_arr = np.array(trajectory,dtype=long)
         t_arr = np.array(t_arr)
@@ -400,8 +406,8 @@ cdef class stochastic_integration:
             int M=self.M
             int nReactions = self.nReactions
             int dim_state_vec = self.dim_state_vec
-            int i
-            double t, dt, W, t_previous, t_last_event
+            int i, j
+            double t, dt, W, dt_out, t_previous, t_last_event
             long [:] xt = self.xt
             long [:] xtminus1 = self.xtminus1
             double [:] rates = self.rates
@@ -415,11 +421,13 @@ cdef class stochastic_integration:
             trajectory = []
             trajectory.append( (self.xt).copy()  )
         else:
-            t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
+            Nf -= 1 # subtract one to account for initial configuration
+            dt_out = float(Tf)/float(Nf)
+            t_arr = np.arange(0,Nf+1,dtype=float)*dt_out
+            trajectory = np.zeros([Nf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
-            next_writeout = 1
-
+            next_writeout = dt_out
+            j = 1
 
         # create a list of all events that are available
         # at the beginning  of the simulation
@@ -447,8 +455,9 @@ cdef class stochastic_integration:
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
+                    for i in range(j,int(Nf)+1):
                         trajectory[i] = xt
+                        j += 1
                 break
 
             # calculate current rate vector
@@ -466,8 +475,9 @@ cdef class stochastic_integration:
             # if total reaction rate is zero
             if W == 0.:
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = xt
+                    for i in range(j,int(Nf)+1):
+                        trajectory[i] = (self.xt).copy()
+                        j += 1
                 break
 
             # save current state, which will become the previous state once
@@ -512,11 +522,12 @@ cdef class stochastic_integration:
                 t_arr.append(t)
                 trajectory.append((self.xt).copy())
             else:
-                while (next_writeout < t):
-                    if next_writeout > Tf:
+                while (next_writeout <= t):
+                    if j > Nf:
                         break
-                    trajectory[next_writeout] = xt
-                    next_writeout += 1
+                    trajectory[j] = (self.xt).copy()
+                    next_writeout += dt_out
+                    j += 1
 
             # if we stop once an event has occured
             if stop_at_event:
@@ -525,8 +536,8 @@ cdef class stochastic_integration:
                         t_arr = np.array(t_arr)
                         out_arr = np.array(trajectory,dtype=long)
                     else:
-                        t_arr = t_arr[:next_writeout]
-                        out_arr = trajectory[:next_writeout]
+                        t_arr = t_arr[:j]
+                        out_arr = trajectory[:j]
                     return t_arr, out_arr, events_out
 
         out_arr = np.array(trajectory,dtype=long)
@@ -548,7 +559,8 @@ cdef class stochastic_integration:
         Parameters
         ----------
         epsilon: float, optional
-            Acceptable error in leap. The default is 0.03.
+            The acceptable relative change of the rates during each
+            tau-leaping step, as defined in Ref. 1. The default is 0.03
 
         Returns
         -------
@@ -660,6 +672,7 @@ cdef class stochastic_integration:
                           int tau_update_frequency = 1):
         """
         Tau leaping algorithm for producing stochastically correct trajectories
+        Based on Cao et al (2006):
         https://doi.org/10.1063/1.2159468
         This method can run much faster than the Gillespie algorithm
 
@@ -681,7 +694,8 @@ cdef class stochastic_integration:
         nc: optional
             The default is 30
         epsilon: float, optional
-            The acceptable error in each step. The default is 0.03
+            The acceptable relative change of the rates during each
+            tau-leaping step, as defined in Cao et al. The default is 0.03
         tau_update_frequency: optional
 
 
@@ -694,10 +708,10 @@ cdef class stochastic_integration:
         """
         cdef:
             int M=self.M
-            int i
+            int i, j
             int dim_state_vec = self.dim_state_vec
             int nReactions = self.nReactions
-            double t, dt, W
+            double t, dt, W, dt_out
             double [:] rates = self.rates
             long [:] xt = self.xt
             double cur_tau = 0
@@ -712,10 +726,13 @@ cdef class stochastic_integration:
             trajectory = []
             trajectory.append( (self.xt).copy()  )
         else:
-            t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
+            Nf -= 1 # subtract one to account for initial configuration
+            dt_out = float(Tf)/float(Nf)
+            t_arr = np.arange(0,Nf+1,dtype=float)*dt_out
+            trajectory = np.zeros([Nf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
-            next_writeout = 1
+            next_writeout = dt_out
+            j = 1
         while t < Tf:
             # stop if nobody is infected
             W = 0 # number of infected people
@@ -723,8 +740,9 @@ cdef class stochastic_integration:
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
+                    for i in range(j,int(Nf)+1):
                         trajectory[i] = xt
+                        j += 1
                 break
             # calculate current rate matrix
             self.CM = contactMatrix(t)
@@ -738,8 +756,9 @@ cdef class stochastic_integration:
             # if total reaction rate is zero
             if W == 0.:
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = xt
+                    for i in range(j,int(Nf)+1):
+                        trajectory[i] = (self.xt).copy()
+                        j += 1
                 break
 
             if SSA_steps_left < 0.5:
@@ -781,11 +800,12 @@ cdef class stochastic_integration:
                 t_arr.append(t)
                 trajectory.append( (self.xt).copy()  )
             else:
-                while (next_writeout < t):
-                    if next_writeout > Tf:
+                while (next_writeout <= t):
+                    if j > Nf:
                         break
-                    trajectory[next_writeout] = xt
-                    next_writeout += 1
+                    trajectory[j] = (self.xt).copy()
+                    next_writeout += dt_out
+                    j += 1
 
         out_arr = np.array(trajectory,dtype=long)
         t_arr = np.array(t_arr)
@@ -800,10 +820,10 @@ cdef class stochastic_integration:
                           stop_at_event=False):
         cdef:
             int M=self.M
-            int i
+            int i, j
             int dim_state_vec = self.dim_state_vec
             int nReactions = self.nReactions
-            double t, dt, W
+            double t, dt, W, dt_out
             double [:] rates = self.rates
             long [:] xt = self.xt
             double cur_tau = 0
@@ -822,10 +842,13 @@ cdef class stochastic_integration:
             trajectory = []
             trajectory.append( (self.xt).copy()  )
         else:
-            t_arr = np.arange(0,int(Tf)+1,dtype=int)
-            trajectory = np.zeros([Tf+1,dim_state_vec],dtype=long)
+            Nf -= 1 # subtract one to account for initial configuration
+            dt_out = float(Tf)/float(Nf)
+            t_arr = np.arange(0,Nf+1,dtype=float)*dt_out
+            trajectory = np.zeros([Nf+1,dim_state_vec],dtype=long)
             trajectory[0] = xt
-            next_writeout = 1
+            next_writeout = dt_out
+            j = 1
 
         # create a list of all events that are available
         # at the beginning  of the simulation
@@ -852,8 +875,9 @@ cdef class stochastic_integration:
                 W += xt[i]
             if W < 0.5: # if this holds, nobody is infected
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
+                    for i in range(j,int(Nf)+1):
                         trajectory[i] = xt
+                        j += 1
                 break
 
             # calculate current rate vector
@@ -871,8 +895,9 @@ cdef class stochastic_integration:
             # if total reaction rate is zero
             if W == 0.:
                 if Nf > 0:
-                    for i in range(next_writeout,int(Tf)+1):
-                        trajectory[i] = xt
+                    for i in range(j,int(Nf)+1):
+                        trajectory[i] = (self.xt).copy()
+                        j += 1
                 break
 
             # save current state, which will become the previous state once
@@ -948,11 +973,12 @@ cdef class stochastic_integration:
                 t_arr.append(t)
                 trajectory.append( (self.xt).copy()  )
             else:
-                while (next_writeout < t):
-                    if next_writeout > Tf:
+                while (next_writeout <= t):
+                    if j > Nf:
                         break
-                    trajectory[next_writeout] = xt
-                    next_writeout += 1
+                    trajectory[j] = (self.xt).copy()
+                    next_writeout += dt_out
+                    j += 1
 
             # if we stop once an event has occured
             if stop_at_event:
@@ -961,8 +987,8 @@ cdef class stochastic_integration:
                         t_arr = np.array(t_arr)
                         out_arr = np.array(trajectory,dtype=long)
                     else:
-                        t_arr = t_arr[:next_writeout]
-                        out_arr = trajectory[:next_writeout]
+                        t_arr = t_arr[:j]
+                        out_arr = trajectory[:j]
                     return t_arr, out_arr, events_out
 
         out_arr = np.array(trajectory,dtype=long)
@@ -1426,7 +1452,11 @@ cdef class SIR(stochastic_integration):
             SSA to use, either 'gillespie' or 'tau_leaping'.
             The default is 'gillespie'.
         nc: TYPE, optional
-        epsilon: TYPE, optional
+        epsilon: float, optional
+            The acceptable relative change of the rates during each
+            tau-leaping step, as defined in Cao et al:
+                    https://doi.org/10.1063/1.2159468.
+            The default is 0.03
         tau_update_frequency: TYPE, optional
 
         Returns
@@ -2985,7 +3015,11 @@ cdef class Spp(stochastic_integration):
             SSA to use, either 'gillespie' or 'tau_leaping'.
             The default is 'gillespie'.
         nc: TYPE, optional
-        epsilon: TYPE, optional
+        epsilon: float, optional
+            The acceptable relative change of the rates during each
+            tau-leaping step, as defined in Cao et al:
+                  https://doi.org/10.1063/1.2159468
+            The default is 0.03
         tau_update_frequency: TYPE, optional
 
         Returns
@@ -3182,7 +3216,11 @@ cdef class SppQ(Spp):
             SSA to use, either 'gillespie' or 'tau_leaping'.
             The default is 'gillespie'.
         nc: TYPE, optional
-        epsilon: TYPE, optional
+        epsilon: float, optional
+            The acceptable relative change of the rates during each
+            tau-leaping step, as defined in Cao et al:
+                  https://doi.org/10.1063/1.2159468
+            The default is 0.03
         tau_update_frequency: TYPE, optional
 
         Returns
