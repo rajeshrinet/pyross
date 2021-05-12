@@ -3301,15 +3301,15 @@ cdef class SIR_type:
         Parameters
         ----------
         lyapunov_method: str
-            The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2' and 'euler'.
+            The name of the integration method. Choose between 'LSODA', 'RK45', 'RK2', 'RK4', and 'euler'.
         rtol: double, optional
             relative tolerance of the integrator (default 1e-3)
         max_steps: int
             Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
             Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
         '''
-        if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'euler']:
-            raise Exception('{} not implemented. Choose between LSODA, RK45, RK2 and euler'.format(lyapunov_method))
+        if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'RK4', 'euler']:
+            raise Exception('{} not implemented. Choose between LSODA, RK45, RK2, RK4, and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
         if rtol is not None:
             self.rtol_lyapunov = rtol
@@ -3794,6 +3794,8 @@ cdef class SIR_type:
             sol_vec = res.y[:, 0]
         elif self.lyapunov_method=='RK2':
             sol_vec = pyross.utils.RK2_integration(rhs, M0, t1, t2, steps)[steps-1]
+        elif self.lyapunov_method=='RK4':
+            sol_vec = pyross.utils.RK4_integration(rhs, M0, t1, t2, steps)[steps-1]
         else:
             raise Exception("Error: lyapunov method not found. Use set_lyapunov_method to change the method")
         return sol_vec
@@ -3926,7 +3928,7 @@ cdef class SIR(SIR_type):
         Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA', 'RK45', 'RK2', 'RK4' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
         relative tolerance for the deterministic integrator (default 1e-4)
     rtol_lyapunov: float, optional
@@ -4065,7 +4067,7 @@ cdef class SEIR(SIR_type):
         Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA', 'RK45', 'RK2', 'RK4' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
@@ -4227,7 +4229,7 @@ cdef class SEAIRQ(SIR_type):
         Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA', 'RK45', 'RK2', 'RK4' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
@@ -4419,7 +4421,7 @@ cdef class SEAIRQ_testing(SIR_type):
         Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA', 'RK45', 'RK2', 'RK4' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
@@ -4621,7 +4623,7 @@ cdef class Spp(SIR_type):
         Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA', 'RK45', 'RK2', 'RK4' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional
@@ -5081,7 +5083,7 @@ cdef class SppQ(Spp):
         Choose one of 'LSODA' and 'RK45'. Default is 'LSODA'.
     lyapunov_method: str, optional
         The integration method used for the integration of the Lyapunov equation for the covariance.
-        Choose one of 'LSODA', 'RK45', 'RK2' and 'euler'. Default is 'LSODA'.
+        Choose one of 'LSODA', 'RK45', 'RK2', 'RK4' and 'euler'. Default is 'LSODA'.
     rtol_det: float, optional
         relative tolerance for the deterministic integrator (default 1e-3)
     rtol_lyapunov: float, optional

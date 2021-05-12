@@ -302,6 +302,39 @@ cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
             sol[i, j] = sol[i-1, j] + 0.5*(k1[j] + dt*fx[j])
     return sol
 
+cpdef RK4_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
+    cdef:
+        double dt=(t2-t1)/(steps-1),t=t1
+        double [:] fx
+        Py_ssize_t i, j, size=x.shape[0]
+        double [:] k1=np.empty((size), dtype=DTYPE), 
+        double [:] k2=np.empty((size), dtype=DTYPE), 
+        double [:] k3=np.empty((size), dtype=DTYPE), 
+        double [:] temp=np.empty((size), dtype=DTYPE)
+        double [:, :] sol=np.empty((steps, size), dtype=DTYPE)
+
+    for j in range(size):
+        sol[0, j] = x[j]
+    for i in range(1, steps):
+        fx = f(t, sol[i-1])
+        for j in range(size):
+            k1[j] = dt*fx[j]
+            temp[j] = sol[i-1, j] + 0.5*k1[j]
+        t += 0.5*dt
+        fx = f(t, temp)
+        for j in range(size):
+            k2[j] = dt*fx[j]
+            temp[j] = sol[i-1, j] + 0.5*k2[j]
+        fx = f(t, temp)
+        for j in range(size):
+            k3[j] = dt*fx[j]
+            temp[j] = sol[i-1, j] + k3[j]
+        t += 0.5*dt
+        fx = f(t, temp)
+        for j in range(size):
+            sol[i, j] = sol[i-1, j] + (k1[j] + 2*k2[j] + 2*k3[j] + dt*fx[j])/6.
+    return sol
+
 cpdef nearest_positive_definite(double [:, :] A):
     """Find the nearest positive-definite matrix to input
 
