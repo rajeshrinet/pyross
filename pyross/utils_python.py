@@ -201,7 +201,11 @@ def _get_number_processes(procs):
     if not pathos_mp:
         return 1
     elif procs == 0:
-        return len(os.sched_getaffinity(0))
+        from sys import platform
+        if platform=='linux':
+            return len(os.sched_getaffinity(0)) 
+        else:
+            return multiprocessing.cpu_count()
     else:
         return procs
 
