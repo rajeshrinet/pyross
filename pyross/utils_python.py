@@ -2,6 +2,7 @@
 # Otherwise, the p.map call does not work with the lambda function.
 
 import multiprocessing
+import os
 import numpy as np
 import nlopt
 import cma
@@ -200,7 +201,11 @@ def _get_number_processes(procs):
     if not pathos_mp:
         return 1
     elif procs == 0:
-        return multiprocessing.cpu_count()
+        from sys import platform
+        if platform=='linux':
+            return len(os.sched_getaffinity(0)) 
+        else:
+            return multiprocessing.cpu_count()
     else:
         return procs
 

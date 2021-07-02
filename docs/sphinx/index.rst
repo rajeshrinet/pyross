@@ -17,30 +17,29 @@ Non-pharmaceutical interventions are implemented as modifications of the contact
 
 See installation instructions and more details in the `README.md <https://github.com/rajeshrinet/pyross/blob/master/README.md>`_ on GitHub.
 
-Worked out examples
+Tutorial examples
 ==========================
 
-* `Example: Deterministic sampling in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01-SIR.ipynb>`_
-* `Example: Stochastic sampling in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex1-SIR.ipynb>`_
-* `Example: Inference in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01_inference_SIR.ipynb>`_
-* `Example: Inference with latent variables in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex05_inference_latent_SIR.ipynb>`_
-* `Example: Simulate any generic compartmental model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex16-Spp.ipynb>`_
-* `Example: Inference with any generic compartment model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex_Spp.ipynb>`_
-* `Example: Computing the evidence and comparing models in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex-evidence.ipynb>`_
+Age-structured SIR Model
+*************************************************************
+* `Deterministic sampling in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01-SIR.ipynb>`_
+* `Stochastic sampling in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex1-SIR.ipynb>`_
+* `Inference in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01_inference_SIR.ipynb>`_
+
+
+A generic user-defined model using Spp
+*************************************************************
+* `Deterministic simulation of any generic compartmental model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex02-Spp.ipynb>`_
+* `Stochastic simulation of any generic compartmental model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex02-Spp.ipynb>`_
+* `Inference with any generic compartment model in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex_Spp_inference.ipynb>`_
+
+
+Latent inference and Bayesian model comparisons 
+*****************************************************************
+* `Inference with latent variables in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex05_inference_latent_SIR.ipynb>`_
+* `Computing the evidence and comparing models in PyRoss <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex-evidence.ipynb>`_
 
 In addition please have a look at the `examples folder <https://github.com/rajeshrinet/pyross/tree/master/examples>`_ for more Jupyter notebook examples.
-
-The examples are classified as:
-
-* `contactMatrix <https://github.com/rajeshrinet/pyross/tree/master/examples/contactMatrix>`_ : shows how to use contact matrix and intervention
-* `control <https://github.com/rajeshrinet/pyross/tree/master/examples/control>`_ : shows how to compute time dependent contact matrix which depend of time and state
-* `deterministic <https://github.com/rajeshrinet/pyross/tree/master/examples/deterministic>`_ : is for integration of equations of motion in the limit of no stochastic components
-* `forecast <https://github.com/rajeshrinet/pyross/tree/master/examples/forecast>`_ : is for forecasting once the parameters are known
-* `hybrid <https://github.com/rajeshrinet/pyross/tree/master/examples/hybrid>`_ : is for integration of equations of motion which can switch from deterministic to stochastic
-* `inference <https://github.com/rajeshrinet/pyross/tree/master/examples/inference>`_ : shows how to infer parameters and select models given data
-* `stochastic <https://github.com/rajeshrinet/pyross/tree/master/examples/stochastic>`_ : is for integration of equations of motion with stochastic components
-
-
 `Models.pdf <https://github.com/rajeshrinet/pyross/blob/master/docs/models.pdf>`_ has a description of the various epidemiological models used in the examples (SIR, SIkR, SEIR, SEAIR, Spp, etc).
 
 
@@ -58,5 +57,4 @@ API Reference
    contactMatrix
    forecast
    evidence
-   utils
-   tsi
+   tsi 

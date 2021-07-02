@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.3.8
+* Overdispersion included in master 
+
 ## 1.3.7
 * Updates to TSI and inference 
 
