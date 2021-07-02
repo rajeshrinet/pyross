@@ -4754,7 +4754,7 @@ cdef class Xpp(SIR_type):
             model_parameters = self.parameter_mapping(parameters)
             nParams = len(self.model_param_keys)
             self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            self.model_parameters_length = np.empty(nParams, dtype=np.intp)
+            self.model_parameters_length = np.empty(nParams, dtype=int)
             try:
                 for (i, key) in enumerate(self.model_param_keys):
                     param = model_parameters[key]
@@ -4766,7 +4766,7 @@ cdef class Xpp(SIR_type):
             self.set_time_dep_model_parameters(0)
         else:
             self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            self.model_parameters_length = np.empty(nParams, dtype=np.intp)
+            self.model_parameters_length = np.empty(nParams, dtype=int)
             try:
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
@@ -4779,7 +4779,7 @@ cdef class Xpp(SIR_type):
         model_parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.model_param_keys)
         self.model_parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        self.model_parameters_length = np.empty(nParams, dtype=np.intp)
+        self.model_parameters_length = np.empty(nParams, dtype=int)
         
         try:
             for (i, key) in enumerate(self.model_param_keys):
