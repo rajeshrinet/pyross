@@ -2694,7 +2694,7 @@ cdef class Xpp(CommonMethods):
         if self.time_dep_param_mapping is None:
             nParams = len(self.param_keys)
             self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            self.parameters_length = np.empty(nParams, dtype=np.intp)
+            self.parameters_length = np.empty(nParams, dtype=int)
             try:
                 for (i, key) in enumerate(self.param_keys):
                     param = parameters[key]
@@ -2711,7 +2711,7 @@ cdef class Xpp(CommonMethods):
         parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        self.parameters_length = np.empty(nParams, dtype=np.intp)
+        self.parameters_length = np.empty(nParams, dtype=int)
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
@@ -3725,7 +3725,7 @@ cdef class SppSparse(Spp):
                 if contact_matrix0[i,j] > threshold:
                     self.intCounter += int(1)
                     
-        self.interactingMP = np.zeros((self.intCounter,2), dtype = np.int32)
+        self.interactingMP = np.zeros((self.intCounter,2), dtype=int)
         
         counter = int(0)
         for i in range(M):

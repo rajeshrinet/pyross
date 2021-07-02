@@ -2930,7 +2930,7 @@ cdef class Xpp(stochastic_integration):
         if self.time_dep_param_mapping is None:
             nParams = len(self.param_keys)
             self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-            self.parameters_length = np.empty(nParams, dtype=np.intp)
+            self.parameters_length = np.empty(nParams, dtype=int)
 
             try:
                 for (i, key) in enumerate(self.param_keys):
@@ -2949,7 +2949,7 @@ cdef class Xpp(stochastic_integration):
         parameters = self.time_dep_param_mapping(self.param_dict, tt)
         nParams = len(self.param_keys)
         self.parameters = np.empty((nParams, self.M), dtype=DTYPE)
-        self.parameters_length = np.empty(nParams, dtype=np.intp)
+        self.parameters_length = np.empty(nParams, dtype=int)
         try:
             for (i, key) in enumerate(self.param_keys):
                 param = parameters[key]
