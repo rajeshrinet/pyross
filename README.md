@@ -110,7 +110,7 @@ to test a certain subset of notebooks
 
 PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation with three age-groups. 
 
-```Python
+```Python 
 # M=3, SIR with three age-groups
 
 import numpy as np
@@ -120,52 +120,34 @@ import matplotlib.pyplot as plt
 
 model_spec = { "classes" : ["S", "I"],
 
-             "S" : {
-                    "constant"  : [ ["k"] ], 
-                    "infection" : [ ["I", "-beta"] ]
-                   },
-
-            "I" : {
-                    "linear"    : [ ["I", "-gamma"] ],
-                    "infection" : [ ["I", "beta"] ]
-                   }
+             "S" : {"infection" : [ ["I","S", "-beta"] ]},  ## the I class passes infection to S class
+             "I" : { "linear"    : [ ["I", "-gamma"] ],     ## this is recovery process for I class
+                    "infection" : [ ["I", "S", "beta"]]}    
+             
+              ## the recovered class R is internally determined by number conservation
              }
 
 
-parameters = {
-              'beta' : 0.1,
+parameters = {'beta'  : 0.1,
               'gamma' : 0.1, 
-              'k' : 1, 
-             }
-
+              }
 
 M=3;  Ni=1000*np.ones(M);  N=np.sum(Ni) 
 
 
 # Initial conditions as an array
 x0 = np.array([
-    999, 1000, 1000, # S
-    1,   0,    0,    # I
+    980, 980, 980,    # S
+    20,   20,  20,    # I
 ])
 
-
 # Or initial conditions as a dictionary 
-I0 = [10, 10, 10]
-S0 = [n-20 for n in Ni]
+x0 = {'S': [n-20 for n in Ni], 'I':  [20, 20, 20]  }
 
 
-x0 = {
-    'S' : S0,
-    'I' : I0 
-     }
-
-
-CM = np.array([
-    [1,   0.5, 0.1],
-    [0.5, 1,   0.5],
-    [0.1, 0.5, 1  ]
-], dtype=float)
-
+CM = np.array( [[1,   0.5, 0.1],
+               [0.5, 1,   0.5],
+               [0.1, 0.5, 1  ]], dtype=float)
 
 def contactMatrix(t):
     return CM
@@ -174,7 +156,7 @@ def contactMatrix(t):
 # duration of simulation and data file
 Tf = 160;  Nf=Tf+1; 
 
-model = pyross.deterministic.Spp(model_spec, parameters, M, Ni)
+model = pyross.deterministic.Model(model_spec, parameters, M, Ni)
 
 # simulate model 
 data = model.simulate(x0, contactMatrix, Tf, Nf)

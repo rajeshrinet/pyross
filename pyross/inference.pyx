@@ -4598,7 +4598,7 @@ cdef class SEAIRQ_testing(SIR_type):
 @cython.nonecheck(False)
 cdef class Model(SIR_type):
     """
-    User-defined epidemic model.
+    Generic user-defined epidemic model.
 
     To initialise the Model,
 
@@ -5062,11 +5062,13 @@ cdef class Spp(Model):
     """
     This is a slightly more specific version of the class `Model`. 
 
-    It is mainly there for backward compatibility. U
+    `Spp` is still supported for backward compatibility. 
 
     `Model` class is recommended over `Spp` for new users. 
 
     The `Spp` class works like `Model` but infection terms use a single class `S` 
+    ...
+
 
     Parameters
     ----------
@@ -5146,7 +5148,14 @@ cdef class Spp(Model):
 cdef class SppQ(Spp):
     """User-defined epidemic model with quarantine stage.
 
+    This is a slightly more specific version of the class `Model`. 
+
+    `SppQ` is still supported for backward compatibility. 
+
+    `Model` class is recommended over `SppQ` for new users. 
+
     To initialise the SppQ model,
+    ...
 
     Parameters
     ----------

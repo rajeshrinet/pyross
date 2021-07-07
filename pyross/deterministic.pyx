@@ -3009,7 +3009,13 @@ cdef class Model(CommonMethods):
 @cython.nonecheck(False)
 cdef class Spp(Model):
     """
-    Generic user-defined epidemic model, with default susceptible class `S`.
+    This is a slightly more specific version of the class `Model`. 
+
+    `Spp` is still supported for backward compatibility. 
+
+    `Model` class is recommended over `Spp` for new users. 
+
+    The `Spp` class works like `Model` but infection terms use a single class `S` 
 
     ...
 
@@ -3061,8 +3067,15 @@ cdef class Spp(Model):
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SppQ(Spp):
-    """
-    Generic user-defined epidemic model with quarantine.
+    """User-defined epidemic model with quarantine stage.
+
+    This is a slightly more specific version of the class `Model`. 
+
+    `SppQ` is still supported for backward compatibility. 
+
+    `Model` class is recommended over `SppQ` for new users. 
+
+    To initialise the SppQ model,
     ...
 
     Parameters
@@ -3669,9 +3682,15 @@ cdef class SEAI5R(CommonMethods):
 @cython.nonecheck(False)
 cdef class SppSparse(Spp):
     """
-    Generic user-defined epidemic model.
+    This is a slightly more specific version of the class `Model`. 
 
+    `Spp` is still supported for backward compatibility. 
+
+    `Model` class is recommended over `Spp` for new users. 
+
+    The `Spp` class works like `Model` but infection terms use a single class `S` 
     ...
+
 
     Parameters
     ----------

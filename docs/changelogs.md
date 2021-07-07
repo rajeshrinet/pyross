@@ -1,5 +1,8 @@
 # PyRoss changelogs
 
+## 1.3.9
+* `Model` class added. It is now the recommended model for new users. 
+
 ## 1.3.8
 * Overdispersion included in master 
 

@@ -3097,7 +3097,13 @@ cdef class Model(stochastic_integration):
     
 cdef class Spp(Model):
     """
-    Generic user-defined epidemic model, with default susceptible class `S`.
+    This is a slightly more specific version of the class `Model`. 
+
+    `Spp` is still supported for backward compatibility. 
+
+    `Model` class is recommended over `Spp` for new users. 
+
+    The `Spp` class works like `Model` but infection terms use a single class `S` 
 
     ...
 
@@ -3144,8 +3150,15 @@ cdef class Spp(Model):
         super().__init__(Xpp_model_spec, parameters, M, Ni, time_dep_param_mapping=time_dep_param_mapping)
     
 cdef class SppQ(Spp):
-    """
-    Generic user-defined epidemic model with quarantine.
+    """User-defined epidemic model with quarantine stage.
+
+    This is a slightly more specific version of the class `Model`. 
+
+    `SppQ` is still supported for backward compatibility. 
+
+    `Model` class is recommended over `SppQ` for new users. 
+
+    To initialise the SppQ model,
 
     ...
 
