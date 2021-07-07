@@ -2608,7 +2608,7 @@ cdef class SIRS(CommonMethods):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class Xpp(CommonMethods):
+cdef class Model(CommonMethods):
     """
     Generic user-defined epidemic model.
 
@@ -3007,7 +3007,7 @@ cdef class Xpp(CommonMethods):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class Spp(Xpp):
+cdef class Spp(Model):
     """
     Generic user-defined epidemic model, with default susceptible class `S`.
 

@@ -2615,7 +2615,7 @@ cdef class SEAIRQ_testing(stochastic_integration):
 
 
 
-cdef class Xpp(stochastic_integration):
+cdef class Model(stochastic_integration):
     """
     Generic user-defined epidemic model.
 
@@ -3095,7 +3095,7 @@ cdef class Xpp(stochastic_integration):
         return out_dict
 
     
-cdef class Spp(Xpp):
+cdef class Spp(Model):
     """
     Generic user-defined epidemic model, with default susceptible class `S`.
 

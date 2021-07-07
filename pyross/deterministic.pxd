@@ -257,9 +257,9 @@ cdef class SEAIRQ_testing(CommonMethods):
 @cython.boundscheck(True)
 @cython.cdivision(False)
 @cython.nonecheck(True)
-cdef class Xpp(CommonMethods):
+cdef class Model(CommonMethods):
     """
-    Given a model specification, the Xpp class generates a custome-made compartment epidemic model.
+    Given a model specification, the Model class generates a custome-made compartment epidemic model.
     """
 
     cdef:
@@ -281,7 +281,7 @@ cdef class Xpp(CommonMethods):
 @cython.boundscheck(True)
 @cython.cdivision(False)
 @cython.nonecheck(True)
-cdef class Spp(Xpp):
+cdef class Spp(Model):
     """
     Given a model specification, the Spp class generates a custome-made compartment epidemic model with default susceptible class.
     """

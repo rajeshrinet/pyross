@@ -4596,11 +4596,11 @@ cdef class SEAIRQ_testing(SIR_type):
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class Xpp(SIR_type):
+cdef class Model(SIR_type):
     """
     User-defined epidemic model.
 
-    To initialise the Xpp model,
+    To initialise the Model,
 
     Parameters
     ----------
@@ -4651,7 +4651,7 @@ cdef class Xpp(SIR_type):
             "classes" : ["S", "I"],
             "S" : {
                 "constant"  : [ ["k"] ],
-                "infection" : [ ["I", "S". "-beta"] ]
+                "infection" : [ ["I", "S", "-beta"] ]
             },
             "I" : {
                 "linear"    : [ ["I", "-gamma"] ],
@@ -4670,7 +4670,7 @@ cdef class Xpp(SIR_type):
         readonly np.ndarray model_parameters
         readonly np.ndarray model_parameters_length
         readonly np.ndarray finres_pop
-        readonly pyross.deterministic.Xpp det_model
+        readonly pyross.deterministic.Model det_model
         readonly dict model_spec
         readonly dict param_dict
         readonly list model_param_keys
@@ -4708,10 +4708,10 @@ cdef class Xpp(SIR_type):
             parameters = self.parameter_mapping(parameters)
             self.param_mapping_enabled = True
         if self.time_dep_param_mapping is not None:
-            self.det_model = pyross.deterministic.Xpp(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
+            self.det_model = pyross.deterministic.Model(model_spec, parameters, M, fi*Omega, time_dep_param_mapping=time_dep_param_mapping)
             self.param_mapping_enabled = True
         else:
-            self.det_model = pyross.deterministic.Xpp(model_spec, parameters, M, fi*Omega)
+            self.det_model = pyross.deterministic.Model(model_spec, parameters, M, fi*Omega)
         
         self.finres_pop = np.empty( len(self.resource_list), dtype='object')  # populations for finite-resource transitions
         for i in range(len(self.resource_list)):
@@ -5058,10 +5058,15 @@ cdef class Xpp(SIR_type):
         self.B_vec = self.B.reshape((self.dim, self.dim))[(self.rows, self.cols)]
 
         
-cdef class Spp(Xpp):
-    """User-defined epidemic model.
+cdef class Spp(Model):
+    """
+    This is a slightly more specific version of the class `Model`. 
 
-    To initialise the Spp model,
+    It is mainly there for backward compatibility. U
+
+    `Model` class is recommended over `Spp` for new users. 
+
+    The `Spp` class works like `Model` but infection terms use a single class `S` 
 
     Parameters
     ----------
