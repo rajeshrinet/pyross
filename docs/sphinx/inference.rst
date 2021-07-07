@@ -63,7 +63,7 @@ SIR_type
 
 Model
 ------------------------
-.. autoclass:: pyross.inference.Spp
+.. autoclass:: pyross.inference.Model
     :members:
 * `Link to example notebook <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01b_Model.ipynb>`_
 
