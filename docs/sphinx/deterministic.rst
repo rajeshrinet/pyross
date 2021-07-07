@@ -5,6 +5,14 @@ Deterministic simulations
 
 A list of methods for deterministic simulations of age-structured compartment models along with link to notebook examples is given below. 
 
+Model
+--------------------------
+.. autoclass:: pyross.deterministic.Model
+    :members:
+
+* `Link to example notebook: deterministic sampling in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01b_Model.ipynb>`_
+
+
 Spp
 --------------------------
 .. autoclass:: pyross.deterministic.Spp

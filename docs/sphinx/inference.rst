@@ -61,10 +61,22 @@ SIR_type
 .. autoclass:: pyross.inference.SIR_type
     :members:
 
+Model
+------------------------
+.. autoclass:: pyross.inference.Model
+    :members:
+
+Model
+------------------------
+.. autoclass:: pyross.inference.Spp
+    :members:
+* `Link to example notebook: inference in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01b_Model.ipynb>`_
+
 Spp
 ------------------------
 .. autoclass:: pyross.inference.Spp
     :members:
+* `Link to example notebook: inference in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex02a_Spp_inference.ipynb>`_
 
 SppQ
 ------------------------

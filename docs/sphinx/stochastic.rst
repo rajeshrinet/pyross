@@ -11,19 +11,26 @@ stochastic_integration
 .. autoclass:: pyross.stochastic.stochastic_integration
     :members:
 
+Model
+--------------------------------------
+.. autoclass:: pyross.stochastic.Model
+    :members:
+
+* `Link to example notebook: stochastic sampling in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex01b_Model.ipynb>`_
+
 Spp
 --------------------------------------
 .. autoclass:: pyross.stochastic.Spp
     :members:
 
-* `Link to example notebook: deterministic sampling in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex02-Spp.ipynb>`_
+* `Link to example notebook: stochastic sampling in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex02-Spp.ipynb>`_
 
 SppQ
 --------------------------
-.. autoclass:: pyross.deterministic.SppQ
+.. autoclass:: pyross.stochastic.SppQ
     :members:
 
-* `Link to example notebook: deterministic sampling in PyRoss using SppQ <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex08-Spp.ipynb>`_
+* `Link to example notebook: stochastic sampling in PyRoss using SppQ <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex08-Spp.ipynb>`_
 
 
 SIR
@@ -31,28 +38,28 @@ SIR
 .. autoclass:: pyross.stochastic.SIR
     :members:
 
-* `Link to example notebook: deterministic sampling in PyRoss using SIR <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex01-SIR.ipynb>`_
+* `Link to example notebook: stochastic sampling in PyRoss using SIR <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex01-SIR.ipynb>`_
 
 SIkR
 ------------------------
 .. autoclass:: pyross.stochastic.SIkR
     :members:
 
-* `Link to example notebook: deterministic sampling in PyRoss using SIkR <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex03-SIkR.ipynb>`_
+* `Link to example notebook: stochastic sampling in PyRoss using SIkR <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex03-SIkR.ipynb>`_
 
 SEIR
 -------------------------
 .. autoclass:: pyross.stochastic.SEIR
     :members:
 
-* `Link to example notebook: deterministic sampling in PyRoss using SEIR <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex04-SEIR.ipynb>`_
+* `Link to example notebook: stochastic sampling in PyRoss using SEIR <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex04-SEIR.ipynb>`_
 
 SEAIRQ
 ---------------------------
 .. autoclass:: pyross.stochastic.SEAIRQ
     :members:
 
-* `Link to example notebook: deterministic sampling in PyRoss using SEAIRQ <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex05-SEAIRQ.ipynb>`_
+* `Link to example notebook: stochastic sampling in PyRoss using SEAIRQ <https://github.com/rajeshrinet/pyross/blob/master/examples/stochastic/ex05-SEAIRQ.ipynb>`_
 
 
 SEAIRQ_testing
