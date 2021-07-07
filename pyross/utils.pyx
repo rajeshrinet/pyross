@@ -105,40 +105,37 @@ def parse_model_spec(model_spec, param_keys):
                     linear_terms_destination_dict[(rate_index, reagent_index, overdispersion_index)] = class_index_dict[k]
 
 
-        # parse the infection terms into a list of [rate_index, reagent_index] and a dictionary for the product
+        # parse the infection terms into a list of [rate_index, reagent_index, susceptible_index] and a dictionary for the product
         infection_terms_set = set() # used to check to duplicates
         infection_terms_list = [] # collect all infection terms
         infection_terms_destination_dict = {} # a dictionary for the product
         for (k, val) in infection_dict.items():
             for vv in val:
-                if len(vv) == 2:  # no overdispersion specified
-                    (reagent, rate) = vv
-                    if (reagent, rate) in infection_terms_set:
-                        raise Exception('Duplicate infection terms: {}, {}'.format(reagent, rate))
+                if len(vv) == 3:  # no overdispersion specified
+                    (reagent, susceptible, rate) = vv
+                    if (reagent, susceptible, rate) in infection_terms_set:
+                        raise Exception('Duplicate infection terms: {}, {}, {}'.format(reagent, susceptible, rate))
                     else:
-                        infection_terms_set.add((reagent, rate))
+                        infection_terms_set.add((reagent, susceptible, rate))
                         overdispersion_index = -1
-                elif len(vv) == 3:  # overdispersion specified
-                    (reagent, rate, overdispersion) = vv
-                    if (reagent, rate, overdispersion) in infection_terms_set:
-                        raise Exception('Duplicate infection terms: {}, {}, {}'.format(reagent, rate, overdispersion))
+                elif len(vv) == 4:  # overdispersion specified
+                    (reagent, susceptible, rate, overdispersion) = vv
+                    if (reagent, susceptible, rate, overdispersion) in infection_terms_set:
+                        raise Exception('Duplicate infection terms: {}, {}, {}, {}'.format(reagent, susceptible, rate, overdispersion))
                     else:
-                        infection_terms_set.add((reagent, rate, overdispersion))
+                        infection_terms_set.add((reagent, susceptible, rate, overdispersion))
                         overdispersion_index = params_index_dict[overdispersion]
                 else:
-                    raise Exception('Wrong number of values in infection term: {}, {} (2 or 3 allowed)'.format(k, vv))
+                    raise Exception('Wrong number of values in infection term: {}, {} (3 or 4 allowed)'.format(k, vv))
                 reagent_index = class_index_dict[reagent]
+                susceptible_index = class_index_dict[susceptible]
                 if rate.startswith('-'):
                     rate = rate[1:]
-                    if k != 'S':
-                        raise Exception('A susceptible group that is not S: {}'.format(k))
-                    else:
-                        rate_index = params_index_dict[rate]
-                        infection_terms_list.append([rate_index, reagent_index, -1, overdispersion_index])
+                    rate_index = params_index_dict[rate]
+                    infection_terms_list.append([rate_index, reagent_index, susceptible_index, -1, overdispersion_index])
                 else:
                     rate_index = params_index_dict[rate]
-                    infection_terms_destination_dict[(rate_index, reagent_index, overdispersion_index)] = class_index_dict[k]
-
+                    infection_terms_destination_dict[(rate_index, reagent_index, susceptible_index, overdispersion_index)] = class_index_dict[k]
 
 
         # parse the finite resource-terms into
@@ -194,7 +191,6 @@ def parse_model_spec(model_spec, param_keys):
             (resource_index, priority_index, prob_index, class_index, overdispersion_index) = k
             finres_terms_list.append([resource_index, priority_index, prob_index, class_index, *val, overdispersion_index])
 
-
         # parse parameters for testing (for SppQ only, otherwise ignore empty parameters lists)
         test_pos_list = []
         test_freq_list = []
@@ -242,17 +238,17 @@ def parse_model_spec(model_spec, param_keys):
                                      np.array(test_freq_list, dtype=np.intc, ndmin=1))
     return res
 
+
 def set_destination(term_list, destination_dict):
     '''
     A function used by parse_model_spec that sets the product_index
     '''
     for term in term_list:
-        rate_index = term[0]
-        reagent_index = term[1]
-        overdispersion_index = term[3]
-        if (rate_index, reagent_index, overdispersion_index) in destination_dict.keys():
-            product_index = destination_dict[(rate_index, reagent_index, overdispersion_index)]
-            term[2] = product_index
+        indices = tuple(term[:-2]+term[-1:])
+        if indices in destination_dict.keys():
+            product_index = destination_dict[indices]
+            term[-2] = product_index
+            
 
 def age_dep_rates(rate, int M, str name, bint check_length=True):
     if np.size(rate)==1:
@@ -992,7 +988,7 @@ def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
     transtions for testing. If not yet specified, an explicit R-class is added. 
 
     Parameters
-    inout_model_spec: dict
+    input_model_spec: dict
         Model specification of the model without quarantine (Spp syntax)
   
     Returns
@@ -1051,3 +1047,24 @@ def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
         
                 
     return model_spec
+
+
+def Spp2Xpp(model_spec):
+    """
+    Converts Spp syntax to Xpp syntax by adding susceptible class `S` to every infection term.
+
+    Parameters
+    model_spec: dict
+        Model specification in Spp syntax
+  
+    Returns
+    -------
+    Xpp_model_spec: dict
+        Model specification in Xpp syntax
+    """
+    Xpp_model_spec=copy.deepcopy(model_spec)
+    for key in Xpp_model_spec.keys():
+        if "infection" in Xpp_model_spec[key]:
+            for term in Xpp_model_spec[key]["infection"]:
+                term.insert(1,'S')
+    return Xpp_model_spec
