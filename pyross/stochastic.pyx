@@ -1332,7 +1332,7 @@ cdef class SIR(stochastic_integration):
         alpha      = parameters['alpha']                    # fraction of asymptomatic infectives
         self.beta  = parameters['beta']                     # infection rate
         self.gIa   = parameters['gIa']                      # removal rate of Ia
-        self.gIs   = parameters['gIa']                      # removal rate of Is
+        self.gIs   = parameters['gIs']                      # removal rate of Is
         self.fsa   = parameters['fsa']                      # the self-isolation parameter
 
         self.N     = np.sum(Ni)

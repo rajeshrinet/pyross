@@ -1,6 +1,6 @@
 # PyRoss changelogs
 
-## 1.3.9
+## 2.0.0
 * `Model` class added. It is now the recommended model for new users. 
 
 ## 1.3.8

@@ -63,25 +63,15 @@ SIR_type
 
 Model
 ------------------------
-.. autoclass:: pyross.inference.Model
-    :members:
-
-Model
-------------------------
 .. autoclass:: pyross.inference.Spp
     :members:
-* `Link to example notebook: inference in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01b_Model.ipynb>`_
+* `Link to example notebook <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex01b_Model.ipynb>`_
 
 Spp
 ------------------------
 .. autoclass:: pyross.inference.Spp
     :members:
-* `Link to example notebook: inference in PyRoss using Spp <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex02a_Spp_inference.ipynb>`_
-
-SppQ
-------------------------
-.. autoclass:: pyross.inference.SppQ
-    :members:
+* `Link to example notebook <https://github.com/rajeshrinet/pyross/blob/master/examples/inference/ex02a_Spp_inference.ipynb>`_
 
 SIR
 ------------------------
@@ -97,3 +87,9 @@ SEAIRQ
 --------------------------
 .. autoclass:: pyross.inference.SEAIRQ
     :members:
+
+SppQ
+------------------------
+.. autoclass:: pyross.inference.SppQ
+    :members:
+
