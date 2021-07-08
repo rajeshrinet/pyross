@@ -54,6 +54,7 @@ Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wi
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
 ### From a checkout of this repository
+This is the recommended way as it downloads a whole suite of examples along with the package. 
 
 #### Install PyRoss and an extended list of dependencies using 
 

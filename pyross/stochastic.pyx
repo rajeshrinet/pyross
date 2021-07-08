@@ -2627,14 +2627,17 @@ cdef class Model(stochastic_integration):
         A dictionary specifying the model. See `Examples`.
     parameters: dict
         A dictionary containing the model parameters.
-        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent.
+        An optional element with the key 'seed' may be supplied as a seed for the 
+        pseudo-random number generator.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
         Initial number in each compartment and class
     time_dep_param_mapping: python function, optional
-        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec.
+        A user-defined function that takes a dictionary of time-independent parameters 
+        and time as an argument, and returns a dictionary of the parameters of model_spec.
         Default: Identical mapping of the dictionary at all times.
 
     Examples
@@ -2655,6 +2658,7 @@ cdef class Model(stochastic_integration):
     >>> parameters = {
             'beta': 0.1,
             'gamma': 0.1,
+            'seed': 1234,
             'k': 1,
         }
     """
@@ -3113,14 +3117,18 @@ cdef class Spp(Model):
         A dictionary specifying the model. See `Examples`.
     parameters: dict
         A dictionary containing the model parameters.
-        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent.
+        An optional element with the key 'seed' may be supplied as a seed for the 
+        pseudo-random number generator.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
     Ni: np.array(3*M, )
         Initial number in each compartment and class
     time_dep_param_mapping: python function, optional
-        A user-defined function that takes a dictionary of time-independent parameters and time as an argument, and returns a dictionary of the parameters of model_spec.
+        A user-defined function that takes a dictionary of 
+        time-independent parameters and time as an argument, and 
+        returns a dictionary of the parameters of model_spec.
         Default: Identical mapping of the dictionary at all times.
 
     Examples
@@ -3141,6 +3149,7 @@ cdef class Spp(Model):
     >>> parameters = {
             'beta': 0.1,
             'gamma': 0.1,
+            'seed': 1234,
             'k': 1,
         }
     """
@@ -3148,7 +3157,11 @@ cdef class Spp(Model):
     def __init__(self, model_spec, parameters, M, Ni, time_dep_param_mapping=None):
         Xpp_model_spec = pyross.utils.Spp2Xpp(model_spec)
         super().__init__(Xpp_model_spec, parameters, M, Ni, time_dep_param_mapping=time_dep_param_mapping)
-    
+   
+
+
+
+
 cdef class SppQ(Spp):
     """User-defined epidemic model with quarantine stage.
 
@@ -3168,7 +3181,9 @@ cdef class SppQ(Spp):
         A dictionary specifying the model. See `Examples`.
     parameters: dict
         A dictionary containing the model parameters.
-        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent
+        All parameters can be float if not age-dependent, and np.array(M,) if age-dependent.
+        An optional element with the key 'seed' may be supplied as a seed for the 
+        pseudo-random number generator.
     M: int
         Number of compartments of individual for each class.
         I.e len(contactMatrix)
@@ -3197,8 +3212,9 @@ cdef class SppQ(Spp):
     >>> parameters = {
             'beta': 0.1,
             'gamma': 0.1,
-            'p_falsepos': 0
-            'p_truepos': 1
+            'seed': 1234,
+            'p_falsepos': 0,
+            'p_truepos': 1,
             'tf': 1
         }
     """

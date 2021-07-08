@@ -13,13 +13,9 @@ The library supports models formulated stochastically (as chemical master equati
 Installation
 ------------
 
-You can take PyRoss for a spin **without installation**: |Binder|.
-Please be patient while
-`Binder <https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder>`__
-loads.
-
-From a checkout of this repository
+From a checkout of PyRoss GitHub repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the recommended way as it downloads a whole suite of examples along with the package. 
 
 Install PyRoss and an extended list of dependencies using
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
