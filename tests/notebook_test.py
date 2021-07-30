@@ -6,9 +6,8 @@ import sys
 import unittest
 import argparse
 import time
-# for i in sys.path:
-#     if 'pyross' in i or i == '':
-#         sys.path.remove(i)
+
+
 
 
 def run_notebook_tests(path, recursive=False):
@@ -55,6 +54,8 @@ def run_notebook_tests(path, recursive=False):
     print('\nOK')
 
 
+
+
 def list_notebooks(root, recursive=False, ignore_list=None, notebooks=None):
     """
     Returns a list of all notebooks in a directory.
@@ -87,6 +88,8 @@ def list_notebooks(root, recursive=False, ignore_list=None, notebooks=None):
         return [(path,cwd)]
 
     return notebooks
+
+
 
 
 def test_notebook(path):
@@ -147,6 +150,8 @@ def test_notebook(path):
     return True
 
 
+
+
 def export_notebook(ipath, opath):
     """
     Exports the notebook at `ipath` to a python file at `opath`.
@@ -171,6 +176,8 @@ def export_notebook(ipath, opath):
         f.write('#!/usr/bin/env python')
         f.write(code)
     os.chmod(opath, 0o775)
+
+
 
 
 if __name__ == '__main__':

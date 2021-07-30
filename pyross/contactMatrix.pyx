@@ -49,9 +49,11 @@ cdef class ContactMatrixFunction:
         readonly Protocol protocol
         Py_ssize_t M
 
+
     def __init__(self, CH, CW, CS, CO):
         self.CH, self.CW, self.CS, self.CO = CH, CW, CS, CO
         self.M = CH.shape[0]
+
 
     def contactMatrix(self, t, **kwargs):
         cdef np.ndarray[DTYPE_t, ndim=2] C
@@ -61,11 +63,13 @@ cdef class ContactMatrixFunction:
                     + np.einsum('i,ij,j->ij', aO[0], self.CO, aO[1])
         return C
 
+
     cpdef get_individual_contactMatrices(self):
         """
         Returns the internal CH, CW, CS and CO 
         """
         return self.CH, self.CW, self.CS, self.CO
+
 
     def constant_contactMatrix(self, aW=1, aS=1, aO=1,
                                      aW2=None, aS2=None, aO2=None):
@@ -98,6 +102,7 @@ cdef class ContactMatrixFunction:
         self.protocol=ConstantProtocol(self.M, aW, aS, aO, aW2, aS2, aO2)
         return self.contactMatrix
 
+
     def interventions_temporal(self,times,interventions):
         """Temporal interventions
 
@@ -119,6 +124,7 @@ cdef class ContactMatrixFunction:
         self.protocol = TemporalProtocol(self.M, np.array(times), np.array(interventions))
         return self.contactMatrix
 
+
     def interventions_threshold(self,thresholds,interventions):
         """Temporal interventions
 
@@ -139,6 +145,7 @@ cdef class ContactMatrixFunction:
 
         self.protocol = ThresholdProtocol(self.M, np.array(thresholds), np.array(interventions))
         return self.contactMatrix
+
 
     def intervention_custom_temporal(self, intervention_func, **kwargs):
         """Custom temporal interventions
@@ -185,6 +192,9 @@ cdef class Protocol:
     def __call__(self, t):
         pass
 
+
+
+
 cdef class ConstantProtocol(Protocol):
     cdef:
         np.ndarray aW, aS, aO
@@ -196,6 +206,7 @@ cdef class ConstantProtocol(Protocol):
         self.aS = self._process_interventions(aS, aS2, 'aS')
         self.aO = self._process_interventions(aO, aO2, 'aO')
 
+
     def _process_interventions(self, a1, a2, name):
         a = np.empty((2, self.M), dtype=DTYPE)
         if a2 is None:
@@ -204,8 +215,12 @@ cdef class ConstantProtocol(Protocol):
         a[1] = pyross.utils.age_dep_rates(a2, self.M, name)
         return a
 
+
     def __call__(self, double t):
         return self.aW, self.aS, self.aO
+
+
+
 
 cdef class TemporalProtocol(Protocol):
     cdef:
@@ -235,6 +250,7 @@ cdef class TemporalProtocol(Protocol):
 
 
 
+
 cdef class ThresholdProtocol(Protocol):
     cdef:
         readonly np.ndarray thresholds, interventions
@@ -249,6 +265,7 @@ cdef class ThresholdProtocol(Protocol):
                 k = keys[j]
                 a_full = pyross.utils.age_dep_rates(a, M, k)
                 self.interventions[i, j] = np.tile(a_full, (2, 1))
+
     def __call__(self, double t, S=None, Ia=None, Is=None):
         cdef:
             np.ndarray[DTYPE_t, ndim=1] state
@@ -261,6 +278,8 @@ cdef class ThresholdProtocol(Protocol):
             if (thresholds[N-1] <= state ).all():
                 index = N
         return prefac_arr[index,0], prefac_arr[index,1], prefac_arr[index,2]
+
+
 
 
 cdef class CustomTemporalProtocol(Protocol):
@@ -276,6 +295,7 @@ cdef class CustomTemporalProtocol(Protocol):
 
     def __call__(self, double t):
         return self.intervention_func(t, self.M, **self.kwargs)
+
 
 
 
@@ -347,6 +367,7 @@ cdef class SpatialContactMatrix:
 
         self.spatial_CM = np.zeros((self.n_loc, self.M, self.n_loc, self.M))
 
+
     def spatial_contact_matrix(self, np.ndarray[DTYPE_t, ndim=2] CM):
         self._compute_local_contacts(CM.astype('float'))
         cdef:
@@ -374,6 +395,7 @@ cdef class SpatialContactMatrix:
                                 spatial_CM[mu, i, nu, j] += f1*f2*cc*work_ratio
                             spatial_CM[mu, i, nu, j] /= p
         return spatial_CM
+
 
     cdef _process_commute(self, double [:, :] pop, double [:, :, :] commutes):
         cdef:
@@ -431,6 +453,9 @@ cdef class SpatialContactMatrix:
                         local_contacts[a, mu, i, j] = 0.0
                         if norm[a, i, j] != 0.0:
                             local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
+
+
+
 
 cdef class MinimalSpatialContactMatrix:
     """A class for generating a minimal spatial compartmental model
@@ -497,6 +522,7 @@ cdef class MinimalSpatialContactMatrix:
         self._compute_rescale_factor(populations)
         self._compute_normalisation_factor(populations)
 
+
     def spatial_contact_matrix(self, double [:, :] CM):
         cdef:
             Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
@@ -512,6 +538,7 @@ cdef class MinimalSpatialContactMatrix:
                     for n in range(M):
                         spatial_CM[i, m, j, n]=k[i, j]*g[i, m, j, n]*f[i, m, j, n]/a[m, n]*CM[m, n]
         return spatial_CM
+
 
     cdef _compute_spatial_kernel(self, double [:, :] densities,
                                         double [:, :] coordinates, double c):
@@ -531,6 +558,7 @@ cdef class MinimalSpatialContactMatrix:
                 spatial_kernel[i, j] = k
                 spatial_kernel[j, i] = k
 
+
     cdef _compute_density_factor(self, double [:, :] densities, double b):
         cdef:
             Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
@@ -545,6 +573,7 @@ cdef class MinimalSpatialContactMatrix:
                         f = pow(rho_im*rho_jn, b)
                         density_factor[i, m, j, n] = f
 
+
     cdef _compute_rescale_factor(self, double [:, :] populations):
         cdef:
             Py_ssize_t n_loc=self.n_loc, M=self.M, i, j, m, n
@@ -555,6 +584,7 @@ cdef class MinimalSpatialContactMatrix:
                 for m in range(M):
                     for n in range(M):
                         rescale_factor[i, m, j, n] = sqrt(Ni[m]/Ni[n]*populations[j, n]/populations[i, m])
+
 
     cdef _compute_normalisation_factor(self, double [:, :] populations):
         cdef:
@@ -569,6 +599,9 @@ cdef class MinimalSpatialContactMatrix:
                     for j in range(n_loc):
                         a = sqrt(populations[i, m]*populations[j, n]/(Ni[m]*Ni[n]))
                         norm_fac[m, n] += k[i, j]*g[i, m, j, n]*a
+
+
+
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
@@ -660,6 +693,8 @@ def _epsilon_eval(z, A, ord=2):
     return ep
 
 
+
+
 def _inv_epsilon_eval(z, A, ord=2):
     """
     Finds the value of 1/\epsilon for a given complex number and matrix.
@@ -686,6 +721,8 @@ def _inv_epsilon_eval(z, A, ord=2):
     return iep
 
 
+
+
 def _kreiss_eval(z, A, theta=0, ord=2):
     """
     Kreiss constant guess for a matrix and pseudo-eigenvalue.
@@ -700,6 +737,8 @@ def _kreiss_eval(z, A, theta=0, ord=2):
     A=np.array(A)
     kg = (z[0]-theta)*_inv_epsilon_eval(z, A, ord=ord)
     return kg
+
+
 
 
 def _inv_kreiss_eval(z, A, theta=0, ord=2):
@@ -718,6 +757,8 @@ def _inv_kreiss_eval(z, A, theta=0, ord=2):
     ikg = _epsilon_eval(z, A, ord=ord)/np.real(z[0]-theta) if z[0]-theta > 0 else np.inf
     # print(z[0]-theta)
     return ikg
+
+
 
 
 def _transient_properties(guess, A, theta=0, ord=2):
@@ -756,6 +797,8 @@ def _transient_properties(guess, A, theta=0, ord=2):
     return np.array([sa, na, K, tau, henrici],dtype=np.complex64)
 
 
+
+
 def _first_estimate( A, tol=0.001):
     """
     Takes the eigenvalue with the largest real part
@@ -777,6 +820,8 @@ def _first_estimate( A, tol=0.001):
             guess = [tol, b]
         iguesses.append(guess)
     return iguesses
+
+
 
 
 def characterise_transient(A, tol=0.001, theta=0, ord=2):
@@ -808,7 +853,6 @@ def characterise_transient(A, tol=0.001, theta=0, ord=2):
         else:
             pass
     return transient_properties
-
 
 
 

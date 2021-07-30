@@ -1,5 +1,9 @@
 # PyRoss changelogs
 
+## 2.0.1
+* Remove SEInR and SEAInR models from the codebase
+
+
 ## 2.0.0
 * `Model` class added. It is now the recommended model for new users. 
 
