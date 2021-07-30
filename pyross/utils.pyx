@@ -239,6 +239,8 @@ def parse_model_spec(model_spec, param_keys):
     return res
 
 
+
+
 def set_destination(term_list, destination_dict):
     '''
     A function used by parse_model_spec that sets the product_index
@@ -250,6 +252,8 @@ def set_destination(term_list, destination_dict):
             term[-2] = product_index
             
 
+
+
 def age_dep_rates(rate, int M, str name, bint check_length=True):
     if np.size(rate)==1:
         return rate*np.ones(M)
@@ -257,6 +261,8 @@ def age_dep_rates(rate, int M, str name, bint check_length=True):
         return rate
     else:
         raise Exception('{} can be a number or an array of size M'.format(name))
+
+
 
 
 DTYPE = np.float
@@ -276,6 +282,9 @@ cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_
             sol[i, j] = sol[i-1, j] + fx[j]*dt
         t += dt
     return sol
+
+
+
 
 cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
     cdef:
@@ -297,6 +306,9 @@ cpdef RK2_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
         for j in range(size):
             sol[i, j] = sol[i-1, j] + 0.5*(k1[j] + dt*fx[j])
     return sol
+
+
+
 
 cpdef RK4_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
     cdef:
@@ -330,6 +342,9 @@ cpdef RK4_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps):
         for j in range(size):
             sol[i, j] = sol[i-1, j] + (k1[j] + 2*k2[j] + 2*k3[j] + dt*fx[j])/6.
     return sol
+
+
+
 
 cpdef nearest_positive_definite(double [:, :] A):
     """Find the nearest positive-definite matrix to input
@@ -365,6 +380,9 @@ cpdef nearest_positive_definite(double [:, :] A):
             k += 1
         return A3
 
+
+
+
 cpdef is_positive_definite(double [:, :] B):
     """Returns true when input is positive-definite, via Cholesky"""
     try:
@@ -376,6 +394,8 @@ cpdef is_positive_definite(double [:, :] B):
             return False
     except np.linalg.LinAlgError:
         return False
+
+
 
 
 cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double eps=1e-13):
@@ -427,6 +447,9 @@ cpdef solve_symmetric_close_to_singular(double [:, :] A, double [:] b, double ep
         x = eigvecs @ (np.diag(eigvals) @ (eigvecs.T @ b))
         return x, log_det
 
+
+
+
 def largest_real_eig(np.ndarray A):
     w, v = np.linalg.eig(A)
     max_index = np.argmax(np.real(w))
@@ -436,6 +459,8 @@ def largest_real_eig(np.ndarray A):
     return eigval_sign, eigvec
 
 
+
+
 def partial_derivative(func, var, point, dx, *func_args):
     args = point[:]
     def wraps(x, *wraps_args):
@@ -443,9 +468,15 @@ def partial_derivative(func, var, point, dx, *func_args):
         return func(args, *wraps_args)
     return derivative(wraps, point[var], dx=dx, args=func_args)
 
+
+
+
 cpdef make_fltr(fltr_list, n_list):
     fltr = [f for (i, f) in enumerate(fltr_list) for n in range(n_list[i])]
     return np.array(fltr)
+
+
+
 
 def process_fltr(np.ndarray fltr, Py_ssize_t Nf):
     if fltr.ndim == 2:
@@ -454,6 +485,9 @@ def process_fltr(np.ndarray fltr, Py_ssize_t Nf):
         return fltr
     else:
         raise Exception("fltr must be a 2D array or an array of 2D arrays")
+
+
+
 
 def process_obs(np.ndarray obs, Py_ssize_t Nf):
     if obs.shape[0] != Nf:
@@ -465,12 +499,18 @@ def process_obs(np.ndarray obs, Py_ssize_t Nf):
     else:
         raise Exception("Obs must be a 2D array or an array of 1D arrays")
 
+
+
+
 def process_latent_data(np.ndarray fltr, np.ndarray obs):
     cdef Py_ssize_t Nf=obs.shape[0]
     fltr = process_fltr(fltr, Nf)
     obs0 = obs[0]
     obs = process_obs(obs[1:], Nf-1)
     return fltr, obs, obs0
+
+
+
 
 def _parse_prior_name(sub_dict, dim):
     if 'prior_fun' in sub_dict:
@@ -484,10 +524,16 @@ def _parse_prior_name(sub_dict, dim):
     else:
         return ['lognorm']*dim
 
+
+
+
 def mode_of_lognormal(mean,std):
     mode = mean**4/(mean**2+std**2)**(3/2)
     logvar = np.sqrt(np.log(1+std**2/mean**2))*mode  # std on logscale
     return mode, logvar
+
+
+
 
 def parse_param_prior_dict(prior_dict, M, check_length=True):
     flat_stds = []
@@ -566,6 +612,9 @@ def parse_param_prior_dict(prior_dict, M, check_length=True):
     return names, key_list, np.array(flat_mean), np.array(flat_stds), np.array(flat_guess), np.array(flat_guess_std), \
           np.array(flat_bounds), flat_guess_range, is_scale_parameter, scaled_guesses
 
+
+
+
 def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_guesses):
     # Restore parameters from flattened parameters
     orig_params = []
@@ -577,6 +626,9 @@ def unflatten_parameters(params, flat_guess_range, is_scale_parameter, scaled_gu
         else:
             orig_params.append(params[flat_guess_range[j]])
     return orig_params
+
+
+
 
 def parse_init_prior_dict(prior_dict, dim, obs_dim):
     mean = []
@@ -634,6 +686,9 @@ def parse_init_prior_dict(prior_dict, dim, obs_dim):
     return names, np.array(mean), np.array(stds), np.array(guess), np.array(guess_std), np.array(bounds), \
            flags, fltrs
 
+
+
+
 def _process_init_fltr(fltr, dim):
     fltr = np.array(fltr).astype('bool')
     if fltr.ndim == 1:
@@ -652,6 +707,9 @@ def _process_init_fltr(fltr, dim):
     else:
         raise Exception('init_fltr must either be 1D or 2D')
 
+
+
+
 cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     cdef:
         double lat1=coord1[0], lon1=coord1[1], lat2=coord2[0], lon2=coord2[1]
@@ -666,6 +724,8 @@ cpdef double distance_on_Earth(double [:] coord1, double [:] coord2):
     a = sin(d_lat/2) * sin(d_lat/2) + sin(d_lon/2) * sin(d_lon/2) * cos(lat1) * cos(lat2)
     c = 2 * atan2(sqrt(a), sqrt(1-a))
     return Earth_radius_km * c
+
+
 
 
 def plotSIR(data, showPlot=True):
@@ -800,6 +860,8 @@ def getPopulation(country='India', M=16):
     return Ni
 
 
+
+
 def get_summed_CM(CH0, CW0, CS0, CO0, M, M0, Ni, Ni0):
     CH = np.zeros((M, M))
     CW = np.zeros((M, M))
@@ -822,79 +884,6 @@ def get_summed_CM(CH0, CW0, CS0, CO0, M, M0, Ni, Ni0):
     return CH, CW, CS, CO
 
 
-class GPR:
-    def __init__(self, nS, nT, iP, nP, xS, xT, yT):
-        self.nS   =  nS           # # of test data points
-        self.nT   =  nT           # # of training data points
-        self.iP   =  iP           # # inverse of sigma
-        self.nP   =  nP           # # number of priors
-        self.xS   =  xS           # test input
-        self.xT   =  xT           # training input
-        self.yT   =  yT           # training output
-
-        self.yS   =  0            # test output
-        self.yP   =  0            # prior output
-        self.K    =  0            # kernel
-        self.Ks   =  0            # kernel
-        self.Kss  =  0            # kernel
-        self.mu   =  0            # mean
-        self.sd   =  0            # stanndard deviation
-
-
-    def calcDistM(self, r, s):
-        '''Calculate distance matrix between 2 1D arrays'''
-        return r[..., np.newaxis] - s[np.newaxis, ...]
-
-
-    def calcKernels(self):
-        '''Calculate the kernel'''
-        cc = self.iP*0.5
-        self.K   = np.exp(-cc*self.calcDistM(self.xT, self.xT)**2)
-        self.Ks  = np.exp(-cc*self.calcDistM(self.xT, self.xS)**2)
-        self.Kss = np.exp(-cc*self.calcDistM(self.xS, self.xS)**2)
-        return
-
-
-    def calcPrior(self):
-        '''Calculate the prior'''
-        L  = np.linalg.cholesky(self.Kss + 1e-6*np.eye(self.nS))
-        G  = np.random.normal(size=(self.nS, self.nP))
-        yP = np.dot(L, G)
-        return
-
-
-    def calcMuSigma(self):
-        '''Calculate the mean'''
-        self.mu =  np.dot(self.Ks.T, np.linalg.solve(self.K, self.yT))
-
-        vv = self.Kss - np.dot(self.Ks.T, np.linalg.solve(self.K, self.Ks))
-        self.sd = np.sqrt(np.abs(np.diag(vv)))
-
-        # Posterior
-        L       = np.linalg.cholesky(vv + 1e-6*np.eye(self.nS))
-        self.yS = self.mu.reshape(-1,1) + np.dot(L, np.random.normal(size=(self.nS, self.nP)))
-        return
-
-
-    def plotResults(self):
-        try:
-            import matplotlib.pyplot as plt
-            plt.plot(self.xT, self.yT, 'o', ms=10, mfc='#348ABD', mec='none', label='training set' )
-            plt.plot(self.xS, self.yS, '#dddddd', lw=1.5, label='posterior')
-            plt.plot(self.xS, self.mu, '#A60628', lw=2, label='mean')
-
-            # fill 95% confidence interval (2*sd about the mean)
-            plt.fill_between(self.xS.flat, self.mu-2*self.sd, self.mu+2*self.sd, color="#348ABD", alpha=0.4, label='2 sigma')
-            plt.axis('tight'); plt.legend(fontsize=15); plt.rcParams.update({'font.size':18})
-        except ImportError:
-            print('Please install matplotlib to use this method')
-
-
-    def runGPR(self):
-        self.calcKernels()
-        self.calcPrior()
-        self.calcMuSigma()
-        self.plotResults()
 
 
 def resample(weighted_samples, N):
@@ -930,6 +919,8 @@ def resample(weighted_samples, N):
             sample_list.append(weighted_samples[i])
 
     return sample_list
+
+
 
 
 def posterior_mean(weighted_samples):
@@ -980,6 +971,8 @@ def posterior_mean(weighted_samples):
     sample['log_prior']      = None
     sample['log_likelihood'] = None
     return sample
+
+
 
 
 def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
@@ -1047,6 +1040,8 @@ def build_SppQ_model_spec(input_model_spec, testRate_name = "tau"):
         
                 
     return model_spec
+
+
 
 
 def Spp2Xpp(model_spec):

@@ -71,34 +71,22 @@ cdef class SEIR(CommonMethods):
         readonly np.ndarray beta, gIa, gIs, gE, fsa
     cpdef rhs(self, rp, tt)
 
+
+
+
+
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
 @cython.nonecheck(False)
-cdef class SEI8R(CommonMethods):
+cdef class SEkIkR(CommonMethods):
     """
-    Susceptible, Exposed, Infected, Removed (SEIR). The infected class has 5 groups.
-
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-
-    The transitions are,
-
-    * S  ---> E
-    * E  ---> Ia, Is
-    * Ia ---> R
-    * Is ---> Is',Ih, R
-    * Ih ---> Ih',Ic, R
-    * Ic ---> Ic',Im, R
+    Susceptible, Infected, Removed (SIkR). Method of k-stages of I
+    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
     """
-
     cdef:
         readonly double beta, gE, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
-
 
 
 
@@ -115,90 +103,6 @@ cdef class SIkR(CommonMethods):
         readonly double beta, gIa, gIs, fsa
     cpdef rhs(self, rp, tt)
 
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEkIkR(CommonMethods):
-    """
-    Susceptible, Infected, Removed (SIkR). Method of k-stages of I
-
-    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    """
-    cdef:
-        readonly double beta, gE, gIa, gIs, fsa
-    cpdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEkIkIkR(CommonMethods):
-    """
-    Susceptible, Infected, Removed (SIkR). Method of k-stages of I
-
-    See: Lloyd, Theoretical Population Biology 60, 59􏰈71 (2001), doi:10.1006􏰅tpbi.2001.1525.
-    """
-    cdef:
-        readonly double beta, gE, gIa, gIs, fsa
-    cpdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEAIR(CommonMethods):
-    """
-    Susceptible, Exposed, Asymptomatic and infected, Infected, Removed (SEAIR)
-
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * E: exposed
-    * A : Asymptomatic and infectious
-    """
-    cdef:
-        readonly double beta, gE, gA, gIa, gIs, fsa
-    cpdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEAI8R(CommonMethods):
-    """
-    Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
-
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-
-    The transitions are,
-
-    * S  ---> E
-    * E  ---> A
-    * A  ---> Ia, Is
-    * Ia ---> R
-    * Is ---> Ih, Is', R
-    * Ih ---> Ic, Ih', R
-    * Ic ---> Im, Ic', R
-    """
-    cdef:
-        readonly double beta, gE, gA, gIa, gIs, fsa
-    cpdef rhs(self, rp, tt)
 
 
 
@@ -319,42 +223,3 @@ cdef class SppQ(Spp):
     cpdef full_time_dep_param_mapping(self, input_parameters, t)
 
 
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEI5R(CommonMethods):
-    cdef:
-        readonly double beta, gE, gA, gIa, gIs, fsa
-    """
-    Susceptible, Exposed, Infected, Removed (SEIR). The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-    """
-
-    cpdef rhs(self, rp, tt)
-
-
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-cdef class SEAI5R(CommonMethods):
-    cdef:
-        readonly double beta, gE, gA, gIa, gIs, fsa
-    """
-    Susceptible, Exposed, Activates, Infected, Removed (SEAIR). The infected class has 5 groups:
-    * Ia: asymptomatic
-    * Is: symptomatic
-    * Ih: hospitalized
-    * Ic: ICU
-    * Im: Mortality
-    """
-    cpdef rhs(self, rp, tt)

@@ -62,14 +62,14 @@ cdef class ContactMatrixFunction:
         return C
 
     cpdef get_individual_contactMatrices(self):
-        '''
+        """
         Returns the internal CH, CW, CS and CO 
-        '''
+        """
         return self.CH, self.CW, self.CS, self.CO
 
     def constant_contactMatrix(self, aW=1, aS=1, aO=1,
                                      aW2=None, aS2=None, aO2=None):
-        '''Constant contact matrix
+        """Constant contact matrix
 
         Parameters
         ----------
@@ -94,12 +94,12 @@ cdef class ContactMatrixFunction:
         -------
         contactMatrix: callable
             A function that takes t as an argument and outputs the contact matrix
-        '''
+        """
         self.protocol=ConstantProtocol(self.M, aW, aS, aO, aW2, aS2, aO2)
         return self.contactMatrix
 
     def interventions_temporal(self,times,interventions):
-        '''Temporal interventions
+        """Temporal interventions
 
         Parameters
         ----------
@@ -114,13 +114,13 @@ cdef class ContactMatrixFunction:
         -------
         contactMatrix: callable
             A function that takes t as an argument and outputs the contact matrix
-        '''
+        """
 
         self.protocol = TemporalProtocol(self.M, np.array(times), np.array(interventions))
         return self.contactMatrix
 
     def interventions_threshold(self,thresholds,interventions):
-        '''Temporal interventions
+        """Temporal interventions
 
         Parameters
         ----------
@@ -135,13 +135,13 @@ cdef class ContactMatrixFunction:
         -------
         contactMatrix: callable
             A function that takes t as an argument and outputs the contact matrix
-        '''
+        """
 
         self.protocol = ThresholdProtocol(self.M, np.array(thresholds), np.array(interventions))
         return self.contactMatrix
 
     def intervention_custom_temporal(self, intervention_func, **kwargs):
-        '''Custom temporal interventions
+        """Custom temporal interventions
 
         Parameters
         ----------
@@ -169,7 +169,7 @@ cdef class ContactMatrixFunction:
         >>>     return a_full, a_full, a_full
         >>>
         >>> contactMatrix = generator.intervention_custom_temporal(fun, width=5, loc=10)
-        '''
+        """
 
         self.protocol = CustomTemporalProtocol(self.M, intervention_func, **kwargs)
         return self.contactMatrix
@@ -284,7 +284,7 @@ cdef class CustomTemporalProtocol(Protocol):
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SpatialContactMatrix:
-    '''A class for generating a spatial compartmental model with commute data
+    """A class for generating a spatial compartmental model with commute data
 
     Let :math:`\\mu, \\nu` denote spatial index and i, j denote age group index.
 
@@ -304,7 +304,7 @@ cdef class SpatialContactMatrix:
         Each entry commute[mu, nu, i] needs to be the number of people of age
         group i commuting from :math:`\\mu` to :math:`\\nu`.
         Entries with :math:`\\mu = \\nu` are ignored.
-    '''
+    """
     cdef:
         readonly np.ndarray Ni, pops, commute_fraction,
         readonly np.ndarray density_factor, norm_factor, local_contacts
@@ -433,7 +433,7 @@ cdef class SpatialContactMatrix:
                             local_contacts[a, mu, i, j] = c * d / norm[a, i, j]
 
 cdef class MinimalSpatialContactMatrix:
-    '''A class for generating a minimal spatial compartmental model
+    """A class for generating a minimal spatial compartmental model
 
     Let :math:`\\mu, \\nu` denote spatial index and i, j denote age group index,
 
@@ -470,7 +470,7 @@ cdef class MinimalSpatialContactMatrix:
         The area of each geographical region.
     coordinates: np.array(n_loc, 2)
         The GPS coordinates of each geographical region.
-    '''
+    """
 
     cdef:
         Py_ssize_t n_loc, M
@@ -817,7 +817,7 @@ def characterise_transient(A, tol=0.001, theta=0, ord=2):
 
 
 
-'''
+"""
 ---
 Contact structure: Projecting social contact matrices in 152 countries using
 contact surveys and demographic data,
@@ -826,7 +826,7 @@ Kiesha Prem, Alex R. Cook, Mark Jit, PLOS Computational Biology, (2017)
 ---
 Below we provide the contact matrix for some of the countries using
 data from above
-'''
+"""
 
 
 def Denmark():

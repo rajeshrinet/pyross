@@ -59,10 +59,10 @@ class MaxIntegratorStepsException(Exception):
 @cython.cdivision(True)
 @cython.nonecheck(False)
 cdef class SIR_type:
-    '''Parent class for inference for all SIR-type classes listed below
+    """Parent class for inference for all SIR-type classes listed below
 
     All subclasses use the same functions to perform inference, which are documented below.
-    '''
+    """
 
     cdef:
         readonly Py_ssize_t nClass, M, steps, dim, vec_size
@@ -953,7 +953,7 @@ cdef class SIR_type:
 
     def FIM(self, x, Tf, infer_result, contactMatrix=None, generator=None,
             intervention_fun=None, tangent=False, eps=None, inter_steps=100):
-        '''
+        """
         Computes the Fisher Information Matrix (FIM) for the MAP estimates of a stochastic SIR type model.
 
         Parameters
@@ -981,14 +981,35 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix 
+            with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. 
+            If not specified, 
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. It is recommended to use a step-size greater or equal to `eps`. 
+            Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
-            Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
+            Intermediate steps for interpolation between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make 
+            computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` 
+            for the deterministic integration. We have found that forward Euler is generally slower, but more stable 
+            for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100. 
+
+
         Returns
         -------
         FIM: 2d numpy.array
-            The Fisher Information Matrix
-        '''
+            The Fisher Information Matrix 
+
+        """
+
+
+
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
         infer_result_loc = infer_result.copy()
@@ -1060,7 +1081,7 @@ cdef class SIR_type:
     def FIM_det(self, x, Tf, infer_result, contactMatrix=None, generator=None,
                 intervention_fun=None, eps=None, measurement_error=1e-2,
                 inter_steps=100):
-        '''
+        """
         Computes the Fisher Information Matrix (FIM) for the MAP estimates of a deterministic (ODE based, including a constant measurement error) SIR type model.
 
         Parameters
@@ -1086,7 +1107,17 @@ cdef class SIR_type:
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with 
+            respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. 
+            If not specified, 
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. It is recommended to use a step-size greater or equal to `eps`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         inter_steps: int, optional
@@ -1095,7 +1126,7 @@ cdef class SIR_type:
         -------
         FIM: 2d numpy.array
             The Fisher Information Matrix
-        '''
+        """
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
@@ -1156,7 +1187,7 @@ cdef class SIR_type:
     def hessian(self, x, Tf, infer_result, contactMatrix=None, generator=None,
                 intervention_fun=None, tangent=False, eps=None,
                 fd_method="central", inter_steps=0, nprocesses=0, basis=None):
-        '''
+        """
         Computes the Hessian matrix for the MAP estimates of an SIR type model.
 
         Parameters
@@ -1184,16 +1215,30 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. 
+            Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. 
+            If not specified,
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
-            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 0.
+            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. 
+            We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters 
+            than the variable step size integrators used elsewhere in pyross. Default is 0.
         Returns
         -------
         hess: 2d numpy.array
             The Hessian matrix
-        '''
+        """
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
@@ -1226,7 +1271,7 @@ cdef class SIR_type:
 
     def robustness(self, FIM, FIM_det, infer_result, param_pos_1, param_pos_2,
                    range_1, range_2, resolution_1, resolution_2=None):
-        '''
+        """
         Robustness analysis in a two-dimensional slice of the parameter space, revealing neutral spaces as in https://doi.org/10.1073/pnas.1015814108.
 
         Parameters
@@ -1280,7 +1325,7 @@ cdef class SIR_type:
         >>> plt.xlabel(r'$\alpha$ scale', fontsize=20, labelpad=10)
         >>> plt.ylabel(r'$\beta$', fontsize=20, labelpad=10)
         >>> plt.show()
-        '''
+        """
         infer_result_loc = infer_result.copy()
         # backwards compatibility
         if 'flat_map' in infer_result_loc:
@@ -1315,7 +1360,7 @@ cdef class SIR_type:
         return ff, ss, Z_sto, Z_det
 
     def sensitivity(self, FIM):
-        '''
+        """
         Computes sensitivity measures (not normalised) for
         1) each individual parameter: from the diagonal elements of the FIM
         2) incorporating parametric interactions: from the standard deviations derived from the FIM
@@ -1333,7 +1378,7 @@ cdef class SIR_type:
             Sensitivity measure for individual parameters.
         sensitivity_correlated: numpy.array
             Sensitivity measure incorporating parametric interactions.
-        '''
+        """
         if not np.all(np.linalg.eigvalsh(FIM)>0):
             raise Exception("FIM not positive definite - check for appropriate step-size `eps` in FIM computation and/or increase `inter_steps` for a more stable result")
 
@@ -1403,7 +1448,7 @@ cdef class SIR_type:
                          generator=None,
                 intervention_fun=None, tangent=False, eps=None,
                 fd_method="central", inter_steps=10):
-        '''
+        """
         Compute the evidence using a Laplace approximation at the MAP estimate.
 
         Parameters
@@ -1431,16 +1476,32 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. 
+            If not specified, 
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps`. Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
-            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 10.
+            Only used if `tangent=False`. Intermediate steps for interpolation between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. 
+            We have found that forward Euler is generally slower, but more stable for derivatives with respect 
+            to parameters than the variable step size integrators used elsewhere in pyross. Default is 10.
+
         Returns
         -------
         log_evidence: float
             The log-evidence computed via Laplace approximation at the MAP estimate.
-        '''
+        """
+
+
         logP_MAPs = infer_result['log_posterior']
         A = self.hessian(x, Tf, infer_result, contactMatrix, generator,
                          intervention_fun, tangent, eps,
@@ -1451,7 +1512,7 @@ cdef class SIR_type:
 
 
     def obtain_minus_log_p(self, parameters, np.ndarray x, double Tf, contactMatrix, tangent=False):
-        '''Computes -logp of a full trajectory
+        """Computes -logp of a full trajectory
         Parameters
         ----------
         parameters: dict
@@ -1469,7 +1530,7 @@ cdef class SIR_type:
         -------
         minus_logp: float
             Value of -logp
-        '''
+        """
 
         cdef:
             double minus_log_p
@@ -2586,7 +2647,7 @@ cdef class SIR_type:
                    generator=None,
                    intervention_fun=None, tangent=False, eps=None,
                    inter_steps=100):
-        '''
+        """
         Computes the Fisher Information Matrix (FIM) of the stochastic model for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
 
         Parameters
@@ -2617,14 +2678,29 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with 
+            respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. 
+            If not specified,
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. It is recommended to use a step-size greater or equal to `eps`. Decreasing the step size too small can result in round-off error.
         inter_steps: int, optional
-            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will 
+            make computations slower. Setting `inter_steps=0` will fall back to the method accessible via 
+            `det_method` for the deterministic integration. We have found that forward Euler is generally 
+            slower, but more stable for derivatives with respect to parameters than the variable step 
+            size integrators used elsewhere in pyross. Default is 100.
         Returns
         -------
         FIM: 2d numpy.array
             The Fisher Information Matrix
-        '''
+        """
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
@@ -2701,7 +2777,7 @@ cdef class SIR_type:
                        contactMatrix=None, generator=None,
                        intervention_fun=None,
                        eps=None, measurement_error=1e-2, inter_steps=100):
-        '''
+        """
         Computes the Fisher Information Matrix (FIM) of the deterministic model (ODE based, including a constant measurement error) for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
 
         Parameters
@@ -2730,16 +2806,35 @@ cdef class SIR_type:
             If not set, assume intervention that's constant in time.
             See `contactMatrix.constant_contactMatrix` for details on the keyword parameters.
         eps: float or numpy.array, optional
-            Step size for numerical differentiation of the process mean and its full covariance matrix with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_likelihood']),infer_result['log_likelihood'])**(0.25)` is used. It is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for numerical differentiation of the process mean and its full covariance matrix with 
+            respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. 
+            If not specified, 
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. It is recommended to use a step-size greater or equal to `eps`. Decreasing the step size too small can result in round-off error.
         measurement_error: float, optional
             Standard deviation of measurements (uniform and independent Gaussian measurement error assumed). Default is 1e-2.
         inter_steps: int, optional
-            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting inter_steps=0 will fall back to the method accessible via det_method for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will 
+            make computations slower. Setting inter_steps=0 will fall back to the method accessible via 
+            det_method for the deterministic integration. We have found that forward Euler is generally slower, 
+            but more stable for derivatives with respect to parameters than the variable step size integrators 
+            used elsewhere in pyross. Default is 100.
+
         Returns
         -------
         FIM_det: 2d numpy.array
             The Fisher Information Matrix
-        '''
+        """
+
+
+
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
@@ -2805,7 +2900,7 @@ cdef class SIR_type:
     def latent_hessian(self, obs, fltr, Tf, infer_result, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
                        eps=None, fd_method="central", inter_steps=0, nprocesses=0, basis=None):
-        '''
+        """
         Computes the Hessian matrix for the initial conditions and all desired parameters, including control parameters, for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
 
         Parameters
@@ -2836,16 +2931,29 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified,
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+           is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps`. 
+           Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
-            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 0.
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. 
+            Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. 
+            We have found that forward Euler is generally slower, but sometimes more stable for derivatives with respect 
+            to parameters than the variable step size integrators used elsewhere in pyross. Default is 0.
         Returns
         -------
         hess: 2d numpy.array
             The Hessian matrix
-        '''
+        """
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
@@ -2884,7 +2992,7 @@ cdef class SIR_type:
     
     def sample_latent(self, obs, fltr, Tf, infer_result, flat_params_list, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
-        '''
+        """
         Samples the posterior and prior 
 
         Parameters
@@ -2931,7 +3039,7 @@ cdef class SIR_type:
         prior: np.array
             prior evaluated along the 1d slice
         
-        '''
+        """
         # Sanity checks of the inputs
         self._process_contact_matrix(contactMatrix, generator, intervention_fun)
 
@@ -2965,7 +3073,7 @@ cdef class SIR_type:
 
     def latent_param_slice(self, obs, fltr, Tf, infer_result, pos, direction, scale, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False, inter_steps=0, nprocesses=0):
-        '''
+        """
         Samples the posterior and prior along a one-dimensional slice of the parameter space
 
         Parameters
@@ -3016,7 +3124,7 @@ cdef class SIR_type:
         prior: np.array
             prior evaluated along the 1d slice
         
-        '''
+        """
 
 
         samples = [ pos + s*direction for s in scale]
@@ -3026,7 +3134,7 @@ cdef class SIR_type:
     
     def sample_gaussian_latent(self, N, obs, fltr, Tf, infer_result, invcov, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False, inter_steps=0, allow_negative=False, nprocesses=0):
-        '''
+        """
         Sample `N` samples of the parameters from the Gaussian centered at the MAP estimate with specified
         covariance `cov`.
         
@@ -3081,7 +3189,7 @@ cdef class SIR_type:
         prior: np.array
             prior evaluated along the 1d slice
         
-        '''
+        """
 
         
         mean = infer_result['flat_params']
@@ -3115,7 +3223,7 @@ cdef class SIR_type:
     def latent_evidence_laplace(self, obs, fltr, Tf, infer_result, contactMatrix=None,
                        generator=None, intervention_fun=None, tangent=False,
                        eps=None, fd_method="central", inter_steps=100):
-        '''
+        """
         Compute the evidence using a Laplace approximation at the MAP estimate for a SIR type model with partially observed classes. The unobserved classes are treated as latent variables.
 
         Parameters
@@ -3146,16 +3254,29 @@ cdef class SIR_type:
         tangent: bool, optional
             Set to True to use tangent space inference. Default is False.
         eps: float or numpy.array, optional
-            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, `100*eps_min = 100*infer_result['flat_params']*numpy.divide(numpy.spacing(infer_result['log_posterior']),infer_result['log_posterior'])**(0.25)` is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps_min`. Decreasing the step size too small can result in round-off error.
+            Step size for finite differences computation of the hessian with respect to the parameters. Must be either a scalar, or an array of length `len(infer_result['flat_params'])`. If not specified, 
+            
+            .. code-block:: python
+
+               eps = 100*infer_result['flat_params'] 
+                     *numpy.divide(numpy.spacing(infer_result['log_likelihood']),
+                     infer_result['log_likelihood'])**(0.25) 
+
+            is used. For `fd_method="central"` it is recommended to use a step-size greater or equal to `eps`. 
+            Decreasing the step size too small can result in round-off error.
         fd_method: str, optional
             The type of finite-difference scheme used to compute the hessian, supports "forward" and "central". Default is "central".
         inter_steps: int, optional
-            Intermediate steps between observations for the deterministic forward Euler integration. A higher number of intermediate steps will improve the accuracy of the result, but will make computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` for the deterministic integration. We have found that forward Euler is generally slower, but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
+            Intermediate steps between observations for the deterministic forward Euler integration. 
+            A higher number of intermediate steps will improve the accuracy of the result, but will make 
+            computations slower. Setting `inter_steps=0` will fall back to the method accessible via `det_method` 
+            for the deterministic integration. We have found that forward Euler is generally slower, 
+            but more stable for derivatives with respect to parameters than the variable step size integrators used elsewhere in pyross. Default is 100.
         Returns
         -------
         log_evidence: float
             The log-evidence computed via Laplace approximation at the MAP estimate.
-        '''
+        """
         logP_MAPs = infer_result['log_posterior']
         A = self.latent_hessian(obs, fltr, Tf, infer_result, contactMatrix,
                 generator, intervention_fun, tangent, eps, fd_method,
@@ -3167,7 +3288,7 @@ cdef class SIR_type:
 
     def minus_logp_red(self, parameters, np.ndarray x0, np.ndarray obs,
                             np.ndarray fltr, double Tf, contactMatrix, tangent=False, objective='likelihood'):
-        '''Computes -logp for a latent trajectory
+        """Computes -logp for a latent trajectory
 
         Parameters
         ----------
@@ -3191,7 +3312,7 @@ cdef class SIR_type:
         -------
         minus_logp: float
             -log(p) for the observed trajectory with the given parameters and initial conditions
-        '''
+        """
 
         cdef double minus_log_p
         cdef Py_ssize_t nClass=int(self.dim/self.M)
@@ -3254,7 +3375,7 @@ cdef class SIR_type:
 
 
     def get_mean_inits(self, init_priors, np.ndarray obs0, np.ndarray fltr0):
-        '''Construct full initial conditions from the prior dict
+        """Construct full initial conditions from the prior dict
 
         Parameters
         ----------
@@ -3271,7 +3392,7 @@ cdef class SIR_type:
         -------
         x0: numpy.array
             Full initial conditions.
-        '''
+        """
         _, init_mean, _, _, _, _,init_flags, init_fltrs \
             = pyross.utils.parse_init_prior_dict(init_priors, self.dim, len(obs0))
         x0 = self._construct_inits(init_mean, init_flags, init_fltrs, obs0, fltr0)
@@ -3297,7 +3418,7 @@ cdef class SIR_type:
             return eigvec/np.linalg.norm(eigvec, ord=1)
 
     def set_lyapunov_method(self, lyapunov_method, rtol=None, max_steps=0):
-        '''Sets the method used for deterministic integration for the SIR_type model
+        """Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
@@ -3308,7 +3429,7 @@ cdef class SIR_type:
         max_steps: int
             Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
             Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
-        '''
+        """
         if lyapunov_method not in ['LSODA', 'RK45', 'RK2', 'RK4', 'euler']:
             raise Exception('{} not implemented. Choose between LSODA, RK45, RK2, RK4, and euler'.format(lyapunov_method))
         self.lyapunov_method=lyapunov_method
@@ -3318,7 +3439,7 @@ cdef class SIR_type:
             self.max_steps_lyapunov = max_steps
 
     def set_det_method(self, det_method, rtol=None, max_steps=None):
-        '''Sets the method used for deterministic integration for the SIR_type model
+        """Sets the method used for deterministic integration for the SIR_type model
 
         Parameters
         ----------
@@ -3329,7 +3450,7 @@ cdef class SIR_type:
         max_steps: int, optional
             Maximum number of integration steps (total) for the integrator. Default: unlimited (represented as 0)
             Parameters for which the integrator reaches max_steps are disregarded by the optimiser.
-        '''
+        """
         if det_method not in ['LSODA', 'RK45']:
             raise Exception('{} not implemented. Choose between LSODA and RK45'.format(det_method))
         self.det_method=det_method
@@ -3340,18 +3461,18 @@ cdef class SIR_type:
 
 
     def set_det_model(self, parameters):
-        '''
+        """
         Sets the internal deterministic model with given epidemiological parameters
 
         Parameters
         ----------
         parameters: dict
             A dictionary of parameter values, same as the ones required for initialisation.
-        '''
+        """
         raise NotImplementedError("Please Implement set_det_model in subclass")
 
     def set_contact_matrix(self, contactMatrix):
-        '''
+        """
         Sets the internal contact matrix
 
         Parameters
@@ -3359,14 +3480,14 @@ cdef class SIR_type:
         contactMatrix: callable
             A function that returns the contact matrix given time, with call
             signature contactMatrix(t).
-        '''
+        """
         self.contactMatrix = contactMatrix
 
     def make_params_dict(self):
         raise NotImplementedError("Please Implement make_params_dict in subclass")
 
     def fill_params_dict(self, keys, params, return_additional_params=False):
-        '''Returns a full dictionary for epidemiological parameters with some changed values
+        """Returns a full dictionary for epidemiological parameters with some changed values
 
         Parameters
         ----------
@@ -3383,7 +3504,7 @@ cdef class SIR_type:
             A dictionary of epidemiological parameters.
             For parameter names specified in `keys`, set the values to be the ones in `params`;
             for the others, use the values stored in the class.
-        '''
+        """
         full_parameters = self.make_params_dict()
         others = {}
         for (i, k) in enumerate(keys):
@@ -3399,7 +3520,7 @@ cdef class SIR_type:
             return full_parameters
 
     def set_params(self, parameters):
-        '''Sets epidemiological parameters used for evaluating -log(p)
+        """Sets epidemiological parameters used for evaluating -log(p)
 
         Parameters
         ----------
@@ -3410,7 +3531,7 @@ cdef class SIR_type:
         Notes
         -----
         Can use `fill_params_dict` to generate the full dictionary if only a few parameters are changed
-        '''
+        """
         self.set_det_model(parameters)
         self.beta = pyross.utils.age_dep_rates(parameters['beta'], self.M, 'beta')
         self.gIa = pyross.utils.age_dep_rates(parameters['gIa'], self.M, 'gIa')

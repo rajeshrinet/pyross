@@ -14,7 +14,7 @@ Installation
 ------------
 
 From a checkout of PyRoss GitHub repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is the recommended way as it downloads a whole suite of examples along with the package. 
 
 Install PyRoss and an extended list of dependencies using

@@ -18,7 +18,7 @@
 
 **Bayesian inference** on pre-defined or user-defined models is performed using model-adapted **Gaussian processes**  derived from **functional limit theorems** for Markov  population process. Generative models are fitted to data through the surveillance model allowing for possibily **unobserved** compartments. The **MAP** estimates of parameters and their standard errors can be obtained rapidly by optimising, obviating the need for expensive Markov chain Monte Carlo. This enables the fast evaluation of the **model evidence**, through which competing models may be **objectively compared** and their forecasts combined by **Bayesian model averaging**. Forecasts of disease progression, then, can be **fully Bayesian**, convolving uncertainties in data, parameters and models. The sensitivity of these forecasts is estimated through the **Fisher information matrix**. 
 
-**Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimised control** of these structures, given **cost functions**, is possible. This feature is being actively developed to be better integrated with the library.
+**Non-pharmaceutical interventions** are implemented as modifications of the **contact structures** of the model. **Optimised control** of these structures, given **cost functions**, is possible. 
 
 [PyRossGeo](https://github.com/lukastk/PyRossGeo) is a companion library that supports **spatially resolved compartment models** with explicit **commuting networks**. 
 
@@ -112,7 +112,7 @@ to test a certain subset of notebooks
 PyRoss has model-agnostic, formulation-agnostic intuitive interface. Once a model is instantiated, stochastic, deterministic and hybrid simulations can be performed through the same interface. The example below shows how to set up a deterministic SIR simulation with three age-groups. 
 
 ```Python 
-# M=3, SIR with three age-groups
+# SIR with three age-groups (M=3)
 
 import numpy as np
 import pyross
@@ -157,16 +157,16 @@ def contactMatrix(t):
 # duration of simulation and data file
 Tf = 160;  Nf=Tf+1; 
 
-model = pyross.deterministic.Model(model_spec, parameters, M, Ni)
+det_model = pyross.deterministic.Model(model_spec, parameters, M, Ni)
 
 # simulate model 
-data = model.simulate(x0, contactMatrix, Tf, Nf)
+data = det_model.simulate(x0, contactMatrix, Tf, Nf)
 
 
 # plot the data and obtain the epidemic curve
-S = np.sum(model.model_class_data('S', data), axis=1)
-I = np.sum(model.model_class_data('I', data), axis=1)
-R = np.sum(model.model_class_data('R', data), axis=1)
+S = np.sum(det_model.model_class_data('S', data), axis=1)
+I = np.sum(det_model.model_class_data('I', data), axis=1)
+R = np.sum(det_model.model_class_data('R', data), axis=1)
 t = data['t']
 
 fig = plt.figure(num=None, figsize=(10, 8), dpi=80, facecolor='w', edgecolor='k')

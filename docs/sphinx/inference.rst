@@ -1,7 +1,7 @@
 Bayesian inference
 ==================================
 Inference for age structured compartment models using the diffusion approximation (via the van Kampen expansion).
-See our `preprint <https://arxiv.org/abs/2005.09625>`_ for more details on the method.
+See this `paper <https://arxiv.org/abs/2010.11783>`_ for more details on the method.
 
 There are two ways to do inference: manifold method (sec 3.3 in the report) and tangent space method (sec 3.4 in the report).
 In various degrees of `less robust but fast` to `more robust but slow`:
