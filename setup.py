@@ -66,7 +66,7 @@ setup(
         ),
     libraries=[],
     install_requires=['cython','numpy','scipy','matplotlib',
-                     'cma','sympy','nlopt','dill'],
+                     'cma','sympy','nlopt==2.7.0','dill'],
     packages=['pyross', 'pyross/tsi'],
     package_data={'pyross': ['*.pxd'], 'pyross/tsi': ['*.pxd']},
     include_package_data=True,

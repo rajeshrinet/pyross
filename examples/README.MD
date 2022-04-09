@@ -17,3 +17,5 @@ The examples are classified as:
 * **stochastic** is for integration of equations of motion with stochastic components
 
 * **tsi** is for modelling infectiousness of an infected individual as a function of time since infection
+
+* **others** are a new set of miscellaneous examples 
