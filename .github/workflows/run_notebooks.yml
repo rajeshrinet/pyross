@@ -40,14 +40,6 @@ jobs:
         shell: bash -l {0}
         run: |
           make nbtest -e path="examples/stochastic"  recursive=False
-      - name: testing-hybrid
-        shell: bash -l {0}
-        run: |
-          make nbtest -e path="examples/hybrid"  recursive=False
-      - name: testing-contactMatrix
-        shell: bash -l {0}
-        run: |
-          make nbtest -e path="examples/contactMatrix"  recursive=False
       - name: testing-control
         shell: bash -l {0}
         run: |
@@ -56,7 +48,3 @@ jobs:
         shell: bash -l {0}
         run: |
           make nbtest -e path="examples/forecast/" recursive=False
-      - name: testing-tsi
-        shell: bash -l {0}
-        run: |
-          make nbtest -e path="examples/tsi/" recursive=False
