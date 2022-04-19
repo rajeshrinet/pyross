@@ -11,5 +11,5 @@ import pyross.evidence
 import pyross.tsi.deterministic
 
 ## current version of PyRoss
-__version__="2.0.1"
+__version__="2.0.2"
 

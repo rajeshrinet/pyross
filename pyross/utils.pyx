@@ -8,7 +8,6 @@ from libc.math cimport sqrt, pow, log, sin, cos, atan2, sqrt
 from cython.parallel import prange
 cdef double PI = 3.1415926535
 from scipy.sparse import spdiags
-from scipy.sparse.linalg.eigen.arpack import eigs, ArpackNoConvergence
 from scipy.misc import derivative
 
 
