@@ -782,7 +782,7 @@ def getPopulation(country='India', M=16):
     M: int
         Deafault is 16 age-groups
     """
-    u0 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/'
+    u0 = 'https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/others/data/'
 
     u1 = u0 + 'age_structures/India-2019.csv'
     u2 = u0 + 'age_structures/UK.csv'
