@@ -5,7 +5,11 @@ dependencies:
   - python
   - cython
   - numpy
+  - scipy
   - matplotlib
+  - cma
+  - sympy
+  - dill
   - pip
   - pip:
     - pyross
