@@ -4,7 +4,7 @@
 Please have a look at the [examples folder](https://github.com/rajeshrinet/pyross/tree/master/examples) for notebook examples.
 The examples are structured along the following pipeline
 
-![Imagel](../examples/pipeline.jpg)
+![Imagel](../examples/others/pipeline.jpg)
 
 The examples are classified as:
 

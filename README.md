@@ -1,4 +1,4 @@
-![Imagel](https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/banner.jpg)
+![Imagel](https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/others/banner.jpg)
 
 
 ## PyRoss: inference, forecasts, and optimised control for epidemiological models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) ![CI](https://github.com/rajeshrinet/pyross/workflows/CI/badge.svg) ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg)  [![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi/pyross) [![Python Version](https://img.shields.io/pypi/pyversions/pyross)](https://pypi.org/project/pyross) [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)  ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) ![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
@@ -53,7 +53,7 @@ Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wi
 ## Installation
 You can take PyRoss for a spin **without installation**: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder). Please be patient while [Binder](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) loads.
 
-### From a checkout of this repository
+### From a checkout of  PyRoss GitHub repository 
 This is the recommended way as it downloads a whole suite of examples along with the package. 
 
 #### Install PyRoss and an extended list of dependencies using 

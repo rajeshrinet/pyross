@@ -991,7 +991,7 @@ def UK(source='premEtAl'):
         CO = np.genfromtxt(uO) 
     
     elif source=='klepacEtAl':
-        u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/data/cm/'
+        u1 ='https://raw.githubusercontent.com/rajeshrinet/pyross/master/examples/others/data/cm/'
         uH = u1 + 'ukh.txt'
         uW = u1 + 'ukw.txt'
         uS = u1 + 'uks.txt'

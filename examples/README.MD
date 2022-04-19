@@ -1,5 +1,3 @@
-![Imagel](pipeline.jpg)
-
 The examples are classified as:
 
 * **control** shows examples of various control measures in epimodelling 
