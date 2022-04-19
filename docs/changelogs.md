@@ -1,5 +1,9 @@
 # PyRoss changelogs
 
+## 2.2.0
+* Remove calls to "scipy.sparse.linalg.eigen" 
+
+
 ## 2.0.1
 * Remove SEInR and SEAInR models from the codebase
 

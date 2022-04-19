@@ -2,7 +2,7 @@ cython
 numpy
 scipy
 sympy 
-nlopt==2.7.0
+nlopt
 pathos
 cma
 dill
