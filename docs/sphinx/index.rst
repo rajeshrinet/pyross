@@ -1,6 +1,6 @@
 PyRoss API
 ==================================
-.. image:: ../../examples/banner.jpg
+.. image:: ../../examples/others/banner.jpg
   :width: 800
   :alt: PyRoss banner
 

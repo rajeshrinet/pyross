@@ -4,7 +4,11 @@
 ## PyRoss: inference, forecasts, and optimised control for epidemiological models in Python [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rajeshrinet/pyross/master?filepath=binder) ![CI](https://github.com/rajeshrinet/pyross/workflows/CI/badge.svg) ![Notebooks](https://github.com/rajeshrinet/pyross/workflows/Notebooks/badge.svg)  [![PyPI](https://img.shields.io/pypi/v/pyross.svg)](https://pypi.python.org/pypi/pyross) [![Python Version](https://img.shields.io/pypi/pyversions/pyross)](https://pypi.org/project/pyross) [![Downloads](https://pepy.tech/badge/pyross)](https://pepy.tech/project/pyross)  ![stars](https://img.shields.io/github/stars/rajeshrinet/pyross) ![forks](https://img.shields.io/github/forks/rajeshrinet/pyross) ![License](https://img.shields.io/github/license/rajeshrinet/pyross) 
 
 
-[About](#about) | [Blog](https://pyrosslib.github.io/blog/) | [Installation](#installation) | [Examples](#examples) | [Publications ](#publications) | [News](#news) |  [License](#license) | [Documentation](https://pyross.readthedocs.io/en/latest/) | [Wiki](https://github.com/rajeshrinet/pyross/wiki)
+[About](#about) | 
+[Documentation](https://pyross.readthedocs.io/en/latest/) | 
+[Examples](#examples) | 
+[Installation](#installation) | 
+[Publications ](#publications) | 
 
 
 
@@ -99,11 +103,6 @@ to test a certain subset of notebooks
 ```bash
 >> make nbtest -e path=examples/deterministic/
 ```
-
-**Age structure data:** [Population Pyramid](https://www.populationpyramid.net/) website
-
-**Contact structure data:** *Projecting social contact matrices in 152 countries using contact surveys and demographic data*, Kiesha Prem, Alex R. Cook, Mark Jit, [PLOS Computational Biology, (2017)]( https://doi.org/10.1371/journal.pcbi.1005697)
-
 
 
 
@@ -216,4 +215,4 @@ Read more in the [examples](https://github.com/rajeshrinet/pyross/tree/master/ex
 
 ## License
 We believe that openness and sharing improves the practice of science and increases the reach of its benefits. This code is released under the [MIT license](http://opensource.org/licenses/MIT). Our choice is guided by the excellent article on [Licensing for the scientist-programmer](http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1002598).
-
+	
