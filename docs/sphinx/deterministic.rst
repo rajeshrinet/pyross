@@ -31,7 +31,7 @@ SIR
 .. autoclass:: pyross.deterministic.SIR
     :members:
 
-* `Link to example notebook <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01-SIR.ipynb>`_
+* `Link to example notebook <https://github.com/rajeshrinet/pyross/blob/master/examples/deterministic/ex01a-SIR.ipynb>`_
 
 
 SIkR
