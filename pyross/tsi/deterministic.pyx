@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 import nlopt
 
-DTYPE   = np.float
+DTYPE   = np.float64
 
 cdef class CommonMethods:
     """

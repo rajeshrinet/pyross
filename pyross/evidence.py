@@ -19,7 +19,7 @@ except ImportError:
 import pyross.utils
 from pyross.utils_python import Prior
 
-DTYPE = np.float
+DTYPE = np.float64
 
 def get_parameters(estimator, x, Tf, prior_dict, contactMatrix=None, generator=None, intervention_fun=None, 
                    tangent=False):

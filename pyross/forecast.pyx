@@ -5,7 +5,7 @@ import numpy as np
 cimport numpy as np
 cimport cpython
 #from cython.parallel import prange
-DTYPE   = np.float
+DTYPE   = np.float64
 ctypedef np.float_t DTYPE_t
 from numpy.math cimport INFINITY
 

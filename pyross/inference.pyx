@@ -46,7 +46,7 @@ from libc.math cimport sqrt, log, INFINITY
 cdef double PI = 3.14159265359
 
 
-DTYPE   = np.float
+DTYPE   = np.float64
 ctypedef np.float_t DTYPE_t
 ctypedef np.uint8_t BOOL_t
 

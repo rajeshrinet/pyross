@@ -5,7 +5,7 @@ import pyross.utils
 import warnings
 
 
-DTYPE   = np.float
+DTYPE   = np.float64
 from libc.stdlib cimport malloc, free
 
 

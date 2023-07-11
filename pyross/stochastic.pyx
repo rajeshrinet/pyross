@@ -6,7 +6,7 @@ cimport numpy as np
 import os, time
 cimport cpython
 import pyross.utils
-DTYPE   = np.float
+DTYPE   = np.float64
 ctypedef np.float_t DTYPE_t
 from numpy.math cimport INFINITY
 import warnings

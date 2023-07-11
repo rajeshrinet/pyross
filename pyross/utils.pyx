@@ -264,7 +264,7 @@ def age_dep_rates(rate, int M, str name, bint check_length=True):
 
 
 
-DTYPE = np.float
+DTYPE = np.float64
 ctypedef np.float_t DTYPE_t
 
 cpdef forward_euler_integration(f, double [:] x, double t1, double t2, Py_ssize_t steps, Py_ssize_t inter_steps=1):
