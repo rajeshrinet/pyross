@@ -18,18 +18,6 @@ else:
     )
 
 
-if 'darwin'==(sys.platform).lower():
-    extension2 = Extension('pyross/tsi/*', ['pyross/tsi/*.pyx'],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-mmacosx-version-min=10.9'],
-        extra_link_args=['-mmacosx-version-min=10.9'],
-    )
-else:
-    extension2 = Extension('pyross/tsi/*', ['pyross/tsi/*.pyx'],
-        include_dirs=[numpy.get_include()],
-    )
-
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -61,14 +49,14 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     platforms='tested on Linux, macOS, and windows',
-    ext_modules=cythonize([extension1, extension2],
+    ext_modules=cythonize([extension1],
         compiler_directives={'language_level': 3},
         ),
     libraries=[],
     install_requires=['cython','numpy','scipy','matplotlib',
                      'cma','sympy','nlopt','dill'],
-    packages=['pyross', 'pyross/tsi'],
-    package_data={'pyross': ['*.pxd'], 'pyross/tsi': ['*.pxd']},
+    packages=['pyross'],
+    package_data={'pyross': ['*.pxd']},
     include_package_data=True,
     setup_requires=['wheel'],
     classifiers=[

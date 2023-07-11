@@ -1,7 +1,4 @@
 import  numpy as np 
-cimport numpy as np
-cimport cython
-from libc.stdlib cimport malloc, free
 import warnings
 from scipy.special import legendre
 import matplotlib.pyplot as plt
@@ -10,7 +7,7 @@ import nlopt
 
 DTYPE   = np.float64
 
-cdef class CommonMethods:
+class CommonMethods:
     """
     Parent class used for all classes listed below. 
     It includes:
@@ -18,12 +15,6 @@ cdef class CommonMethods:
     b) Method to get time series of S, etc by passing a dict of data.
     c) Method to set the contactMatrix array, CM
     """
-    
-    cdef:
-        readonly int N, M, kI, kE, nClass
-        readonly float Ttsi, dtsi, beta_params, gI_params
-        readonly np.ndarray population, beta, gI, Ni, CM
-        readonly dict paramList, readData
     
     def simulator(self, x0, contactMatrix, Tf, Nf, integrator='odeint', 
         Ti=0, maxNumSteps=100000, **kwargs):
@@ -131,11 +122,6 @@ cdef class CommonMethods:
 
 
 
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-@cython.nonecheck(False)
-# cdef class SIR(CommonMethods):
 class SIR:
     """
     Parameters
@@ -359,7 +345,7 @@ class SIR:
             
         return data
 
-cdef class Simulator:
+class Simulator:
     """
     Simulator for a deterministic time-since infection model
 
@@ -370,13 +356,6 @@ cdef class Simulator:
     solve_Galerkin: 
     """
 
-
-    cdef:
-        readonly dict parameters
-        readonly str method
-        readonly str galerkinIntegrator 
-        readonly list IC 
-        readonly np.ndarray phi_alpha, p_alpha
 
     def __init__(self, parameters, method='Predictor_Corrector', galerkinIntegrator='odeint'):
         self.parameters         = parameters
