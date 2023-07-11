@@ -29,7 +29,7 @@
 The libraries are named after [Sir Ronald Ross](https://en.wikipedia.org/wiki/Ronald_Ross), doctor, mathematician and poet. In 1898 he made "the great discovery" in his laboratory in Calcutta "that malaria is conveyed by the bite of a mosquito".  He won the Nobel Prize in 1902 and laid the foundations of the mathematical modelling of infectious diseases.
 
 
-The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, we are:
+The library was developed as a part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](https://royalsociety.org/news/2020/03/urgent-call-epidemic-modelling/) taskforce at the **University of Cambridge**. In alphabetical order, the authors are:
 [Ronojoy Adhikari](https://github.com/ronojoy),
 [Austen Bolitho](https://github.com/TakodaS),
 [Erik Brorson](https://github.com/erikbrorson),
@@ -49,8 +49,7 @@ The authors are part of [The Rapid Assistance in Modelling the Pandemic (RAMP)](
 [Paul Rohrbach](https://github.com/prohrbach),
 [Rajesh Singh](https://github.com/rajeshrinet), 
 and [Günther Turk](https://github.com/phi6GTurk). 
-
-PyRoss development is partially supported by a [Microsoft Research Award](https://www.microsoft.com/en-us/research/collaboration/studies-in-pandemic-preparedness/#!projects) for "Building an open platform for pandemic modelling".
+PyRoss development was also partially supported by a [Microsoft Research Award](https://www.microsoft.com/en-us/research/collaboration/studies-in-pandemic-preparedness/#!projects) for "Building an open platform for pandemic modelling".
 
 Please read the  [PyRoss paper](https://arxiv.org/abs/2005.09625) and [PyRoss Wiki](https://github.com/rajeshrinet/pyross/wiki/) before you use PyRoss for your research. [Open an issue](https://github.com/rajeshrinet/pyross/issues), in preference to emailing us with queries. Join our [Slack channel](https://join.slack.com/t/pyross/shared_invite/zt-e8th6kcz-S4b_oJIZWPsGLruSPl3Zuw) for discussion. Please follow the [Contributor Covenant](https://www.contributor-covenant.org/version/2/0/code_of_conduct/) in all PyRoss fora. Thank you!
 

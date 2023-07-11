@@ -117,7 +117,7 @@ class CommonMethods:
         return data_out
 
     
-    cpdef set_contactMatrix(self, double t, contactMatrix):
+    def set_contactMatrix(self, double t, contactMatrix):
         self.CM=contactMatrix(t)
 
 
@@ -211,7 +211,6 @@ class SIR:
         return gI
             
         
-    # cpdef trajectory(self, S, I):
     def trajectory(self, S, I):
         """
         Function to go one step forward using the deterministic integrator.
