@@ -117,7 +117,7 @@ class CommonMethods:
         return data_out
 
     
-    def set_contactMatrix(self, double t, contactMatrix):
+    def set_contactMatrix(self, t, contactMatrix):
         self.CM=contactMatrix(t)
 
 
